@@ -55,6 +55,9 @@ AUTH_SECRET=replace-with-strong-random-secret-at-least-32-chars
 
 ## Docker, PostgreSQL и Redis
 
+Docker в этом проекте предназначен для локальной разработки и локальных smoke-проверок.
+Production на VPS описан как FastPanel/Nginx + PM2 без Docker.
+
 Поднять инфраструктуру:
 
 ```bash
@@ -152,6 +155,14 @@ Legacy redirect smoke:
 - `/privacy/` → `/legal/privacy/`
 - `/terms/` → `/legal/terms/`
 - `/contact/` → `/contacts/`
+
+## CI, безопасность и релизы
+
+- CI: `.github/workflows/ci.yml` запускает Prisma migrations, typecheck, lint, тесты и production build.
+- CodeQL: `.github/workflows/codeql.yml`.
+- Dependabot: `.github/dependabot.yml`.
+- Версионирование и релизы: `VERSIONING.md`, `CHANGELOG.md`, `docs/release-process.md`.
+- Зашифрованные внешние бэкапы PostgreSQL и uploads для FastPanel/PM2: `docs/production-backups.md`.
 
 ## SEO и индексация
 
