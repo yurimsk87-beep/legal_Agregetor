@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  background: #f7f8f6;
+  color: #19211f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #f7f8f6;
+  color: #19211f;
+}
+
+a {
+  text-decoration: none;
+}
+
+::selection {
+  background: #ccfbf1;
+  color: #19211f;
+}
+
+.online-status-dot {
+  animation: online-status-blink 1.35s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+}
+
+@keyframes online-status-blink {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+  }
+
+  50% {
+    opacity: 0.45;
+    box-shadow: 0 0 0 5px rgba(16, 185, 129, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .online-status-dot {
+    animation: none;
+  }
+}

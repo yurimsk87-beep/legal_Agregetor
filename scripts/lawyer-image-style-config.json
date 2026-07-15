@@ -1,0 +1,105 @@
+{
+  "suitColors": [
+    { "id": "navy", "label": "navy suit", "hex": "#172033" },
+    { "id": "charcoal", "label": "charcoal suit", "hex": "#262B31" },
+    { "id": "dark-gray", "label": "dark gray suit", "hex": "#343941" },
+    { "id": "black", "label": "black suit", "hex": "#15191D" },
+    { "id": "brown", "label": "deep brown blazer", "hex": "#4B3328" },
+    { "id": "beige", "label": "structured beige blazer", "hex": "#A89578" },
+    { "id": "muted-blue", "label": "muted blue suit", "hex": "#2F4A63" }
+  ],
+  "shirtColors": [
+    { "id": "white", "label": "white shirt", "hex": "#F8F8F5" },
+    { "id": "light-blue", "label": "light blue shirt", "hex": "#DDEAF4" },
+    { "id": "pale-gray", "label": "pale gray shirt", "hex": "#ECEFF1" },
+    { "id": "ivory", "label": "ivory shirt", "hex": "#F3EEE4" }
+  ],
+  "tieOptions": [
+    { "id": "no-tie", "label": "no tie", "hex": null, "pattern": null },
+    { "id": "no-tie-open-collar", "label": "no tie, formal open collar", "hex": null, "pattern": null },
+    { "id": "dark-tie", "label": "dark tie", "hex": "#222735", "pattern": null },
+    { "id": "burgundy-tie", "label": "burgundy tie", "hex": "#6F2431", "pattern": null },
+    { "id": "blue-tie", "label": "blue tie", "hex": "#254E7B", "pattern": null },
+    { "id": "gray-tie", "label": "gray tie", "hex": "#6A6E76", "pattern": null },
+    { "id": "patterned-tie", "label": "subtle patterned tie", "hex": "#2A3E63", "pattern": "fine diagonal pattern" }
+  ],
+  "backgroundOptions": [
+    {
+      "id": "light-office",
+      "label": "bright office",
+      "palette": ["#EEF4F6", "#C8D6DD"],
+      "accent": "soft window lines"
+    },
+    {
+      "id": "legal-library",
+      "label": "legal library",
+      "palette": ["#E8E0D2", "#8B745F"],
+      "accent": "blurred shelves"
+    },
+    {
+      "id": "neutral-studio",
+      "label": "neutral studio",
+      "palette": ["#ECEDED", "#C7C9CA"],
+      "accent": "clean seamless backdrop"
+    },
+    {
+      "id": "business-center",
+      "label": "modern business center",
+      "palette": ["#E7EEF2", "#9FB3C0"],
+      "accent": "soft glass architecture"
+    },
+    {
+      "id": "meeting-room",
+      "label": "blurred meeting room interior",
+      "palette": ["#EEE7DE", "#B8AAA0"],
+      "accent": "conference table blur"
+    },
+    {
+      "id": "light-wall",
+      "label": "light wall",
+      "palette": ["#F4F2ED", "#D9D4CC"],
+      "accent": "minimal wall texture"
+    },
+    {
+      "id": "premium-office-dark",
+      "label": "dark premium office background",
+      "palette": ["#303640", "#141820"],
+      "accent": "low-key office depth"
+    }
+  ],
+  "poseOptions": [
+    { "id": "frontal-portrait", "label": "frontal portrait", "crop": "head-and-shoulders" },
+    { "id": "three-quarter", "label": "slight 3/4 angle", "crop": "head-and-shoulders" },
+    { "id": "seated-at-desk", "label": "seated at desk", "crop": "upper torso" },
+    { "id": "standing-office", "label": "standing in office", "crop": "upper torso" },
+    { "id": "shoulders-up", "label": "shoulders-up portrait", "crop": "close portrait" }
+  ],
+  "expressionOptions": [
+    { "id": "neutral-confident", "label": "neutral confident" },
+    { "id": "slight-smile", "label": "slight smile" },
+    { "id": "serious-professional", "label": "serious professional" },
+    { "id": "approachable-formal", "label": "approachable but formal" }
+  ],
+  "styleOptions": [
+    { "id": "realistic-business-photo", "label": "realistic business portrait photo style" },
+    { "id": "editorial-portrait", "label": "realistic editorial lawyer portrait photo style" },
+    { "id": "ai-professional-headshot", "label": "AI-generated professional headshot style" }
+  ],
+  "imageSourceOptions": [
+    {
+      "id": "local-ai-headshot",
+      "label": "local generated professional headshot",
+      "purpose": "demo/sample lawyer profile image"
+    },
+    {
+      "id": "local-editorial-portrait",
+      "label": "local generated realistic editorial headshot",
+      "purpose": "demo/sample lawyer profile image"
+    },
+    {
+      "id": "local-realistic-portrait",
+      "label": "local generated realistic business portrait",
+      "purpose": "demo/sample lawyer profile image"
+    }
+  ]
+}

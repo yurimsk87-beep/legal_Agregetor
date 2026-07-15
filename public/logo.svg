@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="ПравоПодбор">
+  <rect width="128" height="128" rx="20" fill="#0f766e"/>
+  <path d="M31 38h66v10H31V38Zm8 19h50v10H39V57Zm-8 19h66v10H31V76Z" fill="#fff"/>
+  <path d="M43 98h42v8H43v-8Z" fill="#f7f1e3"/>
+</svg>

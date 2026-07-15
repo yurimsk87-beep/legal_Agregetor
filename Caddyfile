@@ -1,0 +1,17 @@
+# Caddy automatically obtains and renews Let's Encrypt certificates.
+# Requires: DNS A-records for pravopoisk.ru and www.pravopoisk.ru -> the VPS IP,
+# and ports 80 + 443 open on the server.
+
+{
+	email admin@pravopoisk.ru
+}
+
+# Redirect www -> apex (keeps a single canonical host for SEO)
+www.pravopoisk.ru {
+	redir https://pravopoisk.ru{uri} permanent
+}
+
+pravopoisk.ru {
+	encode zstd gzip
+	reverse_proxy app:3000
+}

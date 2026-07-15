@@ -1,0 +1,32 @@
+# Dependencies & build artifacts (reinstalled / rebuilt inside the image)
+node_modules
+.next
+tsconfig.tsbuildinfo
+
+# VCS & local environment (never bake dev secrets into the image)
+.git
+.gitignore
+.env
+.env.*
+
+# Logs & local scratch files
+*.log
+*-cookies.txt
+
+# Deployment / infra files (not needed inside the app image)
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.prod.yml
+Caddyfile
+
+# Standalone parsers / data not used by the Next.js build
+harant_parser
+harant_questions_parser
+pravoved_parser
+reports
+docs
+
+# Local uploads are provided via a runtime volume, not baked into the image
+public/uploads/*
+!public/uploads/.gitkeep

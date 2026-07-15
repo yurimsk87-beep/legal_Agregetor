@@ -1,0 +1,1302 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  LAWYER
+  ADMIN
+}
+
+enum LawyerStatus {
+  LAWYER
+  ADVOCATE
+}
+
+enum LawyerProfileStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  BLOCKED
+}
+
+enum QuestionStatus {
+  PENDING
+  MODERATION
+  PUBLISHED
+  REJECTED
+  DUPLICATE
+  SPAM
+}
+
+enum AnswerStatus {
+  DRAFT
+  MODERATION
+  PUBLISHED
+  REJECTED
+}
+
+enum AnswerAuthorType {
+  LAWYER
+  ADMIN_ASSISTED
+  EDITORIAL
+}
+
+enum ReportTargetType {
+  QUESTION
+  ANSWER
+  LAWYER
+}
+
+enum ReportStatus {
+  NEW
+  IN_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+enum LeadStatus {
+  NEW
+  IN_PROGRESS
+  CONTACTED
+  ASSIGNED
+  CLOSED
+  SPAM
+}
+
+enum LeadOutcome {
+  CREATED
+  CONTACTED
+  CONSULTATION_DONE
+  USER_NOT_RESPONDING
+  NEEDS_ANOTHER_SPECIALIST
+  CLOSED_SUCCESS
+  CLOSED_FAILED
+}
+
+enum LeadSourceType {
+  GENERAL
+  LAWYER_PROFILE
+  LAWYER_ANSWER
+  SERVICE_PAGE
+  CITY_PAGE
+  CITY_SERVICE_PAGE
+  CITY_SERVICE
+  ARTICLE
+  QUESTION
+  DOCUMENT
+  CALCULATOR
+  CHECKLIST
+  CONTACTS
+  DOCUMENT_REVIEW
+}
+
+enum DesiredFormat {
+  ONLINE
+  PHONE
+  OFFICE
+  COURT
+}
+
+enum QualityStatus {
+  PENDING
+  APPROVED
+  LOW_QUALITY
+  DUPLICATE
+  NEEDS_REVIEW
+  PERSONAL_DATA
+  SPAM
+  LEGAL_RISK
+}
+
+enum FaqEntityType {
+  CITY
+  SERVICE
+  CITY_SERVICE
+  LAWYER
+  ARTICLE
+  QUESTION
+  DOCUMENT
+  CALCULATOR
+  GENERAL
+}
+
+enum SeoPageType {
+  HOME
+  CITY
+  SERVICE
+  CITY_SERVICE
+  LAWYER
+  ARTICLE
+  QUESTION
+  STATIC
+  DOCUMENT
+  CALCULATOR
+  CASE
+  SITUATION
+  COURT
+  PRICE
+  TOP
+  RATING
+}
+
+enum SeoMaturityStatus {
+  DRAFT
+  COLLECTING_DATA
+  READY_FOR_INDEX
+  INDEXED
+  NEEDS_IMPROVEMENT
+  DEINDEXED
+}
+
+enum SeoMode {
+  AUTO
+  MANUAL
+  HYBRID
+}
+
+enum SearchIntentType {
+  COMMERCIAL
+  INFORMATIONAL
+  DOCUMENT
+  QUESTION
+  CALCULATOR
+  LOCAL
+  URGENT
+  COMPARISON
+}
+
+enum ContentFreshnessStatus {
+  FRESH
+  NEEDS_REVIEW
+  OUTDATED
+}
+
+enum ContentStatus {
+  DRAFT
+  REVIEW_REQUIRED
+  APPROVED
+  OUTDATED
+}
+
+enum IndexStatusType {
+  UNKNOWN
+  SUBMITTED
+  CRAWLED
+  INDEXED
+  DISCOVERED_NOT_INDEXED
+  CRAWLED_NOT_INDEXED
+  EXCLUDED
+}
+
+enum SeoMergeRedirectType {
+  REDIRECT_301
+  GONE_410
+  NOINDEX
+}
+
+enum PotentialSeoPageStatus {
+  IDEA
+  IN_PROGRESS
+  READY
+  INDEXABLE
+  REJECTED
+}
+
+enum VerificationType {
+  PASSPORT
+  DIPLOMA
+  ADVOCATE_STATUS
+  EXPERIENCE
+  CONTACTS
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AnalyticsEventType {
+  LEAD_SUBMIT
+  CALL_CLICK
+  WHATSAPP_CLICK
+  TELEGRAM_CLICK
+  PHONE_VIEW
+  QUESTION_SUBMIT
+  CHECKLIST_DOWNLOAD
+  DOCUMENT_ORDER
+  CALCULATOR_RUN
+  LAWYER_PROFILE_CLICK
+  CTA_CLICK
+  DOCUMENT_CHECK_FORM
+  LEAD_CREATED
+  QUESTION_FORM_OPENED
+  QUESTION_CREATED
+  QUESTION_SUBMITTED
+  LAWYER_PROFILE_FORM_OPENED
+  LAWYER_PROFILE_LEAD_CREATED
+  CONSULTATION_REQUEST_CREATED
+  DOCUMENT_ORDER_CREATED
+  CALCULATOR_COMPLETED
+  CHECKLIST_DOWNLOADED
+  DOCUMENT_REVIEW_REQUEST_CREATED
+  CITY_SERVICE_LEAD_CREATED
+  ARTICLE_CTA_CLICKED
+  STICKY_CTA_CLICKED
+  PLATFORM_PHONE_CLICKED
+  PLATFORM_EMAIL_CLICKED
+  PLATFORM_MESSENGER_CLICKED
+  CONTACTS_PAGE_OPENED
+  CITY_SELECTED
+  CITY_AUTODETECTED
+  LAWYER_PROFILE_VIEW
+  QUESTION_FORM_OPENED_PUBLIC
+  QUESTION_WIZARD_STARTED
+  QUESTION_WIZARD_CLARIFICATIONS_SHOWN
+  QUESTION_WIZARD_ENRICHED_CONFIRMED
+  QUESTION_WIZARD_ANALYZING_STARTED
+  QUESTION_WIZARD_PRELIMINARY_READY
+  QUESTION_WIZARD_ANALYZING_TIMEOUT
+  QUESTION_WIZARD_TRANSFER_TO_LAWYER_CLICKED
+  QUESTION_WIZARD_LEAD_CREATED
+  QUESTION_PUBLISHED
+  QUESTION_PAGE_VIEW
+  ANSWER_READ
+  LAWYER_PROFILE_OPENED_FROM_ANSWER
+  SIMILAR_QUESTION_CLICKED
+  SERVICE_CATEGORY_CLICKED_FROM_QUESTION
+  BLOG_ARTICLE_READ
+  DOCUMENT_PAGE_VIEW
+  CALCULATOR_USED
+  CALCULATOR_RESULT_VIEWED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         UserRole @default(USER)
+  adminMfaEnabled Boolean @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  lawyer Lawyer?
+  adminAuditLogs AdminAuditLog[] @relation("AdminAuditLogs")
+  moderationLogs ModerationLog[] @relation("ModerationLogs")
+}
+
+model Lawyer {
+  id                String       @id @default(cuid())
+  userId            String       @unique
+  firstName         String
+  lastName          String
+  middleName        String?
+  slug              String       @unique
+  photoUrl          String?
+  status            LawyerStatus @default(LAWYER)
+  experienceYears   Int
+  description       String
+  education         String
+  licenseNumber     String?
+  isVerified        Boolean      @default(false)
+  rating            Decimal      @default(0) @db.Decimal(3, 2)
+  reviewCount       Int          @default(0)
+  consultationPrice Int?
+  primaryServiceId  String?
+  phone             String?
+  whatsapp          String?
+  telegram          String?
+  email             String?
+  active            Boolean      @default(true)
+  blocked           Boolean      @default(false)
+  profileStatus     LawyerProfileStatus @default(PENDING)
+  consentToNotifications Boolean @default(true)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile       LawyerProfile?
+  services      LawyerService[]
+  cities        LawyerCity[]
+  reviews       Review[]
+  answers       Answer[]
+  articles      Article[]       @relation("LawyerArticles")
+  leads         Lead[]
+  verifications Verification[]
+  priceItems    PriceItem[]
+  seoPages      SeoPage[]
+  primaryService Service?         @relation("PrimaryLawyerService", fields: [primaryServiceId], references: [id])
+  reviewedArticles Article[]       @relation("ReviewedArticles")
+  cases         Case[]
+  serviceRatings LawyerServiceRating[]
+  answerQualityScores AnswerQualityScore[]
+  profileQualityScores LawyerProfileQualityScore[]
+  videos        VideoPage[]
+
+  @@index([slug])
+  @@index([isVerified, rating])
+  @@index([active, blocked, profileStatus])
+}
+
+model LawyerProfile {
+  id                  String   @id @default(cuid())
+  lawyerId            String   @unique
+  about               String
+  specializationText  String?
+  servicesAndPricesText String?
+  reviewsText         String?
+  courtExperience     String?
+  officeAddress       String?
+  casesCount          Int      @default(0)
+  responseTimeMinutes Int      @default(60)
+  consentToAdminAssistedAnswers Boolean @default(false)
+  adminAssistedConsentAt DateTime?
+  adminAssistedConsentComment String?
+  draftData           Json?
+  submittedAt         DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  lawyer Lawyer @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+}
+
+model PracticeArea {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  services Service[]
+}
+
+model City {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  namePrepositional String?
+  region    String
+  federalDistrict String?
+  isActive  Boolean  @default(true)
+  seoText   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lawyers   LawyerCity[]
+  leads     Lead[]
+  questions Question[]
+  articles  Article[]
+  seoPages  SeoPage[]
+  searchIntents SearchIntent[]
+  cases     Case[]
+  nextBestActions NextBestAction[]
+  potentialSeoPages PotentialSeoPage[]
+  lawyerRatings LawyerServiceRating[]
+
+  @@index([slug, isActive])
+}
+
+model Service {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  shortDescription String
+  fullDescription  String
+  isActive         Boolean  @default(true)
+  parentId         String?
+  practiceAreaId   String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  parent       Service?       @relation("ServiceTree", fields: [parentId], references: [id])
+  children     Service[]      @relation("ServiceTree")
+  practiceArea PracticeArea?  @relation(fields: [practiceAreaId], references: [id])
+  lawyers      LawyerService[]
+  leads        Lead[]
+  questions    Question[]
+  articles     Article[]
+  priceItems   PriceItem[]
+  seoPages     SeoPage[]
+  documents    DocumentTemplate[]
+  primaryLawyers Lawyer[]         @relation("PrimaryLawyerService")
+  searchIntents SearchIntent[]
+  cases        Case[]
+  calculators  Calculator[]
+  checklists   Checklist[]
+  videos       VideoPage[]
+  scenarios    LegalScenario[]
+  nextBestActions NextBestAction[]
+  potentialSeoPages PotentialSeoPage[]
+  lawyerRatings LawyerServiceRating[]
+
+  @@index([slug, isActive])
+}
+
+model LawyerService {
+  lawyerId  String
+  serviceId String
+  isPrimary Boolean @default(false)
+  proofLevel Int    @default(0)
+  createdAt DateTime @default(now())
+
+  lawyer  Lawyer  @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@id([lawyerId, serviceId])
+}
+
+model LawyerCity {
+  lawyerId String
+  cityId   String
+  officeAddress String?
+  isPrimary Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  lawyer Lawyer @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+  city   City   @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@id([lawyerId, cityId])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  lawyerId    String
+  serviceId   String?
+  cityId      String?
+  userName    String
+  rating      Int
+  text        String
+  hasRealExperienceConsent Boolean  @default(false)
+  realExperienceConsentAt  DateTime?
+  qualityStatus QualityStatus @default(PENDING)
+  isModerated Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  lawyer Lawyer @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+
+  @@index([lawyerId, isModerated])
+  @@index([serviceId, cityId, qualityStatus])
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  publicNumber String? @unique
+  title       String
+  slug        String   @unique
+  text        String
+  rawText     String?
+  enrichedTitle String?
+  enrichedText  String?
+  enrichmentStatus String @default("RAW")
+  preliminaryAnswer String?
+  preliminaryAnswerStatus String @default("NOT_REQUESTED")
+  scenarioId  String?
+  legalStage  String?
+  urgency     String?
+  riskLevel   String?
+  facts       Json?
+  missingFacts Json?
+  clarificationAnswers Json?
+  leadScore   Int      @default(0)
+  seoQualityScore Int  @default(0)
+  userConfirmedEnrichmentAt DateTime?
+  aiAssisted  Boolean  @default(false)
+  editorReviewedAt DateTime?
+  indexabilityReason String?
+  cityId      String?
+  serviceId   String?
+  userName    String
+  userEmail   String?
+  isAnonymous Boolean @default(false)
+  notificationsEnabled Boolean @default(true)
+  summary     String?
+  status      QuestionStatus @default(PENDING)
+  qualityStatus QualityStatus @default(PENDING)
+  moderationComment String?
+  sourcePage  String?
+  hasAttachments Boolean @default(false)
+  isIndexable Boolean  @default(false)
+  isDuplicate Boolean  @default(false)
+  trustScore  Int      @default(0)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  city    City?    @relation(fields: [cityId], references: [id])
+  service Service? @relation(fields: [serviceId], references: [id])
+  answers Answer[]
+  trustScores QuestionTrustScore[]
+  reports ContentReport[] @relation("QuestionReports")
+  attachments QuestionAttachment[]
+  leads Lead[]
+
+  @@index([slug, isIndexable])
+  @@index([serviceId])
+  @@index([status, qualityStatus, createdAt])
+  @@index([isIndexable, trustScore])
+  @@index([scenarioId])
+}
+
+model Answer {
+  id          String   @id @default(cuid())
+  questionId  String
+  lawyerId    String
+  text        String
+  authorType  AnswerAuthorType @default(LAWYER)
+  createdByUserId String?
+  publishedByUserId String?
+  publishedByAdmin Boolean @default(false)
+  status      AnswerStatus @default(MODERATION)
+  qualityStatus QualityStatus @default(PENDING)
+  containsContactAttempt Boolean @default(false)
+  containsUnsupportedLegalClaim Boolean @default(false)
+  containsFearPressure Boolean @default(false)
+  containsGenericLeadBait Boolean @default(false)
+  legalReferencesVerified Boolean @default(false)
+  answerReviewStatus String?
+  answerReviewReason String?
+  editorReviewedAt DateTime?
+  moderationComment String?
+  answerQualityScore Int @default(0)
+  isModerated Boolean  @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  lawyer   Lawyer   @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+  qualityScores AnswerQualityScore[]
+  auditLogs AnswerAuditLog[]
+  reports ContentReport[] @relation("AnswerReports")
+
+  @@index([questionId, isModerated])
+  @@index([status, qualityStatus, createdAt])
+  @@index([containsContactAttempt])
+  @@index([answerReviewStatus])
+}
+
+model QuestionAttachment {
+  id        String   @id @default(cuid())
+  questionId String
+  fileName  String
+  fileType  String
+  fileSize  Int
+  storageKey String
+  createdAt DateTime @default(now())
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+model AnswerAuditLog {
+  id          String   @id @default(cuid())
+  answerId    String
+  action      String
+  actorUserId String?
+  oldStatus   AnswerStatus?
+  newStatus   AnswerStatus?
+  comment     String?
+  createdAt   DateTime @default(now())
+
+  answer Answer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+
+  @@index([answerId, createdAt])
+  @@index([actorUserId])
+}
+
+model ContentReport {
+  id          String   @id @default(cuid())
+  targetType  ReportTargetType
+  targetId    String
+  questionId  String?
+  answerId    String?
+  lawyerId    String?
+  reason      String
+  status      ReportStatus @default(NEW)
+  adminComment String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  question Question? @relation("QuestionReports", fields: [questionId], references: [id], onDelete: Cascade)
+  answer Answer? @relation("AnswerReports", fields: [answerId], references: [id], onDelete: Cascade)
+
+  @@index([targetType, targetId])
+  @@index([status, createdAt])
+}
+
+model QuestionTrustScore {
+  id          String   @id @default(cuid())
+  questionId  String
+  hasApprovedLawyerAnswer Boolean @default(false)
+  hasUniqueAnswer Boolean @default(false)
+  noPersonalData Boolean @default(false)
+  noContactLeak Boolean @default(false)
+  hasGoodStructure Boolean @default(false)
+  hasSimilarQuestions Boolean @default(false)
+  hasInternalLinks Boolean @default(false)
+  hasNoComplaints Boolean @default(false)
+  authorTrustScore Int @default(0)
+  userEngagementScore Int @default(0)
+  totalScore Int @default(0)
+  checkedAt DateTime @default(now())
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId, checkedAt])
+  @@index([totalScore])
+}
+
+model Article {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  excerpt     String
+  content     String
+  shortAnswer String?
+  importantPoints Json?
+  steps       Json?
+  documents   Json?
+  deadlines   Json?
+  prices      Json?
+  risks       Json?
+  mistakes    Json?
+  serviceId   String
+  cityId      String?
+  authorId    String
+  reviewedByLawyerId String?
+  status      ContentStatus @default(DRAFT)
+  isIndexable Boolean   @default(false)
+  contentFreshness ContentFreshnessStatus @default(FRESH)
+  publishedAt DateTime?
+  reviewedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  service Service @relation(fields: [serviceId], references: [id])
+  city    City?   @relation(fields: [cityId], references: [id])
+  author  Lawyer  @relation("LawyerArticles", fields: [authorId], references: [id])
+  reviewedBy Lawyer? @relation("ReviewedArticles", fields: [reviewedByLawyerId], references: [id])
+  legalSources ArticleLegalSource[]
+  freshnessChecks ContentFreshness[]
+
+  @@index([slug, isIndexable, publishedAt])
+  @@index([serviceId])
+  @@index([status, updatedAt])
+  @@index([contentFreshness])
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  cityId    String?
+  serviceId String?
+  lawyerId  String?
+  questionId String?
+  message   String
+  messenger String?
+  availableTime String?
+  documentsNote String?
+  structuredPayload Json?
+  leadScore Int @default(0)
+  contactTransferConsentAt DateTime?
+  desiredFormat DesiredFormat?
+  sourceType LeadSourceType @default(GENERAL)
+  sourcePage String
+  status    LeadStatus @default(NEW)
+  outcome   LeadOutcome @default(CREATED)
+  adminComment String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  city    City?    @relation(fields: [cityId], references: [id])
+  service Service? @relation(fields: [serviceId], references: [id])
+  lawyer  Lawyer?  @relation(fields: [lawyerId], references: [id])
+  question Question? @relation(fields: [questionId], references: [id])
+
+  @@index([status, createdAt])
+  @@index([outcome, createdAt])
+  @@index([sourceType, createdAt])
+  @@index([questionId])
+}
+
+model AdminAuditLog {
+  id             String   @id @default(cuid())
+  adminId        String?
+  action         String
+  entityType     String
+  entityId       String?
+  beforeSnapshot Json?
+  afterSnapshot  Json?
+  ip             String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+
+  admin User? @relation("AdminAuditLogs", fields: [adminId], references: [id])
+
+  @@index([adminId, createdAt])
+  @@index([entityType, entityId, createdAt])
+  @@index([action, createdAt])
+}
+
+model ModerationLog {
+  id             String   @id @default(cuid())
+  entityType     String
+  entityId       String
+  action         String
+  reason         String?
+  moderatorId    String?
+  beforeSnapshot Json?
+  afterSnapshot  Json?
+  createdAt      DateTime @default(now())
+
+  moderator User? @relation("ModerationLogs", fields: [moderatorId], references: [id])
+
+  @@index([entityType, entityId, createdAt])
+  @@index([moderatorId, createdAt])
+  @@index([action, createdAt])
+}
+
+model FaqItem {
+  id         String        @id @default(cuid())
+  question   String
+  answer     String
+  entityType FaqEntityType
+  entityId   String?
+  sortOrder  Int           @default(0)
+  createdAt  DateTime      @default(now())
+
+  @@index([entityType, entityId, sortOrder])
+}
+
+model SeoPage {
+  id          String      @id @default(cuid())
+  type        SeoPageType
+  slug        String
+  cityId      String?
+  serviceId   String?
+  lawyerId    String?
+  title       String
+  description String
+  h1          String
+  seoText     String
+  canonical   String
+  robots      String      @default("index, follow")
+  isIndexable Boolean     @default(false)
+  seoScore    Int         @default(0)
+  seoMaturity SeoMaturityStatus @default(DRAFT)
+  primaryKeyword String?
+  autoGeneratedTitle String?
+  manualTitle String?
+  autoGeneratedDescription String?
+  manualDescription String?
+  seoMode     SeoMode     @default(AUTO)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  city    City?    @relation(fields: [cityId], references: [id])
+  service Service? @relation(fields: [serviceId], references: [id])
+  lawyer  Lawyer?  @relation(fields: [lawyerId], references: [id])
+  primaryTargets KeywordTarget[] @relation("PrimaryKeywordTarget")
+  seoScores SeoScore[]
+  maturityHistory SeoMaturity[]
+  indexStatuses IndexStatus[]
+
+  @@unique([type, slug])
+  @@index([isIndexable, type])
+  @@index([seoScore, seoMaturity])
+  @@index([primaryKeyword])
+}
+
+model RatingRule {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  weight      Int
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Verification {
+  id        String             @id @default(cuid())
+  lawyerId  String
+  type      VerificationType
+  status    VerificationStatus @default(PENDING)
+  comment   String?
+  createdAt DateTime           @default(now())
+
+  lawyer Lawyer @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+
+  @@index([lawyerId, status])
+}
+
+model DocumentTemplate {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  serviceId   String?
+  content     String
+  structure   Json?
+  commonMistakes Json?
+  priceFrom   Int?
+  isIndexable Boolean  @default(false)
+  seoScore    Int      @default(0)
+  seoMaturity SeoMaturityStatus @default(DRAFT)
+  createdAt   DateTime @default(now())
+
+  service Service? @relation(fields: [serviceId], references: [id])
+}
+
+model PriceItem {
+  id        String   @id @default(cuid())
+  lawyerId  String
+  serviceId String
+  title     String
+  priceFrom Int
+  priceTo   Int?
+  createdAt DateTime @default(now())
+
+  lawyer  Lawyer  @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([lawyerId, serviceId])
+}
+
+model SearchIntent {
+  id                  String           @id @default(cuid())
+  name                String
+  slug                String           @unique
+  type                SearchIntentType
+  serviceId           String?
+  cityId              String?
+  primaryKeyword      String
+  secondaryKeywords   String[]
+  recommendedPageType SeoPageType
+  priority            Int              @default(0)
+
+  service Service? @relation(fields: [serviceId], references: [id])
+  city    City?    @relation(fields: [cityId], references: [id])
+  potentialSeoPages PotentialSeoPage[]
+
+  @@index([type, priority])
+}
+
+model KeywordDemand {
+  id               String           @id @default(cuid())
+  keyword          String
+  region           String
+  monthlySearches  Int
+  competitionLevel Int
+  intentType       SearchIntentType
+  priority         Int
+  source           String
+  updatedAt        DateTime         @updatedAt
+
+  @@unique([keyword, region])
+  @@index([intentType, priority])
+}
+
+model KeywordTarget {
+  id               String           @id @default(cuid())
+  keyword          String
+  primaryPageId    String
+  secondaryPageIds String[]
+  intentType       SearchIntentType
+  priority         Int              @default(0)
+
+  primaryPage SeoPage @relation("PrimaryKeywordTarget", fields: [primaryPageId], references: [id], onDelete: Cascade)
+
+  @@unique([keyword])
+  @@index([intentType, priority])
+}
+
+model SeoScore {
+  id              String   @id @default(cuid())
+  pageId          String
+  score           Int
+  hasTitle        Boolean  @default(false)
+  hasDescription  Boolean  @default(false)
+  hasH1           Boolean  @default(false)
+  hasSeoText      Boolean  @default(false)
+  hasFaq          Boolean  @default(false)
+  hasLawyers      Boolean  @default(false)
+  hasPrices       Boolean  @default(false)
+  hasLinks        Boolean  @default(false)
+  hasJsonLd       Boolean  @default(false)
+  hasCta          Boolean  @default(false)
+  notes           String?
+  checkedAt       DateTime @default(now())
+
+  page SeoPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, checkedAt])
+}
+
+model SeoRevision {
+  id             String   @id @default(cuid())
+  entityType     String
+  entityId       String
+  oldTitle       String?
+  newTitle       String?
+  oldDescription String?
+  newDescription String?
+  oldH1          String?
+  newH1          String?
+  oldSeoText     String?
+  newSeoText     String?
+  changedBy      String
+  changedAt      DateTime @default(now())
+
+  @@index([entityType, entityId, changedAt])
+}
+
+model SeoMaturity {
+  id         String            @id @default(cuid())
+  pageId     String
+  status     SeoMaturityStatus
+  reason     String?
+  updatedBy  String?
+  updatedAt  DateTime          @default(now())
+
+  page SeoPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, status])
+}
+
+model LegalSource {
+  id            String   @id @default(cuid())
+  title         String
+  codeName      String
+  articleNumber String?
+  url           String
+  lastCheckedAt DateTime
+
+  articles ArticleLegalSource[]
+}
+
+model ArticleLegalSource {
+  articleId     String
+  legalSourceId String
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  source  LegalSource @relation(fields: [legalSourceId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, legalSourceId])
+}
+
+model LawChange {
+  id               String   @id @default(cuid())
+  title            String
+  affectedServices String[]
+  affectedArticles String[]
+  effectiveDate    DateTime
+  summary          String
+  sourceUrl        String
+  createdAt        DateTime @default(now())
+}
+
+model ContentFreshness {
+  id          String                 @id @default(cuid())
+  articleId   String
+  status      ContentFreshnessStatus
+  reason      String?
+  nextReviewAt DateTime
+  checkedAt   DateTime               @default(now())
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([status, nextReviewAt])
+}
+
+model BotVisit {
+  id           String   @id @default(cuid())
+  botName      String
+  url          String
+  statusCode   Int
+  responseTime Int
+  userAgent    String
+  visitedAt    DateTime @default(now())
+
+  @@index([botName, visitedAt])
+  @@index([url])
+}
+
+model AnalyticsEvent {
+  id          String             @id @default(cuid())
+  type        AnalyticsEventType
+  url         String
+  sourcePage  String?
+  targetType  String?
+  targetId    String?
+  payload     Json?
+  userAgent   String?
+  ipHash      String?
+  createdAt   DateTime           @default(now())
+
+  @@index([type, createdAt])
+  @@index([url])
+  @@index([targetType, targetId])
+}
+
+model IndexStatus {
+  id        String          @id @default(cuid())
+  pageId    String
+  status    IndexStatusType @default(UNKNOWN)
+  source    String?
+  checkedAt DateTime        @default(now())
+
+  page SeoPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, status])
+}
+
+model SeoMerge {
+  id           String              @id @default(cuid())
+  oldUrl       String
+  newUrl       String?
+  reason       String
+  redirectType SeoMergeRedirectType
+  createdAt    DateTime            @default(now())
+
+  @@index([oldUrl])
+}
+
+model Case {
+  id                String   @id @default(cuid())
+  title             String
+  slug              String   @unique
+  situation         String
+  problem           String
+  lawyerActions     String
+  documentsPrepared String
+  result            String
+  duration          String
+  clientReview      String?
+  serviceId         String
+  cityId            String?
+  lawyerId          String
+  isAnonymized      Boolean  @default(true)
+  isIndexable       Boolean  @default(false)
+  seoScore          Int      @default(0)
+  seoMaturity       SeoMaturityStatus @default(DRAFT)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  service Service @relation(fields: [serviceId], references: [id])
+  city    City?   @relation(fields: [cityId], references: [id])
+  lawyer  Lawyer  @relation(fields: [lawyerId], references: [id])
+}
+
+model Calculator {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  description     String
+  formula         String
+  example         String
+  serviceId       String?
+  isIndexable     Boolean  @default(false)
+  seoScore        Int      @default(0)
+  seoMaturity     SeoMaturityStatus @default(DRAFT)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  service Service? @relation(fields: [serviceId], references: [id])
+}
+
+model Checklist {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  items       Json
+  serviceId   String?
+  isIndexable Boolean  @default(false)
+  seoScore    Int      @default(0)
+  seoMaturity SeoMaturityStatus @default(DRAFT)
+  createdAt   DateTime @default(now())
+
+  service Service? @relation(fields: [serviceId], references: [id])
+}
+
+model VideoPage {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  description     String
+  transcript      String
+  timestamps      Json?
+  relatedServiceId String?
+  relatedLawyerId  String?
+  isIndexable     Boolean  @default(false)
+  seoScore        Int      @default(0)
+  seoMaturity     SeoMaturityStatus @default(DRAFT)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  service Service? @relation(fields: [relatedServiceId], references: [id])
+  lawyer  Lawyer?  @relation(fields: [relatedLawyerId], references: [id])
+}
+
+model LegalScenario {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  problem     String
+  explanation String
+  deadlines   String
+  documents   Json?
+  risks       Json?
+  serviceId   String?
+  isIndexable Boolean  @default(false)
+  seoScore    Int      @default(0)
+  seoMaturity SeoMaturityStatus @default(DRAFT)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  service Service? @relation(fields: [serviceId], references: [id])
+}
+
+model NextBestAction {
+  id         String      @id @default(cuid())
+  pageType   SeoPageType
+  serviceId  String?
+  cityId     String?
+  actionType String
+  title      String
+  url        String
+  priority   Int         @default(0)
+
+  service Service? @relation(fields: [serviceId], references: [id])
+  city    City?    @relation(fields: [cityId], references: [id])
+}
+
+model PotentialSeoPage {
+  id              String                 @id @default(cuid())
+  cityId          String?
+  serviceId       String?
+  intentId         String?
+  estimatedDemand Int                    @default(0)
+  lawyersCount    Int                    @default(0)
+  contentReady    Boolean                @default(false)
+  faqReady        Boolean                @default(false)
+  priceBlockReady Boolean                @default(false)
+  reviewsReady    Boolean                @default(false)
+  manualAllow     Boolean                @default(false)
+  status          PotentialSeoPageStatus @default(IDEA)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  city    City?         @relation(fields: [cityId], references: [id])
+  service Service?      @relation(fields: [serviceId], references: [id])
+  intent  SearchIntent? @relation(fields: [intentId], references: [id])
+}
+
+model LawyerServiceRating {
+  id             String   @id @default(cuid())
+  lawyerId       String
+  serviceId      String
+  cityId         String?
+  rating         Decimal  @db.Decimal(3, 2)
+  reviewCount    Int      @default(0)
+  caseCount      Int      @default(0)
+  answerCount    Int      @default(0)
+  conversionRate Decimal  @default(0) @db.Decimal(5, 2)
+  updatedAt      DateTime @updatedAt
+
+  lawyer  Lawyer  @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  city    City?   @relation(fields: [cityId], references: [id])
+
+  @@unique([lawyerId, serviceId, cityId])
+  @@index([serviceId, cityId, rating])
+}
+
+model AnswerQualityScore {
+  id          String   @id @default(cuid())
+  answerId    String
+  lawyerId    String
+  completeness Int
+  clarity      Int
+  legalBasis   Int
+  noSpam       Int
+  usefulness   Int
+  relevanceToQuestion Int @default(0)
+  lengthScore Int @default(0)
+  structureScore Int @default(0)
+  uniquenessScore Int @default(0)
+  noContactScore Int @default(0)
+  legalCautionScore Int @default(0)
+  readabilityScore Int @default(0)
+  authorTrustScore Int @default(0)
+  totalScore   Int
+  checkedAt    DateTime @default(now())
+
+  answer Answer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+  lawyer Lawyer @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+}
+
+model LawyerProfileQualityScore {
+  id          String   @id @default(cuid())
+  lawyerId    String
+  hasPhoto    Boolean  @default(false)
+  hasDescription Boolean @default(false)
+  hasSpecialization Boolean @default(false)
+  hasPrice    Boolean  @default(false)
+  hasReviews  Boolean  @default(false)
+  hasVerification Boolean @default(false)
+  hasContacts Boolean  @default(false)
+  totalScore  Int      @default(0)
+  checkedAt   DateTime @default(now())
+
+  lawyer Lawyer @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+}
+
+model CompetitorPage {
+  id             String   @id @default(cuid())
+  competitorName String
+  url            String
+  pageType       SeoPageType
+  targetKeyword  String
+  title          String?
+  h1             String?
+  wordCount      Int      @default(0)
+  faqCount       Int      @default(0)
+  hasPrices      Boolean  @default(false)
+  hasReviews     Boolean  @default(false)
+  hasLawyers     Boolean  @default(false)
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  @@index([competitorName, targetKeyword])
+}
+
+model AiNavigatorEvent {
+  id          String   @id @default(cuid())
+  event       String
+  query       String?
+  page        String?
+  confidence  String?
+  riskLevel   String?
+  urgency     String?
+  targetType  String?
+  targetHref  String?
+  targetTitle String?
+  meta        Json?
+  createdAt   DateTime @default(now())
+
+  @@index([event, createdAt])
+  @@index([createdAt])
+  @@index([query])
+}
