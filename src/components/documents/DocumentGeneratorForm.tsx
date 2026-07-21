@@ -1,18 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import type { DocumentField, DocumentGeneratorTemplate, DocumentGeneratorVariant } from "@/lib/types";
-import { downloadGeneratedDocumentDocx, downloadGeneratedDocumentPdf } from "@/lib/document-export";
+import { downloadGeneratedDocumentPdf } from "@/lib/document-export";
+import { judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
 
 type FormValue = string | boolean;
 type FormValues = Record<string, FormValue>;
-type ActionStatus = "idle" | "success" | "error";
-type PdfStatus = ActionStatus | "opened";
+type PdfStatus = "idle" | "error" | "opened";
 
 type DocumentGeneratorFormProps = {
+  initialValues?: FormValues;
   instructionHref?: string;
+  reviewHref?: string;
   template: DocumentGeneratorTemplate;
   variant: DocumentGeneratorVariant;
 };
@@ -38,7 +40,7 @@ const fieldSectionsByTemplate: Record<string, FieldSection[]> = {
     {
       title: "Суд",
       description: "Укажите суд, который вынес судебный приказ.",
-      fieldNames: ["courtName", "courtAddress"]
+      fieldNames: ["courtName", "judgeName", "courtAddress"]
     },
     {
       title: "Ваши данные",
@@ -207,19 +209,19 @@ const fieldSectionsByTemplate: Record<string, FieldSection[]> = {
   ]
 };
 
-export function DocumentGeneratorForm({ instructionHref = "/problems/", template, variant }: DocumentGeneratorFormProps) {
-  const fields = useMemo(() => [...template.baseFields, ...(variant.extraFields ?? [])], [template.baseFields, variant.extraFields]);
-  const [values, setValues] = useState<FormValues>(() => getInitialValues(fields));
+export function DocumentGeneratorForm({ initialValues, reviewHref = "/document-review/", template, variant }: DocumentGeneratorFormProps) {
+  const fields = useMemo(() => [...template.baseFields], [template.baseFields]);
+  const [values, setValues] = useState<FormValues>(() => getInitialValues(fields, initialValues));
   const [generatedText, setGeneratedText] = useState("");
-  const [copyStatus, setCopyStatus] = useState<ActionStatus>("idle");
-  const [docxStatus, setDocxStatus] = useState<ActionStatus>("idle");
+  const [userSituationComment, setUserSituationComment] = useState("");
+  const [generationStatus, setGenerationStatus] = useState<"idle" | "loading" | "fallback">("idle");
   const [pdfStatus, setPdfStatus] = useState<PdfStatus>("idle");
+  const resultRef = useRef<HTMLPreElement>(null);
 
   const fieldSections = getFieldSections(template.slug);
   const visibleFields = fields.filter((field) => shouldShowField(field, values));
-  const variantFields = visibleFields.filter((field) => variant.extraFields?.some((extraField) => extraField.name === field.name));
   const sectionFieldNames = new Set(fieldSections.flatMap((section) => section.fieldNames));
-  const unsectionedBaseFields = visibleFields.filter((field) => !sectionFieldNames.has(field.name) && !variant.extraFields?.some((extraField) => extraField.name === field.name));
+  const unsectionedBaseFields = visibleFields.filter((field) => !sectionFieldNames.has(field.name));
   const previewTitle = template.documentType === "objection" ? "Текст возражений" : "Текст документа";
   const resultMeta = useMemo(() => getGeneratedDocumentMeta(template, variant, values), [template, values, variant]);
   const emptyPreviewText =
@@ -229,41 +231,44 @@ export function DocumentGeneratorForm({ instructionHref = "/problems/", template
 
   function updateValue(field: DocumentField, value: FormValue) {
     setValues((current) => ({ ...current, [field.name]: value }));
-    setCopyStatus("idle");
-    setDocxStatus("idle");
     setPdfStatus("idle");
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setGeneratedText(buildDocumentText(template, variant, values));
-    setCopyStatus("idle");
-    setDocxStatus("idle");
-    setPdfStatus("idle");
-  }
+    const valuesWithComment = { ...values, userSituationComment };
+    const draftText = buildDocumentText(template, variant, valuesWithComment);
+    let text = draftText;
 
-  async function handleCopy() {
+    setGenerationStatus("loading");
     try {
-      await navigator.clipboard.writeText(generatedText);
-      setCopyStatus("success");
-    } catch {
-      setCopyStatus("error");
-    }
-  }
-
-  async function handleDownloadDocx() {
-    if (!generatedText) return;
-
-    try {
-      await downloadGeneratedDocumentDocx({
-        title: template.title,
-        fileName: buildDocumentFileName(template.slug, variant.key),
-        content: generatedText
+      const response = await fetch("/api/document-generator", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateSlug: template.slug,
+          templateTitle: template.title,
+          variantKey: variant.key,
+          values: valuesWithComment,
+          userComment: userSituationComment,
+          draftText
+        })
       });
-      setDocxStatus("success");
+      const result = (await response.json().catch(() => null)) as { ok?: boolean; text?: string; llmStatus?: string } | null;
+      if (response.ok && result?.ok && result.text) {
+        text = result.text;
+        setGenerationStatus(result.llmStatus === "success" ? "idle" : "fallback");
+      } else {
+        setGenerationStatus("fallback");
+      }
     } catch {
-      setDocxStatus("error");
+      setGenerationStatus("fallback");
     }
+
+    setGeneratedText(text);
+    saveDocumentReviewDraft(template, variant, valuesWithComment, text);
+    setPdfStatus("idle");
+    requestAnimationFrame(() => resultRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }));
   }
 
   function handleDownloadPdf() {
@@ -280,21 +285,13 @@ export function DocumentGeneratorForm({ instructionHref = "/problems/", template
     }
   }
 
-  function handleClearForm() {
-    setValues(getInitialValues(fields));
-    setGeneratedText("");
-    setCopyStatus("idle");
-    setDocxStatus("idle");
-    setPdfStatus("idle");
-  }
-
   return (
     <section className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
       <form onSubmit={handleSubmit} className="min-w-0 rounded-lg border border-line bg-white p-5 shadow-sm">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-trust">Выбранный вариант</p>
-          <h2 className="mt-2 text-2xl font-semibold text-ink">{variant.title}</h2>
-          <p className="mt-3 text-sm leading-6 text-zinc-600">{variant.description}</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-trust">Универсальная форма</p>
+          <h2 className="mt-2 text-2xl font-semibold text-ink">{template.title}</h2>
+          <p className="mt-3 text-sm leading-6 text-zinc-600">Заполните известные поля и добавьте пояснение, если важные детали не помещаются в стандартную форму.</p>
         </div>
 
         <div className="mt-6 grid gap-6">
@@ -315,18 +312,6 @@ export function DocumentGeneratorForm({ instructionHref = "/problems/", template
             );
           })}
 
-          {variantFields.length ? (
-            <fieldset className="rounded-lg border border-line bg-zinc-50 p-4">
-              <legend className="px-1 text-lg font-semibold text-ink">Дополнительно для варианта</legend>
-              <p className="mt-1 text-sm leading-6 text-zinc-600">Эти поля уточняют выбранную ситуацию, но не меняют базовую структуру документа.</p>
-              <div className="mt-4 grid gap-4">
-                {variantFields.map((field) => (
-                  <GeneratorField key={field.name} field={field} value={values[field.name]} onChange={(value) => updateValue(field, value)} />
-                ))}
-              </div>
-            </fieldset>
-          ) : null}
-
           {unsectionedBaseFields.length ? (
             <fieldset className="rounded-lg border border-line bg-zinc-50 p-4">
               <legend className="px-1 text-lg font-semibold text-ink">Дополнительные поля</legend>
@@ -337,6 +322,22 @@ export function DocumentGeneratorForm({ instructionHref = "/problems/", template
               </div>
             </fieldset>
           ) : null}
+
+          <fieldset className="rounded-lg border border-line bg-zinc-50 p-4">
+            <legend className="px-1 text-lg font-semibold text-ink">Пояснение к ситуации</legend>
+            <p className="mt-1 text-sm leading-6 text-zinc-600">
+              Укажите детали, которые не отражены в полях выше: спорную сумму, платежи, переписку, ошибки взыскателя, действия пристава или другое важное обстоятельство.
+            </p>
+            <textarea
+              value={userSituationComment}
+              onChange={(event) => setUserSituationComment(event.currentTarget.value)}
+              rows={5}
+              maxLength={2000}
+              placeholder="Например: с суммой не согласен, часть долга была оплачена, расчёт взыскателя не приложен, о приказе узнал только после уведомления банка..."
+              className="mt-4 w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-trust"
+            />
+            <p className="mt-1 text-xs leading-5 text-zinc-500">ИИ учтёт это пояснение при подготовке итогового текста документа.</p>
+          </fieldset>
 
           {variant.generatedTextHints?.length ? (
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
@@ -352,9 +353,10 @@ export function DocumentGeneratorForm({ instructionHref = "/problems/", template
 
         <button
           type="submit"
-          className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink sm:w-auto"
+          disabled={generationStatus === "loading"}
+          className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink disabled:cursor-wait disabled:bg-zinc-400 sm:w-auto"
         >
-          Подготовить черновик
+          {generationStatus === "loading" ? "Формируем документ..." : "Подготовить документ"}
         </button>
       </form>
 
@@ -364,52 +366,14 @@ export function DocumentGeneratorForm({ instructionHref = "/problems/", template
             <p className="text-sm font-semibold uppercase tracking-wide text-trust">Итоговый документ</p>
             <h2 className="mt-2 text-2xl font-semibold text-ink">{previewTitle}</h2>
           </div>
-          <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
-            <button
-              type="button"
-              onClick={handleCopy}
-              disabled={!generatedText}
-              className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400 sm:flex-none"
-            >
-              Скопировать текст
-            </button>
-            {generatedText ? (
-              <>
-                <button
-                  type="button"
-                  onClick={handleDownloadDocx}
-                  className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md bg-trust px-4 py-2 text-sm font-semibold text-white hover:bg-ink sm:flex-none"
-                >
-                  Скачать DOCX
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDownloadPdf}
-                  className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust sm:flex-none"
-                >
-                  Скачать PDF
-                </button>
-              </>
-            ) : null}
-            <button
-              type="button"
-              onClick={handleClearForm}
-              className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust sm:flex-none"
-            >
-              Очистить форму
-            </button>
-          </div>
         </div>
         {generatedText ? (
-          <p className="mt-3 text-xs leading-5 text-zinc-500">Файл сформируется на вашем устройстве. Данные не отправляются на сервер.</p>
+          <p className="mt-3 text-xs leading-5 text-zinc-500">Данные используются для формирования документа и проверки текста. Не добавляйте лишние сведения, если они не нужны для документа.</p>
         ) : null}
-        {copyStatus === "success" ? <p className="mt-3 text-sm font-semibold text-trust">Текст скопирован</p> : null}
-        {copyStatus === "error" ? (
-          <p className="mt-3 text-sm font-semibold text-red-700">Не удалось скопировать автоматически. Выделите текст вручную.</p>
-        ) : null}
-        {docxStatus === "success" ? <p className="mt-3 text-sm font-semibold text-trust">Файл .docx сформирован</p> : null}
-        {docxStatus === "error" ? (
-          <p className="mt-3 text-sm font-semibold text-red-700">Не удалось сформировать .docx. Скопируйте текст вручную.</p>
+        {generationStatus === "fallback" ? (
+          <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
+            Документ сформирован по шаблону. ИИ-доработка сейчас недоступна или заняла слишком много времени.
+          </p>
         ) : null}
         {pdfStatus === "opened" ? <p className="mt-3 text-sm font-semibold text-trust">Открыто окно печати: выберите «Сохранить как PDF».</p> : null}
         {pdfStatus === "error" ? (
@@ -431,40 +395,45 @@ export function DocumentGeneratorForm({ instructionHref = "/problems/", template
                     <li key={warning}>- {warning}</li>
                   ))}
                 </ul>
-                <Link href="/document-check/" className="mt-3 inline-flex min-h-10 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-ink hover:text-trust">
+                <Link href={reviewHref} className="mt-3 inline-flex min-h-10 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-ink hover:text-trust">
                   Проверить сроки и формулировки
                 </Link>
               </div>
             ) : null}
-
-            <ResultList title="Приложения" items={resultMeta.attachments} />
-            <ResultList title="Как подать документ" items={resultMeta.submissionSteps} ordered />
-
-            <div className="rounded-lg border border-line bg-zinc-50 p-4">
-              <p className="text-sm font-semibold text-ink">Следующий шаг</p>
+          </div>
+        ) : null}
+        <pre ref={resultRef} className="mt-5 min-h-[520px] scroll-mt-24 whitespace-pre-wrap rounded-lg border border-line bg-zinc-50 p-4 text-sm leading-6 text-zinc-800">
+          {generatedText || emptyPreviewText}
+        </pre>
+        {generatedText ? (
+          <div className="mt-4 rounded-lg border border-line bg-zinc-50 p-4">
+            <p className="text-sm font-semibold text-ink">Следующий шаг</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Link href={instructionHref} className="inline-flex min-h-10 items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust">
-                Открыть инструкцию
+              <Link href={reviewHref} className="inline-flex min-h-10 items-center justify-center rounded-md bg-trust px-4 py-2 text-sm font-semibold text-white hover:bg-ink">
+                Проверить документ у юриста
               </Link>
-              <Link href="/document-check/" className="inline-flex min-h-10 items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust">
-                Отправить на проверку юристу
-              </Link>
+              <button
+                type="button"
+                onClick={handleDownloadPdf}
+                className="inline-flex min-h-10 items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust"
+              >
+                Скачать PDF
+              </button>
               <Link href="/login/?next=%2Fdocument-check%2F" className="inline-flex min-h-10 items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust">
                 Сохранить в кабинет
               </Link>
-              <Link href="/lawyers/" className="inline-flex min-h-10 items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust">
-                Посмотреть юристов
-              </Link>
             </div>
-              <p className="mt-3 text-xs leading-5 text-zinc-500">
-                Сохраните документ в кабинете, чтобы вернуться к нему позже, проверить статус и получить ответ юриста.
-              </p>
-            </div>
+            <p className="mt-3 text-xs leading-5 text-zinc-500">
+              Сохраните документ в кабинете, чтобы вернуться к нему позже, проверить статус и получить ответ юриста.
+            </p>
           </div>
         ) : null}
-        <pre className="mt-5 min-h-[520px] whitespace-pre-wrap rounded-lg border border-line bg-zinc-50 p-4 text-sm leading-6 text-zinc-800">
-          {generatedText || emptyPreviewText}
-        </pre>
+        {generatedText ? (
+          <div className="mt-4 grid gap-4">
+            <ResultList title="Приложения" items={resultMeta.attachments} />
+            <ResultList title="Как подать документ" items={resultMeta.submissionSteps} ordered />
+          </div>
+        ) : null}
       </aside>
     </section>
   );
@@ -576,11 +545,42 @@ function GeneratorField({
   );
 }
 
-function getInitialValues(fields: DocumentField[]): FormValues {
+function getInitialValues(fields: DocumentField[], initialValues: FormValues = {}): FormValues {
   return fields.reduce<FormValues>((acc, field) => {
-    acc[field.name] = field.type === "checkbox" ? false : "";
+    acc[field.name] = initialValues[field.name] ?? (field.type === "checkbox" ? false : "");
     return acc;
   }, {});
+}
+
+function saveDocumentReviewDraft(
+  template: DocumentGeneratorTemplate,
+  variant: DocumentGeneratorVariant,
+  values: FormValues,
+  generatedText: string
+) {
+  try {
+    const caseContext = sessionStorage.getItem("pravopoisk:judicial-order-case");
+    sessionStorage.setItem(
+      "pravopoisk:document-review",
+      JSON.stringify({
+        source: "document_generator",
+        routeId: isJudicialOrderDebtDocument(template, variant) ? judicialOrderDebtRoute.routeId : null,
+        documentSlug: template.slug,
+        documentTitle: template.title,
+        documentVariant: variant.key,
+        generatedText,
+        values,
+        caseContext: caseContext ? JSON.parse(caseContext) : null,
+        createdAt: new Date().toISOString()
+      })
+    );
+  } catch {
+    // Проверку можно продолжить вручную даже если браузер запретил sessionStorage.
+  }
+}
+
+function isJudicialOrderDebtDocument(template: DocumentGeneratorTemplate, variant: DocumentGeneratorVariant) {
+  return template.slug === judicialOrderDebtRoute.documentSlug && variant.key === judicialOrderDebtRoute.documentVariant;
 }
 
 function shouldShowField(field: DocumentField, values: FormValues) {
@@ -610,14 +610,16 @@ function getGeneratedDocumentMeta(template: DocumentGeneratorTemplate, variant: 
         deadlineWarning,
         Boolean(values.requestTermRestoration)
           ? "Если срок подачи возражения пропущен, суд может не принять документ без заявления о восстановлении срока."
-          : ""
+          : "",
+        "Отмена судебного приказа не списывает долг: взыскатель вправе затем обратиться в суд с иском."
       ].filter(Boolean),
       attachments: customAttachments.length ? customAttachments : getDefaultJudicialOrderAttachments(Boolean(values.requestTermRestoration), stringValue(values.receivedDateStatus)),
       submissionSteps: [
-        "Подайте документ в суд, который вынес судебный приказ.",
-        "Если срок спорный, приложите заявление о восстановлении срока и подтверждающие документы.",
-        "Сохраните отметку суда, почтовую квитанцию или электронное подтверждение отправки.",
-        "Отслеживайте определение суда об отмене приказа.",
+        "Подайте документ тому же мировому судье или в тот судебный участок, который вынес судебный приказ.",
+        "Можно подать лично через канцелярию, заказным письмом с описью вложения или электронно через ГАС «Правосудие», если доступна подача.",
+        "Если срок спорный, приложите просьбу о восстановлении срока и подтверждающие документы.",
+        "Сохраните отметку суда, почтовую квитанцию, опись вложения, трек-номер или электронное подтверждение отправки.",
+        "Отслеживайте определение суда об отмене приказа: после принятия возражений суд уведомляет стороны, обычно в течение нескольких дней.",
         "Если уже есть приставы или списания, передайте определение об отмене приставу или банку."
       ]
     };
@@ -1011,14 +1013,17 @@ function buildOverheldRefundText(template: DocumentGeneratorTemplate, values: Fo
     .join("\n");
 }
 
-function buildDocumentFileName(templateSlug: string, variantKey: string) {
-  return `${templateSlug}-${variantKey}.docx`;
-}
-
 function buildJudicialOrderObjectionText(template: DocumentGeneratorTemplate, variant: DocumentGeneratorVariant, values: FormValues) {
   const requestTermRestoration = Boolean(values.requestTermRestoration);
   const objectionReason = getOptionLabel(template.baseFields, "objectionReason", stringValue(values.objectionReason));
   const extraDetails = getVariantExtraDetails(variant, values);
+  const attachments = [
+    "Копия судебного приказа.",
+    "Документы, подтверждающие дату получения судебного приказа.",
+    requestTermRestoration ? "Документы, подтверждающие уважительность причин пропуска срока." : "",
+    "Копии документов, подтверждающих доводы возражений, если они есть.",
+    "Доверенность представителя, если заявление подаёт представитель."
+  ].filter(Boolean);
   const contactLines = [
     stringValue(values.applicantPhone) ? `Телефон: ${stringValue(values.applicantPhone)}` : "",
     stringValue(values.applicantEmail) ? `Email: ${stringValue(values.applicantEmail)}` : ""
@@ -1026,6 +1031,7 @@ function buildJudicialOrderObjectionText(template: DocumentGeneratorTemplate, va
 
   return [
     `В ${requiredText(values.courtName)}`,
+    stringValue(values.judgeName) ? `Мировому судье: ${stringValue(values.judgeName)}` : "",
     stringValue(values.courtAddress) ? `Адрес суда: ${stringValue(values.courtAddress)}` : "",
     "",
     `От: ${requiredText(values.applicantName)}`,
@@ -1043,14 +1049,14 @@ function buildJudicialOrderObjectionText(template: DocumentGeneratorTemplate, va
     `Копию судебного приказа я получил(а) ${formatDateValue(requiredText(values.receivedDate))}.`,
     "",
     "С требованиями взыскателя и исполнением судебного приказа не согласен(на).",
-    `Возражения связаны с требованиями категории: ${variant.title}.`,
+    "Закон не требует подробно мотивировать такие возражения, однако сообщаю дополнительные обстоятельства, которые прошу учесть при рассмотрении заявления.",
     objectionReason ? `Причина возражений: ${objectionReason}.` : "",
     extraDetails.length ? `Дополнительные сведения по выбранному варианту: ${extraDetails.join("; ")}.` : "",
     "",
     "На основании статей 128 и 129 Гражданского процессуального кодекса Российской Федерации прошу отменить судебный приказ.",
     stringValue(values.objectionComment) ? `\nДополнительно сообщаю: ${stringValue(values.objectionComment)}` : "",
     requestTermRestoration
-      ? `\nТакже прошу восстановить срок подачи возражений относительно исполнения судебного приказа, поскольку срок был пропущен по следующим причинам: ${stringValue(values.missedTermReason) || "причины будут подтверждены приложенными документами"}.\n\nНа основании статьи 112 Гражданского процессуального кодекса Российской Федерации прошу восстановить пропущенный процессуальный срок.`
+      ? `\nТакже прошу восстановить срок подачи возражений относительно исполнения судебного приказа, поскольку срок был пропущен по уважительным причинам: ${stringValue(values.missedTermReason) || "причины будут подтверждены приложенными документами"}.\n\nНа основании статьи 112 Гражданского процессуального кодекса Российской Федерации прошу восстановить пропущенный процессуальный срок. Подтверждающие документы прилагаю.`
       : "",
     "",
     "ПРОШУ:",
@@ -1059,10 +1065,7 @@ function buildJudicialOrderObjectionText(template: DocumentGeneratorTemplate, va
       : "1. Принять настоящие возражения относительно исполнения судебного приказа.\n2. Отменить судебный приказ по делу N " + requiredText(values.caseNumber) + ".",
     "",
     "Приложения:",
-    "1. Копия судебного приказа.",
-    "2. Документы, подтверждающие дату получения судебного приказа.",
-    "3. Документы, подтверждающие уважительность причин пропуска срока, если срок пропущен.",
-    "4. Иные документы, подтверждающие обстоятельства заявления.",
+    ...attachments.map((item, index) => `${index + 1}. ${item}`),
     "",
     "Дата: ____________________",
     "Подпись: ____________________"

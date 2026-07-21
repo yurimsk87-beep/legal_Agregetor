@@ -9,9 +9,7 @@ import { RelatedLawyersBlock, RelatedQuestionsBlock, SectionHeading } from "@/co
 import { DutyLawyerWidget } from "@/components/qna/DutyLawyerWidget";
 import {
   getDocumentH1,
-  getDocumentInstructionCtaLabel,
   getDocumentMetaDescription,
-  getDocumentOnlineFillCtaLabel,
   getDocumentPageTitle
 } from "@/lib/document-seo";
 import { breadcrumbJsonLd } from "@/lib/jsonld";
@@ -23,10 +21,7 @@ import { getDocumentTemplate } from "@/data/document-templates";
 import { getLegalReferences } from "@/data/legal-references";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
 import type { NavigatorDocument } from "@/data/documents";
-import type { LegalProblem } from "@/data/legal-problems";
 import { legalProblems } from "@/data/legal-problems";
-import type { NavigatorTool } from "@/data/tools";
-import { navigatorTools } from "@/data/tools";
 
 type PageProps = { params: Promise<{ documentSlug: string }> };
 type DocumentFaq = { question: string; answer: string };
@@ -34,52 +29,6 @@ type DocumentFaq = { question: string; answer: string };
 const DOCUMENT_SLUG_ALIASES: Record<string, string> = {
   "pretenziya-v-upravlyayushchuyu-kompaniyu": "pretenziya-v-upravlyayuschuyu-kompaniyu"
 };
-
-const WHEN_TO_USE_FALLBACK = [
-  "Этот документ используют, когда нужно письменно зафиксировать требование, обращение, возражение или жалобу и получить подтверждение подачи."
-];
-
-const PREPARATION_FALLBACK = [
-  "паспортные или контактные данные заявителя;",
-  "данные второй стороны или организации;",
-  "даты событий;",
-  "суммы, если есть денежный спор;",
-  "договоры, чеки, переписку и уведомления;",
-  "доказательства подачи предыдущих обращений;",
-  "реквизиты суда или госоргана, если документ подается туда."
-];
-
-const FILL_STEPS_FALLBACK = [
-  "Укажите свои данные.",
-  "Укажите адресата.",
-  "Опишите ситуацию по датам.",
-  "Сформулируйте требование.",
-  "Перечислите приложения.",
-  "Поставьте дату и подпись.",
-  "Сохраните копию документа."
-];
-
-const SUBMISSION_OPTIONS = [
-  "лично через канцелярию или приемную;",
-  "почтой заказным письмом с описью вложения;",
-  "через электронную приемную, если она есть у адресата;",
-  "через суд, ГАС или Мой арбитр, если документ связан с судебным делом;",
-  "через Госуслуги, если для этого документа доступна электронная подача;",
-  "через представителя по доверенности."
-];
-
-const SUBMISSION_FALLBACK =
-  "Способ подачи зависит от адресата. Важно сохранить подтверждение: отметку о принятии, почтовую квитанцию, трек-номер, электронное уведомление или расписку.";
-
-const DEADLINES_FALLBACK =
-  "Срок рассмотрения зависит от типа документа и адресата. Если ответа нет или он отрицательный, следующим шагом может быть жалоба, повторное обращение или обращение в суд.";
-
-const AFTER_SUBMISSION_STEPS = [
-  "Сохраните подтверждение подачи и копию документа.",
-  "Отслеживайте входящий номер, трек-номер или уведомление в личном кабинете.",
-  "Если ответа нет в установленный срок, направьте повторное обращение или жалобу.",
-  "Если пришел отказ, проверьте срок и порядок обжалования."
-];
 
 const UNIVERSAL_MISTAKES = [
   "подать документ без подтверждения;",
@@ -227,7 +176,7 @@ function DocumentHero({ document }: { document: NavigatorDocument }) {
       <div className="mt-6 flex flex-wrap gap-3">
         {generatorHref ? (
           <Link href={generatorHref} className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink">
-            Заполнить онлайн
+            {document.slug === "zayavlenie-v-zags" ? "Перейти к подаче заявления" : "Заполнить онлайн"}
           </Link>
         ) : (
           <QuestionCtaLink sourcePage={`/documents/${document.slug}/`} label="Задать вопрос юристу" />
@@ -294,124 +243,6 @@ function DocumentMistakesCards({ mistakes }: { mistakes: string[] }) {
   );
 }
 
-function DocumentPreparationBlock({ items }: { items: string[] }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Что подготовить перед заполнением</h2>
-      <TextList items={items.length ? items : PREPARATION_FALLBACK} />
-    </section>
-  );
-}
-
-function DocumentOptionalListBlock({ items, title }: { items: string[]; title: string }) {
-  if (!items.length) return null;
-
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">{title}</h2>
-      <TextList items={items} />
-    </section>
-  );
-}
-
-function DocumentCostsBlock({ costs }: { costs: string[] }) {
-  if (!costs.length) return null;
-
-  return (
-    <section className="rounded-lg border border-amber-200 bg-amber-50 p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Госпошлина и расходы</h2>
-      <TextList items={costs} />
-    </section>
-  );
-}
-
-// Объединённый блок «образец, заполнение и подача»: короткое вступление с
-// SEO-ключами (образец/бланк), шаги заполнения и чек-лист перед подачей —
-// вместо двух прежних блоков с четырьмя повторяющимися карточками.
-function DocumentHowToBlock({ document }: { document: NavigatorDocument }) {
-  const steps = document.howToFill.length ? document.howToFill : FILL_STEPS_FALLBACK;
-
-  return (
-    <section id="how-to-fill" className="mt-8 scroll-mt-24 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
-      <div className="max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-wide text-trust">Образец, бланк и заполнение</p>
-        <h2 className="mt-2 text-2xl font-semibold text-ink">Как составить и подать документ</h2>
-        <p className="mt-3 text-sm leading-6 text-zinc-600">
-          Отдельный обязательный бланк не требуется — используйте образец как черновик: укажите адресата и свои данные, опишите события по датам и сформулируйте конкретное требование.
-          {document.templateSlug ? " Готовый текст можно сформировать онлайн в форме выше." : ""}
-        </p>
-      </div>
-      <ol className="mt-5 grid gap-3">
-        {steps.map((item, index) => (
-          <li key={`${index}-${item}`} className="flex min-w-0 gap-4 rounded-lg border border-line bg-zinc-50 p-4">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-trust text-sm font-bold text-white">{index + 1}</span>
-            <p className="min-w-0 leading-7 text-zinc-700">{item}</p>
-          </li>
-        ))}
-      </ol>
-      <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-        <p className="font-semibold">Перед подачей проверьте</p>
-        <p className="mt-1">
-          Срок подачи, адресата, номера дел и документов, доказательства и копии приложений. Если спор сложный, срок пропущен или цена ошибки высока — покажите документ юристу.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function DocumentSubmissionBlock({ howToSubmit, whereToSubmit }: { howToSubmit: string[]; whereToSubmit: string }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Куда подавать документ</h2>
-      <p className="mt-3 text-base leading-7 text-zinc-700">{whereToSubmit || SUBMISSION_FALLBACK}</p>
-      <h3 className="mt-5 font-semibold text-ink">Как подать документ</h3>
-      <TextList items={howToSubmit.length ? howToSubmit : SUBMISSION_OPTIONS} />
-    </section>
-  );
-}
-
-function DocumentDeadlinesBlock({ afterFiling, deadlines }: { afterFiling: string[]; deadlines: string[] }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Сроки и что будет после подачи</h2>
-      <TextList items={deadlines.length ? deadlines : [DEADLINES_FALLBACK]} />
-      <div className="mt-5 rounded-lg bg-zinc-50 p-4">
-        <h3 className="font-semibold text-ink">Что происходит после подачи</h3>
-        <TextList items={afterFiling.length ? afterFiling : AFTER_SUBMISSION_STEPS} />
-      </div>
-    </section>
-  );
-}
-
-function DocumentMistakesBlock({ includeUniversal, mistakes }: { includeUniversal: boolean; mistakes: string[] }) {
-  const items = includeUniversal ? uniqueItems([...mistakes, ...UNIVERSAL_MISTAKES]) : uniqueItems(mistakes);
-
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Частые ошибки</h2>
-      <TextList items={items} />
-    </section>
-  );
-}
-
-function DocumentToolsBlock({ tools }: { tools: NavigatorTool[] }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Проверить срок перед подготовкой документа</h2>
-      <p className="mt-3 text-sm leading-6 text-zinc-600">Если документ связан со сроком подачи, сначала проверьте ориентировочную дату и риски пропуска.</p>
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
-        {tools.map((tool) => (
-          <Link key={tool.slug} href={`/tools/${tool.slug}/`} className="rounded-lg border border-line bg-zinc-50 p-4 hover:border-trust">
-            <h3 className="font-semibold text-ink">{tool.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-zinc-600">{tool.description}</p>
-            <span className="mt-4 inline-flex text-sm font-semibold text-trust">Открыть инструмент</span>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function FaqBlock({ faq }: { faq: DocumentFaq[] }) {
   if (!faq.length) return null;
 
@@ -435,33 +266,6 @@ function FaqBlock({ faq }: { faq: DocumentFaq[] }) {
   );
 }
 
-function DocumentRelatedDocumentsBlock({ documents }: { documents: NavigatorDocument["relatedDocuments"] }) {
-  if (!documents.length) return null;
-
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Похожие документы</h2>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        {documents.map((document) =>
-          document.slug ? (
-            <Link
-              key={`${document.slug}-${document.title}`}
-              href={`/documents/${document.slug}/`}
-              className="rounded-lg border border-line bg-zinc-50 p-4 text-sm font-semibold text-ink hover:border-trust"
-            >
-              {document.title}
-            </Link>
-          ) : (
-            <article key={document.title} className="rounded-lg border border-line bg-zinc-50 p-4 text-sm font-semibold text-zinc-600">
-              {document.title}
-            </article>
-          )
-        )}
-      </div>
-    </section>
-  );
-}
-
 function DocumentFinalCta({ checkHref, documentPath, problemHref }: { checkHref: string; documentPath: string; problemHref: string }) {
   return (
     <section className="bg-ink">
@@ -472,7 +276,7 @@ function DocumentFinalCta({ checkHref, documentPath, problemHref }: { checkHref:
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link href={checkHref} className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-zinc-100">
-            Проверить ситуацию
+            Разобрать ситуацию
           </Link>
           <QuestionCtaLink sourcePage={documentPath} label="Получить первичную консультацию" variant="secondary" />
           <Link href={problemHref} className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md border border-white/40 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">
@@ -481,19 +285,6 @@ function DocumentFinalCta({ checkHref, documentPath, problemHref }: { checkHref:
         </div>
       </div>
     </section>
-  );
-}
-
-function TextList({ items }: { items: string[] }) {
-  return (
-    <ul className="mt-4 grid gap-3">
-      {items.map((item) => (
-        <li key={item} className="flex min-w-0 gap-2 text-sm leading-6 text-zinc-700">
-          <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-trust" aria-hidden="true" />
-          <span className="min-w-0">{item}</span>
-        </li>
-      ))}
-    </ul>
   );
 }
 

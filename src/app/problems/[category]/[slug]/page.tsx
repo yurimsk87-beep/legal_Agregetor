@@ -11,6 +11,7 @@ import { getDocumentCardCtaLabel, getDocumentOnlineFillCtaLabel } from "@/lib/do
 import { breadcrumbJsonLd, legalServiceJsonLd } from "@/lib/jsonld";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { getRelatedLawyersBySpecializations, getRelatedQuestionsForContext } from "@/lib/navigator-relations";
+import { getJudicialOrderCheckHref, getJudicialOrderDocumentHref, judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
 import { buildProblemQuestionContext } from "@/data/related-questions-context";
 import { getLegalCategory } from "@/data/legal-categories";
 import { getLegalReferences } from "@/data/legal-references";
@@ -21,7 +22,10 @@ import { navigatorDocuments } from "@/data/documents";
 import type { NavigatorTool } from "@/data/tools";
 import { navigatorTools } from "@/data/tools";
 
-type PageProps = { params: Promise<{ category: string; slug: string }> };
+type PageProps = {
+  params: Promise<{ category: string; slug: string }>;
+  searchParams?: Promise<{ scenario?: string }>;
+};
 
 function renderNoteText(text: string) {
   const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
@@ -71,6 +75,186 @@ const LAWYER_CONDITIONS = [
   "ситуация отличается от типового сценария, а факты требуют проверки."
 ];
 
+const zagsProblemRoute = {
+  categorySlug: "semya-i-deti",
+  problemSlug: "brak-zags-i-smena-familii"
+};
+
+type ZagsScenarioKey = "marriage" | "name-change" | "repeat-document" | "record-correction" | "zags-refusal";
+
+type ZagsScenario = {
+  title: string;
+  shortTitle: string;
+  description: string[];
+  steps: string[];
+  documents: string[];
+  mainDocument: string;
+  whereToFile: string;
+  primaryHref: string;
+  primaryLabel: string;
+  faq: LegalProblemFaq[];
+};
+
+const zagsScenarioChoices: Array<{ key: Exclude<ZagsScenarioKey, "zags-refusal">; title: string; description: string }> = [
+  { key: "marriage", title: "Заключить брак", description: "Совместное заявление, дата регистрации, документы и основания для сокращения срока." },
+  { key: "name-change", title: "Сменить фамилию или имя", description: "Перемена имени по форме ЗАГС и действия после получения нового паспорта." },
+  { key: "repeat-document", title: "Получить свидетельство или справку", description: "Повторный документ, справка после развода, право на получение и госпошлина." },
+  { key: "record-correction", title: "Исправить запись ЗАГС", description: "Ошибка в свидетельстве или актовой записи: заявление, документы и письменный отказ." }
+];
+
+const zagsScenarios: Record<ZagsScenarioKey, ZagsScenario> = {
+  marriage: {
+    title: "Заключить брак",
+    shortTitle: "Заключение брака",
+    description: [
+      "Для регистрации брака будущие супруги подают совместное заявление. Брак регистрируется в личном присутствии обоих заявителей.",
+      "Обычный срок — по истечении месяца и не позднее 12 месяцев со дня подачи заявления. При уважительных причинах ЗАГС может назначить дату раньше, а при особых обстоятельствах — в день подачи."
+    ],
+    steps: [
+      "Проверьте, что нет препятствий к браку: другого зарегистрированного брака, близкого родства, отношений усыновителя и усыновлённого, недееспособности.",
+      "Подготовьте паспорта и документы о прекращении предыдущего брака, если он был.",
+      "Выберите фамилии супругов: сохранить свои, взять фамилию одного супруга или двойную фамилию.",
+      "Подайте совместное заявление через ЗАГС, МФЦ или официальный электронный сервис.",
+      "Если нужна регистрация раньше месяца, приложите документы, подтверждающие уважительные причины или особые обстоятельства."
+    ],
+    documents: [
+      "Паспорта будущих супругов.",
+      "Документ о прекращении предыдущего брака, если он был.",
+      "Разрешение на вступление в брак до брачного возраста, если применимо.",
+      "Документы для сокращения срока, если просите зарегистрировать брак раньше."
+    ],
+    mainDocument: "Заявление в орган ЗАГС: форма N 7, а при отдельной подаче одним заявителем — форма N 8.",
+    whereToFile: "В любой орган ЗАГС по выбору будущих супругов, через МФЦ или официальный электронный сервис, если он доступен.",
+    primaryHref: "/documents/zayavlenie-v-zags/?variant=marriage#fill-online",
+    primaryLabel: "Перейти к подаче заявления",
+    faq: [
+      { question: "Можно ли зарегистрировать брак в день подачи?", answer: "Да, при особых обстоятельствах: беременности, рождении ребёнка, непосредственной угрозе жизни одной из сторон и других особых обстоятельствах." },
+      { question: "Можно ли подать заявление, если один заявитель не может прийти?", answer: "Да, закон допускает отдельные заявления. Подпись отсутствующего заявителя должна быть удостоверена, если заявление не подаётся через электронный сервис." },
+      { question: "Какая госпошлина за заключение брака?", answer: "350 руб. за государственную регистрацию заключения брака, включая выдачу свидетельства." }
+    ]
+  },
+  "name-change": {
+    title: "Сменить фамилию или имя",
+    shortTitle: "Перемена имени",
+    description: [
+      "Если фамилия выбирается при заключении брака, отдельная перемена имени не нужна: выбор фиксируется в заявлении о браке.",
+      "Если вы меняете фамилию, имя или отчество отдельно, применяется процедура перемены имени через ЗАГС."
+    ],
+    steps: [
+      "Проверьте, нужна ли отдельная перемена имени или достаточно выбора фамилии при браке.",
+      "Подготовьте паспорт, свидетельство о рождении и документы о браке, разводе или детях, если они относятся к заявлению.",
+      "Если заявителю от 14 до 18 лет, получите согласие родителей, усыновителей или попечителя либо решение суда.",
+      "Подайте заявление о перемене имени по форме N 20 в ЗАГС.",
+      "После регистрации перемены имени замените паспорт в пределах 90 дней и обновите персональные данные в СФР."
+    ],
+    documents: [
+      "Паспорт заявителя.",
+      "Свидетельство о рождении.",
+      "Свидетельство о браке или расторжении брака, если применимо.",
+      "Свидетельства о рождении несовершеннолетних детей, если они есть.",
+      "Согласие родителей, усыновителей или попечителя либо решение суда для заявителя 14-18 лет."
+    ],
+    mainDocument: "Заявление в орган ЗАГС: форма N 20.",
+    whereToFile: "В орган ЗАГС. СНИЛС и ИНН заново не присваиваются: обновляются персональные данные, а номер ИНН остаётся прежним.",
+    primaryHref: "/documents/zayavlenie-v-zags/?variant=name-change#fill-online",
+    primaryLabel: "Перейти к подаче заявления",
+    faq: [
+      { question: "Нужно ли менять ИНН после смены фамилии?", answer: "Нет. ИНН присваивается один раз и не меняется при смене фамилии или других паспортных данных." },
+      { question: "Что делать со СНИЛС?", answer: "Нужно обновить персональные данные в СФР. Сам СНИЛС остаётся тем же." },
+      { question: "Сколько действует паспорт после смены ФИО?", answer: "Паспорт становится недействительным по истечении 90 дней со дня изменения фамилии, имени или отчества." }
+    ]
+  },
+  "repeat-document": {
+    title: "Получить свидетельство или справку",
+    shortTitle: "Повторный документ ЗАГС",
+    description: [
+      "Повторное свидетельство и справка — разные документы. Выбор зависит от вида актовой записи и вашего статуса.",
+      "Если брак расторгнут, повторное свидетельство о заключении брака не выдаётся: можно получить справку или иной документ, подтверждающий факт регистрации."
+    ],
+    steps: [
+      "Определите, нужен ли повторный экземпляр свидетельства или справка о факте регистрации.",
+      "Проверьте право на получение документа: заявитель, родственник умершего, представитель по доверенности или другое лицо по закону.",
+      "Подготовьте паспорт, документы о полномочиях и госпошлину.",
+      "Подайте заявление через ЗАГС, МФЦ или официальный электронный сервис.",
+      "Если записи нет в ЕГР ЗАГС, дождитесь проверки бумажной актовой записи."
+    ],
+    documents: [
+      "Паспорт заявителя.",
+      "Документы, подтверждающие право на получение повторного документа.",
+      "Доверенность, если обращается представитель.",
+      "Документ об оплате госпошлины, если сведения об оплате не поступили автоматически."
+    ],
+    mainDocument: "Заявление в орган ЗАГС: для документов о браке и разводе применяется форма N 26.",
+    whereToFile: "В орган ЗАГС, через МФЦ или официальный электронный сервис. При личном обращении документ выдают в день обращения, если запись есть в ЕГР ЗАГС.",
+    primaryHref: "/documents/zayavlenie-v-zags/?variant=repeat-document#fill-online",
+    primaryLabel: "Перейти к подаче заявления",
+    faq: [
+      { question: "Сколько стоит повторное свидетельство?", answer: "500 руб. за повторное свидетельство о государственной регистрации акта гражданского состояния." },
+      { question: "Сколько стоит справка из архива ЗАГС?", answer: "350 руб. для физических лиц." },
+      { question: "Можно ли получить повторное свидетельство о браке после развода?", answer: "Нет. Лицам, расторгнувшим брак, повторное свидетельство о заключении брака не выдаётся; выдают справку или иной подтверждающий документ." }
+    ]
+  },
+  "record-correction": {
+    title: "Исправить запись ЗАГС",
+    shortTitle: "Исправление записи",
+    description: [
+      "Если в актовой записи или свидетельстве есть ошибка, ЗАГС может внести исправление при наличии основания и отсутствии спора между заинтересованными лицами.",
+      "Если есть спор или ЗАГС отказывает, сначала нужен письменный отказ или письменные причины отказа."
+    ],
+    steps: [
+      "Проверьте, какая запись содержит ошибку и какие сведения нужно исправить.",
+      "Подготовьте свидетельство, которое подлежит обмену, и документы, подтверждающие правильные сведения.",
+      "Подайте заявление по форме N 23 в орган ЗАГС.",
+      "Дождитесь решения: исправление вносится либо заявителю сообщают письменный отказ.",
+      "Если есть спор между заинтересованными лицами, оцените необходимость судебного решения."
+    ],
+    documents: [
+      "Паспорт заявителя.",
+      "Свидетельство, которое нужно обменять из-за исправления.",
+      "Документы, подтверждающие основание исправления или изменения.",
+      "Документ об оплате госпошлины."
+    ],
+    mainDocument: "Заявление в орган ЗАГС: форма N 23.",
+    whereToFile: "В орган ЗАГС. Срок рассмотрения — 1 месяц, при уважительных причинах может быть увеличен не более чем на 2 месяца.",
+    primaryHref: "/documents/zayavlenie-v-zags/?variant=record-correction#fill-online",
+    primaryLabel: "Перейти к подаче заявления",
+    faq: [
+      { question: "Когда ЗАГС исправляет запись сам?", answer: "Когда есть предусмотренное законом основание и нет спора между заинтересованными лицами." },
+      { question: "Какая госпошлина за исправление записи?", answer: "700 руб. за внесение исправлений и изменений в записи актов гражданского состояния, включая выдачу свидетельств." },
+      { question: "Что делать при отказе?", answer: "Получите письменные причины отказа. После этого можно оценить обжалование или необходимость судебного обращения." }
+    ]
+  },
+  "zags-refusal": {
+    title: "ЗАГС отказал или не принимает документы",
+    shortTitle: "Отказ ЗАГС",
+    description: [
+      "Отказ нельзя оценить без причины: сначала нужно получить письменное объяснение, почему ЗАГС не регистрирует акт, не принимает заявление или не выдаёт документ.",
+      "После письменного отказа можно понять, достаточно ли исправить документы, обратиться в вышестоящий орган или нужен суд."
+    ],
+    steps: [
+      "Попросите руководителя ЗАГС сообщить причины отказа письменно.",
+      "Сохраните заявление, отказ, уведомления, квитанции и список документов, которые подавали.",
+      "Сравните причину отказа с вашей процедурой и документами.",
+      "Если отказ связан со спором о праве или актовой записью, оцените судебный порядок.",
+      "Если причина непонятна или затрагивает права других лиц, задайте вопрос юристу с приложением отказа."
+    ],
+    documents: [
+      "Письменный отказ или письменные причины отказа.",
+      "Копия поданного заявления.",
+      "Паспорт и документы, которые подавались в ЗАГС.",
+      "Квитанция или подтверждение оплаты госпошлины, если она была оплачена."
+    ],
+    mainDocument: "Без анализа письменного отказа основной документ не выбирается.",
+    whereToFile: "Жалобу или судебное обращение выбирают только после проверки основания отказа.",
+    primaryHref: "/questions/#question",
+    primaryLabel: "Спросить юриста",
+    faq: [
+      { question: "Можно ли сразу подать иск?", answer: "Не стоит начинать с общего иска. Сначала получите письменные причины отказа и проверьте, можно ли устранить замечания без суда." },
+      { question: "ЗАГС обязан дать отказ письменно?", answer: "Да, по требованию лица или представителя руководитель ЗАГС обязан сообщить причины отказа в письменной форме." }
+    ]
+  }
+};
+
 // Все валидные ситуации перечислены ниже → неизвестные slug дают настоящий 404
 // (не soft-404 с кодом 200). revalidate делает страницу ISR → кэшируемый ответ
 // (s-maxage) вместо no-store.
@@ -102,11 +286,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function ProblemPage({ params }: PageProps) {
+export default async function ProblemPage({ params, searchParams }: PageProps) {
   const { category: categorySlug, slug } = await params;
   const category = getLegalCategory(categorySlug);
   const problem = getLegalProblem(categorySlug, slug);
   if (!category || !problem) notFound();
+
+  const problemPath = `/problems/${category.slug}/${problem.slug}/`;
+  if (category.slug === zagsProblemRoute.categorySlug && problem.slug === zagsProblemRoute.problemSlug) {
+    const resolvedSearchParams = searchParams ? await searchParams : {};
+    const scenario = normalizeZagsScenario(resolvedSearchParams.scenario);
+    return <ZagsProblemPage categoryTitle={category.title} problem={problem} problemPath={problemPath} scenario={scenario} />;
+  }
 
   const [relatedQuestions, relatedLawyers] = await Promise.all([
     getRelatedQuestionsForContext(
@@ -119,15 +310,19 @@ export default async function ProblemPage({ params }: PageProps) {
   const relatedTools = navigatorTools.filter((tool) => tool.status === "available" && tool.relatedProblemSlugs.includes(problem.slug));
   const relatedProblems = getProblemsByCategory(category.slug).filter((item) => item.slug !== problem.slug);
   const legalReferences = getLegalReferences(problem.legalReferenceKeys);
-  const problemPath = `/problems/${category.slug}/${problem.slug}/`;
-  const checkHref = problem.slug === "sudebnyy-prikaz" ? "/tools/sudebnyy-prikaz-deadline/" : `/problems/${category.slug}/${problem.slug}/`;
-  const checkCtaLabel = problem.slug === "sudebnyy-prikaz" ? "Проверить срок" : "Проверить ситуацию";
+  const isJudicialOrderDebt = category.slug === judicialOrderDebtRoute.categorySlug && problem.slug === judicialOrderDebtRoute.problemSlug;
+  const checkHref = isJudicialOrderDebt ? getJudicialOrderCheckHref("situation", problemPath) : `/problems/${category.slug}/${problem.slug}/`;
+  const checkCtaLabel = isJudicialOrderDebt ? "Проверить мою ситуацию" : "Проверить ситуацию";
   const firstDocument = relatedDocuments[0];
-  const firstDocumentHref = firstDocument
+  const firstDocumentHref = isJudicialOrderDebt
+    ? getJudicialOrderDocumentHref({ source: "situation" })
+    : firstDocument
     ? `/documents/${firstDocument.slug}/${firstDocument.templateSlug ? "#fill-online" : ""}`
     : "/documents/";
   const firstDocumentCtaLabel =
-    firstDocument?.templateSlug
+    isJudicialOrderDebt
+      ? "Сразу сформировать возражение"
+      : firstDocument?.templateSlug
       ? getDocumentOnlineFillCtaLabel(firstDocument)
       : firstDocument
         ? getDocumentCardCtaLabel(firstDocument)
@@ -156,7 +351,15 @@ export default async function ProblemPage({ params }: PageProps) {
       />
       <Breadcrumbs items={breadcrumbs} />
       <article className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <SituationHero categoryTitle={category.title} checkCtaLabel={checkCtaLabel} checkHref={checkHref} documentCtaLabel={firstDocumentCtaLabel} documentHref={firstDocumentHref} problem={problem} />
+        <SituationHero
+          categoryTitle={category.title}
+          checkCtaLabel={checkCtaLabel}
+          checkHref={checkHref}
+          documentCtaLabel={firstDocumentCtaLabel}
+          documentHref={firstDocumentHref}
+          problem={problem}
+          showLawyerCta={!isJudicialOrderDebt}
+        />
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <FirstActionsBlock steps={problem.steps} />
@@ -249,13 +452,176 @@ export default async function ProblemPage({ params }: PageProps) {
   );
 }
 
+function normalizeZagsScenario(value: string | undefined): ZagsScenarioKey | null {
+  if (!value) return null;
+  return value in zagsScenarios ? (value as ZagsScenarioKey) : null;
+}
+
+function ZagsProblemPage({
+  categoryTitle,
+  problem,
+  problemPath,
+  scenario
+}: {
+  categoryTitle: string;
+  problem: LegalProblem;
+  problemPath: string;
+  scenario: ZagsScenarioKey | null;
+}) {
+  const selectedScenario = scenario ? zagsScenarios[scenario] : null;
+  const breadcrumbs = [
+    { name: "Главная", path: "/" },
+    { name: "Правовой навигатор", path: "/problems/" },
+    { name: categoryTitle, path: `/problems/${problem.categorySlug}/` },
+    { name: "Брак и ЗАГС", path: problemPath }
+  ];
+  const visibleFaq = selectedScenario?.faq ?? problem.faq.slice(0, 4);
+
+  return (
+    <>
+      <JsonLd
+        data={[
+          breadcrumbJsonLd(breadcrumbs),
+          legalServiceJsonLd({
+            path: problemPath,
+            name: "Брак и ЗАГС",
+            description: problem.shortAnswer,
+            lawyers: []
+          }),
+          articleJsonLd(problem, categoryTitle),
+          faqPageJsonLd(visibleFaq)
+        ]}
+      />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-8">
+          <p className="text-sm font-semibold uppercase tracking-wide text-trust">{categoryTitle}</p>
+          <h1 className="mt-3 text-3xl font-semibold leading-tight text-ink sm:text-5xl">Брак и ЗАГС</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">
+            Выберите, что вам нужно сделать. Покажем только подходящие шаги и документы.
+          </p>
+        </header>
+
+        {!selectedScenario ? (
+          <section className="mt-6 grid gap-4 md:grid-cols-2">
+            {zagsScenarioChoices.map((choice) => (
+              <Link
+                key={choice.key}
+                href={`${problemPath}?scenario=${choice.key}`}
+                className="min-h-11 rounded-lg border border-line bg-white p-5 shadow-sm outline-none hover:border-trust focus:border-trust focus:ring-2 focus:ring-trust/20"
+              >
+                <span className="text-lg font-semibold text-ink">{choice.title}</span>
+                <span className="mt-2 block text-sm leading-6 text-zinc-600">{choice.description}</span>
+              </Link>
+            ))}
+          </section>
+        ) : (
+          <section className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wide text-trust">{selectedScenario.shortTitle}</p>
+                <h2 className="mt-2 text-3xl font-semibold text-ink">{selectedScenario.title}</h2>
+              </div>
+              <Link href={problemPath} className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/20">
+                Назад к выбору
+              </Link>
+            </div>
+
+            <div className="mt-5 grid gap-3 text-base leading-7 text-zinc-700">
+              {selectedScenario.description.slice(0, 2).map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+
+            <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_0.9fr]">
+              <section className="rounded-lg border border-line bg-zinc-50 p-4">
+                <h3 className="text-xl font-semibold text-ink">Шаги</h3>
+                <ol className="mt-3 grid gap-2 text-sm leading-6 text-zinc-700">
+                  {selectedScenario.steps.slice(0, 5).map((step, index) => (
+                    <li key={step} className="flex gap-3">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-trust text-xs font-bold text-white">{index + 1}</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+
+              <section className="rounded-lg border border-line bg-zinc-50 p-4">
+                <h3 className="text-xl font-semibold text-ink">Документы</h3>
+                <ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-700">
+                  {selectedScenario.documents.map((document) => (
+                    <li key={document}>- {document}</li>
+                  ))}
+                </ul>
+              </section>
+            </div>
+
+            <div className="mt-5 grid gap-4">
+              <InfoBox title="Основной документ" text={selectedScenario.mainDocument} />
+              <InfoBox title="Куда подать" text={selectedScenario.whereToFile} />
+            </div>
+
+            <div className="mt-6">
+              <Link href={selectedScenario.primaryHref} className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+                {selectedScenario.primaryLabel}
+              </Link>
+            </div>
+
+            {scenario !== "zags-refusal" ? (
+              <div className="mt-5 border-t border-line pt-4">
+                <Link href={`${problemPath}?scenario=zags-refusal`} className="inline-flex min-h-11 items-center rounded-md text-sm font-semibold text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+                  ЗАГС отказал или не принимает документы?
+                </Link>
+              </div>
+            ) : null}
+
+            {visibleFaq.length ? (
+              <section className="mt-6">
+                <h3 className="text-xl font-semibold text-ink">Частые вопросы</h3>
+                <div className="mt-3 grid gap-3">
+                  {visibleFaq.slice(0, 4).map((item) => (
+                    <details key={item.question} className="rounded-lg border border-line bg-zinc-50 p-4">
+                      <summary className="flex min-h-11 cursor-pointer items-center text-sm font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">{item.question}</summary>
+                      <p className="mt-2 text-sm leading-6 text-zinc-700">{item.answer}</p>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+          </section>
+        )}
+
+        {problem.lastReviewedAt ? (
+          <p className="mt-5 text-xs leading-5 text-zinc-500">Юридическая проверка: {formatReviewDate(problem.lastReviewedAt)}.</p>
+        ) : null}
+      </article>
+    </>
+  );
+}
+
+function InfoBox({ text, title }: { text: string; title: string }) {
+  return (
+    <section className="rounded-lg border border-line bg-zinc-50 p-4">
+      <h3 className="text-sm font-semibold text-ink">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-zinc-700">{text}</p>
+    </section>
+  );
+}
+
+function formatReviewDate(value: string) {
+  const [year, month, day] = value.split("-");
+  if (!year || !month || !day) return value;
+  return `${day}.${month}.${year}`;
+}
+
 function SituationHero({
   categoryTitle,
   checkCtaLabel,
   checkHref,
   documentCtaLabel,
   documentHref,
-  problem
+  problem,
+  showLawyerCta
 }: {
   categoryTitle: string;
   checkCtaLabel: string;
@@ -263,6 +629,7 @@ function SituationHero({
   documentCtaLabel: string;
   documentHref: string;
   problem: LegalProblem;
+  showLawyerCta: boolean;
 }) {
   return (
     <header className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
@@ -279,9 +646,11 @@ function SituationHero({
             <Link href={documentHref} className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md border border-line bg-white px-5 py-3 text-sm font-semibold text-ink hover:border-trust">
               {documentCtaLabel}
             </Link>
-            <Link href="/lawyers/" className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md border border-line bg-white px-5 py-3 text-sm font-semibold text-ink hover:border-trust">
-              Посмотреть юристов
-            </Link>
+            {showLawyerCta ? (
+              <Link href="/lawyers/" className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md border border-line bg-white px-5 py-3 text-sm font-semibold text-ink hover:border-trust">
+                Посмотреть юристов
+              </Link>
+            ) : null}
           </div>
         </div>
         <aside className="border-t border-line bg-zinc-50 p-5 sm:p-6 lg:border-l lg:border-t-0">

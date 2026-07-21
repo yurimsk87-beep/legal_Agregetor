@@ -5,6 +5,7 @@ import { legalProblems } from "@/data/legal-problems";
 import type { LegalProblemRiskLevel, LegalProblemUrgency } from "@/data/legal-problems";
 import { navigatorTools } from "@/data/tools";
 import { getGeneratorMetaDescription, getGeneratorPageTitle } from "@/lib/document-seo";
+import { isJudicialOrderDebtQuery, judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
 import type { Lawyer, Question } from "@/lib/types";
 
 export type SiteSearchResult = {
@@ -684,8 +685,38 @@ function domainBoost(result: SearchableResult, queryDomains: SearchDomain[]) {
   return queryDomains.some((domain) => resultDomains.has(domain)) ? 180 : 0;
 }
 
+function isZagsProcedureQuery(normalizedQuery: string) {
+  const isDivorceQuery =
+    (normalizedQuery.includes("развод") || normalizedQuery.includes("расторжен")) &&
+    !normalizedQuery.includes("справ") &&
+    !normalizedQuery.includes("повтор") &&
+    !normalizedQuery.includes("после развод");
+  if (isDivorceQuery || normalizedQuery.includes("алимент")) return false;
+
+  return [
+    "хочу зарегистрировать брак",
+    "зарегистрировать брак",
+    "регистрация брака",
+    "подать заявление в загс",
+    "заявление в загс",
+    "зарегистрировать брак быстрее",
+    "сменить фамилию после свадьбы",
+    "сменить фамилию после брака",
+    "сменить имя",
+    "перемена имени",
+    "потерял свидетельство о браке",
+    "повторное свидетельство о браке",
+    "справка о браке после развода",
+    "получить справку о браке",
+    "исправить ошибку в свидетельстве",
+    "исправить запись загс",
+    "загс отказал"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isJudicialOrderDebtQuery(normalizedQuery) && href === judicialOrderDebtRoute.canonicalUrl) return 1100;
   if (normalizedQuery.includes("уволили") && normalizedQuery.includes("без причины") && href.includes("/nezakonno-uvolili/")) return 980;
   if (normalizedQuery.includes("выселя") && normalizedQuery.includes("квартир") && href.includes("/vyselenie-iz-kvartiry/")) return 980;
   if (normalizedQuery.includes("соседи") && normalizedQuery.includes("шум") && href.includes("/shumnye-sosedi/")) return 980;
@@ -697,6 +728,8 @@ function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   // взыскание алиментов, а не на лишение родительских прав. Лишение — только при явном
   // «лишить/лишение» (см. isConflictingResult: для алиментных запросов lishenie исключается).
   if (normalizedQuery.includes("алимент") && !normalizedQuery.includes("лиш") && href.includes("/semya-i-deti/alimenty/")) return 980;
+  if (isZagsProcedureQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/brak-zags-i-smena-familii/")) return 990;
+  if (isZagsProcedureQuery(normalizedQuery) && href.includes("/documents/zayavlenie-v-zags/")) return 970;
   // Развод/расторжение брака ведут на развод, а не на смежные семейные темы (алименты).
   if ((normalizedQuery.includes("развод") || normalizedQuery.includes("расторжен")) && !normalizedQuery.includes("алимент") && href.includes("/semya-i-deti/razvod/")) return 980;
   return 0;

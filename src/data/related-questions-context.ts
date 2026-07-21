@@ -39,7 +39,18 @@ export const PROBLEM_EXCLUDED_TOPICS: Record<string, string[]> = {
   "suprug-skryvaet-imuschestvo": [...TOPIC.alimonyFirst, ...TOPIC.alimonyDebt, ...TOPIC.communication, ...TOPIC.residence, ...TOPIC.deprivation],
 
   // Развод — отсечь раздел/детские споры, не относящиеся напрямую к расторжению.
-  "razvod": [...TOPIC.property, ...TOPIC.communication, ...TOPIC.residence, ...TOPIC.deprivation]
+  "razvod": [...TOPIC.property, ...TOPIC.communication, ...TOPIC.residence, ...TOPIC.deprivation],
+
+  // Брак и ЗАГС — только регистрация брака, перемена имени, повторные документы и исправления записей.
+  "brak-zags-i-smena-familii": [
+    ...TOPIC.alimonyFirst,
+    ...TOPIC.alimonyDebt,
+    ...TOPIC.property,
+    ...TOPIC.communication,
+    ...TOPIC.residence,
+    ...TOPIC.deprivation,
+    ...TOPIC.divorce
+  ]
 };
 
 // Question-matching primary tags for pages whose relatedQuestionTopics include
@@ -74,6 +85,17 @@ export const PROBLEM_PRIMARY_TAGS: Record<string, string[]> = {
     "куда подать на развод",
     "госпошлина за развод",
     "как развестись"
+  ],
+  "brak-zags-i-smena-familii": [
+    "хочу зарегистрировать брак",
+    "как подать заявление в загс",
+    "как зарегистрировать брак быстрее",
+    "сменить фамилию после свадьбы",
+    "сменить имя",
+    "потерял свидетельство о браке",
+    "получить справку о браке после развода",
+    "исправить ошибку в свидетельстве",
+    "загс отказал"
   ]
 };
 
@@ -156,6 +178,27 @@ export const DOCUMENT_CONTEXT_OVERRIDES: Record<string, { primaryTags?: string[]
   "isk-o-razdele-imuschestva": {
     primaryTags: ["иск о разделе имущества", "раздел имущества через суд", "раздел квартиры", "раздел ипотеки", "оценка имущества", "госпошлина за раздел имущества", "какие документы приложить раздел"],
     excludedTopics: [...TOPIC.alimonyFirst, ...TOPIC.alimonyDebt, ...TOPIC.communication, ...TOPIC.residence, ...TOPIC.deprivation]
+  },
+  "zayavlenie-v-zags": {
+    primaryTags: [
+      "заявление в загс",
+      "заявление о заключении брака",
+      "форма 7 загс",
+      "форма 8 загс",
+      "форма 20 перемена имени",
+      "форма 23 исправить запись загс",
+      "форма 26 повторное свидетельство",
+      "справка о браке после развода"
+    ],
+    excludedTopics: [
+      ...TOPIC.alimonyFirst,
+      ...TOPIC.alimonyDebt,
+      ...TOPIC.property,
+      ...TOPIC.communication,
+      ...TOPIC.residence,
+      ...TOPIC.deprivation,
+      ...TOPIC.divorce
+    ]
   }
 };
 

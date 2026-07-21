@@ -36,7 +36,7 @@ export function LegalReferencesBlock({
                 href={reference.url}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 inline-flex text-sm font-semibold text-trust hover:text-ink"
+                className="mt-3 inline-flex min-h-11 items-center rounded-md text-sm font-semibold text-trust hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30"
               >
                 Открыть источник
               </a>

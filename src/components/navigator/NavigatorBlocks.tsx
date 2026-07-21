@@ -125,6 +125,7 @@ export function DocumentCard({ document, variantKey }: { document: NavigatorDocu
   const generatorHref = document.templateSlug
     ? `/documents/${document.slug}/${variantKey ? `?variant=${variantKey}` : ""}#fill-online`
     : null;
+  const actionLabel = document.slug === "zayavlenie-v-zags" ? "Перейти к подаче заявления" : getDocumentOnlineFillCtaLabel(document);
 
   return (
     <MaterialCard
@@ -134,7 +135,7 @@ export function DocumentCard({ document, variantKey }: { document: NavigatorDocu
       actions={[
         // Одна кнопка на карточке: «Сформировать документ». С генератором ведёт на
         // генератор (с вариантом, если задан), без генератора — на страницу документа.
-        { href: generatorHref ?? documentHref, label: getDocumentOnlineFillCtaLabel(document), variant: "primary" as const }
+        { href: generatorHref ?? documentHref, label: actionLabel, variant: "primary" as const }
       ]}
     />
   );

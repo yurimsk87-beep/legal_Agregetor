@@ -33,6 +33,15 @@ type CategoryPageCopy = {
   lawyersTitle: string;
   lawyersDescription: string;
   lawyersEmpty: string;
+  problemGroups?: SituationGroup[];
+  hideDocuments?: boolean;
+  hideQuestions?: boolean;
+  hideLawyers?: boolean;
+};
+
+type SituationGroup = {
+  title: string;
+  slugs: string[];
 };
 
 const categoryPageCopy: Record<string, CategoryPageCopy> = {
@@ -84,6 +93,57 @@ const categoryPageCopy: Record<string, CategoryPageCopy> = {
     lawyersTitle: "Юристы по долгам и кредитам",
     lawyersDescription: "Показываем специалистов по кредитам, банкам, взысканию, банкротству и исполнительному производству.",
     lawyersEmpty: "Пока нет юристов с точной специализацией по долгам. Вы можете задать вопрос или открыть общий каталог юристов."
+  },
+  "semya-i-deti": {
+    title: "Семейные споры — ситуации, документы и порядок действий",
+    description: "Выберите семейную ситуацию: брак, ЗАГС, развод, алименты, дети, опека, усыновление, материнский капитал или семейная защита.",
+    h1: "Семейные споры",
+    subtitle: "Выберите ситуацию — покажем порядок действий, необходимые документы и следующий шаг.",
+    intro: "",
+    problemOrder: [
+      "brak-zags-i-smena-familii",
+      "razvod",
+      "razdel-imushchestva-suprugov",
+      "brachnyy-dogovor",
+      "opredelenie-mesta-zhitelstva-rebenka",
+      "poryadok-obshcheniya-s-rebenkom",
+      "ustanovlenie-ili-osparivanie-otcovstva",
+      "lishenie-i-ogranichenie-roditelskih-prav",
+      "opeka-i-popechitelstvo",
+      "usynovlenie",
+      "alimenty",
+      "dolg-po-alimentam",
+      "nasilie-v-seme",
+      "materinskiy-kapital"
+    ],
+    documentSlugs: [],
+    documentsTitle: "",
+    documentsDescription: "",
+    questionsTitle: "",
+    questionsDescription: "",
+    questionsEmpty: "",
+    lawyersTitle: "",
+    lawyersDescription: "",
+    lawyersEmpty: "",
+    problemGroups: [
+      { title: "Брак и супруги", slugs: ["brak-zags-i-smena-familii", "razvod", "razdel-imushchestva-suprugov", "brachnyy-dogovor"] },
+      {
+        title: "Дети и родители",
+        slugs: [
+          "opredelenie-mesta-zhitelstva-rebenka",
+          "poryadok-obshcheniya-s-rebenkom",
+          "ustanovlenie-ili-osparivanie-otcovstva",
+          "lishenie-i-ogranichenie-roditelskih-prav",
+          "opeka-i-popechitelstvo",
+          "usynovlenie"
+        ]
+      },
+      { title: "Алименты", slugs: ["alimenty", "dolg-po-alimentam"] },
+      { title: "Защита и поддержка", slugs: ["nasilie-v-seme", "materinskiy-kapital"] }
+    ],
+    hideDocuments: true,
+    hideQuestions: true,
+    hideLawyers: true
   }
 };
 
@@ -155,11 +215,13 @@ export default async function ProblemCategoryPage({ params }: PageProps) {
   if (!category) notFound();
 
   const pageCopy = categoryPageCopy[category.slug];
+  const hideQuestions = Boolean(pageCopy?.hideQuestions);
+  const hideLawyers = Boolean(pageCopy?.hideLawyers);
   const problems = sortProblems(getProblemsByCategory(category.slug), pageCopy?.problemOrder);
-  const relatedDocuments = getCategoryDocuments(pageCopy?.documentSlugs);
+  const relatedDocuments = pageCopy?.hideDocuments ? [] : getCategoryDocuments(pageCopy?.documentSlugs);
   const [relatedQuestions, relatedLawyers] = await Promise.all([
-    getDiverseCategoryQuestions(categoryQuestionPhrases(category.slug, category.questionTopics)),
-    getRelatedLawyersBySpecializations(category.lawyerSpecializations)
+    hideQuestions ? Promise.resolve([] as Question[]) : getDiverseCategoryQuestions(categoryQuestionPhrases(category.slug, category.questionTopics)),
+    hideLawyers ? Promise.resolve([] as Lawyer[]) : getRelatedLawyersBySpecializations(category.lawyerSpecializations)
   ]);
   const visibleQuestions = category.slug === "dolgi-kredity-i-pristavy" ? filterDebtQuestions(relatedQuestions) : relatedQuestions;
   const visibleLawyers = category.slug === "dolgi-kredity-i-pristavy" ? filterDebtLawyers(relatedLawyers) : relatedLawyers;
@@ -191,11 +253,13 @@ export default async function ProblemCategoryPage({ params }: PageProps) {
       </section>
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <SectionHeading title="Жизненные ситуации" />
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {problems.map((problem) => (
-            <ProblemCard key={problem.slug} problem={problem} />
-          ))}
-        </div>
+        {pageCopy?.problemGroups ? <GroupedProblemList groups={pageCopy.problemGroups} problems={problems} /> : (
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {problems.map((problem) => (
+              <ProblemCard key={problem.slug} problem={problem} />
+            ))}
+          </div>
+        )}
       </section>
       {relatedDocuments.length ? (
         <section className="bg-white">
@@ -213,7 +277,7 @@ export default async function ProblemCategoryPage({ params }: PageProps) {
           </div>
         </section>
       ) : null}
-      {visibleQuestions.length || pageCopy ? (
+      {!hideQuestions && (visibleQuestions.length || pageCopy) ? (
         <section className="bg-white">
           <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             <SectionHeading title={pageCopy?.questionsTitle ?? "Похожие вопросы"} description={pageCopy?.questionsDescription ?? "Реальные Q&A по темам этой категории."} />
@@ -227,7 +291,7 @@ export default async function ProblemCategoryPage({ params }: PageProps) {
           </div>
         </section>
       ) : null}
-      {visibleLawyers.length || pageCopy ? (
+      {!hideLawyers && (visibleLawyers.length || pageCopy) ? (
         <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <SectionHeading title={pageCopy?.lawyersTitle ?? "Юристы по теме"} description={pageCopy?.lawyersDescription} />
           <div className="mt-6">
@@ -253,6 +317,30 @@ function getCategoryDocuments(slugs: string[] | undefined) {
   if (!slugs?.length) return [];
   const documentsBySlug = new Map(navigatorDocuments.map((document) => [document.slug, document]));
   return slugs.map((slug) => documentsBySlug.get(slug)).filter((document): document is NavigatorDocument => Boolean(document));
+}
+
+function GroupedProblemList({ groups, problems }: { groups: SituationGroup[]; problems: LegalProblem[] }) {
+  const bySlug = new Map(problems.map((problem) => [problem.slug, problem]));
+
+  return (
+    <div className="mt-6 grid gap-8">
+      {groups.map((group) => {
+        const groupProblems = group.slugs.map((slug) => bySlug.get(slug)).filter((problem): problem is LegalProblem => Boolean(problem));
+        if (!groupProblems.length) return null;
+
+        return (
+          <section key={group.title}>
+            <h2 className="text-2xl font-semibold text-ink">{group.title}</h2>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {groupProblems.map((problem) => (
+                <ProblemCard key={problem.slug} problem={problem} />
+              ))}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  );
 }
 
 function CategoryEmptyState({

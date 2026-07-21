@@ -9,6 +9,7 @@ import {
   searchSite,
   type SearchResultType
 } from "@/lib/site-search";
+import { getJudicialOrderProblemHref } from "@/lib/judicial-order-flow";
 import { getLawyers, searchPublicQuestions } from "@/lib/repositories";
 
 export const dynamic = "force-dynamic";
@@ -60,7 +61,9 @@ export async function GET(request: Request) {
 
 function getSuggestionMoreHref(type: SearchResultType, query: string) {
   const encodedQuery = encodeURIComponent(query);
+  const judicialOrderHref = getJudicialOrderProblemHref(query);
 
+  if (judicialOrderHref && (type === "situation" || type === "instruction")) return judicialOrderHref;
   if (type === "question") return `/questions/?q=${encodedQuery}`;
   if (type === "document") return `/documents/`;
   return `/problems/`;

@@ -3,19 +3,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-type ResultStatus = "running" | "today" | "missed" | "unknown";
-
-type DeadlineResult = {
-  status: ResultStatus;
-  receivedDate: Date | null;
-  baseDeadline: Date | null;
-  deadline: Date | null;
-  daysLeft: number | null;
-  movedFromWeekend: boolean;
-};
+import { judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
+import { calculateJudicialOrderDeadline, type JudicialOrderDeadlineResult, type JudicialOrderDeadlineStatus } from "@/lib/judicial-order-deadline";
 
 export function JudicialOrderDeadlineCalculator() {
   const [receivedDate, setReceivedDate] = useState("");
@@ -26,7 +15,7 @@ export function JudicialOrderDeadlineCalculator() {
 
   const result = useMemo(
     () =>
-      calculateDeadline({
+      calculateJudicialOrderDeadline({
         alreadyMissed,
         receivedDateValue: receivedDate,
         unknownReceiptDate
@@ -84,7 +73,7 @@ export function JudicialOrderDeadlineCalculator() {
   );
 }
 
-function DeadlineResultCard({ learnedFromBailiffs, result }: { learnedFromBailiffs: boolean; result: DeadlineResult }) {
+function DeadlineResultCard({ learnedFromBailiffs, result }: { learnedFromBailiffs: boolean; result: JudicialOrderDeadlineResult }) {
   if (result.status === "unknown") {
     return (
       <ResultShell status="unknown" tone="amber" title="Нужно уточнить дату получения">
@@ -102,7 +91,7 @@ function DeadlineResultCard({ learnedFromBailiffs, result }: { learnedFromBailif
         />
         {learnedFromBailiffs ? <BailiffWarning /> : null}
         <p className="mt-4 text-sm leading-6 text-zinc-600">Основание: ст. 128 ГПК РФ связывает десятидневный срок с получением копии судебного приказа.</p>
-        <ResultLinks primaryHref="/problems/dolgi/sudebnyy-prikaz/" primaryLabel="Открыть инструкцию" secondaryHref="/questions/" secondaryLabel="Посмотреть Q&A" />
+        <ResultLinks primaryHref={judicialOrderDebtRoute.canonicalUrl} primaryLabel="Открыть инструкцию" secondaryHref="/questions/" secondaryLabel="Посмотреть Q&A" />
       </ResultShell>
     );
   }
@@ -138,7 +127,7 @@ function DeadlineResultCard({ learnedFromBailiffs, result }: { learnedFromBailif
         <p className="mt-4 rounded-lg bg-white p-3 text-sm leading-6 text-zinc-700">
           По ст. 108 ГПК РФ процессуальное действие можно совершить до 24:00 последнего дня срока, в том числе отправить документы почтой до истечения суток.
         </p>
-        <ResultLinks primaryHref="/documents/vozrazhenie-na-sudebnyy-prikaz/" primaryLabel="Подготовить возражение" secondaryHref="/lawyers/" secondaryLabel="Срочно к юристу" />
+        <ResultLinks primaryHref={`/documents/${judicialOrderDebtRoute.documentSlug}/?variant=${judicialOrderDebtRoute.documentVariant}&route_id=${judicialOrderDebtRoute.routeId}#fill-online`} primaryLabel="Подготовить возражение" secondaryHref="/lawyers/" secondaryLabel="Срочно к юристу" />
       </ResultShell>
     );
   }
@@ -153,12 +142,12 @@ function DeadlineResultCard({ learnedFromBailiffs, result }: { learnedFromBailif
       <p className="mt-4 text-sm leading-6 text-zinc-600">
         Если возражения поступят в срок, по ст. 129 ГПК РФ судья отменяет судебный приказ. Причины несогласия с долгом обычно подробно доказывать не требуется.
       </p>
-      <ResultLinks primaryHref="/documents/vozrazhenie-na-sudebnyy-prikaz/" primaryLabel="Подготовить возражение" secondaryHref="/problems/dolgi/sudebnyy-prikaz/" secondaryLabel="Открыть инструкцию" />
+      <ResultLinks primaryHref={`/documents/${judicialOrderDebtRoute.documentSlug}/?variant=${judicialOrderDebtRoute.documentVariant}&route_id=${judicialOrderDebtRoute.routeId}#fill-online`} primaryLabel="Подготовить возражение" secondaryHref={judicialOrderDebtRoute.canonicalUrl} secondaryLabel="Открыть инструкцию" />
     </ResultShell>
   );
 }
 
-function DeadlineSummary({ result }: { result: DeadlineResult }) {
+function DeadlineSummary({ result }: { result: JudicialOrderDeadlineResult }) {
   if (!result.deadline) return null;
 
   return (
@@ -188,7 +177,7 @@ function DeadlineSummary({ result }: { result: DeadlineResult }) {
   );
 }
 
-function ResultShell({ children, status, title, tone }: { children: ReactNode; status: ResultStatus; title: string; tone: "green" | "amber" | "red" }) {
+function ResultShell({ children, status, title, tone }: { children: ReactNode; status: JudicialOrderDeadlineStatus; title: string; tone: "green" | "amber" | "red" }) {
   const toneClassName =
     tone === "red" ? "border-red-200 bg-red-50" : tone === "amber" ? "border-amber-200 bg-amber-50" : "border-emerald-200 bg-emerald-50";
 
@@ -258,78 +247,6 @@ function CheckboxField({ checked, label, onChange }: { checked: boolean; label: 
       <span className="min-w-0">{label}</span>
     </label>
   );
-}
-
-function calculateDeadline({
-  alreadyMissed,
-  receivedDateValue,
-  unknownReceiptDate
-}: {
-  alreadyMissed: boolean;
-  receivedDateValue: string;
-  unknownReceiptDate: boolean;
-}): DeadlineResult {
-  if (unknownReceiptDate || !receivedDateValue) {
-    return {
-      status: "unknown",
-      receivedDate: null,
-      baseDeadline: null,
-      deadline: null,
-      daysLeft: null,
-      movedFromWeekend: false
-    };
-  }
-
-  const receivedDate = parseDateInput(receivedDateValue);
-  if (!receivedDate) {
-    return {
-      status: "unknown",
-      receivedDate: null,
-      baseDeadline: null,
-      deadline: null,
-      daysLeft: null,
-      movedFromWeekend: false
-    };
-  }
-
-  const baseDeadline = addDays(receivedDate, 10);
-  const deadline = moveWeekendToMonday(baseDeadline);
-  const today = startOfDay(new Date());
-  const daysLeft = Math.round((deadline.getTime() - today.getTime()) / DAY_MS);
-  const status: ResultStatus = alreadyMissed ? "missed" : daysLeft < 0 ? "missed" : daysLeft === 0 ? "today" : "running";
-
-  return {
-    status,
-    receivedDate,
-    baseDeadline,
-    deadline,
-    daysLeft,
-    movedFromWeekend: baseDeadline.getTime() !== deadline.getTime()
-  };
-}
-
-function parseDateInput(value: string) {
-  const [year, month, day] = value.split("-").map(Number);
-  if (!year || !month || !day) return null;
-  return startOfDay(new Date(year, month - 1, day));
-}
-
-function addDays(date: Date, days: number) {
-  const copy = new Date(date);
-  copy.setDate(copy.getDate() + days);
-  return startOfDay(copy);
-}
-
-function moveWeekendToMonday(date: Date) {
-  const copy = new Date(date);
-  while (copy.getDay() === 0 || copy.getDay() === 6) {
-    copy.setDate(copy.getDate() + 1);
-  }
-  return startOfDay(copy);
-}
-
-function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
 function formatDate(date: Date) {

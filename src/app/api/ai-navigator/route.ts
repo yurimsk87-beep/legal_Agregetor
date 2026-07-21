@@ -19,6 +19,7 @@ import { maybeFixKeyboardLayout } from "@/lib/keyboard-layout";
 import { getLegalProblem } from "@/data/legal-problems";
 import { getNavigatorDocument } from "@/data/documents";
 import { getLegalReferences } from "@/data/legal-references";
+import { getJudicialOrderCheckHref, isJudicialOrderDebtQuery, judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
 
 // AI-ready навигатор поверх умного поиска. Структура результатов детерминирована тем
 // же поиском, что и /api/search-suggestions/, но собирается в процессе (без HTTP-хопа
@@ -102,6 +103,16 @@ type IntentContent = { summary: string; steps: string[] };
 function buildIntentContent(query: string, primary: NavigatorResult | null): IntentContent | null {
   const q = query.toLowerCase().replace(/ё/g, "е");
   const href = primary?.href ?? "";
+  if (isJudicialOrderDebtQuery(q) || href === judicialOrderDebtRoute.canonicalUrl) {
+    return {
+      summary: "Похоже, вы получили судебный приказ по банковскому долгу, кредиту или займу. Сначала важно проверить дату получения, срок на возражения и есть ли уже приставы или списания.",
+      steps: [
+        "Проверьте, что документ действительно называется «судебный приказ».",
+        "Зафиксируйте дату получения копии приказа: от неё обычно считается десятидневный срок.",
+        "Если срок предварительно не пропущен, подготовьте возражение на судебный приказ и подайте его в суд, который вынес приказ."
+      ]
+    };
+  }
 
   if (q.includes("алимент") || q.includes("алемент") || href.includes("/alimenty/")) {
     return {
@@ -293,6 +304,13 @@ function getClarificationDomain(query: string, primary: NavigatorResult | null):
 function buildClarifyingQuestions(query: string, primary: NavigatorResult | null): string[] {
   const q = query.toLowerCase().replace(/ё/g, "е");
   const href = primary?.href ?? "";
+  if (isJudicialOrderDebtQuery(q) || href === judicialOrderDebtRoute.canonicalUrl) {
+    return [
+      "Когда вы получили копию судебного приказа и каким способом?",
+      "Кто взыскатель: банк, МФО, коллектор или другая организация?",
+      "Исполнительное производство уже началось или деньги ещё не списывали?"
+    ];
+  }
   if (q.includes("алимент") || q.includes("алемент") || href.includes("/alimenty/")) {
     return [
       "Есть ли уже соглашение, судебный приказ, решение суда или исполнительный лист по алиментам?",
@@ -558,6 +576,32 @@ export async function POST(request: Request) {
     questions: supportSections.questions,
     lawyers: supportSections.lawyers
   };
+  if (isJudicialOrderDebtQuery(query)) {
+    const judicialOrderResult: NavigatorResult = {
+      title: "Пришёл судебный приказ по долгу",
+      description: "Проверьте срок, риски и подготовьте возражение на судебный приказ по кредиту, займу, банку или МФО.",
+      href: judicialOrderDebtRoute.canonicalUrl,
+      type: "situation",
+      categoryLabel: "Долги, кредиты и приставы",
+      actionLabel: "Разобрать ситуацию",
+      riskLevel: "high",
+      urgency: "few_days"
+    };
+    sections.situations = [judicialOrderResult, ...sections.situations.filter((item) => item.href !== judicialOrderResult.href)].slice(0, 1);
+    sections.documents = [
+      {
+        title: "Возражение на судебный приказ",
+        description: "Шаблон возражения для приказа по банковскому долгу, кредиту, займу или МФО.",
+        href: `/documents/${judicialOrderDebtRoute.documentSlug}/?variant=${judicialOrderDebtRoute.documentVariant}&route_id=${judicialOrderDebtRoute.routeId}#fill-online`,
+        type: "document",
+        categoryLabel: "Документ",
+        actionLabel: "Сформировать возражение",
+        riskLevel: "high",
+        urgency: "few_days"
+      },
+      ...sections.documents
+    ].slice(0, 1);
+  }
 
   // Пул реальных страниц для выбора маршрута LLM (поиск = инструмент навигатора):
   // по несколько кандидатов каждого типа. LLM выберет из них главную (primaryHref).
@@ -573,7 +617,9 @@ export async function POST(request: Request) {
       (arr) => arr.length > 0
     )?.[0] ?? null;
 
-  const primaryAction = primary ? { label: primary.actionLabel || "Открыть", href: primary.href } : null;
+  const primaryAction = isJudicialOrderDebtQuery(query)
+    ? { label: "Проверить мою ситуацию", href: getJudicialOrderCheckHref("ai-navigator", judicialOrderDebtRoute.canonicalUrl) }
+    : primary ? { label: primary.actionLabel || "Открыть", href: primary.href } : null;
   const intentContent = buildIntentContent(query, primary);
 
   // 5) confidence (lawyer-only результат тоже даёт medium).
@@ -635,9 +681,11 @@ export async function POST(request: Request) {
       ? candidateResults.find((candidate) => candidate.href === enriched.primaryHref) ?? null
       : null;
   const effectivePrimary = llmChosen ?? primary;
-  const effectivePrimaryAction = effectivePrimary
-    ? { label: effectivePrimary.actionLabel || "Открыть", href: effectivePrimary.href }
-    : primaryAction;
+  const effectivePrimaryAction = isJudicialOrderDebtQuery(query)
+    ? primaryAction
+    : effectivePrimary
+      ? { label: effectivePrimary.actionLabel || "Открыть", href: effectivePrimary.href }
+      : primaryAction;
   const effectiveSections = llmChosen ? promoteChosenResult(sections, llmChosen) : sections;
   const expectsQuestion = !fast && !dialogCompleted && clarificationStep < MAX_CLARIFICATION_STEPS;
   const enrichedQuestionFilter = filterRepeatedClarifyingQuestions(enriched.clarifyingQuestions ?? [], clarificationAnswers);

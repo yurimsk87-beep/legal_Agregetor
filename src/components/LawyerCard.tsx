@@ -37,7 +37,7 @@ export function LawyerCard({ lawyer, compact = false }: LawyerCardProps) {
               eventType="LAWYER_PROFILE_CLICK"
               targetType="LAWYER"
               targetId={lawyer.id}
-              className="max-w-full min-w-0 break-words text-lg font-semibold text-ink hover:text-trust"
+              className="inline-flex min-h-11 max-w-full min-w-0 items-center break-words text-lg font-semibold text-ink hover:text-trust focus:outline-none focus:ring-2 focus:ring-trust/30"
             >
               {fullName}
             </TrackableLink>
@@ -62,7 +62,7 @@ export function LawyerCard({ lawyer, compact = false }: LawyerCardProps) {
               <Link
                 key={service.slug}
                 href={`/${service.slug}/`}
-                className="max-w-full break-words rounded-md border border-line px-2.5 py-1 text-xs font-medium text-zinc-700 hover:border-trust hover:text-trust"
+                className="inline-flex min-h-11 max-w-full items-center break-words rounded-md border border-line px-2.5 py-1 text-xs font-medium text-zinc-700 hover:border-trust hover:text-trust focus:outline-none focus:ring-2 focus:ring-trust/30"
               >
                 {service.name}
               </Link>
@@ -83,7 +83,7 @@ export function LawyerCard({ lawyer, compact = false }: LawyerCardProps) {
             eventType="LAWYER_PROFILE_CLICK"
             targetType="LAWYER"
             targetId={lawyer.id}
-            className="inline-flex min-h-10 max-w-full min-w-0 items-center break-words rounded-md bg-ink px-4 text-sm font-semibold text-white hover:bg-trust"
+            className="inline-flex min-h-11 max-w-full min-w-0 items-center break-words rounded-md bg-ink px-4 text-sm font-semibold text-white hover:bg-trust focus:outline-none focus:ring-2 focus:ring-trust/30"
           >
             Посмотреть профиль
           </TrackableLink>

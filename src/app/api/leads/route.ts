@@ -208,6 +208,6 @@ export async function POST(request: Request) {
 function normalizeSourceType(sourceType: LeadSourceTypeInput | undefined) {
   if (!sourceType) return "LAWYER_PROFILE";
   if (sourceType === "CITY_SERVICE") return "CITY_SERVICE_PAGE";
-  if (sourceType === "CONTACTS" || sourceType === "CHECKLIST" || sourceType === "DOCUMENT_REVIEW") return "GENERAL";
+  if (sourceType === "CONTACTS" || sourceType === "CHECKLIST") return "GENERAL";
   return sourceType;
 }

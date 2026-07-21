@@ -100,8 +100,39 @@ const cases: QualityCase[] = [
   // развод → развод, а не алименты
   {
     query: "хочу подать на развод",
-    forbidden: ["/problems/semya-i-deti/alimenty/"],
+    forbidden: ["/problems/semya-i-deti/alimenty/", "/problems/semya-i-deti/brak-zags-i-smena-familii/"],
     expected: ["/problems/semya-i-deti/razvod/"],
+    expectedDomain: "semya-i-deti"
+  },
+  // Брак и ЗАГС → отдельный маршрут, не развод/алименты/дети
+  {
+    query: "хочу зарегистрировать брак",
+    forbidden: ["/problems/semya-i-deti/razvod/", "/problems/semya-i-deti/alimenty/"],
+    expected: ["/problems/semya-i-deti/brak-zags-i-smena-familii/"],
+    expectedDomain: "semya-i-deti"
+  },
+  {
+    query: "как подать заявление в загс",
+    forbidden: ["/problems/semya-i-deti/razvod/", "/problems/semya-i-deti/alimenty/"],
+    expected: ["/problems/semya-i-deti/brak-zags-i-smena-familii/"],
+    expectedDomain: "semya-i-deti"
+  },
+  {
+    query: "сменить фамилию после свадьбы",
+    forbidden: ["/problems/semya-i-deti/razvod/", "/problems/semya-i-deti/alimenty/"],
+    expected: ["/problems/semya-i-deti/brak-zags-i-smena-familii/"],
+    expectedDomain: "semya-i-deti"
+  },
+  {
+    query: "получить справку о браке после развода",
+    forbidden: ["/problems/semya-i-deti/alimenty/"],
+    expected: ["/problems/semya-i-deti/brak-zags-i-smena-familii/"],
+    expectedDomain: "semya-i-deti"
+  },
+  {
+    query: "исправить ошибку в свидетельстве загс",
+    forbidden: ["/problems/semya-i-deti/razvod/", "/problems/semya-i-deti/alimenty/"],
+    expected: ["/problems/semya-i-deti/brak-zags-i-smena-familii/"],
     expectedDomain: "semya-i-deti"
   },
   // --- ЖКХ ---

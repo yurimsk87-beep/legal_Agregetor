@@ -438,7 +438,7 @@ export function RelatedQuestionsExpandable({
           <button
             type="button"
             onClick={() => setVisibleCount((count) => Math.min(count + step, questions.length))}
-            className="rounded-full border border-line bg-white px-6 py-2.5 text-sm font-semibold text-ink shadow-sm transition hover:border-trust hover:text-trust"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-line bg-white px-6 py-2.5 text-sm font-semibold text-ink shadow-sm transition hover:border-trust hover:text-trust focus:outline-none focus:ring-2 focus:ring-trust/30"
           >
             Показать ещё {Math.min(step, remaining)}
           </button>
