@@ -1,4 +1,4 @@
-// PM2 process config for the Next.js production server.
+// PM2 process config for the Next.js standalone production server.
 // Usage:
 //   pm2 start ecosystem.config.js
 //   pm2 save
@@ -9,8 +9,7 @@ module.exports = {
   apps: [
     {
       name: "legal-aggregator",
-      script: "node_modules/next/dist/bin/next",
-      args: "start -H 127.0.0.1 -p 3000",
+      script: ".next/standalone/server.js",
       cwd: __dirname,
       instances: 1,
       exec_mode: "fork",
@@ -18,6 +17,7 @@ module.exports = {
       max_memory_restart: "512M",
       env: {
         NODE_ENV: "production",
+        HOSTNAME: "127.0.0.1",
         PORT: "3000"
       }
     }

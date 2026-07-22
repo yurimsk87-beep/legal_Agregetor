@@ -54,8 +54,9 @@ export async function buildGeneratedDocumentDocxBlob({ title, content }: Downloa
 }
 
 export function downloadGeneratedDocumentPdf({ title, content }: DownloadGeneratedDocumentPdfParams): void {
-  const printWindow = window.open("", "_blank", "noopener,noreferrer,width=900,height=1200");
+  const printWindow = window.open("", "_blank", "width=900,height=1200");
   if (!printWindow) throw new Error("PDF print window was blocked");
+  printWindow.opener = null;
 
   printWindow.document.write(`<!doctype html>
 <html lang="ru">

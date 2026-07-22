@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { DocumentGeneratorForm } from "@/components/documents/DocumentGeneratorForm";
 import type { DocumentGeneratorTemplate, DocumentGeneratorVariant } from "@/lib/types";
 import { judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
@@ -26,7 +25,7 @@ export function DocumentGeneratorSection({ template, instructionHref }: Props) {
   }, []);
 
   if (template.slug === "zayavlenie-v-zags") {
-    return <ZagsOfficialApplicationSection template={template} instructionHref={instructionHref} />;
+    return <ZagsDocumentGeneratorSection template={template} instructionHref={instructionHref} initialValues={initialValues} />;
   }
 
   return (
@@ -63,52 +62,10 @@ export function DocumentGeneratorSection({ template, instructionHref }: Props) {
   );
 }
 
-const zagsVariantDetails: Record<string, {
-  form: string;
-  documents: string[];
-  deadline: string;
-  fee: string;
-  submit: string;
-  officialHref: string;
-}> = {
-  marriage: {
-    form: "Форма N 7. Если один заявитель не может лично подать совместное заявление — форма N 8 с удостоверенной подписью.",
-    documents: ["Паспорта будущих супругов.", "Документ о прекращении предыдущего брака, если он был.", "Разрешение на вступление в брак до брачного возраста, если применимо.", "Документы, подтверждающие основание для регистрации раньше месяца или в день подачи."],
-    deadline: "Регистрация — по истечении месяца и не позднее 12 месяцев; при уважительных причинах возможно раньше, при особых обстоятельствах — в день подачи.",
-    fee: "Госпошлина за регистрацию брака — 350 руб.",
-    submit: "В любой орган ЗАГС по выбору будущих супругов, через МФЦ или официальный электронный сервис, если он доступен.",
-    officialHref: "https://do.gosuslugi.ru/services/3500000010000003610/"
-  },
-  "name-change": {
-    form: "Форма N 20 — заявление о перемене имени. Выбор фамилии при заключении брака оформляется в заявлении о браке, а не по форме N 20.",
-    documents: ["Паспорт заявителя.", "Свидетельство о рождении.", "Свидетельство о браке или расторжении брака, если оно связано с переменой имени.", "Свидетельства о рождении несовершеннолетних детей, если они есть.", "Согласие родителей, усыновителей или попечителя для заявителя 14-18 лет либо решение суда."],
-    deadline: "Заявление рассматривается 1 месяц; при уважительных причинах срок может быть увеличен не более чем на 2 месяца.",
-    fee: "Госпошлина за перемену имени — 5000 руб.",
-    submit: "В орган ЗАГС. После регистрации перемены имени паспорт нужно заменить в пределах 90 дней; СНИЛС и ИНН как номера не меняются.",
-    officialHref: "https://base.garant.ru/72066626/53f89421bbdaf741eb2d1ecc4ddb4c33/"
-  },
-  "repeat-document": {
-    form: "Форма N 26 — для повторного свидетельства о заключении брака, свидетельства о расторжении брака, справки о заключении или расторжении брака.",
-    documents: ["Паспорт заявителя.", "Документы, подтверждающие право на получение повторного документа.", "Доверенность, если обращается представитель.", "Документ об оплате госпошлины, если сведения об оплате не поступили автоматически."],
-    deadline: "При личном обращении документ выдаётся в день обращения, если запись есть в ЕГР ЗАГС.",
-    fee: "Повторное свидетельство — 500 руб.; справка из архива ЗАГС — 350 руб.",
-    submit: "В орган ЗАГС, через МФЦ или официальный электронный сервис. Разведённому лицу повторное свидетельство о заключении брака не выдаётся — нужна справка или иной подтверждающий документ.",
-    officialHref: "https://do.gosuslugi.ru/services/3500000000197508937/"
-  },
-  "record-correction": {
-    form: "Форма N 23 — заявление о внесении исправления или изменения в запись акта гражданского состояния.",
-    documents: ["Паспорт заявителя.", "Свидетельство, которое нужно обменять из-за исправления.", "Документы, подтверждающие основание исправления или изменения.", "Документ об оплате госпошлины.", "Письменный отказ ЗАГС, если он уже есть."],
-    deadline: "Заявление рассматривается 1 месяц; при уважительных причинах срок может быть увеличен не более чем на 2 месяца.",
-    fee: "Госпошлина за исправление или изменение записи — 700 руб.",
-    submit: "В орган ЗАГС. Если есть спор между заинтересованными лицами, ЗАГС не решает его сам — может потребоваться судебное решение.",
-    officialHref: "https://base.garant.ru/72066626/53f89421bbdaf741eb2d1ecc4ddb4c33/"
-  }
-};
-
-function ZagsOfficialApplicationSection({ instructionHref, template }: Props) {
+function ZagsDocumentGeneratorSection({ initialValues, instructionHref, template }: Props & { initialValues: Record<string, string | boolean> }) {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const selectedVariant = template.variants.find((variant) => variant.key === selectedKey) ?? null;
-  const selectedDetails = selectedVariant ? zagsVariantDetails[selectedVariant.key] : null;
+  const formInitialValues = selectedVariant ? { ...initialValues, zagsProcedure: selectedVariant.key } : initialValues;
 
   useEffect(() => {
     const key = new URLSearchParams(window.location.search).get("variant");
@@ -135,9 +92,9 @@ function ZagsOfficialApplicationSection({ instructionHref, template }: Props) {
     <section id="fill-online" className="scroll-mt-24">
       <div className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
         <p className="text-sm font-semibold uppercase tracking-wide text-trust">Заявление в ЗАГС</p>
-        <h2 className="mt-2 text-2xl font-semibold text-ink">Выберите официальный вариант заявления</h2>
+        <h2 className="mt-2 text-2xl font-semibold text-ink">Выберите официальный генератор</h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">
-          Для ЗАГС нельзя использовать один свободный текст заявления. Выберите цель обращения — покажем установленную форму, документы, срок, госпошлину и безопасный способ подачи.
+          Для разных обращений в ЗАГС применяются разные формы. Выберите цель — дальше появятся поля именно для нужного заявления, приложения, пошлина и порядок подачи.
         </p>
       </div>
 
@@ -157,62 +114,31 @@ function ZagsOfficialApplicationSection({ instructionHref, template }: Props) {
         </div>
       ) : null}
 
-      {selectedVariant && selectedDetails ? (
-        <article className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-trust">Выбранный вариант</p>
-              <h3 className="mt-2 text-2xl font-semibold text-ink">{selectedVariant.title}</h3>
-            </div>
-            <button type="button" onClick={resetVariant} className="min-h-11 rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:border-trust focus:outline-none">
-              Выбрать другой
-            </button>
-          </div>
-
-          <div className="mt-5 grid gap-4">
-            <InfoPanel title="Форма" text={selectedDetails.form} />
-            <InfoPanel title="Куда подать" text={selectedDetails.submit} />
-            <InfoPanel title="Срок и пошлина" text={`${selectedDetails.deadline} ${selectedDetails.fee}`} />
-            <div className="rounded-lg border border-line bg-zinc-50 p-4">
-              <p className="text-sm font-semibold text-ink">Документы</p>
-              <ul className="mt-2 grid gap-1 text-sm leading-6 text-zinc-700">
-                {selectedDetails.documents.map((item) => (
-                  <li key={item}>- {item}</li>
-                ))}
-              </ul>
-            </div>
-            {selectedVariant.generatedTextHints?.length ? (
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-                <p className="font-semibold">Что проверить перед подачей</p>
-                <ul className="mt-2 grid gap-1">
-                  {selectedVariant.generatedTextHints.map((hint) => (
-                    <li key={hint}>- {hint}</li>
-                  ))}
-                </ul>
+      {selectedVariant ? (
+        <div className="mt-6 grid gap-6">
+          <div className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wide text-trust">Выбранный вариант</p>
+                <h3 className="mt-2 text-2xl font-semibold text-ink">{selectedVariant.title}</h3>
               </div>
-            ) : null}
+              <button type="button" onClick={resetVariant} className="min-h-11 rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:border-trust focus:outline-none">
+                Выбрать другой
+              </button>
+            </div>
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-3">
-            <a href={selectedDetails.officialHref} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
-              Перейти к подаче заявления
-            </a>
-            <Link href={instructionHref} className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-5 py-3 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/20">
-              Вернуться к маршруту
-            </Link>
-          </div>
-        </article>
+          <DocumentGeneratorForm
+            key={`${selectedVariant.key}-${JSON.stringify(formInitialValues)}`}
+            initialValues={formInitialValues}
+            instructionHref={instructionHref}
+            reviewHref={`/document-review/?document=${template.slug}&variant=${selectedVariant.key}`}
+            template={template}
+            variant={selectedVariant}
+          />
+        </div>
       ) : null}
     </section>
-  );
-}
-
-function InfoPanel({ text, title }: { text: string; title: string }) {
-  return (
-    <div className="rounded-lg border border-line bg-zinc-50 p-4">
-      <p className="text-sm font-semibold text-ink">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-zinc-700">{text}</p>
-    </div>
   );
 }
 

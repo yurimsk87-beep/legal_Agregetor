@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AccountEmptyState, AccountPageHeader } from "@/components/account/AccountShell";
+import { SavedGeneratedDocumentCard } from "@/components/account/SavedGeneratedDocumentCard";
 
 export const metadata: Metadata = {
   title: "Мои документы",
@@ -16,6 +17,7 @@ export default function AccountDocumentsPage() {
         title="Мои документы"
         description="Здесь будут храниться сформированные и загруженные документы по вашим делам."
       />
+      <SavedGeneratedDocumentCard />
       <AccountEmptyState
         title="Документы появятся после формирования или загрузки"
         description="Здесь будут храниться заявления, жалобы, претензии, возражения и другие файлы по вашим юридическим вопросам."

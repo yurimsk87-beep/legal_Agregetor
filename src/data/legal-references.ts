@@ -24,6 +24,8 @@ const CONSULTANT_ARTICLE_URLS = {
   gpk29: "https://www.consultant.ru/document/cons_doc_LAW_39570/96f7da3957534071e6bc19cc95e96dda04e9a333/",
   nk33319: "https://www.consultant.ru/document/cons_doc_LAW_28165/1cfcdcc5936cbfc3ea52f964201a1bb6002be313/",
   nk33326: "https://www.consultant.ru/document/cons_doc_LAW_28165/3493a50227f324c50e1f0910735f4588c5630c1b/",
+  nk33327: "https://www.consultant.ru/document/cons_doc_LAW_28165/9c9230893e10f4833e5f7809391a4e78ab2667e2/",
+  nk33339: "https://www.consultant.ru/document/cons_doc_LAW_28165/3beb4162fd6d1e80e347191d6b13b198435202b9/",
   sk17: "https://www.consultant.ru/document/cons_doc_LAW_8982/3e67292d095e6a50b136a407b147334376f605a9/",
   sk21: "https://www.consultant.ru/document/cons_doc_LAW_8982/72751553f2dbd0ffeb99df74fd4b0e9a57ac4255/",
   sk22: "https://www.consultant.ru/document/cons_doc_LAW_8982/4a167ba0c30fe37c07642d042cf2aa85ee1345da/",
@@ -572,6 +574,20 @@ export const legalReferences = {
     summary: "Содержит размеры пошлин за заключение брака, перемену имени, исправление записи, повторное свидетельство и справку из архива ЗАГС.",
     url: CONSULTANT_ARTICLE_URLS.nk33326
   },
+  nk_333_27: {
+    code: "НК РФ",
+    article: "ст. 333.27",
+    title: "Особенности уплаты пошлины за действия ЗАГС",
+    summary: "Уточняет особенности уплаты пошлины за действия ЗАГС, включая исправления записей и связь с льготами по статьям 333.35 и 333.39 НК РФ.",
+    url: CONSULTANT_ARTICLE_URLS.nk33327
+  },
+  nk_333_39: {
+    code: "НК РФ",
+    article: "ст. 333.39",
+    title: "Льготы при регистрации актов гражданского состояния",
+    summary: "Освобождает от пошлины, в частности, за исправления, связанные с ошибками работников ЗАГС, и за справки для назначения или перерасчёта пенсий и пособий.",
+    url: CONSULTANT_ARTICLE_URLS.nk33339
+  },
   gk_15: {
     code: "ГК РФ",
     article: "ст. 15",
@@ -917,10 +933,10 @@ export const legalReferences = {
   },
   minjust_201_forms: {
     code: "Приказ Минюста N 201",
-    article: "формы N 7, 8, 20, 23, 26",
+    article: "формы N 7, 8, 20, 23, 24, 26",
     title: "Формы заявлений ЗАГС",
-    summary: "Устанавливает формы заявлений о государственной регистрации актов гражданского состояния и правила их заполнения. Формы 7 и 8 применяются для заключения брака, форма 20 — для перемены имени, форма 23 — для исправления записи, форма 26 — для повторных документов о браке/разводе.",
-    url: "https://base.garant.ru/72066626/53f89421bbdaf741eb2d1ecc4ddb4c33/"
+    summary: "Устанавливает формы заявлений о государственной регистрации актов гражданского состояния и правила их заполнения. Формы 7 и 8 применяются для заключения брака, форма 20 — для перемены имени, форма 23 — для исправления записи, форма 24 — для справки об отсутствии факта регистрации брака, форма 26 — для повторных документов о браке/разводе.",
+    url: "https://legalacts.ru/doc/prikaz-miniusta-rossii-ot-01102018-n-201-ob-utverzhdenii/"
   },
   passport_2267_8: {
     code: "Положение о паспорте РФ",
