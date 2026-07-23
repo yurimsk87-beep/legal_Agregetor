@@ -5,8 +5,11 @@ import { legalProblems } from "@/data/legal-problems";
 import type { LegalProblemRiskLevel, LegalProblemUrgency } from "@/data/legal-problems";
 import { navigatorTools } from "@/data/tools";
 import { getGeneratorMetaDescription, getGeneratorPageTitle } from "@/lib/document-seo";
-import { isJudicialOrderDebtQuery, judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
 import type { Lawyer, Question } from "@/lib/types";
+
+const activeLegalCategories = legalCategories.filter((category) =>
+  legalProblems.some((problem) => problem.categorySlug === category.slug)
+);
 
 export type SiteSearchResult = {
   title: string;
@@ -163,19 +166,10 @@ const staticPages: SiteSearchResult[] = [
 ];
 
 const popularSearchHints = [
-  "Судебный приказ",
-  "Списали деньги с карты",
-  "Не выплатили зарплату",
-  "Алименты",
-  "Затопили соседи",
-  "Долги у приставов",
-  "Развод",
-  "Наследство",
-  "Увольнение",
-  "ЖКХ",
-  "Возврат товара",
-  "Штраф",
-  "Кредит"
+  "Заключить брак",
+  "Сменить фамилию или имя",
+  "Получить повторное свидетельство",
+  "Исправить запись ЗАГС"
 ];
 
 const documentIntentPatterns = [
@@ -221,10 +215,6 @@ const intentMarkers: Record<Exclude<SearchDomain, "family" | "other">, string[]>
 
 const debtEnforcementMarkers = ["пристав", "судебный приказ", "арест", "исполнитель", "коллектор", "кредит", "долг", "взыскание"];
 
-// Паспорт РФ (утеря/восстановление/замена) — отдельной ситуации в базе знаний нет.
-// Такие запросы НЕ должны уводить в загранпаспорт/архивные/миграционные документы.
-const passportWrongHrefs = ["/zagranpasport/", "/arhivnye-dokumenty/", "/poteryali-migracionnye-dokumenty/"];
-
 function isPassportLossQuery(normalizedQuery: string) {
   return (
     normalizedQuery.includes("паспорт") &&
@@ -235,12 +225,6 @@ function isPassportLossQuery(normalizedQuery: string) {
 
 export function isPassportRestoreIntent(query: string) {
   return isPassportLossQuery(normalizeSearchText(query));
-}
-
-// Алиментные запросы (неуплата/взыскание/долг/приставы) не должны уходить в лишение
-// родительских прав — только при явном «лишить/лишение».
-function isAlimonyPaymentQuery(normalizedQuery: string) {
-  return normalizedQuery.includes("алимент") && !normalizedQuery.includes("лиш");
 }
 
 // Текстовые маркеры семейного домена для документов (на случай, если связь по
@@ -263,7 +247,7 @@ export function getPopularSearchHints() {
 export function getSiteSearchIndex(extraResults: SiteSearchResult[] = []): SiteSearchResult[] {
   return [
     ...staticPages,
-    ...legalCategories.map((category) => ({
+    ...activeLegalCategories.map((category) => ({
       title: category.title,
       description: category.userProblem || category.description,
       href: `/problems/${category.slug}/`,
@@ -582,24 +566,12 @@ function getQueryDomains(normalizedQuery: string): SearchDomain[] {
 
 function getResultDomain(result: SearchableResult): SearchDomain {
   const href = result.href;
-  if (href.includes("/rabota-zarplata-i-trudovye-prava/")) return "employment";
   if (href.includes("/semya-i-deti/")) return "family";
-  if (href.includes("/zhile-nedvizhimost-i-zemlya/") || href.includes("/zhkh-i-kommunalnye-uslugi/")) return "housing";
-  if (href.includes("/pokupki-uslugi-i-zashchita-potrebiteley/")) return "consumer";
-  if (href.includes("/nasledstvo/")) return "inheritance";
-  if (href.includes("/dokumenty-personalnye-dannye-i-gosuslugi/")) return "documents";
-  if (href.includes("/dolgi-kredity-i-pristavy/") || href.includes("/sud-zhaloby-i-zashchita-prav/")) return "debtCourt";
   return "other";
 }
 
 function categorySlugToDomain(categorySlug: string): SearchDomain {
-  if (categorySlug === "rabota-zarplata-i-trudovye-prava") return "employment";
   if (categorySlug === "semya-i-deti") return "family";
-  if (categorySlug === "zhile-nedvizhimost-i-zemlya" || categorySlug === "zhkh-i-kommunalnye-uslugi") return "housing";
-  if (categorySlug === "pokupki-uslugi-i-zashchita-potrebiteley") return "consumer";
-  if (categorySlug === "nasledstvo") return "inheritance";
-  if (categorySlug === "dokumenty-personalnye-dannye-i-gosuslugi") return "documents";
-  if (categorySlug === "dolgi-kredity-i-pristavy" || categorySlug === "sud-zhaloby-i-zashchita-prav") return "debtCourt";
   return "other";
 }
 
@@ -637,21 +609,6 @@ function getResultDomains(result: SearchableResult): Set<SearchDomain> {
 
 function isConflictingResult(result: SearchableResult, normalizedQuery: string, queryDomains: SearchDomain[]) {
   if (result.type === "lawyer" || result.type === "question") return false;
-
-  // Паспорт РФ: исключаем нерелевантные документы (загран/архив/миграция) — даже при
-  // точном текстовом совпадении, иначе «потерял паспорт» уводит в архивные документы.
-  if (isPassportLossQuery(normalizedQuery) && passportWrongHrefs.some((needle) => result.href.includes(needle))) return true;
-  // Алименты без явного «лишить»: исключаем лишение/ограничение родительских прав.
-  if (isAlimonyPaymentQuery(normalizedQuery) && result.href.includes("/lishenie")) return true;
-  // Судебная и военная повестки используют одно слово, но требуют разных маршрутов.
-  if (normalizedQuery.includes("повестка") && normalizedQuery.includes("суд") && result.href.includes("/voennaya-sluzhba-")) return true;
-  if (
-    normalizedQuery.includes("повестка") &&
-    /(военком|военн|мобилизац|армия)/.test(normalizedQuery) &&
-    result.href.includes("/sud-zhaloby-i-zashchita-prav/")
-  ) {
-    return true;
-  }
 
   // Точное совпадение названия — сильный прямой сигнал, домен-конфликт не применяем.
   if (result.normalizedTitle === normalizedQuery) return false;
@@ -716,22 +673,8 @@ function isZagsProcedureQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
-  if (isJudicialOrderDebtQuery(normalizedQuery) && href === judicialOrderDebtRoute.canonicalUrl) return 1100;
-  if (normalizedQuery.includes("уволили") && normalizedQuery.includes("без причины") && href.includes("/nezakonno-uvolili/")) return 980;
-  if (normalizedQuery.includes("выселя") && normalizedQuery.includes("квартир") && href.includes("/vyselenie-iz-kvartiry/")) return 980;
-  if (normalizedQuery.includes("соседи") && normalizedQuery.includes("шум") && href.includes("/shumnye-sosedi/")) return 980;
-  if (normalizedQuery.includes("доля") && normalizedQuery.includes("квартир") && href.includes("/spor-o-dole-v-kvartire/")) return 980;
-  if (normalizedQuery.includes("ремонт") && normalizedQuery.includes("квартир") && href.includes("/nekachestvennaya-usluga/")) return 960;
-  if (normalizedQuery.includes("магазин") && normalizedQuery.includes("гарант") && href.includes("/tovar-slomalsya-na-garantii/")) return 980;
-  if (normalizedQuery.includes("умер") && normalizedQuery.includes("родственник") && href.includes("/vstuplenie-v-nasledstvo/")) return 980;
-  // Алименты (неуплата/задолженность/взыскание/приставы/исполнительный лист) ведут на
-  // взыскание алиментов, а не на лишение родительских прав. Лишение — только при явном
-  // «лишить/лишение» (см. isConflictingResult: для алиментных запросов lishenie исключается).
-  if (normalizedQuery.includes("алимент") && !normalizedQuery.includes("лиш") && href.includes("/semya-i-deti/alimenty/")) return 980;
   if (isZagsProcedureQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/brak-zags-i-smena-familii/")) return 990;
   if (isZagsProcedureQuery(normalizedQuery) && href.includes("/documents/zayavlenie-v-zags/")) return 970;
-  // Развод/расторжение брака ведут на развод, а не на смежные семейные темы (алименты).
-  if ((normalizedQuery.includes("развод") || normalizedQuery.includes("расторжен")) && !normalizedQuery.includes("алимент") && href.includes("/semya-i-deti/razvod/")) return 980;
   return 0;
 }
 

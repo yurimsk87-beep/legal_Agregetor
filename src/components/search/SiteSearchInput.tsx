@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { AiNavigatorDropdownPanel, type AiNavigatorDropdownPage } from "@/components/ai/AiNavigatorDropdownPanel";
-import { getJudicialOrderProblemHref } from "@/lib/judicial-order-flow";
 
 type SiteSearchInputProps = {
   defaultValue?: string;
@@ -23,7 +22,7 @@ export function SiteSearchInput({ defaultValue = "", hints, placeholder, aiNavig
   const trimmedQuery = query.trim();
   const showPopularHints = trimmedQuery.length < minQueryLength;
   const showDropdown = Boolean(aiNavigatorPage) && open && trimmedQuery.length >= minQueryLength;
-  const allResultsHref = getJudicialOrderProblemHref(trimmedQuery) ?? `/problems/?q=${encodeURIComponent(trimmedQuery)}`;
+  const allResultsHref = `/problems/?q=${encodeURIComponent(trimmedQuery)}`;
 
   // Закрываем выпадающее окно только по клику ВНЕ корня. Любой клик внутри (поле,
   // textarea, кнопки ИИ-блока) не закрывает дропдаун.
@@ -41,12 +40,6 @@ export function SiteSearchInput({ defaultValue = "", hints, placeholder, aiNavig
         action="/problems/"
         role="search"
         className="flex min-w-0 flex-col gap-3 sm:flex-row"
-        onSubmit={(event) => {
-          const href = getJudicialOrderProblemHref(trimmedQuery);
-          if (!href) return;
-          event.preventDefault();
-          window.location.href = href;
-        }}
       >
         <label htmlFor="site-search-query" className="sr-only">
           Опишите проблему или найдите нужный документ
@@ -100,7 +93,7 @@ function PopularSearchHints({ hints }: { hints: string[] }) {
         {hints.map((hint) => (
           <Link
             key={hint}
-            href={getJudicialOrderProblemHref(hint) ?? `/problems/?q=${encodeURIComponent(hint)}`}
+            href={`/problems/?q=${encodeURIComponent(hint)}`}
             className="rounded-full border border-line bg-zinc-50 px-4 py-2 text-sm font-semibold text-ink hover:border-trust hover:text-trust"
           >
             {hint}

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
-import { judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
 import { calculateJudicialOrderDeadline, type JudicialOrderDeadlineResult, type JudicialOrderDeadlineStatus } from "@/lib/judicial-order-deadline";
 
 export function JudicialOrderDeadlineCalculator() {
@@ -91,7 +90,7 @@ function DeadlineResultCard({ learnedFromBailiffs, result }: { learnedFromBailif
         />
         {learnedFromBailiffs ? <BailiffWarning /> : null}
         <p className="mt-4 text-sm leading-6 text-zinc-600">Основание: ст. 128 ГПК РФ связывает десятидневный срок с получением копии судебного приказа.</p>
-        <ResultLinks primaryHref={judicialOrderDebtRoute.canonicalUrl} primaryLabel="Открыть инструкцию" secondaryHref="/questions/" secondaryLabel="Посмотреть Q&A" />
+        <ResultLinks primaryHref="/questions/" primaryLabel="Задать вопрос юристу" secondaryHref="/lawyers/" secondaryLabel="Посмотреть юристов" />
       </ResultShell>
     );
   }
@@ -108,8 +107,8 @@ function DeadlineResultCard({ learnedFromBailiffs, result }: { learnedFromBailif
           По ст. 112 ГПК РФ пропущенный процессуальный срок можно просить восстановить, если есть уважительные причины и документы, которые это подтверждают.
         </p>
         <ResultLinks
-          primaryHref="/documents/zayavlenie-o-vosstanovlenii-sroka-na-otmenu-sudebnogo-prikaza/"
-          primaryLabel="Заявление о восстановлении срока"
+          primaryHref="/questions/"
+          primaryLabel="Задать вопрос юристу"
           secondaryHref="/lawyers/"
           secondaryLabel="Посмотреть юристов"
         />
@@ -127,7 +126,7 @@ function DeadlineResultCard({ learnedFromBailiffs, result }: { learnedFromBailif
         <p className="mt-4 rounded-lg bg-white p-3 text-sm leading-6 text-zinc-700">
           По ст. 108 ГПК РФ процессуальное действие можно совершить до 24:00 последнего дня срока, в том числе отправить документы почтой до истечения суток.
         </p>
-        <ResultLinks primaryHref={`/documents/${judicialOrderDebtRoute.documentSlug}/?variant=${judicialOrderDebtRoute.documentVariant}&route_id=${judicialOrderDebtRoute.routeId}#fill-online`} primaryLabel="Подготовить возражение" secondaryHref="/lawyers/" secondaryLabel="Срочно к юристу" />
+        <ResultLinks primaryHref="/questions/" primaryLabel="Задать вопрос юристу" secondaryHref="/lawyers/" secondaryLabel="Срочно к юристу" />
       </ResultShell>
     );
   }
@@ -142,7 +141,7 @@ function DeadlineResultCard({ learnedFromBailiffs, result }: { learnedFromBailif
       <p className="mt-4 text-sm leading-6 text-zinc-600">
         Если возражения поступят в срок, по ст. 129 ГПК РФ судья отменяет судебный приказ. Причины несогласия с долгом обычно подробно доказывать не требуется.
       </p>
-      <ResultLinks primaryHref={`/documents/${judicialOrderDebtRoute.documentSlug}/?variant=${judicialOrderDebtRoute.documentVariant}&route_id=${judicialOrderDebtRoute.routeId}#fill-online`} primaryLabel="Подготовить возражение" secondaryHref={judicialOrderDebtRoute.canonicalUrl} secondaryLabel="Открыть инструкцию" />
+      <ResultLinks primaryHref="/questions/" primaryLabel="Задать вопрос юристу" secondaryHref="/lawyers/" secondaryLabel="Посмотреть юристов" />
     </ResultShell>
   );
 }

@@ -77,11 +77,8 @@ export default function JudicialOrderDeadlineToolPage() {
                 <Link href="#calculator" className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink">
                   Рассчитать срок
                 </Link>
-                <Link href="/documents/vozrazhenie-na-sudebnyy-prikaz/" className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-5 py-3 text-sm font-semibold text-ink hover:border-trust">
-                  Подготовить возражение
-                </Link>
-                <Link href="/problems/dolgi/sudebnyy-prikaz/" className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-5 py-3 text-sm font-semibold text-ink hover:border-trust">
-                  Инструкция по приказу
+                <Link href="/questions/" className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-5 py-3 text-sm font-semibold text-ink hover:border-trust">
+                  Задать вопрос юристу
                 </Link>
               </div>
             </div>
@@ -126,29 +123,10 @@ export default function JudicialOrderDeadlineToolPage() {
           </div>
 
           <div className="rounded-lg border border-line bg-white p-5 shadow-sm">
-            <h2 className="text-2xl font-semibold text-ink">Связанные документы</h2>
-            <div className="mt-5 grid gap-3">
-              <Link href="/documents/vozrazhenie-na-sudebnyy-prikaz/" className="rounded-md border border-line p-4 hover:border-trust">
-                <span className="block font-semibold text-ink">Возражение на судебный приказ</span>
-                <span className="mt-2 block text-sm leading-6 text-zinc-600">Основной документ для отмены приказа в срок.</span>
-              </Link>
-              <Link href="/documents/zayavlenie-o-vosstanovlenii-sroka-na-otmenu-sudebnogo-prikaza/" className="rounded-md border border-line p-4 hover:border-trust">
-                <span className="block font-semibold text-ink">Заявление о восстановлении срока</span>
-                <span className="mt-2 block text-sm leading-6 text-zinc-600">Нужно, если десятидневный срок уже пропущен.</span>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="rounded-lg border border-line bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-wide text-trust">Связанная ситуация</p>
-            <h2 className="mt-2 text-2xl font-semibold text-ink">Пришел судебный приказ по долгу</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">
-              Если вы получили приказ, узнали о нем от приставов или уже увидели списание денег, откройте пошаговую инструкцию: какие документы собрать, куда подавать возражение и когда нужен юрист.
-            </p>
-            <Link href="/problems/dolgi/sudebnyy-prikaz/" className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink">
-              Открыть ситуацию
+            <h2 className="text-2xl font-semibold text-ink">Нужна проверка расчёта?</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-600">Опишите дату получения и текущий статус дела в вопросе юристу.</p>
+            <Link href="/questions/" className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md border border-line px-5 py-3 text-sm font-semibold text-ink hover:border-trust">
+              Перейти к вопросам
             </Link>
           </div>
         </section>

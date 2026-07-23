@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { DocumentGeneratorForm } from "@/components/documents/DocumentGeneratorForm";
+import { useEffect, useState } from "react";
 import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
-import type { DocumentGeneratorTemplate, DocumentGeneratorVariant } from "@/lib/types";
-import { judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
+import type { DocumentGeneratorTemplate } from "@/lib/types";
 import { getZagsScenario } from "@/data/zags-route";
 
 type Props = {
@@ -12,65 +10,16 @@ type Props = {
   instructionHref: string;
 };
 
-// Онлайн-генератор прямо на странице документа (страница /generator/ удалена).
-// Форма универсальная: карточки вариантов скрыты, чтобы пользователь сразу заполнял документ.
-export function DocumentGeneratorSection({ template, instructionHref }: Props) {
-  const [initialValues, setInitialValues] = useState<Record<string, string | boolean>>({});
-  const selectedVariant = useMemo(() => getUniversalVariant(template), [template]);
-
-  // Поддержка ссылок с ?variant=... остаётся только как якорь к форме: выбор вариантов
-  // больше не показываем пользователю.
-  useEffect(() => {
-    const key = new URLSearchParams(window.location.search).get("variant");
-    if (key) requestAnimationFrame(() => document.getElementById("fill-online")?.scrollIntoView({ block: "start" }));
-    setInitialValues(readInitialValuesFromUrl());
-  }, []);
-
-  if (template.slug === "zayavlenie-v-zags") {
-    return <ZagsDocumentGeneratorSection template={template} instructionHref={instructionHref} initialValues={initialValues} />;
-  }
-
-  return (
-    <section id="fill-online" className="scroll-mt-24">
-      <div className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-wide text-trust">Онлайн-заполнение</p>
-          <h2 className="mt-2 text-2xl font-semibold text-ink">Сформировать документ онлайн</h2>
-          <p className="mt-3 text-sm leading-6 text-zinc-600">
-            Заполните универсальную форму — сервис соберёт готовый текст документа, учтёт ваше пояснение и подготовит PDF.
-          </p>
-        </div>
-        <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-          Сформированный документ является шаблоном и не заменяет индивидуальную юридическую консультацию. Перед подачей проверьте реквизиты, сроки, факты, суммы и приложения.
-        </div>
-        <p className="mt-3 text-sm leading-6 text-zinc-600">Для подготовки итогового текста данные формы и пояснение передаются на сервер обработки. Не указывайте лишние сведения, если они не нужны для документа.</p>
-      </div>
-
-      <div className="mt-6">
-        <DocumentGeneratorForm
-          key={`${selectedVariant.key}-${JSON.stringify(initialValues)}`}
-          initialValues={initialValues}
-          instructionHref={instructionHref}
-          reviewHref={
-            template.slug === judicialOrderDebtRoute.documentSlug
-              ? `${judicialOrderDebtRoute.reviewUrl}?route_id=${judicialOrderDebtRoute.routeId}&document=${template.slug}`
-              : "/document-check/"
-          }
-          template={template}
-          variant={selectedVariant}
-        />
-      </div>
-    </section>
-  );
-}
-
-function ZagsDocumentGeneratorSection({ template }: Props & { initialValues: Record<string, string | boolean> }) {
+export function DocumentGeneratorSection({ template }: Props) {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const selectedScenario = getZagsScenario(selectedKey);
 
   useEffect(() => {
     const key = new URLSearchParams(window.location.search).get("variant");
-    if (key && template.variants.some((variant) => variant.key === key)) setSelectedKey(key);
+    if (key && template.variants.some((variant) => variant.key === key)) {
+      setSelectedKey(key);
+      requestAnimationFrame(() => document.getElementById("fill-online")?.scrollIntoView({ block: "start" }));
+    }
   }, [template.variants]);
 
   function selectVariant(key: string) {
@@ -134,38 +83,4 @@ function ZagsDocumentGeneratorSection({ template }: Props & { initialValues: Rec
       ) : null}
     </section>
   );
-}
-
-function getUniversalVariant(template: DocumentGeneratorTemplate): DocumentGeneratorVariant {
-  const base = template.variants[0] ?? {
-    key: "universal",
-    title: "Универсальный документ",
-    description: template.description
-  };
-  return {
-    ...base,
-    title: "Универсальный документ",
-    description: "Одна форма для подготовки документа без выбора отдельного сценария применения.",
-    extraFields: [],
-    generatedTextHints: []
-  };
-}
-
-function readInitialValuesFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const values: Record<string, string | boolean> = {};
-  [
-    "receivedWay",
-    "receivedDateStatus",
-    "receivedDate",
-    "claimantName",
-    "objectionReason",
-    "objectionComment",
-    "creditContractInfo"
-  ].forEach((key) => {
-    const value = params.get(key);
-    if (value) values[key] = value;
-  });
-  if (params.get("requestTermRestoration") === "true") values.requestTermRestoration = true;
-  return values;
 }

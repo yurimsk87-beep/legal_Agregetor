@@ -11,7 +11,6 @@ import { getDocumentCardCtaLabel, getDocumentOnlineFillCtaLabel } from "@/lib/do
 import { breadcrumbJsonLd, legalServiceJsonLd } from "@/lib/jsonld";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { getRelatedLawyersBySpecializations, getRelatedQuestionsForContext } from "@/lib/navigator-relations";
-import { getJudicialOrderCheckHref, getJudicialOrderDocumentHref, judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
 import { buildProblemQuestionContext } from "@/data/related-questions-context";
 import { getLegalCategory } from "@/data/legal-categories";
 import { getLegalReferences } from "@/data/legal-references";
@@ -138,19 +137,14 @@ export default async function ProblemPage({ params, searchParams }: PageProps) {
   const relatedTools = navigatorTools.filter((tool) => tool.status === "available" && tool.relatedProblemSlugs.includes(problem.slug));
   const relatedProblems = getProblemsByCategory(category.slug).filter((item) => item.slug !== problem.slug);
   const legalReferences = getLegalReferences(problem.legalReferenceKeys);
-  const isJudicialOrderDebt = category.slug === judicialOrderDebtRoute.categorySlug && problem.slug === judicialOrderDebtRoute.problemSlug;
-  const checkHref = isJudicialOrderDebt ? getJudicialOrderCheckHref("situation", problemPath) : `/problems/${category.slug}/${problem.slug}/`;
-  const checkCtaLabel = isJudicialOrderDebt ? "Проверить мою ситуацию" : "Проверить ситуацию";
+  const checkHref = "/questions/";
+  const checkCtaLabel = "Задать вопрос юристу";
   const firstDocument = relatedDocuments[0];
-  const firstDocumentHref = isJudicialOrderDebt
-    ? getJudicialOrderDocumentHref({ source: "situation" })
-    : firstDocument
+  const firstDocumentHref = firstDocument
     ? `/documents/${firstDocument.slug}/${firstDocument.templateSlug ? "#fill-online" : ""}`
     : "/documents/";
   const firstDocumentCtaLabel =
-    isJudicialOrderDebt
-      ? "Сразу сформировать возражение"
-      : firstDocument?.templateSlug
+    firstDocument?.templateSlug
       ? getDocumentOnlineFillCtaLabel(firstDocument)
       : firstDocument
         ? getDocumentCardCtaLabel(firstDocument)
@@ -186,7 +180,7 @@ export default async function ProblemPage({ params, searchParams }: PageProps) {
           documentCtaLabel={firstDocumentCtaLabel}
           documentHref={firstDocumentHref}
           problem={problem}
-          showLawyerCta={!isJudicialOrderDebt}
+          showLawyerCta
         />
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
@@ -209,7 +203,7 @@ export default async function ProblemPage({ params, searchParams }: PageProps) {
         </section>
 
         <section className="mt-8">
-          <RequiredDocumentsBlock documents={relatedDocuments} fallbackItems={problem.documents} problemSlug={problem.slug} />
+          <RequiredDocumentsBlock documents={relatedDocuments} fallbackItems={problem.documents} />
         </section>
 
         {relatedTools.length ? (
@@ -606,20 +600,12 @@ function SelfHelpOrLawyerBlock({ problem }: { problem: LegalProblem }) {
   );
 }
 
-// Точечное сопоставление «ситуация → документ → вариант генератора».
-// Пока одна запись (по запросу): судебный приказ по долгу → возражение (credit-loan).
-const SITUATION_DOCUMENT_VARIANT: Record<string, Record<string, string>> = {
-  "sudebnyy-prikaz": { "vozrazhenie-na-sudebnyy-prikaz": "credit-loan" }
-};
-
 function RequiredDocumentsBlock({
   documents,
-  fallbackItems,
-  problemSlug
+  fallbackItems
 }: {
   documents: NavigatorDocument[];
   fallbackItems: string[];
-  problemSlug: string;
 }) {
   return (
     <section className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
@@ -627,11 +613,7 @@ function RequiredDocumentsBlock({
       {documents.length ? (
         <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {documents.map((document) => (
-            <DocumentCard
-              key={document.slug}
-              document={document}
-              variantKey={SITUATION_DOCUMENT_VARIANT[problemSlug]?.[document.slug]}
-            />
+            <DocumentCard key={document.slug} document={document} />
           ))}
         </div>
       ) : (

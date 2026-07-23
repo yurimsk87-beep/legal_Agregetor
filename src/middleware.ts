@@ -42,23 +42,7 @@ const publicSeoRedirects: Record<string, string> = {
   "/user-agreement/": "/legal/terms/",
   "/personal-data-consent/": "/legal/personal-data-consent/",
   "/question-rules/": "/legal/qna-rules/",
-  "/answer-rules/": "/legal/qna-rules/",
-  // Объединённые дубли ситуаций: канонический slug — из problems_target_structure.json
-  "/problems/semya/razvod-s-detmi/": "/problems/semya-i-deti/razvod/",
-  "/problems/semya-i-deti/razvod-s-detmi/": "/problems/semya-i-deti/razvod/",
-  "/problems/semya/alimenty-ne-platyat/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya-i-deti/alimenty-ne-platyat/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya/vzyiskat-alimenty/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya-i-deti/vzyiskat-alimenty/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya/dolg-po-alimentam/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya-i-deti/dolg-po-alimentam/": "/problems/semya-i-deti/alimenty/",
-  "/problems/dolgi-kredity-i-pristavy/dolgi-po-alimentam/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya/osporit-otcovstvo/": "/problems/semya-i-deti/ustanovlenie-ili-osparivanie-otcovstva/",
-  "/problems/semya-i-deti/osporit-otcovstvo/": "/problems/semya-i-deti/ustanovlenie-ili-osparivanie-otcovstva/",
-  "/problems/semya/ustanovit-otcovstvo/": "/problems/semya-i-deti/ustanovlenie-ili-osparivanie-otcovstva/",
-  "/problems/semya-i-deti/ustanovit-otcovstvo/": "/problems/semya-i-deti/ustanovlenie-ili-osparivanie-otcovstva/",
-  "/problems/semya-i-deti/razdel-imuschestva-pri-razvode/": "/problems/semya-i-deti/razdel-imushchestva-suprugov/",
-  "/problems/semya-i-deti/domashnee-nasilie/": "/problems/semya-i-deti/nasilie-v-seme/"
+  "/answer-rules/": "/legal/qna-rules/"
 };
 
 type SeoMergeResponse = {
@@ -84,6 +68,23 @@ type SeoMergeResult = NonNullable<SeoMergeResponse["merge"]> | null;
 const SEO_MERGE_CACHE_TTL_MS = 60_000;
 const SEO_MERGE_CACHE_MAX_ENTRIES = 500;
 const seoMergeCache = new Map<string, { value: SeoMergeResult; expiresAt: number }>();
+
+const ACTIVE_PROBLEM_CATEGORY_PATH = "/problems/semya-i-deti/";
+const ACTIVE_PROBLEM_PATH = "/problems/semya-i-deti/brak-zags-i-smena-familii/";
+const ACTIVE_DOCUMENT_PATH = "/documents/zayavlenie-v-zags/";
+
+function isUnknownProblemsOrDocumentsPath(pathname: string) {
+  if (/^\/documents\/[^/]+\/$/.test(pathname)) {
+    return pathname !== ACTIVE_DOCUMENT_PATH;
+  }
+  if (/^\/problems\/[^/]+\/$/.test(pathname)) {
+    return pathname !== ACTIVE_PROBLEM_CATEGORY_PATH;
+  }
+  if (/^\/problems\/[^/]+\/[^/]+\/$/.test(pathname)) {
+    return pathname !== ACTIVE_PROBLEM_PATH;
+  }
+  return false;
+}
 
 export async function middleware(request: NextRequest, event: NextFetchEvent) {
   const response = NextResponse.next();
@@ -113,6 +114,15 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
     if (technicalNoindexPath) trailingSlashResponse.headers.set("x-robots-tag", "noindex, nofollow");
     trackBotVisit(request, event, userAgent, trailingSlashResponse.status, trailingSlashResponse);
     return trailingSlashResponse;
+  }
+
+  if (isUnknownProblemsOrDocumentsPath(normalizedPath)) {
+    const notFoundResponse = new NextResponse("Страница не найдена", {
+      status: 404,
+      headers: { "content-type": "text/plain; charset=utf-8", "x-robots-tag": "noindex, nofollow" }
+    });
+    trackBotVisit(request, event, userAgent, 404, notFoundResponse);
+    return notFoundResponse;
   }
 
   if (technicalNoindexPath) {

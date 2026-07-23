@@ -32,10 +32,6 @@ type PageProps = {
 };
 type DocumentFaq = { question: string; answer: string };
 
-const DOCUMENT_SLUG_ALIASES: Record<string, string> = {
-  "pretenziya-v-upravlyayushchuyu-kompaniyu": "pretenziya-v-upravlyayuschuyu-kompaniyu"
-};
-
 const UNIVERSAL_MISTAKES = [
   "подать документ без подтверждения;",
   "не указать даты и суммы;",
@@ -483,7 +479,7 @@ function faqPageJsonLd(faq: DocumentFaq[]) {
 }
 
 function getDocumentByParam(slug: string) {
-  return getNavigatorDocument(DOCUMENT_SLUG_ALIASES[slug] ?? slug);
+  return getNavigatorDocument(slug);
 }
 
 function uniqueItems(items: string[]) {

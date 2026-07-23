@@ -128,10 +128,10 @@ npm run seo:audit
 Smoke URL:
 
 - `/`
-- `/check/`
 - `/problems/`
+- `/problems/semya-i-deti/brak-zags-i-smena-familii/`
 - `/documents/`
-- `/documents/vozrazhenie-na-sudebnyy-prikaz/generator/`
+- `/documents/zayavlenie-v-zags/`
 - `/tools/`
 - `/tools/sudebnyy-prikaz-deadline/`
 - `/questions/`
