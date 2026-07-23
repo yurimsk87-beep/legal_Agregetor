@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import type { DocumentField, DocumentGeneratorTemplate, DocumentGeneratorVariant } from "@/lib/types";
 import { downloadGeneratedDocumentPdf } from "@/lib/document-export";
 import { judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
+import { getZagsScenario } from "@/data/zags-route";
 
 type FormValue = string | boolean;
 type FormValues = Record<string, FormValue>;
@@ -270,6 +272,18 @@ export function DocumentGeneratorForm({ initialValues, reviewHref = "/document-r
   const unsectionedBaseFields = visibleFields.filter((field) => !sectionFieldNames.has(field.name));
   const previewTitle = isZagsApplication ? "Официальная форма" : template.documentType === "objection" ? "Текст возражений" : "Текст документа";
   const resultMeta = useMemo(() => getGeneratedDocumentMeta(template, variant, values), [template, values, variant]);
+  const zagsScenario = isZagsApplication ? getZagsScenario(variant.key) : null;
+
+  if (isZagsApplication) {
+    return zagsScenario ? (
+      <ZagsApplicationHelper scenarioKey={zagsScenario.key} />
+    ) : (
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+        Выберите процедуру ЗАГС, чтобы открыть помощник по заполнению действующей официальной формы.
+      </div>
+    );
+  }
+
   const emptyPreviewText =
     isZagsApplication
       ? "Заполните поля слева и нажмите «Подготовить документ». Здесь появится текст выбранной официальной формы ЗАГС."

@@ -17,13 +17,19 @@ import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { getRelatedLawyersBySpecializations, getRelatedQuestionsForContext } from "@/lib/navigator-relations";
 import { buildDocumentQuestionContext, PROBLEM_EXCLUDED_TOPICS } from "@/data/related-questions-context";
 import { DocumentGeneratorSection } from "@/components/documents/DocumentGeneratorSection";
+import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { getDocumentTemplate } from "@/data/document-templates";
 import { getLegalReferences } from "@/data/legal-references";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
 import type { NavigatorDocument } from "@/data/documents";
 import { legalProblems } from "@/data/legal-problems";
+import { getZagsScenario, ZAGS_PROBLEM_ROUTE, ZAGS_SCENARIO_CHOICES } from "@/data/zags-route";
+import type { ZagsScenario, ZagsScenarioKey } from "@/data/zags-route";
 
-type PageProps = { params: Promise<{ documentSlug: string }> };
+type PageProps = {
+  params: Promise<{ documentSlug: string }>;
+  searchParams?: Promise<{ variant?: string }>;
+};
 type DocumentFaq = { question: string; answer: string };
 
 const DOCUMENT_SLUG_ALIASES: Record<string, string> = {
@@ -62,22 +68,39 @@ function isIndexableDocumentPage(document: NavigatorDocument | null): boolean {
   );
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { documentSlug } = await params;
   const document = getDocumentByParam(documentSlug);
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+
+  if (document?.slug === ZAGS_PROBLEM_ROUTE.documentSlug) {
+    return buildMetadata({
+      title: "Заявление в ЗАГС: формы и порядок заполнения",
+      description: "Выберите процедуру ЗАГС, проверьте форму, документы, госпошлину и подготовьте сведения для официального заявления без имитации бланка.",
+      path: `/documents/${document.slug}/`,
+      isIndexable: true,
+      searchParams: resolvedSearchParams
+    });
+  }
 
   return buildMetadata({
     title: document ? getDocumentPageTitle(document) : "Документ не найден",
     description: document ? getDocumentMetaDescription(document) : "Документ не найден.",
     path: document ? `/documents/${document.slug}/` : `/documents/${documentSlug}/`,
-    isIndexable: isIndexableDocumentPage(document)
+    isIndexable: isIndexableDocumentPage(document),
+    searchParams: resolvedSearchParams
   });
 }
 
-export default async function DocumentPage({ params }: PageProps) {
+export default async function DocumentPage({ params, searchParams }: PageProps) {
   const { documentSlug } = await params;
   const document = getDocumentByParam(documentSlug);
   if (!document) notFound();
+
+  if (document.slug === ZAGS_PROBLEM_ROUTE.documentSlug) {
+    const resolvedSearchParams = searchParams ? await searchParams : {};
+    return <ZagsDocumentPage document={document} scenario={getZagsScenario(resolvedSearchParams.variant)} />;
+  }
 
   const relatedProblems = legalProblems.filter((problem) => document.relatedProblemSlugs.includes(problem.slug));
   const relatedSpecializations = new Set(relatedProblems.flatMap((problem) => problem.relatedLawyerSpecializations));
@@ -164,6 +187,114 @@ export default async function DocumentPage({ params }: PageProps) {
   );
 }
 
+function ZagsDocumentPage({ document, scenario }: { document: NavigatorDocument; scenario: ZagsScenario | null }) {
+  const documentPath = `/documents/${document.slug}/`;
+  const problemPath = `/problems/${ZAGS_PROBLEM_ROUTE.categorySlug}/${ZAGS_PROBLEM_ROUTE.problemSlug}/`;
+  const breadcrumbs = [
+    { name: "Главная", path: "/" },
+    { name: "Документы", path: "/documents/" },
+    { name: "Заявление в ЗАГС", path: documentPath }
+  ];
+
+  return (
+    <>
+      <JsonLd data={scenario ? breadcrumbJsonLd(breadcrumbs) : [breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(document)]} />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-8">
+          <p className="text-sm font-semibold uppercase tracking-wide text-trust">Документы ЗАГС</p>
+          <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">
+            {scenario ? `Заявление в ЗАГС: ${scenario.shortTitle.toLowerCase()}` : "Заявление в ЗАГС: выберите процедуру"}
+          </h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">
+            {scenario
+              ? scenario.description[0]
+              : "Для разных обращений применяются разные утверждённые формы. Выберите цель, чтобы увидеть только подходящий бланк, порядок подачи и помощник по заполнению."}
+          </p>
+          {scenario ? (
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="#fill-online" className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+                Заполнить заявление
+              </Link>
+              <Link href={documentPath} className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/20">
+                Выбрать другую процедуру
+              </Link>
+            </div>
+          ) : null}
+        </header>
+
+        {!scenario ? (
+          <section className="mt-6 grid gap-4 md:grid-cols-2" aria-label="Варианты заявления в ЗАГС">
+            {ZAGS_SCENARIO_CHOICES.map((choice) => (
+              <Link
+                key={choice.key}
+                href={`${documentPath}?variant=${choice.key}`}
+                className="min-h-11 rounded-lg border border-line bg-white p-5 shadow-sm outline-none hover:border-trust focus:border-trust focus:ring-2 focus:ring-trust/20"
+              >
+                <span className="text-lg font-semibold text-ink">{choice.title}</span>
+                <span className="mt-2 block text-sm leading-6 text-zinc-600">{choice.description}</span>
+              </Link>
+            ))}
+          </section>
+        ) : (
+          <>
+            <section className="mt-6 grid gap-4 md:grid-cols-2">
+              <ZagsDocumentFact title="Официальная форма" text={scenario.forms.map((form) => `Форма N ${form.number}: ${form.purpose}.`).join(" ")} />
+              <ZagsDocumentFact title="Куда и как подать" text={scenario.filing} />
+              <ZagsDocumentFact title="Срок" text={scenario.term} />
+              <ZagsDocumentFact title="Госпошлина" text={scenario.fee} />
+            </section>
+
+            <section className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
+              <h2 className="text-2xl font-semibold text-ink">Что подготовить</h2>
+              <ul className="mt-4 grid gap-2 text-sm leading-6 text-zinc-700">
+                {scenario.documents.map((item) => <li key={item}>- {item}</li>)}
+              </ul>
+              {scenario.warning ? (
+                <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+              ) : null}
+            </section>
+
+            <div className="mt-6">
+              <ZagsApplicationHelper scenarioKey={scenario.key as ZagsScenarioKey} />
+            </div>
+
+            <section className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
+              <h2 className="text-2xl font-semibold text-ink">Правовые основания</h2>
+              <ul className="mt-4 grid gap-2 text-sm leading-6">
+                {scenario.legalSources.map((source) => (
+                  <li key={source.href}>
+                    <a href={source.href} target="_blank" rel="noreferrer" className="font-medium text-trust underline underline-offset-4 hover:text-ink">
+                      {source.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <FaqBlock faq={scenario.faq} />
+
+            <div className="mt-6">
+              <Link href={`${problemPath}?scenario=${scenario.key}`} className="inline-flex min-h-11 items-center text-sm font-semibold text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+                Открыть пошаговую инструкцию
+              </Link>
+            </div>
+          </>
+        )}
+      </article>
+    </>
+  );
+}
+
+function ZagsDocumentFact({ text, title }: { text: string; title: string }) {
+  return (
+    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
+      <h2 className="text-lg font-semibold text-ink">{title}</h2>
+      <p className="mt-3 text-sm leading-6 text-zinc-700">{text}</p>
+    </section>
+  );
+}
+
 function DocumentHero({ document }: { document: NavigatorDocument }) {
   // Генератор встроен в эту же страницу — кнопка ведёт якорем к форме ниже.
   const generatorHref = document.templateSlug ? "#fill-online" : null;
@@ -176,7 +307,7 @@ function DocumentHero({ document }: { document: NavigatorDocument }) {
       <div className="mt-6 flex flex-wrap gap-3">
         {generatorHref ? (
           <Link href={generatorHref} className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink">
-            {document.slug === "zayavlenie-v-zags" ? "Перейти к подаче заявления" : "Заполнить онлайн"}
+            {document.slug === "zayavlenie-v-zags" ? "Заполнить заявление" : "Заполнить онлайн"}
           </Link>
         ) : (
           <QuestionCtaLink sourcePage={`/documents/${document.slug}/`} label="Задать вопрос юристу" />

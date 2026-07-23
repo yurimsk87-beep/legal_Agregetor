@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { DocumentGeneratorForm } from "@/components/documents/DocumentGeneratorForm";
+import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import type { DocumentGeneratorTemplate, DocumentGeneratorVariant } from "@/lib/types";
 import { judicialOrderDebtRoute } from "@/lib/judicial-order-flow";
+import { getZagsScenario } from "@/data/zags-route";
 
 type Props = {
   template: DocumentGeneratorTemplate;
@@ -62,10 +64,9 @@ export function DocumentGeneratorSection({ template, instructionHref }: Props) {
   );
 }
 
-function ZagsDocumentGeneratorSection({ initialValues, instructionHref, template }: Props & { initialValues: Record<string, string | boolean> }) {
+function ZagsDocumentGeneratorSection({ template }: Props & { initialValues: Record<string, string | boolean> }) {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const selectedVariant = template.variants.find((variant) => variant.key === selectedKey) ?? null;
-  const formInitialValues = selectedVariant ? { ...initialValues, zagsProcedure: selectedVariant.key } : initialValues;
+  const selectedScenario = getZagsScenario(selectedKey);
 
   useEffect(() => {
     const key = new URLSearchParams(window.location.search).get("variant");
@@ -92,13 +93,13 @@ function ZagsDocumentGeneratorSection({ initialValues, instructionHref, template
     <section id="fill-online" className="scroll-mt-24">
       <div className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
         <p className="text-sm font-semibold uppercase tracking-wide text-trust">Заявление в ЗАГС</p>
-        <h2 className="mt-2 text-2xl font-semibold text-ink">Выберите официальный генератор</h2>
+        <h2 className="mt-2 text-2xl font-semibold text-ink">Выберите процедуру</h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">
-          Для разных обращений в ЗАГС применяются разные формы. Выберите цель — дальше появятся поля именно для нужного заявления, приложения, пошлина и порядок подачи.
+          Для разных обращений в ЗАГС применяются разные утверждённые формы. Выберите цель — дальше появится помощник по подготовке данных для официального бланка.
         </p>
       </div>
 
-      {!selectedVariant ? (
+      {!selectedScenario ? (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {template.variants.map((variant) => (
             <button
@@ -114,13 +115,13 @@ function ZagsDocumentGeneratorSection({ initialValues, instructionHref, template
         </div>
       ) : null}
 
-      {selectedVariant ? (
+      {selectedScenario ? (
         <div className="mt-6 grid gap-6">
           <div className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide text-trust">Выбранный вариант</p>
-                <h3 className="mt-2 text-2xl font-semibold text-ink">{selectedVariant.title}</h3>
+                <h3 className="mt-2 text-2xl font-semibold text-ink">{selectedScenario.title}</h3>
               </div>
               <button type="button" onClick={resetVariant} className="min-h-11 rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:border-trust focus:outline-none">
                 Выбрать другой
@@ -128,14 +129,7 @@ function ZagsDocumentGeneratorSection({ initialValues, instructionHref, template
             </div>
           </div>
 
-          <DocumentGeneratorForm
-            key={`${selectedVariant.key}-${JSON.stringify(formInitialValues)}`}
-            initialValues={formInitialValues}
-            instructionHref={instructionHref}
-            reviewHref={`/document-review/?document=${template.slug}&variant=${selectedVariant.key}`}
-            template={template}
-            variant={selectedVariant}
-          />
+          <ZagsApplicationHelper scenarioKey={selectedScenario.key} />
         </div>
       ) : null}
     </section>

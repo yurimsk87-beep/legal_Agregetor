@@ -1,125 +1,56 @@
 import assert from "node:assert/strict";
-import type { DocumentGeneratorVariant } from "./types";
-import { buildZagsApplicationText, getRepeatDocumentType, getZagsPaymentInfo } from "../components/documents/DocumentGeneratorForm";
+import {
+  getZagsScenario,
+  ZAGS_SCENARIO_CHOICES,
+  ZAGS_SCENARIO_KEYS,
+  ZAGS_SCENARIOS
+} from "../data/zags-route";
 
-type TestValues = Record<string, string | boolean>;
+assert.deepEqual(
+  ZAGS_SCENARIO_KEYS,
+  ["marriage", "name-change", "repeat-document", "record-correction"],
+  "the route must expose exactly four supported scenarios"
+);
+assert.equal(ZAGS_SCENARIO_CHOICES.length, 4, "the initial screen must contain four choices");
+assert.equal(getZagsScenario("zags-refusal"), null, "refusal must not become a fifth base scenario");
+assert.equal(getZagsScenario("unknown"), null, "unknown variants must not select a scenario");
 
-const marriageVariant: DocumentGeneratorVariant = { key: "marriage", title: "Брак", description: "" };
-const nameChangeVariant: DocumentGeneratorVariant = { key: "name-change", title: "Перемена имени", description: "" };
-const repeatDocumentVariant: DocumentGeneratorVariant = { key: "repeat-document", title: "Повторный документ", description: "" };
-const correctionVariant: DocumentGeneratorVariant = { key: "record-correction", title: "Исправление записи", description: "" };
+const marriage = ZAGS_SCENARIOS.marriage;
+assert.deepEqual(marriage.forms.map((form) => form.number), ["7", "8"]);
+assert.match(marriage.mainDocument, /только/i, "form 8 limitation must be explicit");
+assert.match(marriage.warning ?? "", /подпись/i, "signature authentication must be explained");
+assert.match(marriage.term, /12 месяцев/);
+assert.match(marriage.fee, /350 руб/);
 
-const baseApplicant: TestValues = {
-  zagsOffice: "Отдел ЗАГС",
-  applicantName: "Иванова Мария Петровна",
-  applicantBirthDate: "1990-01-02",
-  applicantBirthPlace: "Москва",
-  applicantCitizenship: "Российская Федерация",
-  applicantAddress: "г. Москва",
-  applicantPhone: "+7 000 000-00-00",
-  applicantIdentityDocument: "паспорт гражданина РФ",
-  applicantIdentitySeriesNumber: "0000 000000",
-  applicantIdentityIssuer: "ОВД",
-  applicantIdentityIssueDate: "2020-01-02"
-};
+const nameChange = ZAGS_SCENARIOS["name-change"];
+assert.deepEqual(nameChange.forms.map((form) => form.number), ["20"]);
+assert.match(nameChange.warning ?? "", /младше 14 лет/);
+assert.match(nameChange.filing, /лично в письменной форме/);
+assert.doesNotMatch(nameChange.filing, /МФЦ|электрон/i, "unverified filing methods must not be suggested");
+assert.match(nameChange.term, /не более чем на два месяца/);
+assert.match(nameChange.fee, /5000 руб/);
 
-const marriageValues: TestValues = {
-  ...baseApplicant,
-  marriageApplicationMode: "joint",
-  partner1Name: "Иванов Иван Иванович",
-  partner1BirthDate: "1990-01-01",
-  partner1BirthPlace: "Москва",
-  partner1Citizenship: "Российская Федерация",
-  partner1Residence: "г. Москва",
-  partner1IdentityDocument: "паспорт гражданина РФ",
-  partner1IdentityDetails: "0000 000000, выдан ОВД",
-  partner1MaritalStatus: "never_married",
-  partner1RequestedSurname: "Иванов",
-  partner2Name: "Петрова Мария Петровна",
-  partner2BirthDate: "1991-02-03",
-  partner2BirthPlace: "Москва",
-  partner2Citizenship: "Российская Федерация",
-  partner2Residence: "г. Москва",
-  partner2IdentityDocument: "паспорт гражданина РФ",
-  partner2IdentityDetails: "1111 111111, выдан ОВД",
-  partner2MaritalStatus: "never_married",
-  partner2RequestedSurname: "Иванова"
-};
+const repeatDocument = ZAGS_SCENARIOS["repeat-document"];
+assert.deepEqual(repeatDocument.forms.map((form) => form.number), ["26"]);
+assert.match(repeatDocument.mainDocument, /только/i, "form 26 must not be presented as universal");
+assert.match(repeatDocument.description.join(" "), /расторгнувшему брак.*не выдаётся/i);
+assert.match(repeatDocument.fee, /500 руб/);
+assert.match(repeatDocument.fee, /350 руб/);
 
-{
-  const text = buildZagsApplicationText(marriageVariant, marriageValues);
-  assert.match(text, /Форма N 7/, "joint marriage application must use form 7");
-  assert.deepEqual(getZagsPaymentInfo(marriageVariant, {}), ["350 руб. за государственную регистрацию заключения брака, включая выдачу свидетельства. Отдельная федеральная пошлина за сокращение срока не указана."]);
-}
+const correction = ZAGS_SCENARIOS["record-correction"];
+assert.deepEqual(correction.forms.map((form) => form.number), ["23"]);
+assert.match(correction.description.join(" "), /отсутствии спора/);
+assert.match(correction.warning ?? "", /решение суда/);
+assert.match(correction.fee, /700 руб/);
+assert.match(correction.fee, /не уплачивается/);
+assert.match(correction.term, /не более чем на два месяца/);
 
-{
-  const text = buildZagsApplicationText(marriageVariant, { ...marriageValues, marriageApplicationMode: "separate_absent" });
-  assert.match(text, /Форма N 8/, "separate absent applicant must use form 8");
-  assert.match(text, /форме N 7 и это отдельное заявление по форме N 8/i, "form 8 must mention paired form 7 submission");
-}
-
-{
-  const text = buildZagsApplicationText(nameChangeVariant, {
-    ...baseApplicant,
-    newSurname: "Сидорова",
-    newName: "Мария",
-    newPatronymic: "Петровна",
-    birthActNumber: "123",
-    birthActDate: "1990-01-05",
-    birthActOffice: "Отдел ЗАГС",
-    nameChangeFamilyStatus: "divorced",
-    nameChangeReason: "возвращение добрачной фамилии",
-    ageGroup: "minor14to18",
-    minorConsentBasis: "representatives_consent"
-  });
-  assert.match(text, /Форма N 20/, "name change must use form 20");
-  assert.deepEqual(getZagsPaymentInfo(nameChangeVariant, {}), ["5000 руб. за государственную регистрацию перемены имени, включая выдачу свидетельства о перемене имени."]);
-}
-
-{
-  assert.equal(
-    getRepeatDocumentType({ requestedRepeatDocument: "repeat_marriage_certificate", marriageCurrentStatus: "divorced" }),
-    "marriage_reference",
-    "divorced applicant must not be routed to repeated marriage certificate"
-  );
-  const text = buildZagsApplicationText(repeatDocumentVariant, {
-    ...baseApplicant,
-    requestedRepeatDocument: "repeat_marriage_certificate",
-    marriageCurrentStatus: "divorced",
-    spouseMaleName: "Иванов Иван Иванович",
-    spouseFemaleName: "Петрова Мария Петровна",
-    documentPurpose: "для подтверждения факта регистрации брака"
-  });
-  assert.match(text, /Форма N 26/, "marriage reference must use form 26");
-  assert.match(text, /\[x\] справку о заключении брака/, "terminated marriage must switch to reference");
-}
-
-{
-  const text = buildZagsApplicationText(repeatDocumentVariant, {
-    ...baseApplicant,
-    requestedRepeatDocument: "no_marriage_record_reference",
-    documentPurpose: "для подачи документов",
-    absenceCheckPeriod: "с 01.01.2020 по 21.07.2026"
-  });
-  assert.match(text, /Форма N 24/, "absence of marriage registration reference must use form 24, not form 26");
-}
-
-{
-  const text = buildZagsApplicationText(correctionVariant, {
-    ...baseApplicant,
-    recordActType: "marriage",
-    recordActNumber: "456",
-    recordActDate: "2020-05-06",
-    recordActOffice: "Отдел ЗАГС",
-    recordPersonName: "Иванова Мария Петровна",
-    correctionFieldName: "фамилия",
-    currentRecordValue: "Иванова",
-    correctRecordValue: "Сидорова",
-    correctionReason: "описка в актовой записи",
-    basisDocuments: "паспорт"
-  });
-  assert.match(text, /Форма N 23/, "record correction must use form 23");
-  assert.deepEqual(getZagsPaymentInfo(correctionVariant, { errorMadeByZags: true }), ["Госпошлина не уплачивается, если исправление связано с ошибкой, допущенной при государственной регистрации по вине работников ЗАГС."]);
+for (const scenario of Object.values(ZAGS_SCENARIOS)) {
+  assert.ok(scenario.steps.length >= 3 && scenario.steps.length <= 5, `${scenario.key}: use 3-5 steps`);
+  assert.ok(scenario.documents.length > 0, `${scenario.key}: documents are required`);
+  assert.ok(scenario.helperFields.some((field) => field.required), `${scenario.key}: helper needs required fields`);
+  assert.ok(scenario.legalSources.some((source) => source.href.includes("publication.pravo.gov.ru")), `${scenario.key}: official order source is required`);
+  assert.ok(scenario.legalSources.every((source) => source.href.startsWith("https://")), `${scenario.key}: all sources must use HTTPS`);
 }
 
 console.log("zags-application-generator.test.ts: all assertions passed");
