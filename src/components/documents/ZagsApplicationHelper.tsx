@@ -4,6 +4,10 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { ZAGS_SCENARIOS } from "@/data/zags-route";
 import type { ZagsScenarioKey } from "@/data/zags-route";
+import zagsOffices from "@/data/zags-offices.json";
+
+const zagsOfficesByRegion: Record<string, string[]> = zagsOffices;
+const zagsRegions = Object.keys(zagsOfficesByRegion);
 
 type ReviewState = {
   missing: string[];
@@ -13,6 +17,9 @@ type ReviewState = {
 export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenarioKey }) {
   const scenario = ZAGS_SCENARIOS[scenarioKey];
   const [review, setReview] = useState<ReviewState>(null);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedOffice, setSelectedOffice] = useState("");
+  const availableOffices = zagsOfficesByRegion[selectedRegion] ?? [];
 
   function reviewFields(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -21,7 +28,19 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
       .map((field) => ({ label: field.label, value: String(formData.get(field.name) ?? "").trim() }))
       .filter((item) => item.value);
     const missing = scenario.helperFields
-      .filter((field) => field.required && !String(formData.get(field.name) ?? "").trim())
+      .filter((field) => {
+        if (!field.required) return false;
+
+        const value = String(formData.get(field.name) ?? "").trim();
+        if (!value) return true;
+        if (field.type === "zags-region") return !zagsOfficesByRegion[value];
+        if (field.type === "zags-office") {
+          const region = String(formData.get("region") ?? "").trim();
+          return !(zagsOfficesByRegion[region] ?? []).includes(value);
+        }
+
+        return false;
+      })
       .map((field) => field.label);
 
     setReview({ missing, values });
@@ -73,7 +92,43 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
               {field.label}
               {field.required ? <span className="text-rose-600"> *</span> : null}
             </span>
-            {field.type === "textarea" ? (
+            {field.type === "zags-region" ? (
+              <>
+                <input
+                  name={field.name}
+                  list="zags-regions"
+                  required={field.required}
+                  value={selectedRegion}
+                  onChange={(event) => {
+                    setSelectedRegion(event.target.value);
+                    setSelectedOffice("");
+                  }}
+                  placeholder="Начните вводить область, республику или регион"
+                  autoComplete="off"
+                  className="min-h-11 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-normal text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20"
+                />
+                <datalist id="zags-regions">
+                  {zagsRegions.map((region) => <option key={region} value={region} />)}
+                </datalist>
+              </>
+            ) : field.type === "zags-office" ? (
+              <>
+                <input
+                  name={field.name}
+                  list="zags-offices"
+                  required={field.required}
+                  value={selectedOffice}
+                  onChange={(event) => setSelectedOffice(event.target.value)}
+                  placeholder={availableOffices.length ? "Начните вводить название органа ЗАГС" : "Сначала выберите регион"}
+                  autoComplete="off"
+                  disabled={!availableOffices.length}
+                  className="min-h-11 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-normal text-ink outline-none disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-500 focus:border-trust focus:ring-2 focus:ring-trust/20"
+                />
+                <datalist id="zags-offices">
+                  {availableOffices.map((office) => <option key={office} value={office} />)}
+                </datalist>
+              </>
+            ) : field.type === "textarea" ? (
               <textarea
                 name={field.name}
                 required={field.required}
@@ -136,4 +191,3 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
     </section>
   );
 }
-

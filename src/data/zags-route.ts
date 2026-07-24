@@ -16,7 +16,7 @@ export type ZagsLegalSource = {
 export type ZagsHelperField = {
   name: string;
   label: string;
-  type?: "text" | "date" | "textarea" | "select";
+  type?: "text" | "date" | "textarea" | "select" | "zags-region" | "zags-office";
   required?: boolean;
   options?: Array<{ label: string; value: string }>;
 };
@@ -109,7 +109,8 @@ export const ZAGS_SCENARIOS: Record<ZagsScenarioKey, ZagsScenario> = {
       ...minjustSources
     ],
     helperFields: [
-      { name: "office", label: "Орган ЗАГС", required: true },
+      { name: "region", label: "Регион", type: "zags-region", required: true },
+      { name: "office", label: "Орган ЗАГС", type: "zags-office", required: true },
       { name: "mode", label: "Способ подачи", type: "select", required: true, options: [{ label: "Совместное заявление, форма N 7", value: "joint" }, { label: "Один заявитель не может лично подать заявление, нужна форма N 8", value: "separate" }] },
       { name: "person1", label: "ФИО, дата и место рождения первого заявителя", type: "textarea", required: true },
       { name: "person1Identity", label: "Гражданство, адрес и реквизиты документа первого заявителя", type: "textarea", required: true },
