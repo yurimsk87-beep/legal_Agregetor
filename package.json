@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "tsx src/lib/contact-safety.test.ts && tsx src/lib/qna-publication-rules.test.ts && tsx src/lib/related-questions.test.ts",
+    "test": "tsx src/lib/contact-safety.test.ts && tsx src/lib/qna-publication-rules.test.ts && tsx src/lib/related-questions.test.ts && tsx src/lib/content-reset.test.ts && tsx src/lib/zags-route-validation.test.ts",
     "quality:ai-navigator": "tsx scripts/check-ai-navigator-quality.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
@@ -21,6 +21,7 @@
     "import:qna:pravoved": "tsx scripts/import-pravoved-qna.ts",
     "sync:harant:specializations": "tsx scripts/sync-harant-category-specializations.ts",
     "content:cleanup": "tsx scripts/cleanup-public-copy.ts",
+    "content:reset:zags": "tsx scripts/cleanup-problems-documents.ts",
     "content:import": "tsx scripts/import-content.ts"
   },
   "dependencies": {

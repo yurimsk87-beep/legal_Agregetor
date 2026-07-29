@@ -22,6 +22,7 @@ export function SiteSearchInput({ defaultValue = "", hints, placeholder, aiNavig
   const trimmedQuery = query.trim();
   const showPopularHints = trimmedQuery.length < minQueryLength;
   const showDropdown = Boolean(aiNavigatorPage) && open && trimmedQuery.length >= minQueryLength;
+  const allResultsHref = `/problems/?q=${encodeURIComponent(trimmedQuery)}`;
 
   // Закрываем выпадающее окно только по клику ВНЕ корня. Любой клик внутри (поле,
   // textarea, кнопки ИИ-блока) не закрывает дропдаун.
@@ -35,7 +36,11 @@ export function SiteSearchInput({ defaultValue = "", hints, placeholder, aiNavig
 
   return (
     <div ref={rootRef} className="relative mt-5 min-w-0 w-full">
-      <form action="/questions/" role="search" className="flex min-w-0 flex-col gap-3 sm:flex-row">
+      <form
+        action="/problems/"
+        role="search"
+        className="flex min-w-0 flex-col gap-3 sm:flex-row"
+      >
         <label htmlFor="site-search-query" className="sr-only">
           Опишите проблему или найдите нужный документ
         </label>
@@ -68,7 +73,7 @@ export function SiteSearchInput({ defaultValue = "", hints, placeholder, aiNavig
           <AiNavigatorDropdownPanel query={trimmedQuery} page={aiNavigatorPage} />
           {/* Обычный поиск остаётся доступным из дропдауна. */}
           <Link
-            href={`/questions/?q=${encodeURIComponent(trimmedQuery)}`}
+            href={allResultsHref}
             className="mt-3 flex items-center justify-between gap-2 rounded-md border border-line bg-zinc-50 px-3 py-2 text-xs font-semibold text-ink hover:border-trust"
           >
             <span className="min-w-0 truncate">Показать все результаты по запросу «{trimmedQuery}»</span>
@@ -88,7 +93,7 @@ function PopularSearchHints({ hints }: { hints: string[] }) {
         {hints.map((hint) => (
           <Link
             key={hint}
-            href={`/questions/?q=${encodeURIComponent(hint)}`}
+            href={`/problems/?q=${encodeURIComponent(hint)}`}
             className="rounded-full border border-line bg-zinc-50 px-4 py-2 text-sm font-semibold text-ink hover:border-trust hover:text-trust"
           >
             {hint}

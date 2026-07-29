@@ -9,77 +9,26 @@ import { RelatedLawyersBlock, RelatedQuestionsBlock, SectionHeading } from "@/co
 import { DutyLawyerWidget } from "@/components/qna/DutyLawyerWidget";
 import {
   getDocumentH1,
-  getDocumentInstructionCtaLabel,
   getDocumentMetaDescription,
-  getDocumentOnlineFillCtaLabel,
   getDocumentPageTitle
 } from "@/lib/document-seo";
 import { breadcrumbJsonLd } from "@/lib/jsonld";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { getRelatedLawyersBySpecializations, getRelatedQuestionsForContext } from "@/lib/navigator-relations";
 import { buildDocumentQuestionContext, PROBLEM_EXCLUDED_TOPICS } from "@/data/related-questions-context";
-import { DocumentGeneratorSection } from "@/components/documents/DocumentGeneratorSection";
-import { getDocumentTemplate } from "@/data/document-templates";
+import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { getLegalReferences } from "@/data/legal-references";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
 import type { NavigatorDocument } from "@/data/documents";
-import type { LegalProblem } from "@/data/legal-problems";
 import { legalProblems } from "@/data/legal-problems";
-import type { NavigatorTool } from "@/data/tools";
-import { navigatorTools } from "@/data/tools";
+import { getZagsScenario, ZAGS_PROBLEM_ROUTE, ZAGS_SCENARIO_CHOICES } from "@/data/zags-route";
+import type { ZagsScenario, ZagsScenarioKey } from "@/data/zags-route";
 
-type PageProps = { params: Promise<{ documentSlug: string }> };
-type DocumentFaq = { question: string; answer: string };
-
-const DOCUMENT_SLUG_ALIASES: Record<string, string> = {
-  "pretenziya-v-upravlyayushchuyu-kompaniyu": "pretenziya-v-upravlyayuschuyu-kompaniyu"
+type PageProps = {
+  params: Promise<{ documentSlug: string }>;
+  searchParams?: Promise<{ variant?: string }>;
 };
-
-const WHEN_TO_USE_FALLBACK = [
-  "Этот документ используют, когда нужно письменно зафиксировать требование, обращение, возражение или жалобу и получить подтверждение подачи."
-];
-
-const PREPARATION_FALLBACK = [
-  "паспортные или контактные данные заявителя;",
-  "данные второй стороны или организации;",
-  "даты событий;",
-  "суммы, если есть денежный спор;",
-  "договоры, чеки, переписку и уведомления;",
-  "доказательства подачи предыдущих обращений;",
-  "реквизиты суда или госоргана, если документ подается туда."
-];
-
-const FILL_STEPS_FALLBACK = [
-  "Укажите свои данные.",
-  "Укажите адресата.",
-  "Опишите ситуацию по датам.",
-  "Сформулируйте требование.",
-  "Перечислите приложения.",
-  "Поставьте дату и подпись.",
-  "Сохраните копию документа."
-];
-
-const SUBMISSION_OPTIONS = [
-  "лично через канцелярию или приемную;",
-  "почтой заказным письмом с описью вложения;",
-  "через электронную приемную, если она есть у адресата;",
-  "через суд, ГАС или Мой арбитр, если документ связан с судебным делом;",
-  "через Госуслуги, если для этого документа доступна электронная подача;",
-  "через представителя по доверенности."
-];
-
-const SUBMISSION_FALLBACK =
-  "Способ подачи зависит от адресата. Важно сохранить подтверждение: отметку о принятии, почтовую квитанцию, трек-номер, электронное уведомление или расписку.";
-
-const DEADLINES_FALLBACK =
-  "Срок рассмотрения зависит от типа документа и адресата. Если ответа нет или он отрицательный, следующим шагом может быть жалоба, повторное обращение или обращение в суд.";
-
-const AFTER_SUBMISSION_STEPS = [
-  "Сохраните подтверждение подачи и копию документа.",
-  "Отслеживайте входящий номер, трек-номер или уведомление в личном кабинете.",
-  "Если ответа нет в установленный срок, направьте повторное обращение или жалобу.",
-  "Если пришел отказ, проверьте срок и порядок обжалования."
-];
+type DocumentFaq = { question: string; answer: string };
 
 const UNIVERSAL_MISTAKES = [
   "подать документ без подтверждения;",
@@ -92,7 +41,6 @@ const UNIVERSAL_MISTAKES = [
   "не сохранить копию."
 ];
 
-export const dynamicParams = false;
 export const revalidate = 3600;
 
 export function generateStaticParams() {
@@ -113,22 +61,40 @@ function isIndexableDocumentPage(document: NavigatorDocument | null): boolean {
   );
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { documentSlug } = await params;
-  const document = getDocumentByParam(documentSlug);
-
-  return buildMetadata({
-    title: document ? getDocumentPageTitle(document) : "Документ не найден",
-    description: document ? getDocumentMetaDescription(document) : "Документ не найден.",
-    path: document ? `/documents/${document.slug}/` : `/documents/${documentSlug}/`,
-    isIndexable: isIndexableDocumentPage(document)
-  });
-}
-
-export default async function DocumentPage({ params }: PageProps) {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { documentSlug } = await params;
   const document = getDocumentByParam(documentSlug);
   if (!document) notFound();
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+
+  if (document?.slug === ZAGS_PROBLEM_ROUTE.documentSlug) {
+    return buildMetadata({
+      title: "Заявление в ЗАГС: формы и порядок заполнения",
+      description: "Выберите процедуру ЗАГС, проверьте форму, документы, госпошлину и подготовьте сведения для официального заявления без имитации бланка.",
+      path: `/documents/${document.slug}/`,
+      isIndexable: true,
+      searchParams: resolvedSearchParams
+    });
+  }
+
+  return buildMetadata({
+    title: getDocumentPageTitle(document),
+    description: getDocumentMetaDescription(document),
+    path: `/documents/${document.slug}/`,
+    isIndexable: isIndexableDocumentPage(document),
+    searchParams: resolvedSearchParams
+  });
+}
+
+export default async function DocumentPage({ params, searchParams }: PageProps) {
+  const { documentSlug } = await params;
+  const document = getDocumentByParam(documentSlug);
+  if (!document) notFound();
+
+  if (document.slug === ZAGS_PROBLEM_ROUTE.documentSlug) {
+    const resolvedSearchParams = searchParams ? await searchParams : {};
+    return <ZagsDocumentPage document={document} scenario={getZagsScenario(resolvedSearchParams.variant)} />;
+  }
 
   const relatedProblems = legalProblems.filter((problem) => document.relatedProblemSlugs.includes(problem.slug));
   const relatedSpecializations = new Set(relatedProblems.flatMap((problem) => problem.relatedLawyerSpecializations));
@@ -137,7 +103,6 @@ export default async function DocumentPage({ params }: PageProps) {
     relatedPrimaryTags: [...new Set(relatedProblems.flatMap((problem) => problem.relatedQuestionTopics))],
     relatedExcludedTopics: [...new Set(relatedProblems.flatMap((problem) => PROBLEM_EXCLUDED_TOPICS[problem.slug] ?? []))]
   });
-  const documentTemplate = document.templateSlug ? getDocumentTemplate(document.templateSlug) : null;
   const [relatedQuestions, relatedLawyers] = await Promise.all([
     getRelatedQuestionsForContext(documentQuestionContext, { limit: 12 }),
     getRelatedLawyersBySpecializations(relatedSpecializations)
@@ -162,12 +127,6 @@ export default async function DocumentPage({ params }: PageProps) {
         <DocumentHero document={document} />
 
         <DocumentFactCards document={document} />
-
-        {documentTemplate ? (
-          <div className="mt-8">
-            <DocumentGeneratorSection template={documentTemplate} instructionHref={primaryProblemHref} />
-          </div>
-        ) : null}
 
         {legalReferences.length ? (
           <div className="mt-8">
@@ -215,6 +174,108 @@ export default async function DocumentPage({ params }: PageProps) {
   );
 }
 
+function ZagsDocumentPage({ document, scenario }: { document: NavigatorDocument; scenario: ZagsScenario | null }) {
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [
+    { name: "Главная", path: "/" },
+    { name: "Документы", path: "/documents/" },
+    { name: "Заявление в ЗАГС", path: documentPath }
+  ];
+
+  return (
+    <>
+      <JsonLd data={scenario ? breadcrumbJsonLd(breadcrumbs) : [breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(document)]} />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-8">
+          <p className="text-sm font-semibold uppercase tracking-wide text-trust">Документы ЗАГС</p>
+          <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">
+            {scenario ? `Заявление в ЗАГС: ${scenario.shortTitle.toLowerCase()}` : "Заявление в ЗАГС: выберите процедуру"}
+          </h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">
+            {scenario
+              ? scenario.description[0]
+              : "Для разных обращений применяются разные утверждённые формы. Выберите цель, чтобы увидеть только подходящий бланк, порядок подачи и помощник по заполнению."}
+          </p>
+          {scenario ? (
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="#fill-online" className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+                Подготовить данные для заявления
+              </Link>
+              <Link href={documentPath} className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/20">
+                Выбрать другую процедуру
+              </Link>
+            </div>
+          ) : null}
+        </header>
+
+        {!scenario ? (
+          <section className="mt-6 grid gap-4 md:grid-cols-2" aria-label="Варианты заявления в ЗАГС">
+            {ZAGS_SCENARIO_CHOICES.map((choice) => (
+              <Link
+                key={choice.key}
+                href={`${documentPath}?variant=${choice.key}`}
+                className="min-h-11 rounded-lg border border-line bg-white p-5 shadow-sm outline-none hover:border-trust focus:border-trust focus:ring-2 focus:ring-trust/20"
+              >
+                <span className="text-lg font-semibold text-ink">{choice.title}</span>
+                <span className="mt-2 block text-sm leading-6 text-zinc-600">{choice.description}</span>
+              </Link>
+            ))}
+          </section>
+        ) : (
+          <>
+            <section className="mt-6 grid gap-4 md:grid-cols-2">
+              <ZagsDocumentFact title="Официальная форма" text={scenario.forms.map((form) => `Форма N ${form.number}: ${form.purpose}.`).join(" ")} />
+              <ZagsDocumentFact title="Куда и как подать" text={scenario.filing} />
+              <ZagsDocumentFact title="Срок" text={scenario.term} />
+              <ZagsDocumentFact title="Госпошлина" text={scenario.fee} />
+            </section>
+
+            <section className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
+              <h2 className="text-2xl font-semibold text-ink">Что подготовить</h2>
+              <ul className="mt-4 grid gap-2 text-sm leading-6 text-zinc-700">
+                {scenario.documents.map((item) => <li key={item}>- {item}</li>)}
+              </ul>
+              {scenario.warning ? (
+                <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+              ) : null}
+            </section>
+
+            <div className="mt-6">
+              <ZagsApplicationHelper scenarioKey={scenario.key as ZagsScenarioKey} />
+            </div>
+
+            <section className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
+              <h2 className="text-2xl font-semibold text-ink">Правовые основания</h2>
+              <ul className="mt-4 grid gap-2 text-sm leading-6">
+                {scenario.legalSources.map((source) => (
+                  <li key={source.href}>
+                    <a href={source.href} target="_blank" rel="noreferrer" className="font-medium text-trust underline underline-offset-4 hover:text-ink">
+                      {source.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <FaqBlock faq={scenario.faq} />
+
+          </>
+        )}
+      </article>
+    </>
+  );
+}
+
+function ZagsDocumentFact({ text, title }: { text: string; title: string }) {
+  return (
+    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
+      <h2 className="text-lg font-semibold text-ink">{title}</h2>
+      <p className="mt-3 text-sm leading-6 text-zinc-700">{text}</p>
+    </section>
+  );
+}
+
 function DocumentHero({ document }: { document: NavigatorDocument }) {
   // Генератор встроен в эту же страницу — кнопка ведёт якорем к форме ниже.
   const generatorHref = document.templateSlug ? "#fill-online" : null;
@@ -227,7 +288,7 @@ function DocumentHero({ document }: { document: NavigatorDocument }) {
       <div className="mt-6 flex flex-wrap gap-3">
         {generatorHref ? (
           <Link href={generatorHref} className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink">
-            Заполнить онлайн
+            {document.slug === "zayavlenie-v-zags" ? "Подготовить данные для заявления" : "Заполнить онлайн"}
           </Link>
         ) : (
           <QuestionCtaLink sourcePage={`/documents/${document.slug}/`} label="Задать вопрос юристу" />
@@ -294,124 +355,6 @@ function DocumentMistakesCards({ mistakes }: { mistakes: string[] }) {
   );
 }
 
-function DocumentPreparationBlock({ items }: { items: string[] }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Что подготовить перед заполнением</h2>
-      <TextList items={items.length ? items : PREPARATION_FALLBACK} />
-    </section>
-  );
-}
-
-function DocumentOptionalListBlock({ items, title }: { items: string[]; title: string }) {
-  if (!items.length) return null;
-
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">{title}</h2>
-      <TextList items={items} />
-    </section>
-  );
-}
-
-function DocumentCostsBlock({ costs }: { costs: string[] }) {
-  if (!costs.length) return null;
-
-  return (
-    <section className="rounded-lg border border-amber-200 bg-amber-50 p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Госпошлина и расходы</h2>
-      <TextList items={costs} />
-    </section>
-  );
-}
-
-// Объединённый блок «образец, заполнение и подача»: короткое вступление с
-// SEO-ключами (образец/бланк), шаги заполнения и чек-лист перед подачей —
-// вместо двух прежних блоков с четырьмя повторяющимися карточками.
-function DocumentHowToBlock({ document }: { document: NavigatorDocument }) {
-  const steps = document.howToFill.length ? document.howToFill : FILL_STEPS_FALLBACK;
-
-  return (
-    <section id="how-to-fill" className="mt-8 scroll-mt-24 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
-      <div className="max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-wide text-trust">Образец, бланк и заполнение</p>
-        <h2 className="mt-2 text-2xl font-semibold text-ink">Как составить и подать документ</h2>
-        <p className="mt-3 text-sm leading-6 text-zinc-600">
-          Отдельный обязательный бланк не требуется — используйте образец как черновик: укажите адресата и свои данные, опишите события по датам и сформулируйте конкретное требование.
-          {document.templateSlug ? " Готовый текст можно сформировать онлайн в форме выше." : ""}
-        </p>
-      </div>
-      <ol className="mt-5 grid gap-3">
-        {steps.map((item, index) => (
-          <li key={`${index}-${item}`} className="flex min-w-0 gap-4 rounded-lg border border-line bg-zinc-50 p-4">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-trust text-sm font-bold text-white">{index + 1}</span>
-            <p className="min-w-0 leading-7 text-zinc-700">{item}</p>
-          </li>
-        ))}
-      </ol>
-      <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-        <p className="font-semibold">Перед подачей проверьте</p>
-        <p className="mt-1">
-          Срок подачи, адресата, номера дел и документов, доказательства и копии приложений. Если спор сложный, срок пропущен или цена ошибки высока — покажите документ юристу.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function DocumentSubmissionBlock({ howToSubmit, whereToSubmit }: { howToSubmit: string[]; whereToSubmit: string }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Куда подавать документ</h2>
-      <p className="mt-3 text-base leading-7 text-zinc-700">{whereToSubmit || SUBMISSION_FALLBACK}</p>
-      <h3 className="mt-5 font-semibold text-ink">Как подать документ</h3>
-      <TextList items={howToSubmit.length ? howToSubmit : SUBMISSION_OPTIONS} />
-    </section>
-  );
-}
-
-function DocumentDeadlinesBlock({ afterFiling, deadlines }: { afterFiling: string[]; deadlines: string[] }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Сроки и что будет после подачи</h2>
-      <TextList items={deadlines.length ? deadlines : [DEADLINES_FALLBACK]} />
-      <div className="mt-5 rounded-lg bg-zinc-50 p-4">
-        <h3 className="font-semibold text-ink">Что происходит после подачи</h3>
-        <TextList items={afterFiling.length ? afterFiling : AFTER_SUBMISSION_STEPS} />
-      </div>
-    </section>
-  );
-}
-
-function DocumentMistakesBlock({ includeUniversal, mistakes }: { includeUniversal: boolean; mistakes: string[] }) {
-  const items = includeUniversal ? uniqueItems([...mistakes, ...UNIVERSAL_MISTAKES]) : uniqueItems(mistakes);
-
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Частые ошибки</h2>
-      <TextList items={items} />
-    </section>
-  );
-}
-
-function DocumentToolsBlock({ tools }: { tools: NavigatorTool[] }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Проверить срок перед подготовкой документа</h2>
-      <p className="mt-3 text-sm leading-6 text-zinc-600">Если документ связан со сроком подачи, сначала проверьте ориентировочную дату и риски пропуска.</p>
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
-        {tools.map((tool) => (
-          <Link key={tool.slug} href={`/tools/${tool.slug}/`} className="rounded-lg border border-line bg-zinc-50 p-4 hover:border-trust">
-            <h3 className="font-semibold text-ink">{tool.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-zinc-600">{tool.description}</p>
-            <span className="mt-4 inline-flex text-sm font-semibold text-trust">Открыть инструмент</span>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function FaqBlock({ faq }: { faq: DocumentFaq[] }) {
   if (!faq.length) return null;
 
@@ -435,33 +378,6 @@ function FaqBlock({ faq }: { faq: DocumentFaq[] }) {
   );
 }
 
-function DocumentRelatedDocumentsBlock({ documents }: { documents: NavigatorDocument["relatedDocuments"] }) {
-  if (!documents.length) return null;
-
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Похожие документы</h2>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        {documents.map((document) =>
-          document.slug ? (
-            <Link
-              key={`${document.slug}-${document.title}`}
-              href={`/documents/${document.slug}/`}
-              className="rounded-lg border border-line bg-zinc-50 p-4 text-sm font-semibold text-ink hover:border-trust"
-            >
-              {document.title}
-            </Link>
-          ) : (
-            <article key={document.title} className="rounded-lg border border-line bg-zinc-50 p-4 text-sm font-semibold text-zinc-600">
-              {document.title}
-            </article>
-          )
-        )}
-      </div>
-    </section>
-  );
-}
-
 function DocumentFinalCta({ checkHref, documentPath, problemHref }: { checkHref: string; documentPath: string; problemHref: string }) {
   return (
     <section className="bg-ink">
@@ -472,7 +388,7 @@ function DocumentFinalCta({ checkHref, documentPath, problemHref }: { checkHref:
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link href={checkHref} className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-zinc-100">
-            Проверить ситуацию
+            Разобрать ситуацию
           </Link>
           <QuestionCtaLink sourcePage={documentPath} label="Получить первичную консультацию" variant="secondary" />
           <Link href={problemHref} className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md border border-white/40 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">
@@ -481,19 +397,6 @@ function DocumentFinalCta({ checkHref, documentPath, problemHref }: { checkHref:
         </div>
       </div>
     </section>
-  );
-}
-
-function TextList({ items }: { items: string[] }) {
-  return (
-    <ul className="mt-4 grid gap-3">
-      {items.map((item) => (
-        <li key={item} className="flex min-w-0 gap-2 text-sm leading-6 text-zinc-700">
-          <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-trust" aria-hidden="true" />
-          <span className="min-w-0">{item}</span>
-        </li>
-      ))}
-    </ul>
   );
 }
 
@@ -561,7 +464,7 @@ function faqPageJsonLd(faq: DocumentFaq[]) {
 }
 
 function getDocumentByParam(slug: string) {
-  return getNavigatorDocument(DOCUMENT_SLUG_ALIASES[slug] ?? slug);
+  return getNavigatorDocument(slug);
 }
 
 function uniqueItems(items: string[]) {
