@@ -46,5 +46,20 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
-      - run: npm run quality:ai-navigator
+      - name: Run AI Navigator quality check
+        run: |
+          npm run dev > /tmp/zags-next.log 2>&1 &
+          app_pid=$!
+          trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+
+          for attempt in {1..60}; do
+            if curl --fail --silent http://localhost:3000/ > /dev/null; then
+              npm run quality:ai-navigator
+              exit $?
+            fi
+            sleep 1
+          done
+
+          cat /tmp/zags-next.log
+          exit 1
       - run: npm run build
