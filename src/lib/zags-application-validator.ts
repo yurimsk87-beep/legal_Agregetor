@@ -45,17 +45,32 @@ export function isZagsFieldVisible(
   values: ZagsApplicationValues,
   today = new Date()
 ) {
+  if (scenarioKey === "marriage" && ["minorMarriagePermission", "minorMarriagePermissionDetails"].includes(fieldName)) {
+    const ages = [values.person1BirthDate, values.person2BirthDate]
+      .map((value) => calculateAge(value ?? "", today))
+      .filter((age): age is number => age !== null);
+    return ages.some((age) => age < 18);
+  }
+
   if (scenarioKey === "name-change" && ["minorBasis", "minorBasisDetails"].includes(fieldName)) {
     const age = calculateAge(values.birthDate ?? "", today);
     return age !== null && age >= 14 && age < 18;
+  }
+
+  if (scenarioKey === "name-change" && fieldName === "childrenRecords") {
+    return values.hasMinorChildren === "yes";
+  }
+
+  if (scenarioKey === "repeat-document" && fieldName === "referencePurpose") {
+    return values.result?.endsWith("-reference") ?? false;
   }
 
   if (scenarioKey === "record-correction" && fieldName === "exchangeDocument") {
     return values.certificateState === "kept";
   }
 
-  if (scenarioKey === "record-correction" && fieldName === "workerErrorConfirmed") {
-    return values.errorSource === "zags-worker";
+  if (scenarioKey === "record-correction" && fieldName === "feeExemptionDetails") {
+    return ["zags-worker", "adoption-birth", "rehabilitation-death"].includes(values.feeExemptionBasis);
   }
 
   return true;
@@ -77,6 +92,36 @@ export function validateZagsApplication(
   if (scenarioKey === "marriage") {
     const mode = values.mode;
     if (!mode) issues.push({ field: "mode", message: "Выберите способ подачи заявления." });
+    if (values.mutualConsent !== "yes") {
+      issues.push({ field: "mutualConsent", message: "Для заключения брака необходимо взаимное добровольное согласие обоих заявителей." });
+    }
+    if (values.legalObstacles !== "none") {
+      issues.push({
+        field: "legalObstacles",
+        message: values.legalObstacles === "present"
+          ? "При наличии хотя бы одного препятствия из статьи 14 СК РФ государственная регистрация брака невозможна."
+          : "Подтвердите отсутствие препятствий к заключению брака по статье 14 СК РФ."
+      });
+    }
+
+    const applicantAges = ["person1BirthDate", "person2BirthDate"].map((field) => ({
+      field,
+      age: calculateAge(values[field] ?? "", today)
+    }));
+    for (const applicant of applicantAges) {
+      if (applicant.age === null) {
+        issues.push({ field: applicant.field, message: "Укажите корректную дату рождения каждого заявителя." });
+      }
+    }
+    if (applicantAges.some(({ age }) => age !== null && age < 18)) {
+      if (values.minorMarriagePermission !== "yes") {
+        issues.push({ field: "minorMarriagePermission", message: "Для несовершеннолетнего заявителя подтвердите разрешение на вступление в брак по применимым правилам региона." });
+      }
+      if (values.minorMarriagePermission === "yes" && !values.minorMarriagePermissionDetails?.trim()) {
+        issues.push({ field: "minorMarriagePermissionDetails", message: "Укажите реквизиты разрешения на вступление в брак." });
+      }
+    }
+
     formNumbers = mode === "separate" ? ["8"] : ["7"];
     feeAmount = ZAGS_FEES.marriage;
     feeLabel = `${feeAmount} руб. за государственную регистрацию заключения брака.`;
@@ -115,9 +160,22 @@ export function validateZagsApplication(
       notices.push("Смерть супруга не приравнивается к расторжению или признанию брака недействительным. Право на документ всё равно проверяется по статье 9 Закона N 143-ФЗ.");
     }
 
-    const isReference = result?.endsWith("-reference");
-    feeAmount = isReference ? ZAGS_FEES.archiveReference : ZAGS_FEES.repeatCertificate;
-    feeLabel = `${feeAmount} руб. за ${isReference ? "справку из архива органов ЗАГС" : "повторное свидетельство"}.`;
+    const isReference = result?.endsWith("-reference") ?? false;
+    if (isReference && !values.referencePurpose) {
+      issues.push({ field: "referencePurpose", message: "Укажите цель получения справки для проверки льготы по госпошлине." });
+    }
+    const pensionOrBenefitReference = isReference && values.referencePurpose === "pension-benefit";
+    feeAmount = pensionOrBenefitReference
+      ? 0
+      : isReference
+        ? ZAGS_FEES.archiveReference
+        : ZAGS_FEES.repeatCertificate;
+    feeLabel = pensionOrBenefitReference
+      ? "Госпошлина не уплачивается за справку, предназначенную для уполномоченного органа по вопросам назначения или перерасчёта пенсии либо пособия."
+      : `${feeAmount} руб. за ${isReference ? "справку из архива органов ЗАГС" : "повторное свидетельство"}.`;
+    if (isReference && values.referencePurpose === "unsure") {
+      notices.push("Льгота не применена автоматически: уточните назначение справки и статус получателя по статье 333.39 НК РФ.");
+    }
     attachments.push("Документы, подтверждающие право заявителя или полномочия представителя, если они требуются.");
   }
 
@@ -153,6 +211,24 @@ export function validateZagsApplication(
     } else {
       notices.push("Совершеннолетнему заявителю согласие родителей, усыновителей или попечителя не требуется.");
     }
+
+    if (!values.maritalStatus) {
+      issues.push({ field: "maritalStatus", message: "Укажите семейное положение заявителя." });
+    }
+    if (!values.hasMinorChildren) {
+      issues.push({ field: "hasMinorChildren", message: "Укажите, есть ли у заявителя несовершеннолетние дети." });
+    } else if (values.hasMinorChildren === "yes" && !values.childrenRecords?.trim()) {
+      issues.push({ field: "childrenRecords", message: "Укажите сведения о каждом несовершеннолетнем ребёнке и соответствующих актовых записях." });
+    }
+    if (values.maritalStatus === "married") {
+      attachments.push("Свидетельство о заключении брака.");
+    }
+    if (values.maritalStatus === "divorced-maiden-name") {
+      attachments.push("Свидетельство о расторжении брака.");
+    }
+    if (values.hasMinorChildren === "yes") {
+      attachments.push("Свидетельства о рождении каждого несовершеннолетнего ребёнка заявителя.");
+    }
   }
 
   if (scenarioKey === "record-correction") {
@@ -173,20 +249,32 @@ export function validateZagsApplication(
       notices.push("Получать повторное свидетельство специально для приложения не требуется: это прямо предусмотрено статьёй 71 Закона N 143-ФЗ.");
     }
 
-    if (!values.errorSource) {
-      issues.push({ field: "errorSource", message: "Укажите, связана ли ошибка с действиями работников ЗАГС." });
-    }
-    if (values.errorSource === "zags-worker" && !values.workerErrorConfirmed) {
-      issues.push({ field: "workerErrorConfirmed", message: "Укажите, подтверждена ли вина работников ЗАГС документами или ответом органа." });
+    if (!values.hasDispute) {
+      issues.push({ field: "hasDispute", message: "Укажите, есть ли спор между заинтересованными лицами." });
+    } else if (values.hasDispute !== "no") {
+      issues.push({
+        field: "hasDispute",
+        message: values.hasDispute === "yes"
+          ? "При наличии спора ЗАГС не исправляет запись во внесудебном порядке: требуется судебное решение."
+          : "Уточните наличие спора до подготовки заявления по форме N 23."
+      });
     }
 
-    const exemptionConfirmed = values.errorSource === "zags-worker" && values.workerErrorConfirmed === "yes";
+    if (!values.feeExemptionBasis) {
+      issues.push({ field: "feeExemptionBasis", message: "Выберите основание для расчёта госпошлины." });
+    }
+    const exemptionBasisConfirmed = ["zags-worker", "adoption-birth", "rehabilitation-death"].includes(values.feeExemptionBasis)
+      && Boolean(values.feeExemptionDetails?.trim());
+    if (["zags-worker", "adoption-birth", "rehabilitation-death"].includes(values.feeExemptionBasis) && !values.feeExemptionDetails?.trim()) {
+      issues.push({ field: "feeExemptionDetails", message: "Укажите документ, подтверждающий основание освобождения от госпошлины." });
+    }
+    const exemptionConfirmed = exemptionBasisConfirmed;
     feeAmount = exemptionConfirmed ? 0 : ZAGS_FEES.recordCorrection;
     feeLabel = exemptionConfirmed
-      ? "Госпошлина не уплачивается: подтверждена ошибка, допущенная по вине работников при государственной регистрации."
+      ? "Госпошлина не уплачивается по выбранному и подтверждённому основанию статьи 333.39 НК РФ."
       : `${feeAmount} руб. за внесение исправления или изменения в запись.`;
-    if (values.errorSource === "zags-worker" && values.workerErrorConfirmed === "no") {
-      notices.push("Освобождение от пошлины не применено автоматически: основание по статье 333.39 НК РФ нужно подтвердить.");
+    if (values.feeExemptionBasis === "unsure") {
+      notices.push("Льгота не применена автоматически: статья 333.39 НК РФ предусматривает несколько специальных оснований, которые нужно подтвердить документами.");
     }
   }
 

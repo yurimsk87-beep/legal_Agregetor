@@ -57,7 +57,13 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
       .map((field) => field.label);
     const decision = validateZagsApplication(scenarioKey, values);
     const preparedValues = visibleFields
-      .map((field) => ({ label: field.label, value: values[field.name]?.trim() ?? "" }))
+      .map((field) => {
+        const rawValue = values[field.name]?.trim() ?? "";
+        const selectedLabel = field.type === "select"
+          ? field.options?.find((option) => option.value === rawValue)?.label
+          : undefined;
+        return { label: field.label, value: selectedLabel ?? rawValue };
+      })
       .filter((item) => item.value);
 
     setReview({ decision, missing, values: preparedValues });
@@ -67,10 +73,10 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
 
   return (
     <section id="fill-online" className="scroll-mt-24 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
-      <p className="text-sm font-semibold uppercase tracking-wide text-trust">Проверка применимости</p>
-      <h2 className="mt-2 text-2xl font-semibold text-ink">Подготовьте данные для заявления</h2>
+      <p className="text-sm font-semibold uppercase tracking-wide text-trust">Помощник по подготовке</p>
+      <h2 className="mt-2 text-2xl font-semibold text-ink">Подготовьте данные и список приложений</h2>
       <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-700">
-        Помощник проверит выбранную процедуру, форму, приложения и госпошлину. Он не создаёт и не имитирует официальный бланк органа ЗАГС.
+        Помощник проверит основные условия выбранной процедуры, подскажет форму, приложения и госпошлину. Это не полная правовая оценка и не официальный бланк органа ЗАГС.
       </p>
 
       <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
@@ -117,7 +123,7 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
 
         <div>
           <button type="submit" className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
-            Проверить применимость и данные
+            Проверить ответы и собрать чек-лист
           </button>
         </div>
       </form>
@@ -133,7 +139,8 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
           </div>
         ) : review ? (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950">
-            <p className="font-semibold">Данные собраны, применимость проверена.</p>
+            <p className="font-semibold">Чек-лист подготовлен, основные условия проверены.</p>
+            <p className="mt-1">Перед подачей перенесите сведения в официальный бланк и сверьте их с оригиналами документов.</p>
             <p className="mt-2"><strong>Форма:</strong> {review.decision.formNumbers.map((number) => `N ${number}`).join(", ")}.</p>
             <p className="mt-1"><strong>Госпошлина:</strong> {review.decision.feeLabel}</p>
             {review.decision.notices.map((notice) => <p key={notice} className="mt-2">{notice}</p>)}

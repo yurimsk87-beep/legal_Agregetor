@@ -97,6 +97,9 @@ function assertApplyIsSafe() {
 }
 
 async function main() {
+  // Validate every destructive precondition before Prisma can connect to or read the selected database.
+  if (applyChanges) assertApplyIsSafe();
+
   const audit = await getAudit();
   assertSingleKeptEntity(audit);
 
@@ -115,8 +118,6 @@ async function main() {
     console.log("Dry run complete. Database was not changed.");
     return;
   }
-
-  assertApplyIsSafe();
 
   const deleted = await prisma.$transaction(async (tx) => {
     const faqWhere: Prisma.FaqItemWhereInput = {

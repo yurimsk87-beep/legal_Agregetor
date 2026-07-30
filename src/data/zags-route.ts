@@ -114,12 +114,19 @@ export const ZAGS_SCENARIOS: Record<ZagsScenarioKey, ZagsScenario> = {
       { name: "region", label: "Регион", type: "zags-region", required: true },
       { name: "office", label: "Орган ЗАГС", type: "zags-office", required: true },
       { name: "mode", label: "Способ подачи", type: "select", required: true, options: [{ label: "Совместное заявление, форма N 7", value: "joint" }, { label: "Один заявитель не может лично подать заявление, нужна форма N 8", value: "separate" }] },
-      { name: "person1", label: "ФИО, дата и место рождения первого заявителя", type: "textarea", required: true },
+      { name: "mutualConsent", label: "Оба заявителя добровольно согласны заключить брак?", type: "select", required: true, options: [{ label: "Да", value: "yes" }, { label: "Нет", value: "no" }] },
+      { name: "legalObstacles", label: "Есть препятствия из статьи 14 СК РФ?", type: "select", required: true, options: [{ label: "Нет: другого брака, близкого родства, отношений усыновителя и усыновлённого, признания недееспособным нет", value: "none" }, { label: "Есть хотя бы одно препятствие", value: "present" }, { label: "Не уверен", value: "unsure" }] },
+      { name: "person1", label: "ФИО и место рождения первого заявителя", type: "textarea", required: true },
+      { name: "person1BirthDate", label: "Дата рождения первого заявителя", type: "date", required: true },
       { name: "person1Identity", label: "Гражданство, адрес и реквизиты документа первого заявителя", type: "textarea", required: true },
       { name: "person1Status", label: "Семейное положение, документ о прекращении предыдущего брака и выбранная фамилия первого заявителя", type: "textarea", required: true },
-      { name: "person2", label: "ФИО, дата и место рождения второго заявителя", type: "textarea", required: true },
+      { name: "person2", label: "ФИО и место рождения второго заявителя", type: "textarea", required: true },
+      { name: "person2BirthDate", label: "Дата рождения второго заявителя", type: "date", required: true },
       { name: "person2Identity", label: "Гражданство, адрес и реквизиты документа второго заявителя", type: "textarea", required: true },
       { name: "person2Status", label: "Семейное положение, документ о прекращении предыдущего брака и выбранная фамилия второго заявителя", type: "textarea", required: true },
+      { name: "optionalMarriageData", label: "Национальность, образование и количество общих несовершеннолетних детей (указываются по желанию)", type: "textarea" },
+      { name: "minorMarriagePermission", label: "Разрешение на вступление в брак до достижения брачного возраста получено?", type: "select", options: [{ label: "Да", value: "yes" }, { label: "Нет или не уверен", value: "no" }] },
+      { name: "minorMarriagePermissionDetails", label: "Реквизиты разрешения на вступление в брак", type: "textarea" },
       { name: "registrationDate", label: "Желаемая дата регистрации", type: "date" }
     ]
   },
@@ -175,8 +182,10 @@ export const ZAGS_SCENARIOS: Record<ZagsScenarioKey, ZagsScenario> = {
       { name: "birthDate", label: "Дата рождения заявителя", type: "date", required: true },
       { name: "identity", label: "Гражданство, адрес и реквизиты документа, удостоверяющего личность", type: "textarea", required: true },
       { name: "newName", label: "Желаемые фамилия, имя и отчество", type: "textarea", required: true },
-      { name: "birthRecord", label: "Сведения о записи акта и свидетельстве о рождении", type: "textarea", required: true },
-      { name: "familyRecords", label: "Сведения о браке, разводе и несовершеннолетних детях", type: "textarea" },
+      { name: "maritalStatus", label: "Семейное положение", type: "select", required: true, options: [{ label: "В браке", value: "married" }, { label: "Разведён(а), прошу добрачную фамилию", value: "divorced-maiden-name" }, { label: "Разведён(а), другая цель", value: "divorced-other" }, { label: "Вдовец / вдова", value: "widowed" }, { label: "В браке не состоял(а)", value: "never-married" }] },
+      { name: "civilRecords", label: "Реквизиты всех ранее составленных актовых записей о заявителе", type: "textarea", required: true },
+      { name: "hasMinorChildren", label: "Есть несовершеннолетние дети?", type: "select", required: true, options: [{ label: "Да", value: "yes" }, { label: "Нет", value: "no" }] },
+      { name: "childrenRecords", label: "ФИО, даты рождения детей и реквизиты актовых записей о каждом ребёнке", type: "textarea" },
       { name: "reason", label: "Причина перемены имени", type: "textarea", required: true },
       {
         name: "minorBasis",
@@ -216,7 +225,7 @@ export const ZAGS_SCENARIOS: Record<ZagsScenarioKey, ZagsScenario> = {
       "Сведения об актовой записи: вид акта, ФИО лиц, дата, место и номер записи, если известны."
     ],
     forms: [{ number: "26", purpose: "повторный документ о заключении или расторжении брака" }],
-    fee: `${ZAGS_FEES.repeatCertificate} руб. за повторное свидетельство; ${ZAGS_FEES.archiveReference} руб. за справку из архива органов ЗАГС.`,
+    fee: `${ZAGS_FEES.repeatCertificate} руб. за повторное свидетельство; ${ZAGS_FEES.archiveReference} руб. за справку. Справка для уполномоченного органа по вопросам назначения или перерасчёта пенсии либо пособия выдаётся без госпошлины.`,
     term: "При личном обращении повторный документ выдают в день обращения, если соответствующая запись содержится в ЕГР ЗАГС. В остальных случаях срок зависит от поиска и способа направления запроса.",
     filing: "Заявление можно подать в орган ЗАГС, через МФЦ или предусмотренным законом электронным способом. При получении нужно предъявить удостоверение личности и документы, подтверждающие право на документ.",
     mainDocument: "Форма N 26 применяется только к указанным в ней повторным документам о заключении или расторжении брака. Для другой актовой записи используется соответствующая утверждённая форма.",
@@ -253,6 +262,7 @@ export const ZAGS_SCENARIOS: Record<ZagsScenarioKey, ZagsScenario> = {
       { name: "authority", label: "Основание права на получение или полномочия представителя", type: "textarea", required: true },
       { name: "persons", label: "ФИО лиц, в отношении которых составлена запись", type: "textarea", required: true },
       { name: "record", label: "Дата, место и номер актовой записи, если известны", type: "textarea" },
+      { name: "referencePurpose", label: "Для чего нужна справка?", type: "select", options: [{ label: "Для уполномоченного органа по назначению или перерасчёту пенсии либо пособия", value: "pension-benefit" }, { label: "Для другой цели", value: "other" }, { label: "Не уверен", value: "unsure" }] },
       { name: "purpose", label: "Цель получения документа", type: "textarea", required: true }
     ]
   },
@@ -267,26 +277,26 @@ export const ZAGS_SCENARIOS: Record<ZagsScenarioKey, ZagsScenario> = {
     ],
     steps: [
       "Определите актовую запись, ошибочные сведения и правильный вариант.",
-      "Подготовьте свидетельство, подлежащее обмену, и документы, подтверждающие основание исправления.",
+      "Если свидетельство сохранилось, подготовьте его к обмену; отдельно соберите документы, подтверждающие основание исправления.",
       "Подайте заявление по форме N 23 в орган ЗАГС.",
       "Получите исправленное свидетельство либо письменное извещение об отказе с причинами.",
       "При споре между заинтересованными лицами или несогласии с отказом используйте судебный порядок."
     ],
     documents: [
       "Документ, удостоверяющий личность заявителя.",
-      "Свидетельство о государственной регистрации акта гражданского состояния, которое подлежит обмену.",
+      "Свидетельство, которое подлежит обмену, если оно сохранилось. При утрате специально получать повторное свидетельство для приложения не требуется.",
       "Документы, подтверждающие основание для внесения исправления или изменения.",
       "Документы о полномочиях представителя, если заявление подаёт представитель."
     ],
     forms: [{ number: "23", purpose: "заявление о внесении исправления или изменения в запись акта гражданского состояния" }],
-    fee: `${ZAGS_FEES.recordCorrection} руб. за внесение исправлений и изменений. Освобождение возможно только при подтверждённой ошибке работников, допущенной при государственной регистрации.`,
+    fee: `${ZAGS_FEES.recordCorrection} руб. по общему правилу. Статья 333.39 НК РФ освобождает от пошлины, в частности, при подтверждённой ошибке работников ЗАГС, изменении записи о рождении в связи с усыновлением и отдельных изменениях записи о смерти реабилитированного лица.`,
     term: "Заявление рассматривается в течение месяца. При уважительных причинах руководитель органа ЗАГС может увеличить срок не более чем на два месяца.",
-    filing: "Заявление подают в орган ЗАГС с документами-основаниями и свидетельством, которое подлежит обмену.",
+    filing: "Заявление подают в орган ЗАГС с документами-основаниями и сохранившимся свидетельством, которое подлежит обмену. При утрате свидетельства повторный экземпляр специально для приложения не требуется.",
     mainDocument: "Форма N 23 — заявление о внесении исправления или изменения в запись акта гражданского состояния.",
     warning: "ЗАГС не разрешает спор между заинтересованными лицами. При наличии спора основанием для исправления служит решение суда. При отказе запросите письменные причины, чтобы выбрать способ обжалования.",
     faq: [
       { question: "Когда ЗАГС может исправить запись без суда?", answer: "Когда есть основание, предусмотренное статьёй 69 Закона N 143-ФЗ, и между заинтересованными лицами нет спора." },
-      { question: "Нужно ли платить пошлину за ошибку работника ЗАГС?", answer: "Нет, если исправление связано с ошибкой, допущенной работниками ЗАГС при государственной регистрации акта." },
+      { question: "Когда госпошлина не уплачивается?", answer: "Статья 333.39 НК РФ содержит несколько оснований. Среди них — подтверждённая ошибка работников ЗАГС, изменение записи о рождении в связи с усыновлением и отдельные случаи исправления записи о смерти реабилитированного лица." },
       { question: "Что делать при отказе?", answer: "Получите письменное извещение с причинами отказа. Отказ можно обжаловать в уполномоченный орган или в суд; при споре между заинтересованными лицами вопрос решается судом." }
     ],
     legalSources: [
@@ -303,6 +313,8 @@ export const ZAGS_SCENARIOS: Record<ZagsScenarioKey, ZagsScenario> = {
       { name: "region", label: "Регион", type: "zags-region", required: true },
       { name: "office", label: "Орган ЗАГС", type: "zags-office", required: true },
       { name: "applicant", label: "ФИО, адрес и реквизиты документа заявителя", type: "textarea", required: true },
+      { name: "applicantBirthDate", label: "Дата рождения заявителя", type: "date", required: true },
+      { name: "applicantBirthPlace", label: "Место рождения заявителя", type: "text", required: true },
       { name: "record", label: "Вид акта, номер, дата и орган, составивший запись", type: "textarea", required: true },
       { name: "person", label: "ФИО лица, в отношении которого составлена запись", type: "textarea", required: true },
       { name: "currentValue", label: "Сведения, которые сейчас указаны в записи", type: "textarea", required: true },
@@ -320,25 +332,30 @@ export const ZAGS_SCENARIOS: Record<ZagsScenarioKey, ZagsScenario> = {
       },
       { name: "exchangeDocument", label: "Реквизиты свидетельства, подлежащего обмену", type: "textarea" },
       {
-        name: "errorSource",
-        label: "Ошибка связана с действиями работников ЗАГС при государственной регистрации?",
+        name: "hasDispute",
+        label: "Есть спор между заинтересованными лицами?",
         type: "select",
         required: true,
         options: [
-          { label: "Да", value: "zags-worker" },
-          { label: "Нет, другое основание", value: "other" },
+          { label: "Нет", value: "no" },
+          { label: "Да", value: "yes" },
           { label: "Не уверен", value: "unsure" }
         ]
       },
       {
-        name: "workerErrorConfirmed",
-        label: "Вина работников ЗАГС подтверждена документом или ответом органа?",
+        name: "feeExemptionBasis",
+        label: "Есть основание для освобождения от госпошлины?",
         type: "select",
+        required: true,
         options: [
-          { label: "Да, подтверждена", value: "yes" },
-          { label: "Нет подтверждения", value: "no" }
+          { label: "Нет", value: "none" },
+          { label: "Ошибка работников ЗАГС при государственной регистрации", value: "zags-worker" },
+          { label: "Изменение записи о рождении в связи с усыновлением", value: "adoption-birth" },
+          { label: "Исправление записи о смерти реабилитированного лица", value: "rehabilitation-death" },
+          { label: "Не уверен", value: "unsure" }
         ]
-      }
+      },
+      { name: "feeExemptionDetails", label: "Документ, подтверждающий льготу", type: "textarea" }
     ]
   }
 };
