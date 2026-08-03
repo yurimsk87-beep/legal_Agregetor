@@ -12,19 +12,35 @@ type NavigatorResponse = {
 const baseUrl = process.env.AI_NAVIGATOR_CHECK_URL || "http://localhost:3000";
 const allowedProblem = "/problems/semya-i-deti/brak-zags-i-smena-familii/";
 const allowedDocument = "/documents/zayavlenie-v-zags/";
-const allowedContentPrefixes = [allowedProblem, allowedDocument];
+const divorceProblem = "/problems/semya-i-deti/razvod-i-razdel-imushchestva/";
+const divorceDocuments = [
+  "/documents/zayavlenie-o-rastorzhenii-braka-v-zags/",
+  "/documents/isk-o-rastorzhenii-braka/",
+  "/documents/soglashenie-o-razdele-imushchestva/",
+  "/documents/isk-o-razdele-imushchestva-suprugov/"
+];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments];
 
 const queries = [
-  "хочу зарегистрировать брак",
-  "сменить фамилию после свадьбы",
-  "получить повторное свидетельство",
-  "исправить ошибку в записи загс"
+  { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
+  { query: "сменить фамилию после свадьбы", expected: [allowedProblem, allowedDocument] },
+  { query: "получить повторное свидетельство", expected: [allowedProblem, allowedDocument] },
+  { query: "исправить ошибку в записи загс", expected: [allowedProblem, allowedDocument] },
+  { query: "как развестись", expected: [divorceProblem, ...divorceDocuments.slice(0, 2)] },
+  { query: "развод через загс", expected: [divorceProblem, divorceDocuments[0]] },
+  { query: "супруг не согласен на развод", expected: [divorceProblem, divorceDocuments[1]] },
+  { query: "раздел имущества после развода", expected: [divorceProblem, divorceDocuments[2], divorceDocuments[3]] },
+  { query: "соглашение о разделе имущества", expected: [divorceProblem, divorceDocuments[2]] },
+  { query: "ипотека при разводе", expected: [divorceProblem, divorceDocuments[2], divorceDocuments[3]] },
+  { query: "супруг продал имущество перед разводом", expected: [divorceProblem, divorceDocuments[3]] },
+  { query: "срок раздела имущества", expected: [divorceProblem, divorceDocuments[3]] }
 ];
 
 async function main() {
   let failed = 0;
 
-  for (const query of queries) {
+  for (const testCase of queries) {
+    const { query, expected } = testCase;
     const url = new URL("/api/ai-navigator?fast=1", baseUrl);
     const response = await fetch(url, {
       method: "POST",
@@ -47,7 +63,7 @@ async function main() {
       (href) => !allowedContentPrefixes.some((allowed) => href.startsWith(allowed))
     );
     const primaryHref = data.primaryAction?.href ?? "";
-    const primaryIsAllowed = allowedContentPrefixes.some((allowed) => primaryHref.startsWith(allowed));
+    const primaryIsAllowed = expected.some((allowed) => primaryHref.startsWith(allowed));
 
     if (!primaryIsAllowed || invalidLinks.length) {
       failed += 1;

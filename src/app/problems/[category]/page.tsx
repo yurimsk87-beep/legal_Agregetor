@@ -30,8 +30,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return buildMetadata({
-    title: "Брак и ЗАГС — юридическая ситуация и порядок действий",
-    description: "Заключение брака, перемена имени, повторные документы и исправление записей ЗАГС: порядок действий и официальные формы.",
+    title: "Семейные споры: брак, развод и раздел имущества",
+    description: "Маршруты по браку и ЗАГС, разводу через ЗАГС или суд и разделу имущества по соглашению или иску.",
     path: "/problems/semya-i-deti/",
     isIndexable: true
   });
@@ -60,7 +60,7 @@ export default async function ProblemCategoryPage({ params }: PageProps) {
           <p className="text-sm font-semibold uppercase tracking-wide text-trust">Правовой навигатор</p>
           <h1 className="mt-2 text-4xl font-semibold text-ink">Семейные споры</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-700">
-            Выберите маршрут по заключению брака или обращению в органы ЗАГС.
+            Выберите жизненную ситуацию. Покажем применимый порядок, основной документ, приложения и обязательные платежи.
           </p>
         </section>
 

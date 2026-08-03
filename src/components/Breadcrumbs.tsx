@@ -15,7 +15,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
             {index === items.length - 1 ? (
               <span className="min-w-0 break-words font-medium text-zinc-700">{item.name}</span>
             ) : (
-              <Link href={item.path} className="min-w-0 break-words hover:text-trust">
+              <Link href={item.path} className="inline-flex min-h-11 min-w-0 items-center break-words hover:text-trust focus:outline-none focus:ring-2 focus:ring-trust/30">
                 {item.name}
               </Link>
             )}

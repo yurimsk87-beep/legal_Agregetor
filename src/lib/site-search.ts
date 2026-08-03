@@ -169,7 +169,9 @@ const popularSearchHints = [
   "Заключить брак",
   "Сменить фамилию или имя",
   "Получить повторное свидетельство",
-  "Исправить запись ЗАГС"
+  "Исправить запись ЗАГС",
+  "Развод через ЗАГС или суд",
+  "Разделить имущество супругов"
 ];
 
 const documentIntentPatterns = [
@@ -221,6 +223,25 @@ function isPassportLossQuery(normalizedQuery: string) {
     /(потер|утер|украл|восстанов|замен|пропал)/.test(normalizedQuery) &&
     !normalizedQuery.includes("загран")
   );
+}
+
+function isExcludedDivorcePropertyIntent(result: SearchableResult, normalizedQuery: string) {
+  const isDivorcePropertyResult = result.href.includes("razvod-i-razdel-imushchestva")
+    || result.href.includes("rastorzhenii-braka")
+    || result.href.includes("razdele-imushchestva");
+  if (!isDivorcePropertyResult) return false;
+  return [
+    "алимет",
+    "алимент",
+    "место жительства ребенка",
+    "место жительства ребёнка",
+    "общение с ребенком",
+    "общение с ребёнком",
+    "порядок общения",
+    "лишение родительских прав",
+    "установление отцовства",
+    "оспаривание отцовства"
+  ].some((marker) => normalizedQuery.includes(marker));
 }
 
 export function isPassportRestoreIntent(query: string) {
@@ -363,6 +384,7 @@ export function searchSite(query: string, limit = 36, extraResults: SiteSearchRe
       const directBoost = directIntentBoost(result, normalizedQuery);
       const rawScore = Math.max(baseScore, directBoost);
       if (generalAllowedTypes && !generalAllowedTypes.includes(result.type)) return { result, score: 0 };
+      if (isExcludedDivorcePropertyIntent(result, normalizedQuery)) return { result, score: 0 };
       if (isConflictingResult(result, normalizedQuery, queryDomains)) return { result, score: 0 };
       if (rawScore <= 0 && !(generalAllowedTypes && result.type === "lawyer")) return { result, score: 0 };
 

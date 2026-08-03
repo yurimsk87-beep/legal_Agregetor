@@ -1,0 +1,518 @@
+import type { DivorcePropertyScenarioKey } from "@/data/divorce-property-route";
+
+export type DivorcePropertyValues = Record<string, string | undefined>;
+
+export type DivorcePropertyDecision = {
+  allowed: boolean;
+  issues: Array<{ field: string; message: string }>;
+  notices: string[];
+  documentTitle: string;
+  formNumbers: string[];
+  feeAmount: number | null;
+  feeLabel: string;
+  jurisdiction: string;
+  filingInstruction: string;
+  afterFiling: string;
+  attachments: string[];
+  additionalDocuments: string[];
+  supplementalDrafts: Array<{ title: string; text: string }>;
+  requiresLegalReview: boolean;
+  draftText: string;
+};
+
+export const DIVORCE_FEES = {
+  registryMutual: 5000,
+  registryUnilateral: 350,
+  courtDivorceClaim: 5000,
+  notaryMinimum: 300,
+  notaryMaximum: 20000,
+  securityMotion: 10000
+} as const;
+
+export function calculatePropertyClaimDuty(claimPrice: number) {
+  if (!Number.isFinite(claimPrice) || claimPrice <= 0) return null;
+  let result: number;
+  if (claimPrice <= 100000) result = 4000;
+  else if (claimPrice <= 300000) result = 4000 + (claimPrice - 100000) * 0.03;
+  else if (claimPrice <= 500000) result = 10000 + (claimPrice - 300000) * 0.025;
+  else if (claimPrice <= 1000000) result = 15000 + (claimPrice - 500000) * 0.02;
+  else if (claimPrice <= 3000000) result = 25000 + (claimPrice - 1000000) * 0.01;
+  else if (claimPrice <= 8000000) result = 45000 + (claimPrice - 3000000) * 0.007;
+  else if (claimPrice <= 24000000) result = 80000 + (claimPrice - 8000000) * 0.0035;
+  else if (claimPrice <= 50000000) result = 136000 + (claimPrice - 24000000) * 0.003;
+  else if (claimPrice <= 100000000) result = 214000 + (claimPrice - 50000000) * 0.002;
+  else result = Math.min(900000, 314000 + (claimPrice - 100000000) * 0.0015);
+  return Math.round(result);
+}
+
+export function calculateNotaryAgreementTariff(agreementValue: number) {
+  if (!Number.isFinite(agreementValue) || agreementValue <= 0) return DIVORCE_FEES.notaryMinimum;
+  return Math.min(DIVORCE_FEES.notaryMaximum, Math.max(DIVORCE_FEES.notaryMinimum, Math.round(agreementValue * 0.005)));
+}
+
+function resolveCourtFee(values: DivorcePropertyValues, baseAmount: number | null, baseLabel: string) {
+  const relief = values.courtFeeRelief;
+  if (!relief || relief === "unsure") {
+    return {
+      amount: null,
+      label: `${baseLabel} Итоговый платёж не подтверждён: уточните наличие льготы или оснований для изменения платежа.`,
+      issue: "Уточните наличие льготы либо оснований для отсрочки, рассрочки, уменьшения или освобождения от пошлины.",
+      notice: "Льготы проверяются по статьям 333.35-333.36 НК РФ; изменение платежа по имущественному положению разрешает суд по статьям 333.20 и 333.41 НК РФ.",
+      requiresLegalReview: false
+    };
+  }
+  if (relief === "statutory") {
+    return {
+      amount: null,
+      label: `Базовый расчёт: ${baseLabel} Фактический платёж определяется после проверки конкретной льготы.`,
+      issue: values.feeReliefDetails?.trim() ? "" : "Укажите норму и документ, подтверждающие заявленную льготу.",
+      notice: "Помощник не применяет льготу автоматически: её основание и пределы нужно подтвердить по статьям 333.35-333.36 НК РФ.",
+      requiresLegalReview: true
+    };
+  }
+  if (relief === "hardship") {
+    return {
+      amount: null,
+      label: `Базовый расчёт: ${baseLabel} Размер и срок платежа определит суд по отдельному ходатайству.`,
+      issue: values.feeReliefDetails?.trim() ? "" : "Опишите имущественное положение и документы, которыми оно подтверждается.",
+      notice: "Суд с учётом имущественного положения вправе освободить от пошлины, уменьшить её, отсрочить или рассрочить уплату; решение заранее не гарантируется.",
+      requiresLegalReview: true
+    };
+  }
+  return { amount: baseAmount, label: baseLabel, issue: "", notice: "", requiresLegalReview: false };
+}
+
+export function isDivorcePropertyFieldVisible(
+  scenarioKey: DivorcePropertyScenarioKey,
+  fieldName: string,
+  values: DivorcePropertyValues
+) {
+  if (scenarioKey === "registry-divorce") {
+    if (["mutualConsent", "commonMinorChildren"].includes(fieldName)) return ["mutual", "separate"].includes(values.registryGround ?? "");
+    if (fieldName === "specialBasis") return values.registryGround === "special";
+    if (fieldName === "basisDocument") return ["special", "court-decision"].includes(values.registryGround ?? "");
+    if (fieldName === "foreignCourtDecision") return values.registryGround === "court-decision";
+    if (fieldName === "absentSignature") return values.registryGround === "separate";
+    if (fieldName === "specialNoticeRecipient") return values.registryGround === "special";
+    if (["courtRegistryAction", "authorizedRepresentative", "documentDestination"].includes(fieldName)) {
+      return values.registryGround === "court-decision";
+    }
+    if (fieldName === "representativeData") {
+      return values.registryGround === "court-decision" && values.authorizedRepresentative === "yes";
+    }
+  }
+  if (scenarioKey === "court-divorce") {
+    if (fieldName === "childrenData") return values.commonMinorChildren === "yes";
+    if (fieldName === "wifeConsent") return values.plaintiffRole === "husband" && ["pregnancy", "infant"].includes(values.pregnancyOrInfant ?? "");
+  }
+  if (scenarioKey === "property-agreement" && fieldName === "marriageContractDetails") {
+    return values.marriageContract === "yes";
+  }
+  if (scenarioKey === "property-claim" && fieldName.startsWith("combined")) {
+    if (values.combineDivorce !== "yes") return false;
+    if (fieldName === "combinedChildrenData") return values.combinedCommonMinorChildren === "yes";
+    if (fieldName === "combinedWifeConsent") {
+      return values.combinedPlaintiffRole === "husband"
+        && ["pregnancy", "infant"].includes(values.combinedPregnancyOrInfant ?? "");
+    }
+    return true;
+  }
+  if (["court-divorce", "property-claim"].includes(scenarioKey) && fieldName === "feeReliefDetails") {
+    return ["statutory", "hardship"].includes(values.courtFeeRelief ?? "");
+  }
+  return true;
+}
+
+export function validateDivorcePropertyApplication(
+  scenarioKey: DivorcePropertyScenarioKey,
+  values: DivorcePropertyValues
+): DivorcePropertyDecision {
+  const issues: DivorcePropertyDecision["issues"] = [];
+  const notices: string[] = [];
+  const attachments: string[] = [];
+  const additionalDocuments: string[] = [];
+  const supplementalDrafts: Array<{ title: string; text: string }> = [];
+  let documentTitle = "";
+  let formNumbers: string[] = [];
+  let feeAmount: number | null = null;
+  let feeLabel = "";
+  let jurisdiction = "";
+  let filingInstruction = "";
+  let afterFiling = "";
+  let requiresLegalReview = false;
+  let draftText = "";
+
+  if (scenarioKey === "registry-divorce") {
+    documentTitle = "Заявление о расторжении брака через ЗАГС";
+    jurisdiction = "Орган ЗАГС по выбору заявителя в пределах способов, предусмотренных Законом N 143-ФЗ.";
+    filingInstruction = "Подайте заявление способом, предусмотренным для определённой формы N 9-12; помощник покажет официальный бланк, но не имитирует его.";
+    afterFiling = "Выполните требования о личном присутствии для выбранного основания и получите свидетельство после государственной регистрации расторжения брака.";
+    for (const [field, message] of [
+      ["applicantData", "Укажите предусмотренные формой сведения о заявителе."],
+      ["spouseData", "Укажите предусмотренные выбранной формой сведения о втором супруге."],
+      ["contactPhone", "Укажите контактный телефон для заявления."],
+      ["zagsOffice", "Укажите орган ЗАГС, в который подаётся заявление."],
+      ["marriageRecord", "Укажите реквизиты записи акта о заключении брака."],
+      ["selectedSurnames", "Укажите фамилию или фамилии после расторжения брака."]
+    ] as const) {
+      if (!values[field]?.trim()) issues.push({ field, message });
+    }
+    attachments.push("Документ, удостоверяющий личность заявителя.", "Сведения о записи акта о заключении брака.");
+    const ground = values.registryGround;
+    if (!ground || ground === "unsure") {
+      issues.push({ field: "registryGround", message: "Уточните основание развода: от него зависят форма, приложения и госпошлина." });
+      feeLabel = "350 или 5 000 руб. — основание развода не определено.";
+    } else if (ground === "mutual" || ground === "separate") {
+      filingInstruction = ground === "separate"
+        ? "Присутствующий супруг подаёт форму N 9, а волеизъявление отсутствующего супруга оформляется формой N 10. Подпись на форме N 10 удостоверяется по правилам пункта 3 статьи 33 Закона N 143-ФЗ; электронную подачу не смешивайте с нотариальным порядком."
+        : "Подайте совместную форму N 9 лично в ЗАГС, через МФЦ либо в электронной форме через предусмотренный законом портал по статье 33 Закона N 143-ФЗ.";
+      afterFiling = "Государственная регистрация проводится по истечении месяца в присутствии хотя бы одного супруга. Если свидетельство о браке утрачено, специально получать повторное свидетельство не требуется.";
+      formNumbers = ground === "separate" ? ["9", "10"] : ["9"];
+      feeAmount = DIVORCE_FEES.registryMutual;
+      feeLabel = `${formatRubles(feeAmount)} руб. с каждого супруга.`;
+      if (values.mutualConsent !== "yes") issues.push({ field: "mutualConsent", message: "Формы N 9-10 применяются только при взаимном согласии супругов." });
+      if (values.commonMinorChildren !== "no") issues.push({ field: "commonMinorChildren", message: "При общих несовершеннолетних детях развод по взаимному согласию оформляется через суд." });
+      if (ground === "separate") {
+        if (!values.absentSignature?.trim()) issues.push({ field: "absentSignature", message: "Укажите способ удостоверения подписи отсутствующего супруга." });
+        notices.push("Форма N 10 выражает волю отсутствующего супруга и используется вместе с заявлением присутствующего супруга; это не самостоятельное основание развода.");
+        attachments.push("Отдельное заявление по форме N 10 с подписью, удостоверенной по правилам пункта 3 статьи 33 Закона N 143-ФЗ, если оно не направляется электронно.");
+      }
+      attachments.push("Свидетельство о заключении брака, если оно сохранилось.");
+    } else if (ground === "special") {
+      filingInstruction = "Подайте форму N 11 и судебный акт, подтверждающий одно из оснований статьи 34 Закона N 143-ФЗ, непосредственно в орган ЗАГС.";
+      afterFiling = "ЗАГС направляет предусмотренное законом извещение, а регистрация проводится в присутствии заявителя по истечении месяца со дня подачи.";
+      formNumbers = ["11"];
+      feeAmount = DIVORCE_FEES.registryUnilateral;
+      feeLabel = `${formatRubles(feeAmount)} руб. с заявителя.`;
+      if (!values.specialBasis || values.specialBasis === "unsure") {
+        issues.push({ field: "specialBasis", message: "Форма N 11 возможна только при одном из трёх специальных оснований статьи 19 СК РФ." });
+      }
+      if (!values.basisDocument?.trim()) issues.push({ field: "basisDocument", message: "Укажите судебный акт, подтверждающий специальное основание." });
+      if (!values.specialNoticeRecipient?.trim()) {
+        issues.push({ field: "specialNoticeRecipient", message: "Укажите получателя и почтовый адрес для обязательного извещения по пункту 4 статьи 34 Закона N 143-ФЗ." });
+      }
+      attachments.push(
+        "Вступившее в силу решение суда или приговор суда, подтверждающий специальное основание.",
+        "Свидетельство о заключении брака, если оно сохранилось; при утрате повторное свидетельство специально получать не требуется."
+      );
+    } else if (ground === "court-decision") {
+      filingInstruction = "Заявление по форме N 12 может быть сделано устно или письменно, направлено через предусмотренный законом электронный портал либо подано представителем с нотариальной доверенностью по статье 35 Закона N 143-ФЗ.";
+      afterFiling = "Получите свидетельство по месту обращения. Если запись уже оформлена другим бывшим супругом, ЗАГС дополнит ранее составленную запись в порядке статьи 35 Закона N 143-ФЗ.";
+      formNumbers = ["12"];
+      feeAmount = DIVORCE_FEES.registryMutual;
+      feeLabel = `${formatRubles(feeAmount)} руб. с каждого бывшего супруга при государственной регистрации расторжения брака.`;
+      if (!values.basisDocument?.trim()) issues.push({ field: "basisDocument", message: "Укажите решение суда и дату его вступления в законную силу." });
+      if (!values.courtRegistryAction || values.courtRegistryAction === "unsure") {
+        issues.push({ field: "courtRegistryAction", message: "Уточните, требуется первичная регистрация развода или дополнение ранее составленной записи." });
+      }
+      if (values.foreignCourtDecision !== "no") {
+        issues.push({
+          field: "foreignCourtDecision",
+          message: values.foreignCourtDecision === "yes"
+            ? "Применимость иностранного решения, его признание и требования к документам нужно проверить отдельно до использования формы N 12."
+            : "Уточните, вынесено ли решение российским или иностранным судом."
+        });
+      }
+      if (!values.authorizedRepresentative || values.authorizedRepresentative === "unsure") {
+        issues.push({ field: "authorizedRepresentative", message: "Уточните, кто подаёт форму N 12: заявитель или уполномоченное лицо." });
+      } else if (values.authorizedRepresentative === "yes" && !values.representativeData?.trim()) {
+        issues.push({ field: "representativeData", message: "Укажите сведения представителя и реквизиты нотариальной доверенности, предусмотренные формой N 12." });
+      }
+      notices.push("Брак прекращается со дня вступления решения суда в законную силу. Форма N 12 используется для последующей государственной регистрации записи и получения свидетельства.");
+      if (values.courtRegistryAction === "supplement") {
+        notices.push("При дополнении ранее составленной записи выписка из решения суда может не представляться в случае, прямо предусмотренном пунктом 1 статьи 35 Закона N 143-ФЗ.");
+      } else {
+        attachments.push("Выписка из вступившего в силу решения суда о расторжении брака.");
+      }
+      if (values.authorizedRepresentative === "yes") attachments.push("Нотариально удостоверенная доверенность представителя.");
+    }
+  }
+
+  if (scenarioKey === "court-divorce") {
+    documentTitle = "Исковое заявление о расторжении брака";
+    filingInstruction = "Направьте ответчику копию иска с отсутствующими у него приложениями, сохраните подтверждение и подайте комплект в определённый суд.";
+    afterFiling = "Отслеживайте извещения суда. После вступления решения в законную силу зарегистрируйте расторжение брака в ЗАГС по форме N 12.";
+    feeAmount = DIVORCE_FEES.courtDivorceClaim;
+    feeLabel = `${formatRubles(feeAmount)} руб. за подачу иска. Регистрация развода после решения суда оплачивается отдельно.`;
+    jurisdiction = values.childDispute === "no"
+      ? "Мировой судья, если в иске нет спора о детях и иных требований, меняющих подсудность."
+      : "Районный суд либо иной суд после проверки дополнительных требований.";
+    attachments.push(
+      "Документ об уплате госпошлины или подтверждение льготы.",
+      "Документ о заключении брака.",
+      "Документы о рождении общих несовершеннолетних детей, если они есть.",
+      "Подтверждение направления ответчику копии иска и отсутствующих у него приложений."
+    );
+    if (values.commonMinorChildren === "unsure") issues.push({ field: "commonMinorChildren", message: "Уточните наличие общих несовершеннолетних детей." });
+    if (values.commonMinorChildren === "yes" && !values.childrenData?.trim()) issues.push({ field: "childrenData", message: "Укажите сведения об общих несовершеннолетних детях." });
+    if (values.commonMinorChildren === "no" && values.consentState === "agrees") {
+      issues.push({ field: "consentState", message: "При взаимном согласии и отсутствии общих несовершеннолетних детей используйте развод через ЗАГС, а не судебный иск." });
+    }
+    if (values.childDispute !== "no") {
+      issues.push({ field: "childDispute", message: values.childDispute === "yes" ? "Спор о детях не входит в этот документ и требует отдельного маршрута и проверки подсудности." : "Уточните, есть ли спор о детях." });
+    }
+    if (values.plaintiffRole === "husband" && ["pregnancy", "infant"].includes(values.pregnancyOrInfant ?? "") && values.wifeConsent !== "yes") {
+      issues.push({ field: "wifeConsent", message: "Муж не вправе без согласия жены возбуждать дело во время её беременности и в течение года после рождения ребёнка." });
+    }
+    if (values.pregnancyOrInfant === "unsure") issues.push({ field: "pregnancyOrInfant", message: "Уточните обстоятельства статьи 17 СК РФ до формирования иска." });
+    if (values.otherClaims !== "none") {
+      issues.push({ field: "otherClaims", message: values.otherClaims === "property" ? "Объединённый иск требует расчёта цены иска, пошлины и отдельной проверки подсудности. Сначала подготовьте иск о разделе имущества." : "Дополнительные требования не включаются в этот документ автоматически." });
+    }
+    if (values.hearWithoutPlaintiff === "yes") {
+      additionalDocuments.push("Ходатайство о рассмотрении дела без участия истца.");
+      supplementalDrafts.push({
+        title: "Ходатайство о рассмотрении дела без участия истца",
+        text: `${value(values, "courtName")}\n\nИстец: ${value(values, "plaintiffData")}\nОтветчик: ${value(values, "defendantData")}\n\nХОДАТАЙСТВО\nо рассмотрении дела без участия истца\n\nНа основании части 5 статьи 167 ГПК РФ прошу рассмотреть дело о расторжении брака в моё отсутствие и направить мне копию решения суда. Исковые требования поддерживаю.\n\nДата: ____________    Подпись: ____________`
+      });
+    }
+    if (values.hearWithoutPlaintiff === "unsure") issues.push({ field: "hearWithoutPlaintiff", message: "Уточните, требуется ли ходатайство о рассмотрении дела без участия истца." });
+    if (values.defendantLocation === "unknown") notices.push("При неизвестном месте жительства ответчика укажите последнее известное место жительства или место нахождения имущества и проверьте статью 29 ГПК РФ.");
+    if (["abroad", "military", "prison"].includes(values.defendantLocation ?? "")) {
+      requiresLegalReview = true;
+      notices.push("Место нахождения ответчика требует проверки извещения, подсудности и возможных специальных правил до подачи иска.");
+    }
+    const courtFee = resolveCourtFee(values, feeAmount, feeLabel);
+    feeAmount = courtFee.amount;
+    feeLabel = courtFee.label;
+    if (courtFee.issue) issues.push({ field: "courtFeeRelief", message: courtFee.issue });
+    if (courtFee.notice) notices.push(courtFee.notice);
+    if (courtFee.requiresLegalReview) requiresLegalReview = true;
+    draftText = buildDivorceClaim(values, jurisdiction);
+  }
+
+  if (scenarioKey === "property-agreement") {
+    documentTitle = "Проект соглашения о разделе общего имущества супругов";
+    jurisdiction = "Нотариус; последующие регистрационные действия зависят от состава имущества.";
+    filingInstruction = "Передайте проект и оригиналы документов нотариусу. Не подписывайте проект как нотариально удостоверенное соглашение заранее.";
+    afterFiling = "После нотариального удостоверения выполните регистрационные действия, которые требуются для передаваемых объектов и прав.";
+    const value = parseMoney(values.assetValue);
+    if (values.mutualAgreement !== "yes") issues.push({ field: "mutualAgreement", message: "Без согласия обоих супругов раздел производится в судебном порядке." });
+    if (value === null) issues.push({ field: "assetValue", message: "Укажите положительную стоимость имущества по соглашению." });
+    feeAmount = value === null ? null : calculateNotaryAgreementTariff(value);
+    feeLabel = value === null
+      ? "От 300 до 20 000 руб. федерального тарифа; точный размер не рассчитан без стоимости имущества."
+      : `${formatRubles(calculateNotaryAgreementTariff(value))} руб. федерального тарифа по расчёту 0,5% стоимости. Региональные и дополнительные нотариальные платежи уточняются у нотариуса.`;
+    attachments.push(
+      "Документы, удостоверяющие личности супругов.",
+      "Документы о заключении или расторжении брака.",
+      "Правоустанавливающие документы и документы о стоимости каждого объекта."
+    );
+    if (values.marriageContract === "yes" && !values.marriageContractDetails?.trim()) issues.push({ field: "marriageContractDetails", message: "Укажите условия брачного договора, влияющие на раздел." });
+    const complexFields = ["mortgage", "maternityCapital", "childrenShares", "thirdPartyRights", "bankruptcy"];
+    for (const field of complexFields) {
+      if (values[field] === "unsure") issues.push({ field, message: "Ответ «Не уверен» не позволяет считать проект проверенным по правам третьих лиц." });
+      if (values[field] === "yes") requiresLegalReview = true;
+    }
+    if (values.debts?.trim()) {
+      requiresLegalReview = true;
+      notices.push("Распределение долга между супругами само по себе не заменяет согласие кредитора на изменение должника или условий обязательства.");
+    }
+    if (requiresLegalReview) notices.push("До удостоверения проект нужно проверить у нотариуса, а при правах банка, детей, кредиторов или банкротстве — также согласовать применимый порядок с соответствующим участником или органом.");
+    draftText = buildPropertyAgreement(values);
+  }
+
+  if (scenarioKey === "property-claim") {
+    documentTitle = "Исковое заявление о разделе общего имущества супругов";
+    filingInstruction = "Направьте ответчику копию иска с отсутствующими у него приложениями, затем подайте комплект в суд с учётом цены иска и исключительной подсудности недвижимости.";
+    afterFiling = "Отслеживайте извещения и определения суда. После вступления решения в силу выполните предусмотренные для конкретных объектов регистрационные действия.";
+    const claimPrice = parseMoney(values.claimPrice);
+    const propertyFee = claimPrice === null ? null : calculatePropertyClaimDuty(claimPrice);
+    const divorceFee = values.combineDivorce === "yes" ? DIVORCE_FEES.courtDivorceClaim : 0;
+    feeAmount = propertyFee === null ? null : propertyFee + divorceFee;
+    feeLabel = claimPrice === null
+      ? "От 4 000 до 900 000 руб. по цене иска; окончательный расчёт невозможен без цены иска."
+      : `${formatRubles(propertyFee ?? 0)} руб. по имущественному требованию${divorceFee ? ` + ${formatRubles(divorceFee)} руб. за требование о разводе; всего ${formatRubles((propertyFee ?? 0) + divorceFee)} руб.` : "."}`;
+    if (claimPrice === null) issues.push({ field: "claimPrice", message: "Укажите положительную цену иска для расчёта госпошлины и подсудности." });
+    jurisdiction = claimPrice === null
+      ? "Подсудность не определена без цены иска и сведений об объектах."
+      : claimPrice <= 50000
+        ? "Мировой судья, если нет требований, относящихся к районному суду или исключительной подсудности."
+        : "Районный суд; для требований о правах на недвижимость отдельно проверьте исключительную подсудность.";
+    attachments.push(
+      "Документ об уплате госпошлины или подтверждение льготы.",
+      "Документы о заключении брака и, если брак уже расторгнут, о его расторжении.",
+      "Документы о приобретении, регистрации и стоимости спорного имущества.",
+      "Расчёт цены иска и компенсации.",
+      "Подтверждение направления ответчику копии иска и отсутствующих у него приложений."
+    );
+    additionalDocuments.push("Расчёт цены иска и компенсации.", "Перечень спорного имущества.", "Опись приложений.");
+    supplementalDrafts.push(
+      {
+        title: "Расчёт цены иска и компенсации",
+        text: `РАСЧЁТ ЦЕНЫ ИСКА И КОМПЕНСАЦИИ\n\nНазначение: обоснование цены иска и расчёта по статьям 91 и 132 ГПК РФ.\n\nСпорное имущество:\n${value(values, "assets")}\n\nЦена иска: ${value(values, "claimPrice")} руб.\n\nТребуемый раздел и компенсация:\n${value(values, "requestedDivision")}\n\nГосударственная пошлина: ${feeLabel}`
+      },
+      {
+        title: "Перечень спорного имущества",
+        text: `ПЕРЕЧЕНЬ СПОРНОГО ИМУЩЕСТВА\n\nНазначение: конкретизация обстоятельств и требований иска по статьям 131-132 ГПК РФ.\n\n${value(values, "assets")}\n\nИсточники средств и доказательства:\n${value(values, "fundingSource")}`
+      },
+      {
+        title: "Опись приложений",
+        text: `ОПИСЬ ПРИЛОЖЕНИЙ\n\nНазначение: проверка комплекта приложений по статье 132 ГПК РФ.\n\n1. Документ об уплате государственной пошлины либо документ о льготе.\n2. Документы о заключении и расторжении брака.\n3. Документы о приобретении, регистрации и стоимости имущества.\n4. Расчёт цены иска и компенсации.\n5. Подтверждение направления ответчику копии иска и приложений.\n6. Иные доказательства: ${value(values, "evidence")}.`
+      }
+    );
+    if (values.assetOrigin === "unsure") {
+      issues.push({ field: "assetOrigin", message: "Уточните основание приобретения имущества: от него зависит, относится ли объект к общему имуществу." });
+    }
+    if (["before-marriage", "gift", "inheritance"].includes(values.assetOrigin ?? "")) {
+      requiresLegalReview = true;
+      notices.push("Имущество, приобретённое до брака, полученное в дар или по наследству, по общему правилу является личным. Для включения его в раздел нужно отдельное подтверждённое основание.");
+    }
+    if (values.assetOrigin === "mixed-funds") {
+      requiresLegalReview = true;
+      notices.push("Личные вложения и их влияние на режим имущества оцениваются по доказательствам; автоматическое определение долей невозможно.");
+    }
+    if (values.marriageContract === "unsure" || values.existingNotarialAgreement === "unsure") {
+      issues.push({ field: "marriageContract", message: "Уточните наличие брачного договора и нотариального соглашения: они могут изменить режим имущества." });
+    }
+    if (values.marriageContract === "yes" || values.existingNotarialAgreement === "yes") {
+      requiresLegalReview = true;
+      notices.push("Действующий брачный договор или нотариальное соглашение нужно проверить до формулирования требований о разделе.");
+    }
+    if (values.debtType === "unsure") {
+      issues.push({ field: "debtType", message: "Уточните связь долгов с нуждами семьи: личные и общие обязательства учитываются по-разному." });
+    }
+    if (values.debtType === "personal" || values.debtType === "mixed") {
+      requiresLegalReview = true;
+      notices.push("Обязательство одного супруга не становится общим автоматически; нужно подтвердить основание и использование полученного в интересах семьи.");
+    }
+    const complexFields = ["mortgage", "maternityCapital", "childrenShares", "thirdPartyRights", "bankruptcy", "foreignProperty"];
+    for (const field of complexFields) {
+      if (values[field] === "unsure") issues.push({ field, message: "Уточните обстоятельство: от него зависят участники дела, требования и приложения." });
+      if (values[field] === "yes") requiresLegalReview = true;
+    }
+    if (values.limitationCertain !== "yes") {
+      issues.push({ field: "limitationCertain", message: "Нельзя автоматически считать срок от даты развода. Уточните и подтвердите момент, когда стало известно о нарушении права." });
+    }
+    if (values.needSecurity === "yes") {
+      additionalDocuments.push("Ходатайство об обеспечении иска.");
+      notices.push(`За заявление об обеспечении иска НК РФ предусматривает отдельную госпошлину ${DIVORCE_FEES.securityMotion} руб.`);
+      supplementalDrafts.push({
+        title: "Ходатайство об обеспечении иска",
+        text: `${value(values, "courtName")}\n\nИстец: ${value(values, "plaintiffData")}\nОтветчик: ${value(values, "defendantData")}\n\nХОДАТАЙСТВО\nоб обеспечении иска\n\nВ производстве суда находится иск о разделе имущества. Спорное имущество: ${value(values, "assets")}.\n\nРиск, из-за которого исполнение решения может быть затруднено: ${value(values, "evidence")}.\n\nНа основании статей 139-140 ГПК РФ прошу применить соразмерную обеспечительную меру в отношении указанного спорного имущества.\n\nДата: ____________    Подпись: ____________`
+      });
+    } else if (values.needSecurity === "unsure") {
+      issues.push({ field: "needSecurity", message: "Уточните наличие подтверждённого риска распоряжения имуществом." });
+    }
+    if (values.needEvidenceRequest === "yes") {
+      additionalDocuments.push("Ходатайство об истребовании доказательств.");
+      supplementalDrafts.push({
+        title: "Ходатайство об истребовании доказательств",
+        text: `${value(values, "courtName")}\n\nИстец: ${value(values, "plaintiffData")}\nОтветчик: ${value(values, "defendantData")}\n\nХОДАТАЙСТВО\nоб истребовании доказательств\n\nНеобходимые доказательства и место их нахождения: ${value(values, "evidence")}.\n\nЭти доказательства подтверждают состав, стоимость или правовой режим спорного имущества. Получить их самостоятельно затруднительно.\n\nНа основании статьи 57 ГПК РФ прошу истребовать указанные доказательства.\n\nДата: ____________    Подпись: ____________`
+      });
+    }
+    if (values.needEvidenceRequest === "unsure") issues.push({ field: "needEvidenceRequest", message: "Уточните, можно ли получить необходимые доказательства самостоятельно." });
+    if (values.combineDivorce === "unsure") issues.push({ field: "combineDivorce", message: "Уточните состав требований для расчёта пошлины и подсудности." });
+    if (values.combineDivorce === "yes") {
+      documentTitle = "Исковое заявление о расторжении брака и разделе общего имущества супругов";
+      afterFiling = "Отслеживайте извещения и определения суда. После вступления решения в силу зарегистрируйте расторжение брака в ЗАГС и выполните регистрационные действия по разделённому имуществу.";
+      requiresLegalReview = true;
+      if (!values.combinedCommonMinorChildren || values.combinedCommonMinorChildren === "unsure") {
+        issues.push({ field: "combinedCommonMinorChildren", message: "Уточните наличие общих несовершеннолетних детей для требования о разводе." });
+      }
+      if (values.combinedCommonMinorChildren === "yes" && !values.combinedChildrenData?.trim()) {
+        issues.push({ field: "combinedChildrenData", message: "Укажите сведения об общих несовершеннолетних детях." });
+      }
+      if (values.combinedChildDispute !== "no") {
+        issues.push({ field: "combinedChildDispute", message: values.combinedChildDispute === "yes" ? "Спор о детях не включается в этот документ и требует отдельной проверки требований и подсудности." : "Уточните, есть ли спор о детях." });
+      }
+      if (!values.combinedConsentState) {
+        issues.push({ field: "combinedConsentState", message: "Укажите позицию второго супруга по требованию о разводе." });
+      }
+      if (values.combinedCommonMinorChildren === "no" && values.combinedConsentState === "agrees") {
+        issues.push({ field: "combinedConsentState", message: "При взаимном согласии и отсутствии общих несовершеннолетних детей развод оформляется через ЗАГС; автоматически объединять его с имущественным иском нельзя." });
+      }
+      if (!values.combinedPlaintiffRole) issues.push({ field: "combinedPlaintiffRole", message: "Укажите, кто заявляет требование о разводе." });
+      if (!values.combinedPregnancyOrInfant || values.combinedPregnancyOrInfant === "unsure") {
+        issues.push({ field: "combinedPregnancyOrInfant", message: "Уточните обстоятельства статьи 17 СК РФ." });
+      }
+      if (values.combinedPlaintiffRole === "husband"
+        && ["pregnancy", "infant"].includes(values.combinedPregnancyOrInfant ?? "")
+        && values.combinedWifeConsent !== "yes") {
+        issues.push({ field: "combinedWifeConsent", message: "Муж не вправе без согласия жены возбуждать дело во время её беременности и в течение года после рождения ребёнка." });
+      }
+      if (values.combinedCommonMinorChildren === "yes") attachments.push("Документы о рождении общих несовершеннолетних детей.");
+      notices.push("Суд вправе выделить требование о разделе имущества в отдельное производство, если раздел затрагивает интересы третьих лиц; совместное рассмотрение заранее не гарантируется.");
+    }
+    if (values.hiddenOrSold === "unsure") issues.push({ field: "hiddenOrSold", message: "Уточните, совершались ли сделки или сокрытие имущества: это влияет на требования и доказательства." });
+    if (values.hiddenOrSold === "yes") notices.push("Стоимость проданного, скрытого или израсходованного имущества может учитываться только при доказанности применимых обстоятельств; приложите доказательства сделки и стоимости.");
+    const courtFee = resolveCourtFee(values, feeAmount, feeLabel);
+    feeAmount = courtFee.amount;
+    feeLabel = courtFee.label;
+    if (courtFee.issue) issues.push({ field: "courtFeeRelief", message: courtFee.issue });
+    if (courtFee.notice) notices.push(courtFee.notice);
+    if (courtFee.requiresLegalReview) requiresLegalReview = true;
+    draftText = buildPropertyClaim(values, jurisdiction, feeLabel);
+  }
+
+  return {
+    allowed: issues.length === 0,
+    issues,
+    notices,
+    documentTitle,
+    formNumbers,
+    feeAmount,
+    feeLabel,
+    jurisdiction,
+    filingInstruction,
+    afterFiling,
+    attachments: [...new Set(attachments)],
+    additionalDocuments: [...new Set(additionalDocuments)],
+    supplementalDrafts: issues.length === 0 ? supplementalDrafts : [],
+    requiresLegalReview,
+    draftText: issues.length === 0 ? draftText : ""
+  };
+}
+
+function parseMoney(value: string | undefined) {
+  if (!value?.trim()) return null;
+  const parsed = Number(value.replace(/\s/g, "").replace(",", "."));
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function formatRubles(value: number) {
+  return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(value).replace(/\u00a0/g, " ");
+}
+
+function value(values: DivorcePropertyValues, key: string, fallback = "не указано") {
+  return values[key]?.trim() || fallback;
+}
+
+function consentStateLabel(state: string | undefined) {
+  const labels: Record<string, string> = {
+    agrees: "согласен на расторжение брака",
+    objects: "не согласен на расторжение брака",
+    evades: "уклоняется от оформления расторжения брака через ЗАГС",
+    unknown: "неизвестна"
+  };
+  return labels[state ?? ""] ?? "не указана";
+}
+
+function buildDivorceClaim(values: DivorcePropertyValues, jurisdiction: string) {
+  const children = values.commonMinorChildren === "yes"
+    ? `Общие несовершеннолетние дети: ${value(values, "childrenData")}. Спор о детях в настоящем иске не заявляется.`
+    : "Общих несовершеннолетних детей нет.";
+  return `${value(values, "courtName")}\n\nИстец: ${value(values, "plaintiffData")}\nОтветчик: ${value(values, "defendantData")}\n\nИСКОВОЕ ЗАЯВЛЕНИЕ\nо расторжении брака\n\nБрак зарегистрирован: ${value(values, "marriageRecord")}.\nСемейные отношения и ведение общего хозяйства прекращены: ${value(values, "relationshipEnded")}.\n${children}\nПозиция ответчика: ${consentStateLabel(values.consentState)}.\n\nНа основании статей 21-23 Семейного кодекса РФ прошу расторгнуть брак между истцом и ответчиком.\n\nПодсудность: ${jurisdiction}\n\nПриложения:\n1. Документ об уплате государственной пошлины либо документ о льготе.\n2. Документ о заключении брака.\n3. Документы о рождении общих несовершеннолетних детей — при наличии.\n4. Подтверждение направления ответчику копии иска и приложений.\n5. Иные документы, подтверждающие указанные обстоятельства.\n\nДата: ____________    Подпись: ____________`;
+}
+
+function buildPropertyAgreement(values: DivorcePropertyValues) {
+  return `ПРОЕКТ СОГЛАШЕНИЯ\nо разделе общего имущества супругов\n\nСторона 1: ${value(values, "spouse1Data")}\nСторона 2: ${value(values, "spouse2Data")}\nСведения о браке: ${value(values, "marriageData")}\n\n1. Состав имущества\n${value(values, "assets")}\n\n2. Распределение имущества\n${value(values, "allocation")}\n\n3. Денежная компенсация\n${value(values, "compensation", "Не предусмотрена")}\n\n4. Передача имущества и документов\n${value(values, "transferTerms")}\n\n5. Обязательства и права третьих лиц\n${value(values, "debts", "Сведения об обязательствах не указаны")}\n\nПроект необходимо передать нотариусу. Соглашение приобретает требуемую форму после нотариального удостоверения. Условия об обязательствах перед кредиторами применяются только с учётом закона и прав соответствующих кредиторов.\n\nПодписи сторон ставятся при нотариальном удостоверении.`;
+}
+
+function buildPropertyClaim(values: DivorcePropertyValues, jurisdiction: string, feeLabel: string) {
+  const combined = values.combineDivorce === "yes";
+  const heading = combined
+    ? "о расторжении брака и разделе общего имущества супругов"
+    : "о разделе общего имущества супругов";
+  const divorceFacts = combined
+    ? `\nТребование о расторжении брака\nОбщие несовершеннолетние дети: ${values.combinedCommonMinorChildren === "yes" ? value(values, "combinedChildrenData") : "отсутствуют"}.\nСпор о детях в настоящем иске не заявляется.\nПозиция ответчика по разводу: ${consentStateLabel(values.combinedConsentState)}.\n`
+    : "";
+  const legalBasis = combined ? "статей 21-23 и 34-39" : "статей 34-39";
+  const requests = combined
+    ? `1. Расторгнуть брак между истцом и ответчиком.\n2. ${value(values, "requestedDivision")}`
+    : value(values, "requestedDivision");
+  const childrenAttachment = combined && values.combinedCommonMinorChildren === "yes"
+    ? "\n7. Документы о рождении общих несовершеннолетних детей."
+    : "";
+
+  return `${value(values, "courtName")}\n\nИстец: ${value(values, "plaintiffData")}\nОтветчик: ${value(values, "defendantData")}\nЦена иска: ${value(values, "claimPrice")} руб.\nГоспошлина: ${feeLabel}\n\nИСКОВОЕ ЗАЯВЛЕНИЕ\n${heading}\n\nСведения о браке и прекращении общего хозяйства:\n${value(values, "marriageData")}\n${divorceFacts}\nСпорное имущество:\n${value(values, "assets")}\n\nИсточники средств и правовой режим имущества:\n${value(values, "fundingSource")}\n\nНарушение права и момент, когда о нём стало известно:\n${value(values, "violationKnownAt")}\n\nНа основании ${legalBasis} Семейного кодекса РФ прошу:\n${requests}\n\nПодсудность: ${jurisdiction}\n\nПриложения:\n1. Документ об уплате государственной пошлины либо документ о льготе.\n2. Документы о заключении брака и, если брак уже расторгнут, о его расторжении.\n3. Документы о приобретении, регистрации и стоимости имущества.\n4. Расчёт цены иска и компенсации.\n5. Подтверждение направления ответчику копии иска и приложений.\n6. Иные доказательства, указанные истцом.${childrenAttachment}\n\nДата: ____________    Подпись: ____________`;
+}

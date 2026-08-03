@@ -3,9 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { DivorcePropertyDocumentHelper } from "@/components/documents/DivorcePropertyDocumentHelper";
 import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
+import { getDivorceScenarioByDocumentSlug } from "@/data/divorce-property-route";
+import type { DivorcePropertyScenario } from "@/data/divorce-property-route";
 import {
   getZagsScenario,
   ZAGS_PROBLEM_ROUTE,
@@ -30,11 +33,14 @@ export function generateStaticParams() {
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { documentSlug } = await params;
   const document = getNavigatorDocument(documentSlug);
-  if (!document || document.slug !== ZAGS_PROBLEM_ROUTE.documentSlug) notFound();
+  if (!document) notFound();
+  const isZagsReference = document.slug === ZAGS_PROBLEM_ROUTE.documentSlug;
 
   return buildMetadata({
-    title: "Заявление в ЗАГС: формы и порядок заполнения",
-    description: "Выберите процедуру ЗАГС, проверьте форму, документы, пошлину и льготы, затем подготовьте сведения для официального заявления.",
+    title: isZagsReference ? "Заявление в ЗАГС: формы и порядок заполнения" : document.seoTitle ?? document.title,
+    description: isZagsReference
+      ? "Выберите процедуру ЗАГС, проверьте форму, документы, пошлину и льготы, затем подготовьте сведения для официального заявления."
+      : document.seoDescription ?? document.shortDescription,
     path: `/documents/${document.slug}/`,
     isIndexable: true,
     searchParams: searchParams ? await searchParams : {}
@@ -44,7 +50,13 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 export default async function DocumentPage({ params, searchParams }: PageProps) {
   const { documentSlug } = await params;
   const document = getNavigatorDocument(documentSlug);
-  if (!document || document.slug !== ZAGS_PROBLEM_ROUTE.documentSlug) notFound();
+  if (!document) notFound();
+
+  const divorceScenario = getDivorceScenarioByDocumentSlug(document.slug);
+  if (divorceScenario) {
+    return <DivorcePropertyDocumentPage document={document} scenario={divorceScenario} />;
+  }
+  if (document.slug !== ZAGS_PROBLEM_ROUTE.documentSlug) notFound();
 
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const scenario = getZagsScenario(resolvedSearchParams.variant);
@@ -103,6 +115,76 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
         )}
       </article>
     </>
+  );
+}
+
+function DivorcePropertyDocumentPage({
+  document,
+  scenario
+}: {
+  document: NonNullable<ReturnType<typeof getNavigatorDocument>>;
+  scenario: DivorcePropertyScenario;
+}) {
+  const documentPath = `/documents/${document.slug}/`;
+  const problemPath = "/problems/semya-i-deti/razvod-i-razdel-imushchestva/";
+  const breadcrumbs = [
+    { name: "Главная", path: "/" },
+    { name: "Документы", path: "/documents/" },
+    { name: document.title, path: documentPath }
+  ];
+  return (
+    <>
+      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="border-b border-line pb-7">
+          <p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p>
+          <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p>
+          <a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+            Подготовить документ
+          </a>
+        </header>
+
+        <section className="mt-7 grid gap-4 md:grid-cols-2">
+          <DocumentFact title="Когда подходит" items={scenario.description} />
+          <DocumentFact title="Основные приложения" items={scenario.documents} />
+          <DocumentFact title="Платёж" items={[scenario.fee]} />
+          <DocumentFact title="Подача и срок" items={[scenario.filing, scenario.term]} />
+        </section>
+
+        {scenario.warning ? <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div> : null}
+
+        <div className="mt-7">
+          <DivorcePropertyDocumentHelper scenarioKey={scenario.key} />
+        </div>
+
+        <section className="mt-7 border-t border-line pt-6">
+          <h2 className="text-2xl font-semibold text-ink">Правовые основания документа</h2>
+          <ul className="mt-4 grid gap-2 text-sm leading-6">
+            {scenario.legalSources.map((source) => (
+              <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">{source.title}</a></li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs leading-5 text-zinc-500">Юридическая проверка: 03.08.2026.</p>
+        </section>
+
+        <Link href={`${problemPath}?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+          Вернуться к порядку действий
+        </Link>
+      </article>
+    </>
+  );
+}
+
+function DocumentFact({ items, title }: { items: string[]; title: string }) {
+  return (
+    <section className="border-t-4 border-zinc-300 bg-white p-5 shadow-sm">
+      <h2 className="text-lg font-semibold text-ink">{title}</h2>
+      <ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-700">
+        {items.map((item) => <li key={item}>- {item}</li>)}
+      </ul>
+    </section>
   );
 }
 
@@ -176,12 +258,16 @@ function FaqBlock({ faq }: { faq: Array<{ question: string; answer: string }> })
   );
 }
 
-function documentWebPageJsonLd(path: string) {
+function documentWebPageJsonLd(
+  path: string,
+  name = "Заявление в ЗАГС: формы и порядок заполнения",
+  description = "Формы, документы, пошлины, льготы и порядок подготовки сведений для обращения в ЗАГС."
+) {
   return {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: "Заявление в ЗАГС: формы и порядок заполнения",
-    description: "Формы, документы, пошлины, льготы и порядок подготовки сведений для обращения в ЗАГС.",
+    name,
+    description,
     url: absoluteUrl(path)
   };
 }
