@@ -166,7 +166,7 @@ function ScenarioDetails({ problemPath, scenario }: { problemPath: string; scena
 
       <div className="mt-6">
         <Link href={`/documents/${ZAGS_PROBLEM_ROUTE.documentSlug}/?variant=${scenario.key}#fill-online`} className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
-          Перейти к подготовке данных
+          Подготовить документ
         </Link>
       </div>
 
