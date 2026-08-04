@@ -7,6 +7,7 @@ import { DivorcePropertyDocumentHelper } from "@/components/documents/DivorcePro
 import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
+import { DIVORCE_PROPERTY_LEGAL_REVIEW } from "@/data/divorce-property-legal-review";
 import { getDivorceScenarioByDocumentSlug } from "@/data/divorce-property-route";
 import type { DivorcePropertyScenario } from "@/data/divorce-property-route";
 import {
@@ -85,7 +86,7 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
           {scenario ? (
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="#fill-online" className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
-                Подготовить данные для заявления
+                Подготовить документ
               </Link>
               <Link href={documentPath} className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/20">
                 Выбрать другую процедуру
@@ -166,7 +167,7 @@ function DivorcePropertyDocumentPage({
               <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">{source.title}</a></li>
             ))}
           </ul>
-          <p className="mt-4 text-xs leading-5 text-zinc-500">Юридическая проверка: 03.08.2026.</p>
+          <p className="mt-4 text-xs leading-5 text-zinc-500">Юридическая проверка: {DIVORCE_PROPERTY_LEGAL_REVIEW.reviewedAt.split("-").reverse().join(".")}.</p>
         </section>
 
         <Link href={`${problemPath}?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">

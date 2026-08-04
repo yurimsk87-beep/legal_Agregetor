@@ -1,4 +1,5 @@
 import type { LegalProblem } from "@/data/legal-problems";
+import { DIVORCE_PROPERTY_LEGAL_REVIEW } from "@/data/divorce-property-legal-review";
 
 export const DIVORCE_PROPERTY_PROBLEM = {
   slug: "razvod-i-razdel-imushchestva",
@@ -85,6 +86,7 @@ export const DIVORCE_PROPERTY_PROBLEM = {
     "nk_333_19",
     "nk_333_20",
     "nk_333_24",
+    "notary_22_22_1",
     "nk_333_26",
     "nk_333_36",
     "nk_333_41",
@@ -126,5 +128,5 @@ export const DIVORCE_PROPERTY_PROBLEM = {
     "имущество скрыто или продано, документы находятся у супруга или третьих лиц;",
     "нужно объединить несколько судебных требований или определить начало срока исковой давности."
   ],
-  lastReviewedAt: "2026-08-03"
+  lastReviewedAt: DIVORCE_PROPERTY_LEGAL_REVIEW.reviewedAt
 } satisfies LegalProblem;

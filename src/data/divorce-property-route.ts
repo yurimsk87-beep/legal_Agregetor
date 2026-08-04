@@ -2,6 +2,7 @@ import {
   calculateNotaryAgreementTariff,
   DIVORCE_FEES
 } from "@/lib/divorce-property-validator";
+import { DIVORCE_PROPERTY_LEGAL_REVIEW } from "@/data/divorce-property-legal-review";
 
 export const DIVORCE_PROPERTY_ROUTE = {
   categorySlug: "semya-i-deti",
@@ -21,7 +22,7 @@ export type DivorcePropertyGoalKey = "divorce" | "property";
 export type DivorcePropertyHelperField = {
   name: string;
   label: string;
-  type?: "text" | "date" | "number" | "textarea" | "select";
+  type?: "text" | "date" | "number" | "textarea" | "select" | "court-region";
   required?: boolean;
   placeholder?: string;
   options?: Array<{ label: string; value: string }>;
@@ -61,6 +62,8 @@ const sources = {
   taxRegistryAmendment: { title: "Федеральный закон N 176-ФЗ: официальное опубликование изменений пошлин ЗАГС", href: "https://publication.pravo.gov.ru/document/0001202407120009" },
   taxNotary: { title: "Статья 333.24 НК РФ: нотариальные действия", href: "https://www.consultant.ru/document/cons_doc_LAW_28165/a3cd0bcff028f127a00fa0aa61842f4ff13ffafb/" },
   notaryTariffs: { title: "Федеральная нотариальная палата: тарифы и региональная часть", href: "https://notariat.ru/ru-ru/actions-and-tariffs/regional-rates/" },
+  notaryFundamentals: DIVORCE_PROPERTY_LEGAL_REVIEW.sources.notaryFundamentals,
+  courtSearch: DIVORCE_PROPERTY_LEGAL_REVIEW.sources.courtSearch,
   supremeCourt: { title: "Постановление Пленума ВС РФ от 05.11.1998 N 15", href: "https://www.vsrf.ru/documents/own/7783/" },
   supremeCourtDuty: { title: "Постановление Пленума ВС РФ от 23.12.2025 N 39 о госпошлине", href: "https://www.vsrf.ru/documents/own/35290/" }
 } as const;
@@ -182,9 +185,26 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
     mainDocument: "Исковое заявление о расторжении брака.",
     documentSlug: "isk-o-rastorzhenii-braka",
     warning: "Если есть спор о детях или дополнительные требования, подсудность и содержание иска меняются. Помощник остановит автоматическое формирование и сохранит собранные сведения для ручной проверки.",
-    legalSources: [sources.familyCode, sources.civilProcedure, sources.taxRounding, sources.taxCourt, sources.taxCourtAmendment, sources.taxCourtProcedure, sources.taxCourtBenefits, sources.taxCourtDeferral, sources.supremeCourtDuty, sources.supremeCourt],
+    legalSources: [sources.familyCode, sources.civilProcedure, sources.courtSearch, sources.taxRounding, sources.taxCourt, sources.taxCourtAmendment, sources.taxCourtProcedure, sources.taxCourtBenefits, sources.taxCourtDeferral, sources.supremeCourtDuty, sources.supremeCourt],
     helperFields: [
-      { name: "courtName", label: "Наименование суда", required: true },
+      { name: "courtRegion", label: "Регион суда", type: "court-region", required: true },
+      { name: "territorialBasis", label: "Основание территориальной подсудности", type: "select", required: true, options: [
+        { label: "Место жительства ответчика — статья 28 ГПК РФ", value: "defendant" },
+        { label: "При истце находится несовершеннолетний ребёнок — часть 4 статьи 29 ГПК РФ", value: "plaintiff-child" },
+        { label: "Выезд к ответчику затруднителен по состоянию здоровья — часть 4 статьи 29 ГПК РФ", value: "plaintiff-health" },
+        { label: "Последнее известное место жительства ответчика — часть 1 статьи 29 ГПК РФ", value: "last-known" },
+        { label: "Место нахождения имущества ответчика при неизвестном адресе — часть 1 статьи 29 ГПК РФ", value: "defendant-property" }
+      ] },
+      { name: "territorialAddress", label: "Полный адрес, по которому определяется территория суда", type: "textarea", required: true },
+      { name: "jurisdictionEvidence", label: "Документ или обстоятельство, подтверждающее выбранное основание подсудности", type: "textarea" },
+      { name: "courtSearchConfirmed", label: "Суд или участок проверен по адресу в официальном сервисе ГАС «Правосудие»?", type: "select", required: true, options: [
+        { label: "Да, реквизиты найдены в официальном сервисе", value: "yes" },
+        { label: "Нет, участок автоматически не определён", value: "no" }
+      ] },
+      { name: "courtName", label: "Официальное наименование найденного суда или участка", required: true },
+      { name: "courtAddress", label: "Официальный адрес суда или участка", type: "textarea", required: true },
+      { name: "courtWebsite", label: "Официальная ссылка на страницу суда или участка", required: true, placeholder: "https://...sudrf.ru/" },
+      { name: "appealCourtName", label: "Районный суд, рассматривающий жалобы на решения мирового судьи", required: true },
       { name: "plaintiffData", label: "ФИО, дата и место рождения, адрес, контакты и один идентификатор истца", type: "textarea", required: true },
       { name: "defendantData", label: "ФИО, известные дата и место рождения, адрес, место работы и идентификатор ответчика; неизвестные сведения так и отметьте", type: "textarea", required: true },
       { name: "defendantLocation", label: "Где находится ответчик?", type: "select", required: true, options: [
@@ -213,11 +233,6 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
         { label: "Не уверен", value: "unsure" }
       ] },
       { name: "wifeConsent", label: "Жена согласна на расторжение брака?", type: "select", options: yesNoUnsure },
-      { name: "filingAtPlaintiffAddress", label: "Почему иск подаётся по месту жительства истца?", type: "select", options: [
-        { label: "Иск подаётся по месту жительства ответчика", value: "defendant" },
-        { label: "При истце находится несовершеннолетний ребёнок", value: "child" },
-        { label: "Выезд затруднителен по состоянию здоровья", value: "health" }
-      ] },
       { name: "otherClaims", label: "Есть другие требования в этом иске?", type: "select", required: true, options: [
         { label: "Нет, только расторжение брака", value: "none" },
         { label: "Раздел имущества", value: "property" },
@@ -257,13 +272,13 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
       "Кредитные, ипотечные и залоговые документы.",
       "Брачный договор и документы о материнском капитале или детских долях, если применимо."
     ],
-    fee: `Федеральный тариф для оцениваемого договора — 0,5% суммы соглашения, не менее ${calculateNotaryAgreementTariff(0)} руб. и не более ${calculateNotaryAgreementTariff(100000000)} руб. Дополнительные региональные нотариальные платежи рассчитывает нотариус.`,
+    fee: `Федеральная часть единого нотариального тарифа — 0,5% суммы соглашения, не менее ${calculateNotaryAgreementTariff(0)} руб. и не более ${calculateNotaryAgreementTariff(100000000)} руб. Региональная часть определяется для субъекта РФ и уточняется у нотариуса до удостоверения.`,
     term: "Единого федерального срока подготовки и удостоверения соглашения не установлено; срок зависит от состава имущества, документов и проверок нотариуса.",
     filing: "Проект передают нотариусу. Переход или изменение прав на недвижимость затем регистрируется в установленном порядке; конкретный комплект проверяет нотариус с учётом объектов соглашения.",
     mainDocument: "Проект соглашения о разделе общего имущества супругов.",
     documentSlug: "soglashenie-o-razdele-imushchestva",
     warning: "Ипотека, материнский капитал, детские доли, банкротство и права третьих лиц требуют ручной проверки. Проект в этих случаях не считается окончательно готовым.",
-    legalSources: [sources.familyCode, sources.taxNotary, sources.notaryTariffs, sources.supremeCourt],
+    legalSources: [sources.familyCode, sources.taxNotary, sources.notaryFundamentals, sources.notaryTariffs, sources.supremeCourt],
     helperFields: [
       { name: "spouse1Data", label: "ФИО, дата рождения, паспорт и адрес первого супруга", type: "textarea", required: true },
       { name: "spouse2Data", label: "ФИО, дата рождения, паспорт и адрес второго супруга", type: "textarea", required: true },
@@ -317,9 +332,25 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
     mainDocument: "Исковое заявление о разделе общего имущества супругов.",
     documentSlug: "isk-o-razdele-imushchestva-suprugov",
     warning: "Иностранное имущество, банкротство, материнский капитал, детские доли и права третьих лиц требуют ручной проверки. Помощник сформирует черновик и отметит ограничения.",
-    legalSources: [sources.familyCode, sources.civilProcedure, sources.taxRounding, sources.taxCourt, sources.taxCourtAmendment, sources.taxCourtProcedure, sources.taxCourtBenefits, sources.taxCourtDeferral, sources.supremeCourtDuty, sources.supremeCourt],
+    legalSources: [sources.familyCode, sources.civilProcedure, sources.courtSearch, sources.taxRounding, sources.taxCourt, sources.taxCourtAmendment, sources.taxCourtProcedure, sources.taxCourtBenefits, sources.taxCourtDeferral, sources.supremeCourtDuty, sources.supremeCourt],
     helperFields: [
-      { name: "courtName", label: "Наименование суда", required: true },
+      { name: "courtRegion", label: "Регион суда", type: "court-region", required: true },
+      { name: "territorialBasis", label: "Основание территориальной подсудности", type: "select", required: true, options: [
+        { label: "Место жительства ответчика — статья 28 ГПК РФ", value: "defendant" },
+        { label: "Последнее известное место жительства ответчика — часть 1 статьи 29 ГПК РФ", value: "last-known" },
+        { label: "Место нахождения имущества ответчика при неизвестном адресе — часть 1 статьи 29 ГПК РФ", value: "defendant-property" },
+        { label: "Место недвижимости — только для самостоятельного требования, подпадающего под статью 30 ГПК РФ", value: "real-estate-exclusive" }
+      ] },
+      { name: "territorialAddress", label: "Полный адрес, по которому определяется территория суда", type: "textarea", required: true },
+      { name: "jurisdictionEvidence", label: "Документ или обстоятельство, подтверждающее выбранное основание подсудности", type: "textarea" },
+      { name: "courtSearchConfirmed", label: "Суд или участок проверен по адресу в официальном сервисе ГАС «Правосудие»?", type: "select", required: true, options: [
+        { label: "Да, реквизиты найдены в официальном сервисе", value: "yes" },
+        { label: "Нет, участок автоматически не определён", value: "no" }
+      ] },
+      { name: "courtName", label: "Официальное наименование найденного суда или участка", required: true },
+      { name: "courtAddress", label: "Официальный адрес суда или участка", type: "textarea", required: true },
+      { name: "courtWebsite", label: "Официальная ссылка на страницу суда или участка", required: true, placeholder: "https://...sudrf.ru/" },
+      { name: "appealCourtName", label: "Районный суд, рассматривающий жалобы на решения мирового судьи", required: true },
       { name: "plaintiffData", label: "ФИО, дата и место рождения, адрес, контакты и один идентификатор истца", type: "textarea", required: true },
       { name: "defendantData", label: "ФИО, известные дата и место рождения, адрес, место работы и идентификатор ответчика; неизвестные сведения так и отметьте", type: "textarea", required: true },
       { name: "marriageData", label: "Сведения о браке, разводе и прекращении общего хозяйства", type: "textarea", required: true },
@@ -327,8 +358,6 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
         { label: "Во время брака", value: "during-marriage" },
         { label: "После развода", value: "after-divorce" }
       ] },
-      { name: "claimPrice", label: "Цена иска — стоимость имущества или доли, которую просит присудить истец, руб.", type: "number", required: true },
-      { name: "assets", label: "Спорное имущество: объект, дата, основание приобретения, владелец и стоимость", type: "textarea", required: true },
       { name: "assetOrigin", label: "Основное основание приобретения спорного имущества", type: "select", required: true, options: [
         { label: "Приобретено в браке на общие средства", value: "common" },
         { label: "Приобретено до брака", value: "before-marriage" },
@@ -338,7 +367,6 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
         { label: "Не уверен", value: "unsure" }
       ] },
       { name: "fundingSource", label: "Источники средств на приобретение и доказательства личных вложений", type: "textarea", required: true },
-      { name: "requestedDivision", label: "Просимые доли, передача объектов и денежная компенсация", type: "textarea", required: true },
       { name: "marriageContract", label: "Есть брачный договор или соглашение?", type: "select", required: true, options: yesNoUnsure },
       { name: "existingNotarialAgreement", label: "Есть действующее нотариальное соглашение о разделе этого имущества?", type: "select", required: true, options: yesNoUnsure },
       { name: "debtType", label: "Как связаны долги с семьёй?", type: "select", required: true, options: [

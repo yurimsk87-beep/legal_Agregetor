@@ -329,7 +329,7 @@ export function getSiteSearchIndex(extraResults: SiteSearchResult[] = []): SiteS
         href: `/documents/${document.slug}/`,
         type: "document" as const,
         categoryLabel: `Документ: ${document.category}`,
-        actionLabel: document.slug === "zayavlenie-v-zags" ? "Подготовить данные" : "Открыть документ",
+        actionLabel: document.slug === "zayavlenie-v-zags" ? "Подготовить документ" : "Открыть документ",
         keywords: [document.category, ...document.whenToUse, ...document.requiredData, ...document.relatedProblemSlugs]
       },
       ...(document.templateSlug
