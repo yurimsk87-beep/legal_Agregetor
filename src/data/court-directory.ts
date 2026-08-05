@@ -10,6 +10,18 @@ export const COURT_DIRECTORY = {
   lastVerifiedAt: DIVORCE_PROPERTY_LEGAL_REVIEW.reviewedAt,
   isComplete: false,
   machineVerificationAvailable: false,
+  publicApiDocumentationFound: false,
+  openJurisdictionDatasetFound: false,
+  integrationDocumentationPath: "docs/integrations/gas-pravosudie.md",
+  directServerAccessNote: "При прямой серверной проверке наблюдался HTTP 403. Пользовательская форма не является документированным API.",
+  forbiddenIntegrationMethods: [
+    "production HTML scraping",
+    "undocumented query parameters as API",
+    "HTTP 403 or geographic restriction bypass",
+    "iframe embedding without official permission",
+    "unverified local territorial-jurisdiction database"
+  ],
+  regionDirectoryStatus: "ФИАС подтверждена ФНС как официальный адресный ресурс, но доступный и пригодный для синхронизации перечень субъектов получить и проверить 05.08.2026 не удалось. Регион остаётся ручным полем.",
   notice: "ПравоПоиск не определяет суд по адресу автоматически. Найдите суд в ГАС «Правосудие» и перенесите реквизиты без сокращений.",
   confirmedAutomaticRegions: [] as string[],
   regionalStatus: "Автоматически подтверждённых регионов нет. Регион вводится только как параметр поиска, а перенесённые реквизиты считаются введёнными пользователем и не проверенными ПравоПоиском."

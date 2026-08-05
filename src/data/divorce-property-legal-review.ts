@@ -53,6 +53,21 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
     verificationNote: "Официальная публикация временно не открылась; номер и структура форм дополнительно сверены по консолидированной редакции."
   },
   {
+    id: "registry-duty",
+    statement: "Размер пошлины за государственную регистрацию расторжения брака зависит от основания обращения; помощник не сохраняет региональные платёжные реквизиты.",
+    norm: "НК РФ, статьи 333.26 и 333.35",
+    officialUrl: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102067058",
+    supplementaryUrl: "https://www.consultant.ru/document/cons_doc_LAW_28165/",
+    reviewedAt,
+    edition: "консолидированная редакция проверена 05.08.2026",
+    scenarios: ["registry-divorce", "court-divorce"],
+    region: "federal",
+    status: "primary-unavailable-supplementary-checked",
+    automation: "allowed",
+    fallbackBehavior: "Сумма определяется только по установленному основанию обращения; реквизиты оплаты пользователь получает у выбранного органа ЗАГС непосредственно перед оплатой.",
+    verificationNote: "Официальный портал не отдал текст НК РФ; сумма и применимые правила сверены по консолидированной редакции."
+  },
+  {
     id: "court-divorce-and-article-17",
     statement: "Судебный порядок развода и ограничение права мужа на иск применяются только при установленных законом обстоятельствах.",
     norm: "СК РФ, статьи 17 и 21-24",
@@ -125,7 +140,7 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
   {
     id: "court-duty",
     statement: "Пошлина рассчитывается по каждому самостоятельному требованию; цену иска указывает истец, а при ошибке ее определяет суд.",
-    norm: "НК РФ, статьи 333.19, 333.20, 333.36 и 333.41; Постановление Пленума ВС РФ от 23.12.2025 N 39, пункты 16-22",
+    norm: "НК РФ, статьи 333.19, 333.20, 333.35, 333.36 и 333.41; Постановление Пленума ВС РФ от 23.12.2025 N 39, пункты 16-22",
     officialUrl: "https://www.vsrf.ru/documents/own/35290/",
     reviewedAt,
     edition: "официальная публикация Верховного Суда РФ, проверена 05.08.2026",

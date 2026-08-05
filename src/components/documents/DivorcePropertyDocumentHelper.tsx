@@ -266,6 +266,12 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
           <a href="https://publication.pravo.gov.ru/Document/View/0001201810030017" target="_blank" rel="noreferrer" className="inline-flex min-h-11 w-fit items-center rounded-md border border-line bg-white px-4 py-2 font-semibold text-trust hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/30">
             Открыть официальные формы
           </a>
+          <p className="text-sm leading-6 text-muted">
+            Если портал официального опубликования временно недоступен, используйте только для контрольной сверки{" "}
+            <a href="https://www.consultant.ru/document/cons_doc_LAW_308185/" target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">
+              резервную консолидированную редакцию Приказа Минюста N 201
+            </a>.
+          </p>
         </div>
       ) : null}
 

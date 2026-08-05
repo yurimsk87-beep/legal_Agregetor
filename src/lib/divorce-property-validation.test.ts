@@ -176,6 +176,7 @@ for (const consentState of ["objects", "evades", "agrees"]) {
   assert.equal(result.allowed, true, consentState);
   assert.equal(result.feeAmount, 5000);
   assert.equal(result.filingReady, false, "ручной перенос реквизитов суда не подтверждает готовность");
+  assert.equal(result.requiresLegalReview, true, "любой судебный документ требует ручной юридической проверки");
   assert.equal(result.draftText.startsWith("ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"), true);
   assert.equal(result.draftText.includes(`Позиция ответчика: ${consentState}`), false, consentState);
 }
@@ -531,6 +532,7 @@ const realEstateJurisdiction = validateDivorcePropertyApplication("property-clai
 assert.equal(realEstateJurisdiction.requiresLegalReview, true);
 
 assert.equal(standardClaim.filingReady, false);
+assert.equal(standardClaim.requiresLegalReview, true);
 assert.equal(standardClaim.draftText.startsWith("ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"), true);
 const complexDraft = validateDivorcePropertyApplication("property-claim", { ...claimBase, mortgage: "yes" });
 assert.equal(complexDraft.allowed, true);
@@ -550,7 +552,9 @@ assert.equal(resetAfterCourtLevelChange.courtPrecinctNumber, "");
 assert.equal(resetAfterCourtLevelChange.appealCourtName, "");
 
 assert.equal(protectedClaim.notices.some((notice) => notice.includes("10 000")), true);
-assert.equal(getDivorcePropertyDocxFilename("isk-o-razdele", false), "CHERNOVIK-isk-o-razdele.docx");
+assert.equal(getDivorcePropertyDocxFilename("isk-o-rastorzhenii-braka", false), "CHERNOVIK-isk-o-rastorzhenii-braka.docx");
+assert.equal(getDivorcePropertyDocxFilename("soglashenie-o-razdele-imushchestva", false), "CHERNOVIK-soglashenie-o-razdele-imushchestva.docx");
+assert.equal(getDivorcePropertyDocxFilename("isk-o-razdele-imushchestva-suprugov", false), "CHERNOVIK-isk-o-razdele-imushchestva-suprugov.docx");
 assert.equal(getDivorcePropertyDocxFilename("isk-o-razdele", true), "isk-o-razdele.docx");
 assert.equal(
   composeDivorcePropertyDocumentText("ОСНОВНОЙ ДОКУМЕНТ", [{ title: "Ходатайство", text: "ОТРЕДАКТИРОВАННЫЙ ТЕКСТ" }], false).includes("ОТРЕДАКТИРОВАННЫЙ ТЕКСТ"),
@@ -560,6 +564,10 @@ assert.equal(composeDivorcePropertyDocumentText("Текст без предуп�
 assert.deepEqual(COURT_DIRECTORY.confirmedAutomaticRegions, []);
 assert.deepEqual(COURT_REGIONS, []);
 assert.equal(COURT_DIRECTORY.machineVerificationAvailable, false);
+assert.equal(COURT_DIRECTORY.publicApiDocumentationFound, false);
+assert.equal(COURT_DIRECTORY.openJurisdictionDatasetFound, false);
+assert.ok(COURT_DIRECTORY.forbiddenIntegrationMethods.length >= 5);
+assert.equal(COURT_DIRECTORY.integrationDocumentationPath, "docs/integrations/gas-pravosudie.md");
 assert.equal(DIVORCE_PROPERTY_LEGAL_RULES.every((rule) => Boolean(rule.statement && rule.norm && rule.officialUrl && rule.reviewedAt && rule.edition && rule.scenarios.length && rule.region && rule.status && rule.automation && rule.fallbackBehavior)), true);
 assert.equal(isDivorcePropertyLegalReviewFullyPrimaryVerified(), false);
 

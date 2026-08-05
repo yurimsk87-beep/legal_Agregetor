@@ -1,4 +1,4 @@
-name: ZAGS reference route CI
+name: Legal reference routes CI
 
 on:
   pull_request:
