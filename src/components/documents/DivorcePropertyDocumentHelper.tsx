@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   DIVORCE_PROPERTY_SCENARIOS
 } from "@/data/divorce-property-route";
-import { COURT_DIRECTORY, COURT_REGIONS } from "@/data/court-directory";
+import { COURT_DIRECTORY, COURT_REGIONS, getCourtRegionalStatus } from "@/data/court-directory";
 import type {
   DivorcePropertyHelperField,
   DivorcePropertyScenarioKey
@@ -24,6 +24,11 @@ import type {
   DivorcePropertyValues,
   PropertyAssetRow
 } from "@/lib/divorce-property-validator";
+import {
+  composeDivorcePropertyDocumentText,
+  createDivorcePropertyDocxBlob,
+  getDivorcePropertyDocxFilename
+} from "@/lib/divorce-property-docx";
 
 type ReviewState = {
   decision: DivorcePropertyDecision;
@@ -56,6 +61,7 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
         ...current,
         courtSearchConfirmed: "",
         courtName: "",
+        courtPrecinctNumber: "",
         courtAddress: "",
         courtWebsite: "",
         appealCourtName: ""
@@ -106,16 +112,17 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
       .map((field) => ({ label: field.label, value: fieldValueLabel(field, formValues[field.name] ?? "") }))
       .filter((item) => item.value);
     setReview({ decision, missing, values: preparedValues });
-    setDraftPreview(decision.allowed ? decision.draftText : "");
+    setDraftPreview(decision.allowed && !decision.officialFormOnly ? decision.draftText : "");
     setSupplementalDrafts(decision.allowed ? decision.supplementalDrafts : []);
   }
 
   const hasErrors = Boolean(review && (review.missing.length || !review.decision.allowed));
-  const hasDraft = Boolean(review?.decision.allowed && review.decision.draftText);
+  const hasDraft = Boolean(review?.decision.allowed && !review.decision.officialFormOnly && review.decision.draftText);
+  const officialFormDataReady = Boolean(review?.decision.allowed && review.decision.officialFormOnly);
 
   async function copyDraft() {
     if (!review || !draftPreview) return;
-    await navigator.clipboard.writeText(draftPreview);
+    await navigator.clipboard.writeText(composeDivorcePropertyDocumentText(draftPreview, supplementalDrafts));
     setCopied(true);
   }
 
@@ -123,26 +130,11 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
     if (!review || !draftPreview) return;
     setDownloadError("");
     try {
-      const { Document, Packer, Paragraph } = await import("docx");
-      const supplementalParagraphs = supplementalDrafts.flatMap((draft) => [
-        new Paragraph({ text: "" }),
-        new Paragraph({ text: draft.title }),
-        ...draft.text.split("\n").map((line) => new Paragraph({ text: line }))
-      ]);
-      const document = new Document({
-        sections: [{
-          properties: {},
-          children: [
-            ...draftPreview.split("\n").map((line) => new Paragraph({ text: line })),
-            ...supplementalParagraphs
-          ]
-        }]
-      });
-      const blob = await Packer.toBlob(document);
+      const blob = await createDivorcePropertyDocxBlob(draftPreview, supplementalDrafts);
       const url = URL.createObjectURL(blob);
       const anchor = window.document.createElement("a");
       anchor.href = url;
-      anchor.download = `${review.decision.filingReady ? "" : "chernovik-"}${scenario.documentSlug}.docx`;
+      anchor.download = getDivorcePropertyDocxFilename(scenario.documentSlug, review.decision.filingReady);
       anchor.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -157,9 +149,9 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
       setDownloadError("Браузер заблокировал печатное окно. Разрешите всплывающие окна для этой страницы.");
       return;
     }
-    const supplementalText = supplementalDrafts.map((draft) => `\n\n${draft.title}\n${draft.text}`).join("");
+    const printableText = composeDivorcePropertyDocumentText(draftPreview, supplementalDrafts);
     const printTitle = review.decision.filingReady ? review.decision.documentTitle : `Черновик — ${review.decision.documentTitle}`;
-    printWindow.document.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>${escapeHtml(printTitle)}</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;white-space:pre-wrap;line-height:1.5;color:#111}@media print{body{margin:20mm}}</style></head><body>${escapeHtml(draftPreview + supplementalText)}</body></html>`);
+    printWindow.document.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>${escapeHtml(printTitle)}</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;white-space:pre-wrap;line-height:1.5;color:#111}@media print{body{margin:20mm}}</style></head><body>${escapeHtml(printableText)}</body></html>`);
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
@@ -190,7 +182,7 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
         ) : null}
         {visibleFields.map((field) => (
           <div key={field.name} className="min-w-0">
-            {field.name === "courtSearchConfirmed" ? <CourtLookupNotice courtLevel={courtLevel} /> : null}
+            {field.name === "courtSearchConfirmed" ? <CourtLookupNotice courtLevel={courtLevel} region={formValues.courtRegion} /> : null}
             <HelperField field={field} courtLevel={courtLevel} onChange={setField} value={formValues[field.name] ?? ""} />
           </div>
         ))}
@@ -211,19 +203,27 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
             </ul>
           </div>
         ) : review ? (
-          <div className={`rounded-lg border p-4 text-sm leading-6 ${review.decision.filingReady ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-amber-300 bg-amber-50 text-amber-950"}`}>
-            <p className="font-semibold">{review.decision.filingReady ? "Проверка завершена." : "Черновик — не готов к подаче."}</p>
+          <div className={`rounded-lg border p-4 text-sm leading-6 ${officialFormDataReady ? "border-sky-200 bg-sky-50 text-sky-950" : review.decision.filingReady ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-amber-300 bg-amber-50 text-amber-950"}`}>
+            <p className="font-semibold">{officialFormDataReady ? "Сведения подготовлены для официальной формы." : review.decision.filingReady ? "Проверка завершена." : "Черновик — не готов к подаче."}</p>
             <p className="mt-2"><strong>Основной документ:</strong> {review.decision.documentTitle}.</p>
             {review.decision.formNumbers.length ? <p className="mt-1"><strong>Форма:</strong> {review.decision.formNumbers.map((number) => `N ${number}`).join(", ")}.</p> : null}
             <p className="mt-1"><strong>Платёж:</strong> {review.decision.feeLabel}</p>
+            <p className="mt-1"><strong>Как оплатить:</strong> {review.decision.paymentInstruction}</p>
             <p className="mt-1"><strong>Куда подавать:</strong> {review.decision.jurisdiction}</p>
             <p className="mt-1"><strong>Как подать:</strong> {review.decision.filingInstruction}</p>
+            <p className="mt-1"><strong>Кому направить копии:</strong> {review.decision.copyInstruction}</p>
+            <p className="mt-1"><strong>Какие оригиналы взять:</strong> {review.decision.originalsInstruction}</p>
             <p className="mt-1"><strong>После подачи:</strong> {review.decision.afterFiling}</p>
             {review.decision.notices.map((notice) => <p key={notice} className="mt-2">{notice}</p>)}
             {review.decision.requiresLegalReview ? (
-              <p className="mt-3 rounded-md border border-amber-300 bg-amber-50 p-3 text-amber-950">
-                В ответах есть обстоятельства, требующие индивидуальной проверки. Файл и печатная версия будут помечены как черновик и не должны подаваться без проверки.
-              </p>
+              <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 p-3 text-amber-950">
+                <p>В ответах есть обстоятельства, требующие индивидуальной проверки. Файл и печатная версия будут помечены как черновик и не должны подаваться без проверки.</p>
+                {review.decision.reviewReasons.length ? (
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                    {review.decision.reviewReasons.map((reason) => <li key={reason}>{reason}</li>)}
+                  </ul>
+                ) : null}
+              </div>
             ) : null}
             <div className="mt-4 border-t border-emerald-200 pt-4">
               <p className="font-semibold">Приложения:</p>
@@ -256,6 +256,9 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
       {hasDraft && review ? (
         <section className="mt-6 rounded-lg border border-line bg-zinc-50 p-4">
           <h3 className="text-xl font-semibold text-ink">Редактируемое превью</h3>
+          <p className="mt-2 text-sm leading-6 text-zinc-700">
+            В DOCX и печатную версию войдут основной документ{supplementalDrafts.length ? ` и дополнительные документы: ${supplementalDrafts.map((draft) => draft.title).join(", ")}` : ""}.
+          </p>
           <textarea
             aria-label="Текст подготовленного документа"
             className="mt-4 min-h-[32rem] w-full rounded-md border border-line bg-white p-4 font-mono text-sm leading-6 text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20"
@@ -342,11 +345,13 @@ function HelperField({ courtLevel, field, onChange, value }: {
   );
 }
 
-function CourtLookupNotice({ courtLevel }: { courtLevel: CourtLevel }) {
+function CourtLookupNotice({ courtLevel, region }: { courtLevel: CourtLevel; region: string | undefined }) {
+  const regionalStatus = getCourtRegionalStatus(region);
   return (
     <div className="mb-5 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
       <p className="font-semibold">Предварительный уровень суда: {courtLevelLabel(courtLevel)}.</p>
       <p className="mt-2">{COURT_DIRECTORY.notice}</p>
+      <p className="mt-2">{regionalStatus.message}</p>
       <a href={COURT_DIRECTORY.sourceUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">
         Найти суд по территориальной подсудности
       </a>
@@ -382,6 +387,8 @@ function PropertyAssetEditor({
               <AssetInput label="Дата и основание приобретения" name="acquisitionBasis" row={row} onChange={onChange} />
               <AssetInput label="На кого оформлено имущество" name="registeredOwner" row={row} onChange={onChange} />
               <AssetInput label="Стоимость всего объекта, руб." name="fullValue" row={row} onChange={onChange} type="number" />
+              <AssetInput label="Источник стоимости (отчёт, выписка, договор или иной документ)" name="valuationSource" row={row} onChange={onChange} />
+              <AssetInput label="Подтверждающие документы по объекту" name="supportingDocuments" row={row} onChange={onChange} />
               <AssetInput label="Доля, требуемая истцом, %" name="claimedSharePercent" row={row} onChange={onChange} type="number" />
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-ink">
                 Требуемый результат
@@ -451,6 +458,8 @@ function createEmptyAssetRow(): PropertyAssetRow {
     acquisitionBasis: "",
     registeredOwner: "",
     fullValue: "",
+    valuationSource: "",
+    supportingDocuments: "",
     claimedSharePercent: "",
     requestedResult: "",
     compensationDirection: "",

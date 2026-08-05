@@ -14,5 +14,17 @@ export const COURT_DIRECTORY = {
   sourceUrl: DIVORCE_PROPERTY_LEGAL_REVIEW.sources.courtSearch.href,
   lastVerifiedAt: DIVORCE_PROPERTY_LEGAL_REVIEW.reviewedAt,
   isComplete: false,
-  notice: "Список судебных участков не хранится в сервисе. Найдите участок по адресу в ГАС «Правосудие» и перенесите его официальные реквизиты без сокращений."
+  notice: "Список судебных участков не хранится в сервисе. Найдите участок по адресу в ГАС «Правосудие» и перенесите его официальные реквизиты без сокращений.",
+  confirmedAutomaticRegions: [] as string[],
+  regionalStatus: "Региональные границы участков автоматически не подтверждены ни для одного региона. Выбор региона используется только для поиска; участок определяется по полному адресу на официальном ресурсе.",
+  supportedOfficialDomains: ["sudrf.ru", "msudrf.ru", "mos-sud.ru"]
 } as const;
+
+export function getCourtRegionalStatus(region: string | undefined) {
+  return {
+    region: region?.trim() || "Регион не выбран",
+    automaticallyConfirmed: false,
+    sourceUrl: COURT_DIRECTORY.sourceUrl,
+    message: COURT_DIRECTORY.regionalStatus
+  } as const;
+}

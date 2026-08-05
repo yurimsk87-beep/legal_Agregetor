@@ -13,6 +13,10 @@ import {
   getDivorcePropertyScenario
 } from "@/data/divorce-property-route";
 import type { DivorcePropertyScenario } from "@/data/divorce-property-route";
+import {
+  getDivorcePropertyLegalReviewDate,
+  isDivorcePropertyLegalReviewFullyPrimaryVerified
+} from "@/data/divorce-property-legal-review";
 import { getLegalCategory } from "@/data/legal-categories";
 import { getLegalProblem, legalProblems } from "@/data/legal-problems";
 import type { LegalProblem } from "@/data/legal-problems";
@@ -195,7 +199,12 @@ function DivorcePropertyProblemPage({
           </>
         )}
 
-        <p className="mt-7 text-xs leading-5 text-zinc-500">Юридическая проверка: {formatReviewDate(problem.lastReviewedAt ?? "2026-08-03")}.</p>
+        <p className="mt-7 text-xs leading-5 text-zinc-500">
+          Последняя документированная сверка: {formatReviewDate(getDivorcePropertyLegalReviewDate(scenario?.key))}.
+          {isDivorcePropertyLegalReviewFullyPrimaryVerified(scenario?.key)
+            ? " Все используемые первичные официальные источники проверены."
+            : " Статус недоступных первичных и контрольных источников раскрыт на странице документа."}
+        </p>
       </article>
     </>
   );

@@ -7,7 +7,11 @@ import { DivorcePropertyDocumentHelper } from "@/components/documents/DivorcePro
 import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
-import { DIVORCE_PROPERTY_LEGAL_REVIEW } from "@/data/divorce-property-legal-review";
+import {
+  DIVORCE_PROPERTY_LEGAL_RULES,
+  getDivorcePropertyLegalReviewDate,
+  isDivorcePropertyLegalReviewFullyPrimaryVerified
+} from "@/data/divorce-property-legal-review";
 import { getDivorceScenarioByDocumentSlug } from "@/data/divorce-property-route";
 import type { DivorcePropertyScenario } from "@/data/divorce-property-route";
 import {
@@ -162,12 +166,22 @@ function DivorcePropertyDocumentPage({
 
         <section className="mt-7 border-t border-line pt-6">
           <h2 className="text-2xl font-semibold text-ink">Правовые основания документа</h2>
-          <ul className="mt-4 grid gap-2 text-sm leading-6">
-            {scenario.legalSources.map((source) => (
-              <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">{source.title}</a></li>
+          <ul className="mt-4 grid gap-3 text-sm leading-6">
+            {DIVORCE_PROPERTY_LEGAL_RULES.filter((rule) => rule.scenarios.includes(scenario.key)).map((rule) => (
+              <li key={rule.id} className="border-l-2 border-line pl-3">
+                <p className="font-medium text-ink">{rule.statement}</p>
+                <p className="text-zinc-600">{rule.norm}. Статус: {legalReviewStatusLabel(rule.status)}.</p>
+                <a href={rule.officialUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Официальный источник</a>
+                {rule.supplementaryUrl ? <a href={rule.supplementaryUrl} target="_blank" rel="noreferrer" className="ml-4 inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Контрольная редакция</a> : null}
+              </li>
             ))}
           </ul>
-          <p className="mt-4 text-xs leading-5 text-zinc-500">Юридическая проверка: {DIVORCE_PROPERTY_LEGAL_REVIEW.reviewedAt.split("-").reverse().join(".")}.</p>
+          <p className="mt-4 text-xs leading-5 text-zinc-500">
+            Последняя документированная сверка: {getDivorcePropertyLegalReviewDate(scenario.key).split("-").reverse().join(".")}.
+            {isDivorcePropertyLegalReviewFullyPrimaryVerified(scenario.key)
+              ? " Все используемые источники в этом сценарии открыты на первичных официальных ресурсах."
+              : " Часть первичных официальных страниц была недоступна; контрольная сверка и статус каждого правила зафиксированы отдельно."}
+          </p>
         </section>
 
         <Link href={`${problemPath}?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
@@ -187,6 +201,12 @@ function DocumentFact({ items, title }: { items: string[]; title: string }) {
       </ul>
     </section>
   );
+}
+
+function legalReviewStatusLabel(status: "verified-primary" | "primary-unavailable-supplementary-checked" | "manual-regional-check") {
+  if (status === "verified-primary") return "первичный официальный источник проверен";
+  if (status === "manual-regional-check") return "региональные сведения требуют ручной проверки";
+  return "первичный источник временно недоступен, выполнена контрольная сверка";
 }
 
 function ZagsScenarioDetails({ scenario }: { scenario: ZagsScenario }) {

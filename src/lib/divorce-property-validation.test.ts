@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { inflateRawSync } from "node:zlib";
 import {
   calculateNotaryAgreementTariff,
   calculatePropertyAssets,
@@ -6,7 +7,17 @@ import {
   resolveCourtLevel,
   validateDivorcePropertyApplication
 } from "@/lib/divorce-property-validator";
-import { isDivorcePropertyLegalReviewCurrent } from "@/data/divorce-property-legal-review";
+import {
+  composeDivorcePropertyDocumentText,
+  createDivorcePropertyDocxBlob,
+  getDivorcePropertyDocxFilename
+} from "@/lib/divorce-property-docx";
+import {
+  DIVORCE_PROPERTY_LEGAL_RULES,
+  isDivorcePropertyLegalReviewCurrent,
+  isDivorcePropertyLegalReviewFullyPrimaryVerified
+} from "@/data/divorce-property-legal-review";
+import { COURT_DIRECTORY } from "@/data/court-directory";
 
 const magistrateCourtBase = {
   courtRegion: "Москва",
@@ -14,6 +25,7 @@ const magistrateCourtBase = {
   territorialAddress: "г. Москва, ул. Тестовая, д. 1",
   courtSearchConfirmed: "yes",
   courtName: "Судебный участок мирового судьи N 1",
+  courtPrecinctNumber: "1",
   courtAddress: "г. Москва, ул. Судебная, д. 1",
   courtWebsite: "https://example.sudrf.ru/",
   appealCourtName: "Тестовый районный суд города Москвы"
@@ -22,6 +34,7 @@ const magistrateCourtBase = {
 const districtCourtBase = {
   ...magistrateCourtBase,
   courtName: "Тестовый районный суд города Москвы",
+  courtPrecinctNumber: "",
   appealCourtName: ""
 };
 
@@ -33,6 +46,8 @@ function propertyAssetRows(fullValue = "1000000", claimedSharePercent = "100") {
     acquisitionBasis: "договор купли-продажи в период брака",
     registeredOwner: "Ответчик",
     fullValue,
+    valuationSource: "Отчёт оценщика от 01.08.2026",
+    supportingDocuments: "Договор купли-продажи, выписка ЕГРН, отчёт оценщика",
     claimedSharePercent,
     requestedResult: "plaintiff",
     compensationDirection: "none",
@@ -59,6 +74,9 @@ const mutual = validateDivorcePropertyApplication("registry-divorce", {
 assert.equal(mutual.allowed, true);
 assert.deepEqual(mutual.formNumbers, ["9"]);
 assert.equal(mutual.feeAmount, 5000);
+assert.equal(mutual.officialFormOnly, true);
+assert.equal(mutual.filingReady, false);
+assert.equal(mutual.draftText, "");
 
 const separate = validateDivorcePropertyApplication("registry-divorce", {
   ...registryBase,
@@ -204,6 +222,7 @@ assert.equal(calculateNotaryAgreementTariff(1000000), 5000);
 assert.equal(calculateNotaryAgreementTariff(100000000), 20000);
 
 const agreementBase = {
+  notaryRegion: "Москва",
   divisionTiming: "after-divorce",
   mutualAgreement: "yes",
   assetValue: "1000000",
@@ -262,6 +281,7 @@ const claimBase = {
   thirdPartyRights: "no",
   bankruptcy: "no",
   foreignProperty: "no",
+  hiddenOrSold: "no",
   limitationCertain: "yes",
   needSecurity: "no",
   needEvidenceRequest: "no",
@@ -288,8 +308,8 @@ for (const complexField of ["mortgage", "maternityCapital", "childrenShares", "t
   assert.equal(result.requiresLegalReview, true, complexField);
 }
 assert.equal(validateDivorcePropertyApplication("property-claim", { ...claimBase, hiddenOrSold: "yes" }).notices.some((notice) => notice.includes("проданного")), true);
-assert.equal(validateDivorcePropertyApplication("property-claim", { ...claimBase, hiddenOrSold: "unsure" }).allowed, false);
-assert.equal(validateDivorcePropertyApplication("property-claim", { ...claimBase, limitationCertain: "no" }).allowed, false);
+assert.equal(validateDivorcePropertyApplication("property-claim", { ...claimBase, hiddenOrSold: "unsure" }).filingReady, false);
+assert.equal(validateDivorcePropertyApplication("property-claim", { ...claimBase, limitationCertain: "no" }).filingReady, false);
 assert.equal(validateDivorcePropertyApplication("property-claim", { ...claimBase, assetRows: "[]", combineDivorce: "unsure" }).allowed, false);
 
 const combined = validateDivorcePropertyApplication("property-claim", {
@@ -348,6 +368,8 @@ const propertyCalculation = calculatePropertyAssets([
     acquisitionBasis: "договор купли-продажи в период брака",
     registeredOwner: "Истец",
     fullValue: "600000",
+    valuationSource: "Отчёт оценщика от 02.08.2026",
+    supportingDocuments: "ПТС, договор купли-продажи, отчёт оценщика",
     claimedSharePercent: "50",
     requestedResult: "shared",
     compensationDirection: "to-plaintiff",
@@ -357,7 +379,14 @@ const propertyCalculation = calculatePropertyAssets([
 assert.equal(propertyCalculation.issues.length, 0);
 assert.equal(propertyCalculation.claimPrice, 1100000);
 assert.equal(propertyCalculation.assetsText.includes("кадастровый номер"), true);
+assert.equal(propertyCalculation.assetsText.includes("Отчёт оценщика"), true);
+assert.equal(propertyCalculation.supportingDocuments.length, 2);
 assert.equal(propertyCalculation.requestedDivisionText.includes("300 000 руб."), true);
+assert.equal(calculatePropertyAssets([{
+  ...JSON.parse(propertyAssetRows())[0],
+  valuationSource: "",
+  supportingDocuments: ""
+}]).issues.some(({ message }) => message.includes("источник стоимости")), true);
 assert.equal(calculatePropertyAssets([{
   ...JSON.parse(propertyAssetRows("100000", "0"))[0],
   requestedResult: "defendant",
@@ -390,17 +419,102 @@ const plaintiffAddressWithoutBasis = validateDivorcePropertyApplication("court-d
 });
 assert.equal(plaintiffAddressWithoutBasis.allowed, false);
 
+const plaintiffAddressWithChild = validateDivorcePropertyApplication("court-divorce", {
+  ...courtBase,
+  territorialBasis: "plaintiff-child",
+  jurisdictionEvidence: "Документ о проживании несовершеннолетнего ребёнка с истцом"
+});
+assert.equal(plaintiffAddressWithChild.allowed, true);
+
+const lastKnownAddress = validateDivorcePropertyApplication("court-divorce", {
+  ...courtBase,
+  defendantLocation: "unknown",
+  territorialBasis: "last-known",
+  jurisdictionEvidence: "Последняя известная регистрация ответчика"
+});
+assert.equal(lastKnownAddress.allowed, true);
+
+const magistrateWithoutNumber = validateDivorcePropertyApplication("court-divorce", {
+  ...courtBase,
+  courtPrecinctNumber: ""
+});
+assert.equal(magistrateWithoutNumber.allowed, false);
+assert.equal(magistrateWithoutNumber.issues.some(({ field }) => field === "courtPrecinctNumber"), true);
+
+const unsupportedCourtUrl = validateDivorcePropertyApplication("court-divorce", {
+  ...courtBase,
+  courtWebsite: "https://example.com/court"
+});
+assert.equal(unsupportedCourtUrl.allowed, true);
+assert.equal(unsupportedCourtUrl.filingReady, false);
+assert.equal(unsupportedCourtUrl.notices.some((notice) => notice.includes("проверить вручную")), true);
+
+const realEstateJurisdiction = validateDivorcePropertyApplication("property-claim", {
+  ...claimBase,
+  territorialBasis: "real-estate-exclusive",
+  jurisdictionEvidence: "Заявлено самостоятельное требование о праве на недвижимость"
+});
+assert.equal(realEstateJurisdiction.requiresLegalReview, true);
+
 assert.equal(standardClaim.filingReady, true);
 const complexDraft = validateDivorcePropertyApplication("property-claim", { ...claimBase, mortgage: "yes" });
 assert.equal(complexDraft.allowed, true);
 assert.equal(complexDraft.requiresLegalReview, true);
 assert.equal(complexDraft.filingReady, false);
 assert.equal(complexDraft.draftText.startsWith("ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"), true);
+assert.equal(complexDraft.reviewReasons.some((reason) => reason.includes("Ипотека")), true);
 assert.equal(standardClaim.draftText.includes("Тестовый районный суд города Москвы"), true);
 assert.equal(standardClaim.draftText.includes("ул. Судебная"), true);
 
-assert.equal(isDivorcePropertyLegalReviewCurrent(new Date("2026-08-04T00:00:00Z")), true);
+assert.equal(protectedClaim.notices.some((notice) => notice.includes("10 000")), true);
+assert.equal(getDivorcePropertyDocxFilename("isk-o-razdele", false), "CHERNOVIK-isk-o-razdele.docx");
+assert.equal(getDivorcePropertyDocxFilename("isk-o-razdele", true), "isk-o-razdele.docx");
+assert.equal(
+  composeDivorcePropertyDocumentText("ОСНОВНОЙ ДОКУМЕНТ", [{ title: "Ходатайство", text: "ОТРЕДАКТИРОВАННЫЙ ТЕКСТ" }]).includes("ОТРЕДАКТИРОВАННЫЙ ТЕКСТ"),
+  true
+);
+assert.deepEqual(COURT_DIRECTORY.confirmedAutomaticRegions, []);
+assert.equal(DIVORCE_PROPERTY_LEGAL_RULES.every((rule) => Boolean(rule.statement && rule.norm && rule.officialUrl && rule.reviewedAt && rule.edition && rule.scenarios.length && rule.region && rule.status)), true);
+assert.equal(isDivorcePropertyLegalReviewFullyPrimaryVerified(), false);
+
+assert.equal(isDivorcePropertyLegalReviewCurrent(new Date("2026-08-05T00:00:00Z")), true);
 assert.equal(isDivorcePropertyLegalReviewCurrent(new Date("2027-08-04T00:00:00Z")), false);
 assert.equal(isDivorcePropertyLegalReviewCurrent(), true, "юридическая сверка маршрута устарела и должна быть повторена");
 
-console.log("divorce-property validation tests passed");
+createDivorcePropertyDocxBlob("ОСНОВНОЙ ДОКУМЕНТ", [{ title: "Ходатайство", text: "ОТРЕДАКТИРОВАННЫЙ ТЕКСТ" }])
+  .then(async (blob) => Buffer.from(await blob.arrayBuffer()))
+  .then((buffer) => {
+    const xml = extractZipEntry(buffer, "word/document.xml");
+    assert.equal(xml.includes("ОСНОВНОЙ ДОКУМЕНТ"), true);
+    assert.equal(xml.includes("ОТРЕДАКТИРОВАННЫЙ ТЕКСТ"), true);
+    console.log("divorce-property validation tests passed");
+  })
+  .catch((error: unknown) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+
+function extractZipEntry(buffer: Buffer, expectedName: string) {
+  for (let offset = 0; offset <= buffer.length - 46; offset += 1) {
+    if (buffer.readUInt32LE(offset) !== 0x02014b50) continue;
+    const compression = buffer.readUInt16LE(offset + 10);
+    const compressedSize = buffer.readUInt32LE(offset + 20);
+    const fileNameLength = buffer.readUInt16LE(offset + 28);
+    const extraLength = buffer.readUInt16LE(offset + 30);
+    const commentLength = buffer.readUInt16LE(offset + 32);
+    const localHeaderOffset = buffer.readUInt32LE(offset + 42);
+    const fileName = buffer.subarray(offset + 46, offset + 46 + fileNameLength).toString("utf8");
+    if (fileName === expectedName) {
+      assert.equal(buffer.readUInt32LE(localHeaderOffset), 0x04034b50);
+      const localNameLength = buffer.readUInt16LE(localHeaderOffset + 26);
+      const localExtraLength = buffer.readUInt16LE(localHeaderOffset + 28);
+      const dataStart = localHeaderOffset + 30 + localNameLength + localExtraLength;
+      const compressed = buffer.subarray(dataStart, dataStart + compressedSize);
+      if (compression === 0) return compressed.toString("utf8");
+      if (compression === 8) return inflateRawSync(compressed).toString("utf8");
+      throw new Error(`Unsupported ZIP compression method: ${compression}`);
+    }
+    offset += 45 + fileNameLength + extraLength + commentLength;
+  }
+  throw new Error(`DOCX entry not found: ${expectedName}`);
+}

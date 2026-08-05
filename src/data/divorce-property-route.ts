@@ -202,6 +202,7 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
         { label: "Нет, участок автоматически не определён", value: "no" }
       ] },
       { name: "courtName", label: "Официальное наименование найденного суда или участка", required: true },
+      { name: "courtPrecinctNumber", label: "Номер мирового судебного участка", required: true },
       { name: "courtAddress", label: "Официальный адрес суда или участка", type: "textarea", required: true },
       { name: "courtWebsite", label: "Официальная ссылка на страницу суда или участка", required: true, placeholder: "https://...sudrf.ru/" },
       { name: "appealCourtName", label: "Районный суд, рассматривающий жалобы на решения мирового судьи", required: true },
@@ -280,6 +281,7 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
     warning: "Ипотека, материнский капитал, детские доли, банкротство и права третьих лиц требуют ручной проверки. Проект в этих случаях не считается окончательно готовым.",
     legalSources: [sources.familyCode, sources.taxNotary, sources.notaryFundamentals, sources.notaryTariffs, sources.supremeCourt],
     helperFields: [
+      { name: "notaryRegion", label: "Регион нотариального действия", type: "court-region", required: true },
       { name: "spouse1Data", label: "ФИО, дата рождения, паспорт и адрес первого супруга", type: "textarea", required: true },
       { name: "spouse2Data", label: "ФИО, дата рождения, паспорт и адрес второго супруга", type: "textarea", required: true },
       { name: "marriageData", label: "Сведения о заключении и, если применимо, расторжении брака", type: "textarea", required: true },
@@ -348,6 +350,7 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
         { label: "Нет, участок автоматически не определён", value: "no" }
       ] },
       { name: "courtName", label: "Официальное наименование найденного суда или участка", required: true },
+      { name: "courtPrecinctNumber", label: "Номер мирового судебного участка", required: true },
       { name: "courtAddress", label: "Официальный адрес суда или участка", type: "textarea", required: true },
       { name: "courtWebsite", label: "Официальная ссылка на страницу суда или участка", required: true, placeholder: "https://...sudrf.ru/" },
       { name: "appealCourtName", label: "Районный суд, рассматривающий жалобы на решения мирового судьи", required: true },
