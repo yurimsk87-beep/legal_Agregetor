@@ -14,6 +14,8 @@ export type DivorcePropertyLegalRule = {
   scenarios: string[];
   region: "federal" | "regional";
   status: DivorcePropertyLegalReviewStatus;
+  automation: "allowed" | "manual-only" | "not-applicable";
+  fallbackBehavior: string;
   verificationNote?: string;
 };
 
@@ -31,6 +33,8 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
     scenarios: ["registry-divorce", "court-divorce"],
     region: "federal",
     status: "primary-unavailable-supplementary-checked",
+    automation: "manual-only",
+    fallbackBehavior: "Помощник определяет применимую официальную форму, но не создаёт приблизительный бланк и не подтверждает готовность к подаче.",
     verificationNote: "Официальный портал не отдал содержание документа при повторной проверке; реквизиты первичного источника сохранены, текст сверен по консолидированной редакции."
   },
   {
@@ -44,6 +48,8 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
     scenarios: ["registry-divorce"],
     region: "federal",
     status: "primary-unavailable-supplementary-checked",
+    automation: "manual-only",
+    fallbackBehavior: "Пользователь переносит сведения в действующую официальную форму; внутренний PDF или DOCX формы не создаётся.",
     verificationNote: "Официальная публикация временно не открылась; номер и структура форм дополнительно сверены по консолидированной редакции."
   },
   {
@@ -57,12 +63,14 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
     scenarios: ["court-divorce", "property-claim"],
     region: "federal",
     status: "primary-unavailable-supplementary-checked",
+    automation: "allowed",
+    fallbackBehavior: "При неустановленных обстоятельствах статьи 17 СК РФ документ не формируется.",
     verificationNote: "Официальный портал временно не отдал содержание; применимые разъяснения также проверены на официальном сайте Верховного Суда РФ."
   },
   {
     id: "court-jurisdiction",
-    statement: "Родовая и территориальная подсудность зависят от состава требований, цены иска и подтвержденного адресного основания.",
-    norm: "ГПК РФ, статьи 23, 24 и 28-30",
+    statement: "Родовая и территориальная подсудность зависят от состава требований, цены иска и подтверждённого адресного основания; часть 4 статьи 29 ГПК РФ говорит о несовершеннолетнем при истце без требования о том, чтобы он был общим ребёнком супругов.",
+    norm: "ГПК РФ, статьи 23, 24, 28, часть 1 и часть 4 статьи 29, статья 30",
     officialUrl: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828",
     supplementaryUrl: "https://www.consultant.ru/document/cons_doc_LAW_39570/",
     reviewedAt,
@@ -70,7 +78,9 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
     scenarios: ["court-divorce", "property-claim"],
     region: "federal",
     status: "primary-unavailable-supplementary-checked",
-    verificationNote: "Конкретный суд определяется только после проверки полного адреса в официальном судебном сервисе."
+    automation: "manual-only",
+    fallbackBehavior: "При отсутствии машинного подтверждения суда и территории документ сохраняется как черновик независимо от пользовательского подтверждения.",
+    verificationNote: "Официальный портал не отдал текст ГПК РФ; формулировка части 4 статьи 29 сверена по консолидированной редакции от 04.07.2026. Конкретный суд определяется только после проверки полного адреса в официальном судебном сервисе."
   },
   {
     id: "court-directory",
@@ -81,7 +91,9 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
     edition: "официальный сервис, проверен 05.08.2026",
     scenarios: ["court-divorce", "property-claim"],
     region: "federal",
-    status: "verified-primary"
+    status: "verified-primary",
+    automation: "manual-only",
+    fallbackBehavior: "ГАС «Правосудие» открывается пользователю для самостоятельного поиска; проект не имеет API или другого подтверждённого машинного механизма сопоставления адреса с судом."
   },
   {
     id: "claim-content",
@@ -93,7 +105,9 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
     edition: "консолидированная редакция проверена 05.08.2026",
     scenarios: ["court-divorce", "property-claim"],
     region: "federal",
-    status: "primary-unavailable-supplementary-checked"
+    status: "primary-unavailable-supplementary-checked",
+    automation: "allowed",
+    fallbackBehavior: "При отсутствии обязательных сведений или приложений документ не формируется."
   },
   {
     id: "property-division",
@@ -104,7 +118,9 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
     edition: "официальная публикация Верховного Суда РФ, проверена 05.08.2026",
     scenarios: ["property-agreement", "property-claim"],
     region: "federal",
-    status: "verified-primary"
+    status: "verified-primary",
+    automation: "manual-only",
+    fallbackBehavior: "Неоднозначные способы раздела, компенсации, личные вложения и права третьих лиц всегда переводят документ в режим черновика."
   },
   {
     id: "court-duty",
@@ -115,7 +131,9 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
     edition: "официальная публикация Верховного Суда РФ, проверена 05.08.2026",
     scenarios: ["court-divorce", "property-claim"],
     region: "federal",
-    status: "verified-primary"
+    status: "verified-primary",
+    automation: "allowed",
+    fallbackBehavior: "Пошлина рассчитывается только при однозначно определённой цене иска; иначе сумма не подтверждается и документ остаётся черновиком."
   },
   {
     id: "notary-tariff",
@@ -128,13 +146,15 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
     scenarios: ["property-agreement"],
     region: "regional",
     status: "manual-regional-check",
+    automation: "manual-only",
+    fallbackBehavior: "Региональная часть тарифа не рассчитывается; проект соглашения передаётся нотариусу для проверки и удостоверения.",
     verificationNote: "Автоматически подтвержденных региональных тарифов в проекте нет."
   }
 ];
 
 export const DIVORCE_PROPERTY_LEGAL_REVIEW = {
   reviewedAt,
-  maxAgeDays: 180,
+  nextMandatoryReviewAt: "2026-11-05",
   sources: {
     civilProcedure: {
       title: "ГПК РФ: официальная публикация и контрольная сверка",
@@ -167,11 +187,9 @@ export function getDivorcePropertyLegalReviewDate(scenarioKey?: string) {
   return dates.at(-1) ?? DIVORCE_PROPERTY_LEGAL_REVIEW.reviewedAt;
 }
 
-export function isDivorcePropertyLegalReviewCurrent(now = new Date()) {
-  const reviewed = getDivorcePropertyLegalReviewDate();
-  const checkedAt = new Date(`${reviewed}T00:00:00Z`);
-  const ageDays = (now.getTime() - checkedAt.getTime()) / 86_400_000;
-  return Number.isFinite(ageDays) && ageDays >= 0 && ageDays <= DIVORCE_PROPERTY_LEGAL_REVIEW.maxAgeDays;
+export function isDivorcePropertyLegalReviewDue(now = new Date()) {
+  const reviewAt = new Date(`${DIVORCE_PROPERTY_LEGAL_REVIEW.nextMandatoryReviewAt}T00:00:00Z`);
+  return Number.isFinite(reviewAt.getTime()) && now.getTime() >= reviewAt.getTime();
 }
 
 export function isDivorcePropertyLegalReviewFullyPrimaryVerified(scenarioKey?: string) {

@@ -15,6 +15,7 @@ import {
   calculatePropertyAssets,
   courtLevelLabel,
   isDivorcePropertyFieldVisible,
+  resetCourtSelection,
   resolveCourtLevel,
   validateDivorcePropertyApplication
 } from "@/lib/divorce-property-validator";
@@ -36,6 +37,21 @@ type ReviewState = {
   values: Array<{ label: string; value: string }>;
 } | null;
 
+const COURT_LOOKUP_FIELD_NAMES = new Set([
+  "courtRegion",
+  "territorialBasis",
+  "minorWithPlaintiff",
+  "minorWithPlaintiffEvidence",
+  "territorialAddress",
+  "jurisdictionEvidence",
+  "courtSearchConfirmed",
+  "courtName",
+  "courtPrecinctNumber",
+  "courtAddress",
+  "courtWebsite",
+  "appealCourtName"
+]);
+
 export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: DivorcePropertyScenarioKey }) {
   const scenario = DIVORCE_PROPERTY_SCENARIOS[scenarioKey];
   const [values, setValues] = useState<DivorcePropertyValues>({});
@@ -50,30 +66,30 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
     : values;
   const courtLevel = resolveCourtLevel(scenarioKey, formValues);
   const previousCourtLevel = useRef(courtLevel);
-  const visibleFields = scenario.helperFields.filter((field) => isDivorcePropertyFieldVisible(scenarioKey, field.name, formValues));
+  const relevantFields = scenario.helperFields.filter((field) => isDivorcePropertyFieldVisible(scenarioKey, field.name, formValues));
+  const visibleFields = ["court-divorce", "property-claim"].includes(scenarioKey)
+    ? [
+        ...relevantFields.filter((field) => !COURT_LOOKUP_FIELD_NAMES.has(field.name)),
+        ...relevantFields.filter((field) => COURT_LOOKUP_FIELD_NAMES.has(field.name))
+      ]
+    : relevantFields;
 
   useEffect(() => {
     if (previousCourtLevel.current === courtLevel) return;
     previousCourtLevel.current = courtLevel;
-    setValues((current) => {
-      if (!current.courtSearchConfirmed && !current.courtName && !current.courtAddress && !current.courtWebsite) return current;
-      return {
-        ...current,
-        courtSearchConfirmed: "",
-        courtName: "",
-        courtPrecinctNumber: "",
-        courtAddress: "",
-        courtWebsite: "",
-        appealCourtName: ""
-      };
-    });
+    setValues((current) => resetCourtSelection(current));
     setReview(null);
     setDraftPreview("");
     setSupplementalDrafts([]);
   }, [courtLevel]);
 
   function setField(name: string, value: string) {
-    setValues((current) => ({ ...current, [name]: value }));
+    setValues((current) => {
+      const next = { ...current, [name]: value };
+      return ["courtRegion", "territorialBasis"].includes(name) && current[name] !== value
+        ? resetCourtSelection(next)
+        : next;
+    });
     setReview(null);
     setDraftPreview("");
     setSupplementalDrafts([]);
@@ -122,7 +138,7 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
 
   async function copyDraft() {
     if (!review || !draftPreview) return;
-    await navigator.clipboard.writeText(composeDivorcePropertyDocumentText(draftPreview, supplementalDrafts));
+    await navigator.clipboard.writeText(composeDivorcePropertyDocumentText(draftPreview, supplementalDrafts, review.decision.filingReady));
     setCopied(true);
   }
 
@@ -130,7 +146,7 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
     if (!review || !draftPreview) return;
     setDownloadError("");
     try {
-      const blob = await createDivorcePropertyDocxBlob(draftPreview, supplementalDrafts);
+      const blob = await createDivorcePropertyDocxBlob(draftPreview, supplementalDrafts, review.decision.filingReady);
       const url = URL.createObjectURL(blob);
       const anchor = window.document.createElement("a");
       anchor.href = url;
@@ -149,7 +165,7 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
       setDownloadError("Браузер заблокировал печатное окно. Разрешите всплывающие окна для этой страницы.");
       return;
     }
-    const printableText = composeDivorcePropertyDocumentText(draftPreview, supplementalDrafts);
+    const printableText = composeDivorcePropertyDocumentText(draftPreview, supplementalDrafts, review.decision.filingReady);
     const printTitle = review.decision.filingReady ? review.decision.documentTitle : `Черновик — ${review.decision.documentTitle}`;
     printWindow.document.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>${escapeHtml(printTitle)}</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;white-space:pre-wrap;line-height:1.5;color:#111}@media print{body{margin:20mm}}</style></head><body>${escapeHtml(printableText)}</body></html>`);
     printWindow.document.close();
@@ -288,7 +304,7 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
               <details key={draft.title} className="rounded-lg border border-line bg-white px-4 shadow-sm">
                 <summary className="flex min-h-11 cursor-pointer items-center py-3 font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">{draft.title}</summary>
                 <textarea aria-label={draft.title} className="mb-3 min-h-72 w-full rounded-md border border-line bg-zinc-50 p-4 font-mono text-sm leading-6 text-ink" value={draft.text} onChange={(event) => setSupplementalDraft(index, event.target.value)} />
-                <button type="button" onClick={() => navigator.clipboard.writeText(draft.text)} className="mb-4 inline-flex min-h-11 items-center rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/30">
+                <button type="button" onClick={() => navigator.clipboard.writeText(composeDivorcePropertyDocumentText(draft.text, [], review.decision.filingReady))} className="mb-4 inline-flex min-h-11 items-center rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/30">
                   Копировать документ
                 </button>
               </details>
@@ -326,10 +342,13 @@ function HelperField({ courtLevel, field, onChange, value }: {
       <label htmlFor={fieldId}>{label}{field.required ? <span className="text-rose-600"> *</span> : null}</label>
       {field.type === "court-region" ? (
         <>
-          <input id={fieldId} name={field.name} list="court-regions" required={field.required} value={value} placeholder="Начните вводить регион" onChange={(event) => onChange(field.name, event.target.value)} className="min-h-11 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-normal text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" />
-          <datalist id="court-regions">
-            {COURT_REGIONS.map((region) => <option key={region} value={region} />)}
-          </datalist>
+          <input id={fieldId} name={field.name} list={COURT_REGIONS.length ? "court-regions" : undefined} required={field.required} value={value} placeholder="Введите субъект Российской Федерации" onChange={(event) => onChange(field.name, event.target.value)} className="min-h-11 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-normal text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" />
+          {COURT_REGIONS.length ? (
+            <datalist id="court-regions">
+              {COURT_REGIONS.map((region) => <option key={region} value={region} />)}
+            </datalist>
+          ) : null}
+          <span className="text-xs font-normal leading-5 text-zinc-600">Регион вводится вручную и используется только для поиска на официальном судебном ресурсе.</span>
         </>
       ) : field.type === "textarea" ? (
         <textarea id={fieldId} name={field.name} required={field.required} rows={3} value={value} placeholder={field.placeholder} onChange={(event) => onChange(field.name, event.target.value)} className="min-h-24 w-full rounded-md border border-line bg-white px-3 py-3 text-base font-normal text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" />
@@ -355,6 +374,7 @@ function CourtLookupNotice({ courtLevel, region }: { courtLevel: CourtLevel; reg
       <a href={COURT_DIRECTORY.sourceUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">
         Найти суд по территориальной подсудности
       </a>
+      <p className="mt-2 font-semibold">Перенесённые реквизиты не считаются проверенными ПравоПоиском. Судебный документ останется черновиком.</p>
       <p className="mt-2 text-xs">Источник: {COURT_DIRECTORY.sourceName}. Проверено {COURT_DIRECTORY.lastVerifiedAt}.</p>
     </div>
   );
@@ -376,27 +396,32 @@ function PropertyAssetEditor({
   return (
     <section className="min-w-0 border-t border-line pt-5">
       <h3 className="text-xl font-semibold text-ink">Построчный расчёт имущества</h3>
-      <p className="mt-2 text-sm leading-6 text-zinc-700">Цена иска рассчитывается из стоимости долей, которые просит получить истец, и денежной компенсации в его пользу. Суд вправе уточнить цену при явном несоответствии стоимости.</p>
+      <p className="mt-2 text-sm leading-6 text-zinc-700">Автоматический расчёт выполняется только для однозначного требования об определении доли истца без компенсации. Передача целого объекта, исключение имущества и компенсации требуют ручной проверки цены иска.</p>
       <div className="mt-4 grid gap-4">
         {rows.map((row, index) => (
           <fieldset key={row.id} className="min-w-0 rounded-lg border border-line p-4">
             <legend className="px-2 font-semibold text-ink">Объект {index + 1}</legend>
             <div className="grid min-w-0 gap-4 md:grid-cols-2">
-              <AssetInput label="Вид и описание имущества" name="description" row={row} onChange={onChange} />
+              <AssetInput label="Вид имущества" name="assetType" row={row} onChange={onChange} />
+              <AssetInput label="Описание имущества" name="description" row={row} onChange={onChange} />
               <AssetInput label="Кадастровый номер, VIN или иной идентификатор" name="identifier" row={row} onChange={onChange} />
-              <AssetInput label="Дата и основание приобретения" name="acquisitionBasis" row={row} onChange={onChange} />
+              <AssetInput label="Дата приобретения" name="acquisitionDate" row={row} onChange={onChange} type="date" />
+              <AssetInput label="Основание приобретения" name="acquisitionBasis" row={row} onChange={onChange} />
               <AssetInput label="На кого оформлено имущество" name="registeredOwner" row={row} onChange={onChange} />
               <AssetInput label="Стоимость всего объекта, руб." name="fullValue" row={row} onChange={onChange} type="number" />
-              <AssetInput label="Источник стоимости (отчёт, выписка, договор или иной документ)" name="valuationSource" row={row} onChange={onChange} />
+              <AssetInput label="Дата определения стоимости" name="valuationDate" row={row} onChange={onChange} type="date" />
+              <AssetInput label="Источник стоимости" name="valuationSource" row={row} onChange={onChange} />
+              <AssetInput label="Документ, подтверждающий стоимость" name="valuationDocument" row={row} onChange={onChange} />
               <AssetInput label="Подтверждающие документы по объекту" name="supportingDocuments" row={row} onChange={onChange} />
-              <AssetInput label="Доля, требуемая истцом, %" name="claimedSharePercent" row={row} onChange={onChange} type="number" />
+              <AssetInput label="Доля, связанная с требованием, %" name="claimedSharePercent" row={row} onChange={onChange} type="number" />
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-ink">
                 Требуемый результат
                 <select required value={row.requestedResult} onChange={(event) => onChange(row.id, "requestedResult", event.target.value)} className="min-h-11 min-w-0 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-normal outline-none focus:border-trust focus:ring-2 focus:ring-trust/20">
                   <option value="">Выберите вариант</option>
-                  <option value="plaintiff">Передать объект истцу</option>
-                  <option value="shared">Определить долю истца</option>
-                  <option value="defendant">Передать объект ответчику</option>
+                  <option value="transfer-to-plaintiff">Передать весь объект истцу</option>
+                  <option value="transfer-to-defendant">Передать весь объект ответчику</option>
+                  <option value="determine-plaintiff-share">Определить долю истца</option>
+                  <option value="determine-defendant-share">Определить долю ответчика</option>
                   <option value="exclude">Исключить объект из общего имущества</option>
                 </select>
               </label>
@@ -423,7 +448,13 @@ function PropertyAssetEditor({
         <button type="button" onClick={onAdd} className="inline-flex min-h-11 items-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/30">
           Добавить объект
         </button>
-        <p className="text-sm font-semibold text-ink">Предварительная цена иска: {formatMoney(calculation.claimPrice)} руб.</p>
+        <p className="text-sm font-semibold text-ink">
+          {calculation.issues.length
+            ? "Цена иска не рассчитана: заполните сведения по каждому объекту."
+            : calculation.claimPrice === null
+              ? "Цена иска требует ручного определения."
+              : `Предварительная цена иска: ${formatMoney(calculation.claimPrice)} руб.`}
+        </p>
       </div>
     </section>
   );
@@ -440,7 +471,7 @@ function AssetInput({
   name: keyof PropertyAssetRow;
   onChange: (id: string, name: keyof PropertyAssetRow, value: string) => void;
   row: PropertyAssetRow;
-  type?: "text" | "number";
+  type?: "text" | "number" | "date";
 }) {
   return (
     <label className="grid min-w-0 gap-2 text-sm font-semibold text-ink">
@@ -453,12 +484,16 @@ function AssetInput({
 function createEmptyAssetRow(): PropertyAssetRow {
   return {
     id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `asset-${Date.now()}-${Math.random()}`,
+    assetType: "",
     description: "",
     identifier: "",
+    acquisitionDate: "",
     acquisitionBasis: "",
     registeredOwner: "",
     fullValue: "",
+    valuationDate: "",
     valuationSource: "",
+    valuationDocument: "",
     supportingDocuments: "",
     claimedSharePercent: "",
     requestedResult: "",

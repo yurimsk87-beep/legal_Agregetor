@@ -181,7 +181,7 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
     ],
     fee: `Базовая пошлина — ${DIVORCE_FEES.courtDivorceClaim} руб. за подачу иска. Льгота или изменение платежа по имущественному положению требуют подтверждённого основания. После вступления решения в силу государственная регистрация расторжения брака оплачивается отдельно — ${DIVORCE_FEES.registryMutual} руб. с каждого супруга.`,
     term: "При несогласии одного супруга суд вправе назначить срок для примирения в пределах, установленных статьёй 22 СК РФ. Точную продолжительность конкретного дела заранее определить нельзя.",
-    filing: "По общему правилу иск подают по месту жительства ответчика. Истец может подать по своему месту жительства, если при нём находится несовершеннолетний ребёнок или выезд к ответчику затруднителен по состоянию здоровья.",
+    filing: "По общему правилу иск подают по месту жительства ответчика. Истец может подать по своему месту жительства, если при нём находится несовершеннолетний или выезд к ответчику затруднителен по состоянию здоровья.",
     mainDocument: "Исковое заявление о расторжении брака.",
     documentSlug: "isk-o-rastorzhenii-braka",
     warning: "Если есть спор о детях или дополнительные требования, подсудность и содержание иска меняются. Помощник остановит автоматическое формирование и сохранит собранные сведения для ручной проверки.",
@@ -190,21 +190,23 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
       { name: "courtRegion", label: "Регион суда", type: "court-region", required: true },
       { name: "territorialBasis", label: "Основание территориальной подсудности", type: "select", required: true, options: [
         { label: "Место жительства ответчика — статья 28 ГПК РФ", value: "defendant" },
-        { label: "При истце находится несовершеннолетний ребёнок — часть 4 статьи 29 ГПК РФ", value: "plaintiff-child" },
+        { label: "При истце находится несовершеннолетний — часть 4 статьи 29 ГПК РФ", value: "plaintiff-child" },
         { label: "Выезд к ответчику затруднителен по состоянию здоровья — часть 4 статьи 29 ГПК РФ", value: "plaintiff-health" },
         { label: "Последнее известное место жительства ответчика — часть 1 статьи 29 ГПК РФ", value: "last-known" },
         { label: "Место нахождения имущества ответчика при неизвестном адресе — часть 1 статьи 29 ГПК РФ", value: "defendant-property" }
       ] },
+      { name: "minorWithPlaintiff", label: "При истце находится несовершеннолетний?", type: "select", required: true, options: yesNoUnsure },
+      { name: "minorWithPlaintiffEvidence", label: "Сведения о несовершеннолетнем и документ либо обстоятельство, подтверждающее его нахождение при истце", type: "textarea", required: true },
       { name: "territorialAddress", label: "Полный адрес, по которому определяется территория суда", type: "textarea", required: true },
       { name: "jurisdictionEvidence", label: "Документ или обстоятельство, подтверждающее выбранное основание подсудности", type: "textarea" },
-      { name: "courtSearchConfirmed", label: "Суд или участок проверен по адресу в официальном сервисе ГАС «Правосудие»?", type: "select", required: true, options: [
-        { label: "Да, реквизиты найдены в официальном сервисе", value: "yes" },
-        { label: "Нет, участок автоматически не определён", value: "no" }
+      { name: "courtSearchConfirmed", label: "Вы перенесли реквизиты суда из ГАС «Правосудие»?", type: "select", required: true, options: [
+        { label: "Да, перенёс реквизиты самостоятельно", value: "yes" },
+        { label: "Нет, суд ещё не найден", value: "no" }
       ] },
-      { name: "courtName", label: "Официальное наименование найденного суда или участка", required: true },
+      { name: "courtName", label: "Наименование суда или участка, введённое пользователем", required: true },
       { name: "courtPrecinctNumber", label: "Номер мирового судебного участка", required: true },
       { name: "courtAddress", label: "Официальный адрес суда или участка", type: "textarea", required: true },
-      { name: "courtWebsite", label: "Официальная ссылка на страницу суда или участка", required: true, placeholder: "https://...sudrf.ru/" },
+      { name: "courtWebsite", label: "Ссылка, с которой перенесены реквизиты", required: true, placeholder: "https://sudrf.ru/..." },
       { name: "appealCourtName", label: "Районный суд, рассматривающий жалобы на решения мирового судьи", required: true },
       { name: "plaintiffData", label: "ФИО, дата и место рождения, адрес, контакты и один идентификатор истца", type: "textarea", required: true },
       { name: "defendantData", label: "ФИО, известные дата и место рождения, адрес, место работы и идентификатор ответчика; неизвестные сведения так и отметьте", type: "textarea", required: true },
@@ -339,20 +341,23 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
       { name: "courtRegion", label: "Регион суда", type: "court-region", required: true },
       { name: "territorialBasis", label: "Основание территориальной подсудности", type: "select", required: true, options: [
         { label: "Место жительства ответчика — статья 28 ГПК РФ", value: "defendant" },
+        { label: "Место жительства истца при несовершеннолетнем — только для объединённого иска и после ручной проверки части 4 статьи 29 ГПК РФ", value: "plaintiff-child" },
         { label: "Последнее известное место жительства ответчика — часть 1 статьи 29 ГПК РФ", value: "last-known" },
         { label: "Место нахождения имущества ответчика при неизвестном адресе — часть 1 статьи 29 ГПК РФ", value: "defendant-property" },
         { label: "Место недвижимости — только для самостоятельного требования, подпадающего под статью 30 ГПК РФ", value: "real-estate-exclusive" }
       ] },
+      { name: "minorWithPlaintiff", label: "При истце находится несовершеннолетний?", type: "select", required: true, options: yesNoUnsure },
+      { name: "minorWithPlaintiffEvidence", label: "Сведения о несовершеннолетнем и документ либо обстоятельство, подтверждающее его нахождение при истце", type: "textarea", required: true },
       { name: "territorialAddress", label: "Полный адрес, по которому определяется территория суда", type: "textarea", required: true },
       { name: "jurisdictionEvidence", label: "Документ или обстоятельство, подтверждающее выбранное основание подсудности", type: "textarea" },
-      { name: "courtSearchConfirmed", label: "Суд или участок проверен по адресу в официальном сервисе ГАС «Правосудие»?", type: "select", required: true, options: [
-        { label: "Да, реквизиты найдены в официальном сервисе", value: "yes" },
-        { label: "Нет, участок автоматически не определён", value: "no" }
+      { name: "courtSearchConfirmed", label: "Вы перенесли реквизиты суда из ГАС «Правосудие»?", type: "select", required: true, options: [
+        { label: "Да, перенёс реквизиты самостоятельно", value: "yes" },
+        { label: "Нет, суд ещё не найден", value: "no" }
       ] },
-      { name: "courtName", label: "Официальное наименование найденного суда или участка", required: true },
+      { name: "courtName", label: "Наименование суда или участка, введённое пользователем", required: true },
       { name: "courtPrecinctNumber", label: "Номер мирового судебного участка", required: true },
       { name: "courtAddress", label: "Официальный адрес суда или участка", type: "textarea", required: true },
-      { name: "courtWebsite", label: "Официальная ссылка на страницу суда или участка", required: true, placeholder: "https://...sudrf.ru/" },
+      { name: "courtWebsite", label: "Ссылка, с которой перенесены реквизиты", required: true, placeholder: "https://sudrf.ru/..." },
       { name: "appealCourtName", label: "Районный суд, рассматривающий жалобы на решения мирового судьи", required: true },
       { name: "plaintiffData", label: "ФИО, дата и место рождения, адрес, контакты и один идентификатор истца", type: "textarea", required: true },
       { name: "defendantData", label: "ФИО, известные дата и место рождения, адрес, место работы и идентификатор ответчика; неизвестные сведения так и отметьте", type: "textarea", required: true },

@@ -1,23 +1,18 @@
-import zagsDirectoryJson from "@/data/zags-offices.json";
 import { DIVORCE_PROPERTY_LEGAL_REVIEW } from "@/data/divorce-property-legal-review";
 
-type RegionDirectory = {
-  regions: Record<string, string[]>;
-};
-
-const regionDirectory = zagsDirectoryJson as RegionDirectory;
-
-export const COURT_REGIONS = Object.keys(regionDirectory.regions).sort((left, right) => left.localeCompare(right, "ru"));
+// The project has no verified court-region directory. Region stays a manual
+// search parameter until an official machine-readable source is integrated.
+export const COURT_REGIONS: string[] = [];
 
 export const COURT_DIRECTORY = {
   sourceName: DIVORCE_PROPERTY_LEGAL_REVIEW.sources.courtSearch.title,
   sourceUrl: DIVORCE_PROPERTY_LEGAL_REVIEW.sources.courtSearch.href,
   lastVerifiedAt: DIVORCE_PROPERTY_LEGAL_REVIEW.reviewedAt,
   isComplete: false,
-  notice: "Список судебных участков не хранится в сервисе. Найдите участок по адресу в ГАС «Правосудие» и перенесите его официальные реквизиты без сокращений.",
+  machineVerificationAvailable: false,
+  notice: "ПравоПоиск не определяет суд по адресу автоматически. Найдите суд в ГАС «Правосудие» и перенесите реквизиты без сокращений.",
   confirmedAutomaticRegions: [] as string[],
-  regionalStatus: "Региональные границы участков автоматически не подтверждены ни для одного региона. Выбор региона используется только для поиска; участок определяется по полному адресу на официальном ресурсе.",
-  supportedOfficialDomains: ["sudrf.ru", "msudrf.ru", "mos-sud.ru"]
+  regionalStatus: "Автоматически подтверждённых регионов нет. Регион вводится только как параметр поиска, а перенесённые реквизиты считаются введёнными пользователем и не проверенными ПравоПоиском."
 } as const;
 
 export function getCourtRegionalStatus(region: string | undefined) {

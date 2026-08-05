@@ -4,6 +4,7 @@ import {
   calculateNotaryAgreementTariff,
   calculatePropertyAssets,
   calculatePropertyClaimDuty,
+  resetCourtSelection,
   resolveCourtLevel,
   validateDivorcePropertyApplication
 } from "@/lib/divorce-property-validator";
@@ -14,26 +15,26 @@ import {
 } from "@/lib/divorce-property-docx";
 import {
   DIVORCE_PROPERTY_LEGAL_RULES,
-  isDivorcePropertyLegalReviewCurrent,
+  isDivorcePropertyLegalReviewDue,
   isDivorcePropertyLegalReviewFullyPrimaryVerified
 } from "@/data/divorce-property-legal-review";
-import { COURT_DIRECTORY } from "@/data/court-directory";
+import { COURT_DIRECTORY, COURT_REGIONS } from "@/data/court-directory";
 
 const magistrateCourtBase = {
   courtRegion: "Москва",
   territorialBasis: "defendant",
   territorialAddress: "г. Москва, ул. Тестовая, д. 1",
   courtSearchConfirmed: "yes",
-  courtName: "Судебный участок мирового судьи N 1",
+  courtName: "Судебный участок мирового судьи N 1 Центрального района",
   courtPrecinctNumber: "1",
   courtAddress: "г. Москва, ул. Судебная, д. 1",
-  courtWebsite: "https://example.sudrf.ru/",
-  appealCourtName: "Тестовый районный суд города Москвы"
+  courtWebsite: "https://sudrf.ru/index.php?id=300",
+  appealCourtName: "Центральный районный суд"
 };
 
 const districtCourtBase = {
   ...magistrateCourtBase,
-  courtName: "Тестовый районный суд города Москвы",
+  courtName: "Центральный районный суд",
   courtPrecinctNumber: "",
   appealCourtName: ""
 };
@@ -41,15 +42,19 @@ const districtCourtBase = {
 function propertyAssetRows(fullValue = "1000000", claimedSharePercent = "100") {
   return JSON.stringify([{
     id: "asset-1",
+    assetType: "Недвижимость",
     description: "Квартира",
     identifier: "кадастровый номер 77:01:0000000:1",
-    acquisitionBasis: "договор купли-продажи в период брака",
+    acquisitionDate: "2020-01-15",
+    acquisitionBasis: "договор купли-продажи",
     registeredOwner: "Ответчик",
     fullValue,
-    valuationSource: "Отчёт оценщика от 01.08.2026",
-    supportingDocuments: "Договор купли-продажи, выписка ЕГРН, отчёт оценщика",
+    valuationDate: "2026-08-01",
+    valuationSource: "Независимая оценка",
+    valuationDocument: "Отчёт оценщика от 01.08.2026",
+    supportingDocuments: "Договор купли-продажи, выписка ЕГРН",
     claimedSharePercent,
-    requestedResult: "plaintiff",
+    requestedResult: "determine-plaintiff-share",
     compensationDirection: "none",
     compensationAmount: ""
   }]);
@@ -170,6 +175,8 @@ for (const consentState of ["objects", "evades", "agrees"]) {
   const result = validateDivorcePropertyApplication("court-divorce", { ...courtBase, consentState });
   assert.equal(result.allowed, true, consentState);
   assert.equal(result.feeAmount, 5000);
+  assert.equal(result.filingReady, false, "ручной перенос реквизитов суда не подтверждает готовность");
+  assert.equal(result.draftText.startsWith("ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"), true);
   assert.equal(result.draftText.includes(`Позиция ответчика: ${consentState}`), false, consentState);
 }
 
@@ -234,6 +241,8 @@ const agreementBase = {
   bankruptcy: "no"
 };
 assert.equal(validateDivorcePropertyApplication("property-agreement", agreementBase).allowed, true);
+assert.equal(validateDivorcePropertyApplication("property-agreement", agreementBase).filingReady, false);
+assert.equal(validateDivorcePropertyApplication("property-agreement", agreementBase).draftText.startsWith("ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"), true);
 assert.equal(validateDivorcePropertyApplication("property-agreement", { ...agreementBase, divisionTiming: "during-marriage" }).allowed, true);
 assert.equal(validateDivorcePropertyApplication("property-agreement", { ...agreementBase, mutualAgreement: "no" }).allowed, false);
 assert.equal(validateDivorcePropertyApplication("property-agreement", { ...agreementBase, mortgage: "yes" }).requiresLegalReview, true);
@@ -363,36 +372,64 @@ const propertyCalculation = calculatePropertyAssets([
   JSON.parse(propertyAssetRows("1000000", "50"))[0],
   {
     id: "asset-2",
+    assetType: "Транспорт",
     description: "Автомобиль",
     identifier: "VIN X0000000000000000",
+    acquisitionDate: "2021-02-10",
     acquisitionBasis: "договор купли-продажи в период брака",
     registeredOwner: "Истец",
     fullValue: "600000",
-    valuationSource: "Отчёт оценщика от 02.08.2026",
+    valuationDate: "2026-08-02",
+    valuationSource: "Независимая оценка",
+    valuationDocument: "Отчёт оценщика от 02.08.2026",
     supportingDocuments: "ПТС, договор купли-продажи, отчёт оценщика",
     claimedSharePercent: "50",
-    requestedResult: "shared",
-    compensationDirection: "to-plaintiff",
-    compensationAmount: "300000"
+    requestedResult: "determine-plaintiff-share",
+    compensationDirection: "none",
+    compensationAmount: ""
   }
 ]);
 assert.equal(propertyCalculation.issues.length, 0);
-assert.equal(propertyCalculation.claimPrice, 1100000);
+assert.equal(propertyCalculation.claimPrice, 800000);
+assert.equal(propertyCalculation.priceConfirmed, true);
 assert.equal(propertyCalculation.assetsText.includes("кадастровый номер"), true);
 assert.equal(propertyCalculation.assetsText.includes("Отчёт оценщика"), true);
-assert.equal(propertyCalculation.supportingDocuments.length, 2);
-assert.equal(propertyCalculation.requestedDivisionText.includes("300 000 руб."), true);
+assert.equal(propertyCalculation.supportingDocuments.length, 4);
+assert.equal(propertyCalculation.requestedDivisionText.includes("долю 50%"), true);
 assert.equal(calculatePropertyAssets([{
   ...JSON.parse(propertyAssetRows())[0],
   valuationSource: "",
   supportingDocuments: ""
 }]).issues.some(({ message }) => message.includes("источник стоимости")), true);
 assert.equal(calculatePropertyAssets([{
-  ...JSON.parse(propertyAssetRows("100000", "0"))[0],
-  requestedResult: "defendant",
+  ...JSON.parse(propertyAssetRows("100000", "100"))[0],
+  requestedResult: "transfer-to-defendant",
   compensationDirection: "to-plaintiff",
   compensationAmount: "150000"
 }]).issues.some(({ message }) => message.includes("не может превышать")), true);
+assert.equal(calculatePropertyAssets([{
+  ...JSON.parse(propertyAssetRows("100000", "50"))[0],
+  requestedResult: "transfer-to-plaintiff"
+}]).issues.some(({ message }) => message.includes("целиком требует значения 100%")), true);
+assert.equal(calculatePropertyAssets([{
+  ...JSON.parse(propertyAssetRows("100000", "50"))[0],
+  requestedResult: "determine-plaintiff-share"
+}]).requestedDivisionText.includes("передать весь объект"), false);
+assert.equal(calculatePropertyAssets([{
+  ...JSON.parse(propertyAssetRows("100000", "50"))[0],
+  requestedResult: "determine-plaintiff-share",
+  compensationDirection: "to-plaintiff",
+  compensationAmount: "50000"
+}]).issues.some(({ message }) => message.includes("не должен автоматически сочетаться")), true);
+const wholeObjectTransfer = calculatePropertyAssets([{
+  ...JSON.parse(propertyAssetRows("100000", "100"))[0],
+  requestedResult: "transfer-to-plaintiff",
+  compensationDirection: "from-plaintiff",
+  compensationAmount: "50000"
+}]);
+assert.equal(wholeObjectTransfer.issues.length, 0);
+assert.equal(wholeObjectTransfer.priceConfirmed, false);
+assert.equal(wholeObjectTransfer.claimPrice, null);
 assert.equal(validateDivorcePropertyApplication("property-claim", { ...claimBase, assetRows: "[null]" }).allowed, false);
 
 assert.equal(resolveCourtLevel("property-claim", { ...claimBase, assetRows: propertyAssetRows("50000") }), "magistrate");
@@ -415,16 +452,22 @@ const plaintiffAddressWithoutBasis = validateDivorcePropertyApplication("court-d
   commonMinorChildren: "no",
   childrenData: "",
   territorialBasis: "plaintiff-child",
-  jurisdictionEvidence: "Ребёнок проживает с истцом"
+  minorWithPlaintiff: "no",
+  minorWithPlaintiffEvidence: ""
 });
 assert.equal(plaintiffAddressWithoutBasis.allowed, false);
 
 const plaintiffAddressWithChild = validateDivorcePropertyApplication("court-divorce", {
   ...courtBase,
+  commonMinorChildren: "no",
+  childrenData: "",
+  consentState: "objects",
   territorialBasis: "plaintiff-child",
-  jurisdictionEvidence: "Документ о проживании несовершеннолетнего ребёнка с истцом"
+  minorWithPlaintiff: "yes",
+  minorWithPlaintiffEvidence: "Несовершеннолетний племянник находится при истце; обстоятельство и подтверждение описаны заявителем"
 });
 assert.equal(plaintiffAddressWithChild.allowed, true);
+assert.equal(plaintiffAddressWithChild.filingReady, false);
 
 const lastKnownAddress = validateDivorcePropertyApplication("court-divorce", {
   ...courtBase,
@@ -445,9 +488,40 @@ const unsupportedCourtUrl = validateDivorcePropertyApplication("court-divorce", 
   ...courtBase,
   courtWebsite: "https://example.com/court"
 });
-assert.equal(unsupportedCourtUrl.allowed, true);
+assert.equal(unsupportedCourtUrl.allowed, false);
 assert.equal(unsupportedCourtUrl.filingReady, false);
-assert.equal(unsupportedCourtUrl.notices.some((notice) => notice.includes("проверить вручную")), true);
+assert.equal(unsupportedCourtUrl.issues.some(({ field }) => field === "courtWebsite"), true);
+
+const fakeSudrfSubdomain = validateDivorcePropertyApplication("court-divorce", {
+  ...courtBase,
+  courtWebsite: "https://example.sudrf.ru/"
+});
+assert.equal(fakeSudrfSubdomain.allowed, false);
+assert.equal(fakeSudrfSubdomain.filingReady, false);
+assert.equal(fakeSudrfSubdomain.issues.some(({ field }) => field === "courtWebsite"), true);
+
+const fakeCourtName = validateDivorcePropertyApplication("court-divorce", {
+  ...courtBase,
+  courtName: "Тестовый судебный участок N 1"
+});
+assert.equal(fakeCourtName.allowed, false);
+assert.equal(fakeCourtName.filingReady, false);
+
+const incompleteCourtAddress = validateDivorcePropertyApplication("court-divorce", {
+  ...courtBase,
+  territorialAddress: ""
+});
+assert.equal(incompleteCourtAddress.allowed, false);
+assert.equal(incompleteCourtAddress.issues.some(({ field }) => field === "territorialAddress"), true);
+
+const mismatchedManualCourt = validateDivorcePropertyApplication("court-divorce", {
+  ...courtBase,
+  courtRegion: "Московская область",
+  courtAddress: "г. Москва, ул. Судебная, д. 1"
+});
+assert.equal(mismatchedManualCourt.allowed, true);
+assert.equal(mismatchedManualCourt.filingReady, false);
+assert.equal(mismatchedManualCourt.requiresLegalReview, true);
 
 const realEstateJurisdiction = validateDivorcePropertyApplication("property-claim", {
   ...claimBase,
@@ -456,37 +530,49 @@ const realEstateJurisdiction = validateDivorcePropertyApplication("property-clai
 });
 assert.equal(realEstateJurisdiction.requiresLegalReview, true);
 
-assert.equal(standardClaim.filingReady, true);
+assert.equal(standardClaim.filingReady, false);
+assert.equal(standardClaim.draftText.startsWith("ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"), true);
 const complexDraft = validateDivorcePropertyApplication("property-claim", { ...claimBase, mortgage: "yes" });
 assert.equal(complexDraft.allowed, true);
 assert.equal(complexDraft.requiresLegalReview, true);
 assert.equal(complexDraft.filingReady, false);
 assert.equal(complexDraft.draftText.startsWith("ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"), true);
 assert.equal(complexDraft.reviewReasons.some((reason) => reason.includes("Ипотека")), true);
-assert.equal(standardClaim.draftText.includes("Тестовый районный суд города Москвы"), true);
+assert.equal(standardClaim.draftText.includes("Центральный районный суд"), true);
 assert.equal(standardClaim.draftText.includes("ул. Судебная"), true);
+
+const resetAfterRegionChange = resetCourtSelection({ ...courtBase, courtRegion: "Москва" });
+assert.equal(resetAfterRegionChange.courtName, "");
+assert.equal(resetAfterRegionChange.courtSearchConfirmed, "");
+assert.equal(resetAfterRegionChange.courtRegion, "Москва");
+const resetAfterCourtLevelChange = resetCourtSelection({ ...courtBase });
+assert.equal(resetAfterCourtLevelChange.courtPrecinctNumber, "");
+assert.equal(resetAfterCourtLevelChange.appealCourtName, "");
 
 assert.equal(protectedClaim.notices.some((notice) => notice.includes("10 000")), true);
 assert.equal(getDivorcePropertyDocxFilename("isk-o-razdele", false), "CHERNOVIK-isk-o-razdele.docx");
 assert.equal(getDivorcePropertyDocxFilename("isk-o-razdele", true), "isk-o-razdele.docx");
 assert.equal(
-  composeDivorcePropertyDocumentText("ОСНОВНОЙ ДОКУМЕНТ", [{ title: "Ходатайство", text: "ОТРЕДАКТИРОВАННЫЙ ТЕКСТ" }]).includes("ОТРЕДАКТИРОВАННЫЙ ТЕКСТ"),
+  composeDivorcePropertyDocumentText("ОСНОВНОЙ ДОКУМЕНТ", [{ title: "Ходатайство", text: "ОТРЕДАКТИРОВАННЫЙ ТЕКСТ" }], false).includes("ОТРЕДАКТИРОВАННЫЙ ТЕКСТ"),
   true
 );
+assert.equal(composeDivorcePropertyDocumentText("Текст без предупреждения", [], false).startsWith("ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"), true);
 assert.deepEqual(COURT_DIRECTORY.confirmedAutomaticRegions, []);
-assert.equal(DIVORCE_PROPERTY_LEGAL_RULES.every((rule) => Boolean(rule.statement && rule.norm && rule.officialUrl && rule.reviewedAt && rule.edition && rule.scenarios.length && rule.region && rule.status)), true);
+assert.deepEqual(COURT_REGIONS, []);
+assert.equal(COURT_DIRECTORY.machineVerificationAvailable, false);
+assert.equal(DIVORCE_PROPERTY_LEGAL_RULES.every((rule) => Boolean(rule.statement && rule.norm && rule.officialUrl && rule.reviewedAt && rule.edition && rule.scenarios.length && rule.region && rule.status && rule.automation && rule.fallbackBehavior)), true);
 assert.equal(isDivorcePropertyLegalReviewFullyPrimaryVerified(), false);
 
-assert.equal(isDivorcePropertyLegalReviewCurrent(new Date("2026-08-05T00:00:00Z")), true);
-assert.equal(isDivorcePropertyLegalReviewCurrent(new Date("2027-08-04T00:00:00Z")), false);
-assert.equal(isDivorcePropertyLegalReviewCurrent(), true, "юридическая сверка маршрута устарела и должна быть повторена");
+assert.equal(isDivorcePropertyLegalReviewDue(new Date("2026-08-05T00:00:00Z")), false);
+assert.equal(isDivorcePropertyLegalReviewDue(new Date("2026-11-05T00:00:00Z")), true);
 
-createDivorcePropertyDocxBlob("ОСНОВНОЙ ДОКУМЕНТ", [{ title: "Ходатайство", text: "ОТРЕДАКТИРОВАННЫЙ ТЕКСТ" }])
+createDivorcePropertyDocxBlob("ОСНОВНОЙ ДОКУМЕНТ", [{ title: "Ходатайство", text: "ОТРЕДАКТИРОВАННЫЙ ТЕКСТ" }], false)
   .then(async (blob) => Buffer.from(await blob.arrayBuffer()))
   .then((buffer) => {
     const xml = extractZipEntry(buffer, "word/document.xml");
     assert.equal(xml.includes("ОСНОВНОЙ ДОКУМЕНТ"), true);
     assert.equal(xml.includes("ОТРЕДАКТИРОВАННЫЙ ТЕКСТ"), true);
+    assert.equal(xml.includes("ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"), true);
     console.log("divorce-property validation tests passed");
   })
   .catch((error: unknown) => {

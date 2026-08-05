@@ -171,6 +171,7 @@ function DivorcePropertyDocumentPage({
               <li key={rule.id} className="border-l-2 border-line pl-3">
                 <p className="font-medium text-ink">{rule.statement}</p>
                 <p className="text-zinc-600">{rule.norm}. Статус: {legalReviewStatusLabel(rule.status)}.</p>
+                <p className="text-zinc-600">Автоматизация: {legalAutomationLabel(rule.automation)}. {rule.fallbackBehavior}</p>
                 <a href={rule.officialUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Официальный источник</a>
                 {rule.supplementaryUrl ? <a href={rule.supplementaryUrl} target="_blank" rel="noreferrer" className="ml-4 inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Контрольная редакция</a> : null}
               </li>
@@ -207,6 +208,12 @@ function legalReviewStatusLabel(status: "verified-primary" | "primary-unavailabl
   if (status === "verified-primary") return "первичный официальный источник проверен";
   if (status === "manual-regional-check") return "региональные сведения требуют ручной проверки";
   return "первичный источник временно недоступен, выполнена контрольная сверка";
+}
+
+function legalAutomationLabel(automation: "allowed" | "manual-only" | "not-applicable") {
+  if (automation === "allowed") return "допустима только в пределах описанного правила";
+  if (automation === "manual-only") return "требуется ручная проверка";
+  return "не применяется";
 }
 
 function ZagsScenarioDetails({ scenario }: { scenario: ZagsScenario }) {

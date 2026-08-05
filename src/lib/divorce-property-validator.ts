@@ -6,15 +6,25 @@ export type CourtLevel = "magistrate" | "district" | "manual-review";
 
 export type PropertyAssetRow = {
   id: string;
+  assetType: string;
   description: string;
   identifier: string;
+  acquisitionDate: string;
   acquisitionBasis: string;
   registeredOwner: string;
   fullValue: string;
+  valuationDate: string;
   valuationSource: string;
+  valuationDocument: string;
   supportingDocuments: string;
   claimedSharePercent: string;
-  requestedResult: "plaintiff" | "shared" | "defendant" | "exclude" | "";
+  requestedResult:
+    | "transfer-to-plaintiff"
+    | "transfer-to-defendant"
+    | "determine-plaintiff-share"
+    | "determine-defendant-share"
+    | "exclude"
+    | "";
   compensationDirection: "none" | "to-plaintiff" | "from-plaintiff" | "";
   compensationAmount: string;
 };
@@ -78,7 +88,8 @@ export function calculatePropertyAssets(rows: PropertyAssetRow[]) {
   const assetLines: string[] = [];
   const requestLines: string[] = [];
   const supportingDocuments: string[] = [];
-  let claimPrice = 0;
+  const priceReviewReasons: string[] = [];
+  let calculatedClaimPrice = 0;
 
   if (!rows.length) {
     issues.push({ field: "assetRows", message: "Добавьте хотя бы один объект спорного имущества." });
@@ -91,12 +102,16 @@ export function calculatePropertyAssets(rows: PropertyAssetRow[]) {
     const sharePercent = Number(row.claimedSharePercent.replace(",", "."));
     const compensation = row.compensationDirection === "none" ? 0 : parseMoney(row.compensationAmount);
 
-    if (!row.description.trim()) issues.push({ field, message: `Объект ${number}: укажите вид и описание имущества.` });
+    if (!row.assetType.trim()) issues.push({ field, message: `Объект ${number}: укажите вид имущества.` });
+    if (!row.description.trim()) issues.push({ field, message: `Объект ${number}: укажите описание имущества.` });
     if (!row.identifier.trim()) issues.push({ field, message: `Объект ${number}: укажите кадастровый номер, VIN или иной идентификатор.` });
-    if (!row.acquisitionBasis.trim()) issues.push({ field, message: `Объект ${number}: укажите дату и основание приобретения.` });
+    if (!row.acquisitionDate.trim()) issues.push({ field, message: `Объект ${number}: укажите дату приобретения.` });
+    if (!row.acquisitionBasis.trim()) issues.push({ field, message: `Объект ${number}: укажите основание приобретения.` });
     if (!row.registeredOwner.trim()) issues.push({ field, message: `Объект ${number}: укажите, на кого оформлено имущество.` });
     if (fullValue === null) issues.push({ field, message: `Объект ${number}: укажите положительную стоимость всего объекта.` });
-    if (!row.valuationSource.trim()) issues.push({ field, message: `Объект ${number}: укажите документ или иной источник стоимости.` });
+    if (!row.valuationDate.trim()) issues.push({ field, message: `Объект ${number}: укажите дату определения стоимости.` });
+    if (!row.valuationSource.trim()) issues.push({ field, message: `Объект ${number}: укажите источник стоимости.` });
+    if (!row.valuationDocument.trim()) issues.push({ field, message: `Объект ${number}: укажите документ, подтверждающий стоимость.` });
     if (!row.supportingDocuments.trim()) issues.push({ field, message: `Объект ${number}: перечислите подтверждающие документы.` });
     if (!Number.isFinite(sharePercent) || sharePercent < 0 || sharePercent > 100) {
       issues.push({ field, message: `Объект ${number}: доля истца должна быть от 0 до 100 процентов.` });
@@ -109,37 +124,60 @@ export function calculatePropertyAssets(rows: PropertyAssetRow[]) {
     if (fullValue !== null && compensation !== null && compensation > fullValue) {
       issues.push({ field, message: `Объект ${number}: компенсация не может превышать указанную стоимость объекта без отдельного обоснования и ручной проверки.` });
     }
-    if (["plaintiff", "shared"].includes(row.requestedResult) && (!Number.isFinite(sharePercent) || sharePercent <= 0)) {
-      issues.push({ field, message: `Объект ${number}: для передачи истцу или определения доли укажите положительную долю.` });
+    const isShareRequest = ["determine-plaintiff-share", "determine-defendant-share"].includes(row.requestedResult);
+    const isWholeObjectRequest = ["transfer-to-plaintiff", "transfer-to-defendant"].includes(row.requestedResult);
+    if ((isShareRequest || isWholeObjectRequest) && (!Number.isFinite(sharePercent) || sharePercent <= 0)) {
+      issues.push({ field, message: `Объект ${number}: укажите положительную долю, связанную с требованием.` });
     }
-    if (["defendant", "exclude"].includes(row.requestedResult) && sharePercent !== 0) {
-      issues.push({ field, message: `Объект ${number}: при передаче ответчику или исключении из раздела доля, требуемая истцом, должна быть 0%.` });
+    if (isWholeObjectRequest && sharePercent !== 100) {
+      issues.push({ field, message: `Объект ${number}: передача объекта целиком требует значения 100%, а не ${Number.isFinite(sharePercent) ? sharePercent : "неуказанной доли"}.` });
+    }
+    if (row.requestedResult === "exclude" && sharePercent !== 0) {
+      issues.push({ field, message: `Объект ${number}: исключение имущества не должно сочетаться с требованием о доле.` });
+    }
+    if (["determine-plaintiff-share", "determine-defendant-share", "exclude"].includes(row.requestedResult)
+      && row.compensationDirection !== "none") {
+      issues.push({ field, message: `Объект ${number}: выбранный результат не должен автоматически сочетаться с денежной компенсацией.` });
+    }
+    if (row.requestedResult === "transfer-to-plaintiff" && row.compensationDirection === "to-plaintiff") {
+      issues.push({ field, message: `Объект ${number}: при передаче объекта истцу нельзя одновременно требовать компенсацию в пользу истца.` });
+    }
+    if (row.requestedResult === "transfer-to-defendant" && row.compensationDirection === "from-plaintiff") {
+      issues.push({ field, message: `Объект ${number}: при передаче объекта ответчику нельзя одновременно возлагать компенсацию на истца.` });
     }
 
     const claimedPropertyValue = fullValue !== null && Number.isFinite(sharePercent)
       ? Math.round(fullValue * sharePercent / 100)
       : 0;
-    const compensationToPlaintiff = row.compensationDirection === "to-plaintiff" && compensation !== null ? compensation : 0;
-    claimPrice += claimedPropertyValue + compensationToPlaintiff;
+    if (row.requestedResult === "determine-plaintiff-share" && row.compensationDirection === "none") {
+      calculatedClaimPrice += claimedPropertyValue;
+    } else if (row.requestedResult) {
+      priceReviewReasons.push(`Объект ${number}: цена требования «${requestedResultLabel(row.requestedResult)}» автоматически не подтверждается.`);
+    }
 
     assetLines.push(
-      `${number}. ${row.description || "Объект не указан"}; идентификатор: ${row.identifier || "не указан"}; `
-      + `приобретение: ${row.acquisitionBasis || "не указано"}; оформлено на: ${row.registeredOwner || "не указано"}; `
+      `${number}. ${row.assetType || "Вид не указан"}: ${row.description || "описание не указано"}; идентификатор: ${row.identifier || "не указан"}; `
+      + `приобретение: ${row.acquisitionDate || "дата не указана"}, ${row.acquisitionBasis || "основание не указано"}; оформлено на: ${row.registeredOwner || "не указано"}; `
       + `стоимость всего объекта: ${fullValue === null ? "не определена" : `${formatRubles(fullValue)} руб.`}; `
-      + `источник стоимости: ${row.valuationSource || "не указан"}; `
+      + `стоимость определена на: ${row.valuationDate || "дата не указана"}; источник стоимости: ${row.valuationSource || "не указан"}; `
+      + `документ о стоимости: ${row.valuationDocument || "не указан"}; `
       + `подтверждающие документы: ${row.supportingDocuments || "не указаны"}`
     );
-    if (row.supportingDocuments.trim()) supportingDocuments.push(`По объекту «${row.description.trim() || number}»: ${row.supportingDocuments.trim()}.`);
+    if (row.valuationDocument.trim()) supportingDocuments.push(`Документ о стоимости объекта «${row.description.trim() || number}»: ${row.valuationDocument.trim()}.`);
+    if (row.supportingDocuments.trim()) supportingDocuments.push(`Иные документы по объекту «${row.description.trim() || number}»: ${row.supportingDocuments.trim()}.`);
     requestLines.push(buildAssetRequestLine(row, number, claimedPropertyValue, compensation ?? 0));
   });
 
-  if (rows.length && claimPrice <= 0) {
+  const priceConfirmed = priceReviewReasons.length === 0;
+  if (rows.length && priceConfirmed && calculatedClaimPrice <= 0) {
     issues.push({ field: "assetRows", message: "Расчётная цена иска равна нулю. Проверьте требуемые доли и компенсацию в пользу истца." });
   }
 
   return {
     issues,
-    claimPrice: Math.round(claimPrice),
+    claimPrice: priceConfirmed ? Math.round(calculatedClaimPrice) : null,
+    priceConfirmed,
+    priceReviewReasons,
     assetsText: assetLines.join("\n"),
     requestedDivisionText: requestLines.join("\n"),
     supportingDocuments
@@ -153,8 +191,8 @@ export function resolveCourtLevel(scenarioKey: DivorcePropertyScenarioKey, value
   if (scenarioKey !== "property-claim") return "manual-review";
 
   const assets = parsePropertyAssetRows(values.assetRows);
-  const claimPrice = assets ? calculatePropertyAssets(assets).claimPrice : 0;
-  if (claimPrice <= 0 || values.combineDivorce === "unsure") return "manual-review";
+  const claimPrice = assets ? calculatePropertyAssets(assets).claimPrice : null;
+  if (claimPrice === null || claimPrice <= 0 || values.combineDivorce === "unsure") return "manual-review";
   if (values.combineDivorce === "yes" && values.combinedChildDispute !== "no") return "manual-review";
   return claimPrice <= 50_000 ? "magistrate" : "district";
 }
@@ -165,29 +203,54 @@ export function courtLevelLabel(level: CourtLevel) {
   return "уровень суда требует ручной юридической проверки";
 }
 
+const COURT_SELECTION_FIELDS = [
+  "courtSearchConfirmed",
+  "courtName",
+  "courtPrecinctNumber",
+  "courtAddress",
+  "courtWebsite",
+  "appealCourtName"
+] as const;
+
+export function resetCourtSelection(values: DivorcePropertyValues) {
+  const next = { ...values };
+  for (const field of COURT_SELECTION_FIELDS) next[field] = "";
+  return next;
+}
+
 function resolveCourtSelection(scenarioKey: DivorcePropertyScenarioKey, values: DivorcePropertyValues) {
   const issues: Array<{ field: string; message: string }> = [];
   const notices: string[] = [];
   const level = resolveCourtLevel(scenarioKey, values);
-  let manualSourceReview = false;
   const basis = values.territorialBasis;
   const basisLabels: Record<string, string> = {
     defendant: "по месту жительства ответчика по статье 28 ГПК РФ",
-    "plaintiff-child": "по месту жительства истца, при котором находится несовершеннолетний ребёнок, по части 4 статьи 29 ГПК РФ",
+    "plaintiff-child": "по месту жительства истца, при котором находится несовершеннолетний, по части 4 статьи 29 ГПК РФ",
     "plaintiff-health": "по месту жительства истца из-за затруднённого по состоянию здоровья выезда к ответчику по части 4 статьи 29 ГПК РФ",
     "last-known": "по последнему известному месту жительства ответчика в Российской Федерации по части 1 статьи 29 ГПК РФ",
     "defendant-property": "по месту нахождения имущества ответчика при неизвестном месте жительства по части 1 статьи 29 ГПК РФ",
     "real-estate-exclusive": "по месту нахождения недвижимости — применимость статьи 30 ГПК РФ требует отдельной проверки состава требований"
   };
 
-  if (!values.courtRegion?.trim()) issues.push({ field: "courtRegion", message: "Выберите регион суда." });
+  if (!values.courtRegion?.trim()) issues.push({ field: "courtRegion", message: "Укажите регион суда." });
   if (!basis) issues.push({ field: "territorialBasis", message: "Выберите подтверждённое законом основание территориальной подсудности." });
   if (!values.territorialAddress?.trim()) issues.push({ field: "territorialAddress", message: "Укажите полный адрес, по которому определяется территория суда." });
-  if (basis && basis !== "defendant" && !values.jurisdictionEvidence?.trim()) {
+  if (basis && !["defendant", "plaintiff-child"].includes(basis) && !values.jurisdictionEvidence?.trim()) {
     issues.push({ field: "jurisdictionEvidence", message: "Укажите документ или обстоятельство, подтверждающее выбранное специальное основание подсудности." });
   }
-  if (basis === "plaintiff-child" && values.commonMinorChildren !== "yes") {
-    issues.push({ field: "territorialBasis", message: "Подача по месту истца из-за ребёнка требует подтверждения, что при истце находится несовершеннолетний ребёнок." });
+  if (basis === "plaintiff-child") {
+    if (values.minorWithPlaintiff !== "yes") {
+      issues.push({ field: "minorWithPlaintiff", message: "Для части 4 статьи 29 ГПК РФ подтвердите, что при истце находится несовершеннолетний. Норма не требует, чтобы это был общий ребёнок супругов." });
+    }
+    if (!values.minorWithPlaintiffEvidence?.trim()) {
+      issues.push({ field: "minorWithPlaintiffEvidence", message: "Опишите несовершеннолетнего и документ либо обстоятельство, подтверждающее его нахождение при истце." });
+    }
+    if (scenarioKey === "property-claim") {
+      if (values.combineDivorce !== "yes") {
+        issues.push({ field: "territorialBasis", message: "Часть 4 статьи 29 ГПК РФ относится к иску о расторжении брака и не применяется автоматически к самостоятельному требованию о разделе имущества." });
+      }
+      notices.push("Применимость части 4 статьи 29 ГПК РФ к объединённому требованию о разводе и разделе имущества автоматически не подтверждена.");
+    }
   }
   if (["last-known", "defendant-property"].includes(basis ?? "")
     && scenarioKey === "court-divorce"
@@ -198,15 +261,17 @@ function resolveCourtSelection(scenarioKey: DivorcePropertyScenarioKey, values: 
     notices.push("Сам по себе раздел совместно нажитой недвижимости не подтверждает применение статьи 30 ГПК РФ. Нужна ручная проверка предмета каждого требования.");
   }
   if (values.courtSearchConfirmed !== "yes") {
-    issues.push({ field: "courtSearchConfirmed", message: "Участок автоматически не определён. Найдите суд по полному адресу в официальном сервисе ГАС «Правосудие» и перенесите его реквизиты." });
+    issues.push({ field: "courtSearchConfirmed", message: "Найдите суд по полному адресу в ГАС «Правосудие» и перенесите реквизиты. ПравоПоиск не определяет участок автоматически." });
   } else {
     if (!values.courtName?.trim()) issues.push({ field: "courtName", message: "Укажите официальное наименование найденного суда или мирового участка." });
     if (!values.courtAddress?.trim()) issues.push({ field: "courtAddress", message: "Укажите официальный адрес найденного суда или мирового участка." });
     if (!isHttpsUrl(values.courtWebsite)) {
-      issues.push({ field: "courtWebsite", message: "Укажите официальную ссылку на суд или участок, начинающуюся с https://." });
-    } else if (!isSupportedOfficialCourtUrl(values.courtWebsite)) {
-      manualSourceReview = true;
-      notices.push("Домен ссылки не относится к автоматически распознаваемым судебным доменам sudrf.ru, msudrf.ru или mos-sud.ru. Региональный официальный источник и реквизиты суда нужно проверить вручную.");
+      issues.push({ field: "courtWebsite", message: "Укажите ссылку, с которой перенесены реквизиты суда, начинающуюся с https://." });
+    } else if (isPlaceholderCourtUrl(values.courtWebsite)) {
+      issues.push({ field: "courtWebsite", message: "Пример или тестовый адрес страницы суда использовать нельзя." });
+    }
+    if (isPlaceholderCourtName(values.courtName)) {
+      issues.push({ field: "courtName", message: "Пример или вымышленное наименование суда использовать нельзя." });
     }
     if (level === "magistrate" && !values.courtPrecinctNumber?.trim()) {
       issues.push({ field: "courtPrecinctNumber", message: "Укажите номер выбранного мирового судебного участка." });
@@ -224,18 +289,19 @@ function resolveCourtSelection(scenarioKey: DivorcePropertyScenarioKey, values: 
   const region = values.courtRegion?.trim() ? `, регион: ${values.courtRegion.trim()}` : "";
   const reason = basisLabels[basis ?? ""] ?? "основание территориальной подсудности не выбрано";
   const reviewReasons = [
+    "Реквизиты суда и территориальная компетенция перенесены пользователем; ПравоПоиск не имеет машинного механизма их подтверждения по адресу.",
     ...(basis === "real-estate-exclusive" ? ["Применимость исключительной подсудности по месту недвижимости требует проверки предмета требований."] : []),
+    ...(basis === "plaintiff-child" && scenarioKey === "property-claim" ? ["Применимость части 4 статьи 29 ГПК РФ к объединённому имущественному иску требует ручной проверки."] : []),
     ...(level === "manual-review" ? ["Родовая подсудность не определяется автоматически при выбранном составе требований."] : []),
-    ...(manualSourceReview ? ["Официальность регионального источника и реквизиты выбранного суда требуют ручной проверки."] : [])
   ];
 
   return {
     issues,
     notices,
     level,
-    jurisdiction: `${selectedCourt}${selectedAddress}${region}; ${reason}. Официальный источник: ${values.courtWebsite?.trim() || "не подтверждён"}.`,
+    jurisdiction: `${selectedCourt}${selectedAddress}${region}; ${reason}. Ссылка, указанная пользователем: ${values.courtWebsite?.trim() || "не указана"}. Реквизиты и территория не проверены ПравоПоиском.`,
     reviewReasons,
-    requiresLegalReview: basis === "real-estate-exclusive" || level === "manual-review" || manualSourceReview
+    requiresLegalReview: true
   };
 }
 
@@ -248,15 +314,18 @@ function isHttpsUrl(rawValue: string | undefined) {
   }
 }
 
-function isSupportedOfficialCourtUrl(rawValue: string | undefined) {
+function isPlaceholderCourtUrl(rawValue: string | undefined) {
   if (!rawValue?.trim()) return false;
   try {
     const url = new URL(rawValue.trim());
-    if (url.protocol !== "https:") return false;
-    return ["sudrf.ru", "msudrf.ru", "mos-sud.ru"].some((domain) => url.hostname === domain || url.hostname.endsWith(`.${domain}`));
+    return url.hostname === "example.com" || url.hostname.endsWith(".example.com") || url.hostname.startsWith("example.");
   } catch {
     return false;
   }
+}
+
+function isPlaceholderCourtName(rawValue: string | undefined) {
+  return /пример|тестов|вымышлен/iu.test(rawValue?.trim() ?? "");
 }
 
 function resolveCourtFee(values: DivorcePropertyValues, baseAmount: number | null, baseLabel: string) {
@@ -330,7 +399,13 @@ export function isDivorcePropertyFieldVisible(
     return ["statutory", "hardship"].includes(values.courtFeeRelief ?? "");
   }
   if (["court-divorce", "property-claim"].includes(scenarioKey)) {
-    if (fieldName === "jurisdictionEvidence") return Boolean(values.territorialBasis && values.territorialBasis !== "defendant");
+    if (fieldName === "minorWithPlaintiff") return values.territorialBasis === "plaintiff-child";
+    if (fieldName === "minorWithPlaintiffEvidence") {
+      return values.territorialBasis === "plaintiff-child" && values.minorWithPlaintiff === "yes";
+    }
+    if (fieldName === "jurisdictionEvidence") {
+      return Boolean(values.territorialBasis && !["defendant", "plaintiff-child"].includes(values.territorialBasis));
+    }
     if (["courtName", "courtAddress", "courtWebsite"].includes(fieldName)) return values.courtSearchConfirmed === "yes";
     if (fieldName === "courtPrecinctNumber") {
       return values.courtSearchConfirmed === "yes" && resolveCourtLevel(scenarioKey, values) === "magistrate";
@@ -351,7 +426,7 @@ export function validateDivorcePropertyApplication(
   const values: DivorcePropertyValues = assetCalculation
     ? {
         ...inputValues,
-        claimPrice: String(assetCalculation.claimPrice),
+        claimPrice: assetCalculation.claimPrice === null ? "" : String(assetCalculation.claimPrice),
         assets: assetCalculation.assetsText,
         requestedDivision: assetCalculation.requestedDivisionText
       }
@@ -482,7 +557,7 @@ export function validateDivorcePropertyApplication(
     notices.push(...courtSelection.notices);
     courtSelection.reviewReasons.forEach(markLegalReview);
     values.courtName = courtHeading(values);
-    filingInstruction = `Проверьте реквизиты выбранного суда по официальной ссылке ${value(values, "courtWebsite")}, направьте ответчику копию иска с отсутствующими у него приложениями и подайте комплект в этот суд.`;
+    filingInstruction = `До подачи самостоятельно подтвердите на официальном ресурсе, что суд обслуживает адрес ${value(values, "territorialAddress")}. Реквизиты в черновике введены пользователем и не проверены ПравоПоиском.`;
     attachments.push(
       "Документ об уплате госпошлины или подтверждение льготы.",
       "Документ о заключении брака.",
@@ -528,6 +603,7 @@ export function validateDivorcePropertyApplication(
 
   if (scenarioKey === "property-agreement") {
     documentTitle = "Проект соглашения о разделе общего имущества супругов";
+    markLegalReview("Проект соглашения должен быть проверен и нотариально удостоверен; ПравоПоиск не подтверждает его готовность к удостоверению.");
     jurisdiction = values.notaryRegion?.trim()
       ? `Нотариус в регионе «${values.notaryRegion.trim()}»; конкретного нотариуса и региональный тариф проверьте на официальном ресурсе ФНП.`
       : "Нотариус; регион и региональная часть тарифа автоматически не определены.";
@@ -581,22 +657,30 @@ export function validateDivorcePropertyApplication(
       issues.push({ field: "assetRows", message: "Добавьте имущество в построчный расчёт." });
     }
     if (assetCalculation) issues.push(...assetCalculation.issues);
+    if (assetCalculation && !assetCalculation.priceConfirmed) {
+      assetCalculation.priceReviewReasons.forEach(markLegalReview);
+      notices.push("Цена иска и итоговая госпошлина не подтверждены для выбранного способа раздела. Уточните расчёт до подачи документа.");
+    }
     const claimPrice = parseMoney(values.claimPrice);
     const propertyFee = claimPrice === null ? null : calculatePropertyClaimDuty(claimPrice);
     const divorceFee = values.combineDivorce === "yes" ? DIVORCE_FEES.courtDivorceClaim : 0;
     feeAmount = propertyFee === null ? null : propertyFee + divorceFee;
     feeLabel = claimPrice === null
-      ? "От 4 000 до 900 000 руб. по цене иска; окончательный расчёт невозможен без цены иска."
+      ? "Итоговая пошлина не рассчитана: цена иска требует ручного определения по выбранным требованиям."
       : `Предварительно: ${formatRubles(propertyFee ?? 0)} руб. по имущественному требованию${divorceFee ? ` + ${formatRubles(divorceFee)} руб. за требование о разводе; всего ${formatRubles((propertyFee ?? 0) + divorceFee)} руб.` : "."}`;
-    if (claimPrice === null) issues.push({ field: "claimPrice", message: "Укажите положительную цену иска для расчёта госпошлины и подсудности." });
-    notices.push("Цена иска рассчитана построчно по введённым объектам и требованиям. При явном несоответствии действительной стоимости цену иска определяет судья по статье 91 ГПК РФ.");
+    if (claimPrice === null && (!assetCalculation || assetCalculation.priceConfirmed)) {
+      issues.push({ field: "claimPrice", message: "Цена иска не рассчитана из-за неполных или противоречивых данных об имуществе." });
+    }
+    notices.push(claimPrice === null
+      ? "Автоматический расчёт отключён для выбранной комбинации требований. Цена должна быть определена и проверена отдельно."
+      : "Цена иска рассчитана из структурированного требования об определении доли истца. При неправильном указании цену определяет судья по статье 91 ГПК РФ.");
     const courtSelection = resolveCourtSelection(scenarioKey, values);
     jurisdiction = courtSelection.jurisdiction;
     issues.push(...courtSelection.issues);
     notices.push(...courtSelection.notices);
     courtSelection.reviewReasons.forEach(markLegalReview);
     values.courtName = courtHeading(values);
-    filingInstruction = `Проверьте реквизиты выбранного суда по официальной ссылке ${value(values, "courtWebsite")}, направьте ответчику копию иска с отсутствующими у него приложениями и подайте комплект в этот суд.`;
+    filingInstruction = `До подачи самостоятельно подтвердите на официальном ресурсе, что суд обслуживает адрес ${value(values, "territorialAddress")}. Реквизиты в черновике введены пользователем и не проверены ПравоПоиском.`;
     attachments.push(
       "Документ об уплате госпошлины или подтверждение льготы.",
       "Документы о заключении брака и, если брак уже расторгнут, о его расторжении.",
@@ -609,7 +693,7 @@ export function validateDivorcePropertyApplication(
     supplementalDrafts.push(
       {
         title: "Расчёт цены иска и компенсации",
-        text: `РАСЧЁТ ЦЕНЫ ИСКА И КОМПЕНСАЦИИ\n\nНазначение: обоснование цены иска и расчёта по статьям 91 и 132 ГПК РФ.\n\nСпорное имущество:\n${value(values, "assets")}\n\nЦена иска: ${value(values, "claimPrice")} руб.\n\nТребуемый раздел и компенсация:\n${value(values, "requestedDivision")}\n\nГосударственная пошлина: ${feeLabel}`
+        text: `РАСЧЁТ ЦЕНЫ ИСКА И КОМПЕНСАЦИИ\n\nНазначение: обоснование цены иска и расчёта по статьям 91 и 132 ГПК РФ.\n\nСпорное имущество:\n${value(values, "assets")}\n\nЦена иска: ${value(values, "claimPrice", "требует ручного определения")} руб.\n\nТребуемый раздел и компенсация:\n${value(values, "requestedDivision")}\n\nГосударственная пошлина: ${feeLabel}`
       },
       {
         title: "Перечень спорного имущества",
@@ -776,12 +860,16 @@ export function parsePropertyAssetRows(rawValue: string | undefined): PropertyAs
       const row = item && typeof item === "object" ? item as Record<string, unknown> : {};
       return {
         id: textValue(row.id) || `asset-${index + 1}`,
+        assetType: textValue(row.assetType),
         description: textValue(row.description),
         identifier: textValue(row.identifier),
+        acquisitionDate: textValue(row.acquisitionDate),
         acquisitionBasis: textValue(row.acquisitionBasis),
         registeredOwner: textValue(row.registeredOwner),
         fullValue: textValue(row.fullValue),
+        valuationDate: textValue(row.valuationDate),
         valuationSource: textValue(row.valuationSource),
+        valuationDocument: textValue(row.valuationDocument),
         supportingDocuments: textValue(row.supportingDocuments),
         claimedSharePercent: textValue(row.claimedSharePercent),
         requestedResult: requestedResultValue(row.requestedResult),
@@ -799,7 +887,13 @@ function textValue(value: unknown) {
 }
 
 function requestedResultValue(value: unknown): PropertyAssetRow["requestedResult"] {
-  return ["plaintiff", "defendant", "shared", "exclude"].includes(textValue(value))
+  return [
+    "transfer-to-plaintiff",
+    "transfer-to-defendant",
+    "determine-plaintiff-share",
+    "determine-defendant-share",
+    "exclude"
+  ].includes(textValue(value))
     ? textValue(value) as PropertyAssetRow["requestedResult"]
     : "";
 }
@@ -817,13 +911,15 @@ function buildAssetRequestLine(
   compensation: number
 ) {
   const object = `${row.description || "имущество не указано"} (${row.identifier || "идентификатор не указан"})`;
-  const result = row.requestedResult === "plaintiff"
-    ? `передать истцу следующее имущество: ${object}; стоимость требуемой доли: ${formatRubles(claimedPropertyValue)} руб.`
-    : row.requestedResult === "shared"
+  const result = row.requestedResult === "transfer-to-plaintiff"
+    ? `передать весь объект истцу: ${object}`
+    : row.requestedResult === "determine-plaintiff-share"
       ? `определить за истцом долю ${row.claimedSharePercent || "0"}% в праве общей собственности на следующее имущество: ${object}; стоимость требуемой доли: ${formatRubles(claimedPropertyValue)} руб.`
-      : row.requestedResult === "defendant"
-        ? `передать ответчику следующее имущество: ${object}`
-        : `исключить из состава общего имущества следующий объект: ${object}`;
+      : row.requestedResult === "transfer-to-defendant"
+        ? `передать весь объект ответчику: ${object}`
+        : row.requestedResult === "determine-defendant-share"
+          ? `определить за ответчиком долю ${row.claimedSharePercent || "0"}% в праве общей собственности на следующее имущество: ${object}`
+          : `исключить из состава общего имущества следующий объект: ${object}`;
   const compensationText = row.compensationDirection === "to-plaintiff"
     ? `; взыскать с ответчика в пользу истца компенсацию ${formatRubles(compensation)} руб.`
     : row.compensationDirection === "from-plaintiff"
@@ -832,11 +928,23 @@ function buildAssetRequestLine(
   return `${number}. ${result}${compensationText}`;
 }
 
+function requestedResultLabel(result: PropertyAssetRow["requestedResult"]) {
+  const labels: Record<Exclude<PropertyAssetRow["requestedResult"], "">, string> = {
+    "transfer-to-plaintiff": "передать весь объект истцу",
+    "transfer-to-defendant": "передать весь объект ответчику",
+    "determine-plaintiff-share": "определить долю истца",
+    "determine-defendant-share": "определить долю ответчика",
+    exclude: "исключить имущество из состава совместно нажитого"
+  };
+  return result ? labels[result] : "результат не выбран";
+}
+
 function formatRubles(value: number) {
   return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(value).replace(/\u00a0/g, " ");
 }
 
 function value(values: DivorcePropertyValues, key: string, fallback = "не указано") {
+  if (key === "claimPrice" && !values[key]?.trim()) return "требует ручного определения";
   return values[key]?.trim() || fallback;
 }
 

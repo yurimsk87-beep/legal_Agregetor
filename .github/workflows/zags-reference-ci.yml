@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - agent/zags-reference-final-clean
+      - agent/divorce-property-route-hardening
 
 permissions:
   contents: read
