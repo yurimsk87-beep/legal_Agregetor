@@ -1,12 +1,12 @@
 import { urlSet, xmlResponse } from "@/lib/sitemap";
-import { legalCategories } from "@/data/legal-categories";
 import { legalProblems } from "@/data/legal-problems";
 
 export async function GET() {
+  const categoryPaths = [...new Set(legalProblems.map((problem) => `/problems/${problem.categorySlug}/`))];
   return xmlResponse(
     urlSet([
       "/problems/",
-      ...legalCategories.map((category) => `/problems/${category.slug}/`),
+      ...categoryPaths,
       ...legalProblems.map((problem) => `/problems/${problem.categorySlug}/${problem.slug}/`)
     ])
   );

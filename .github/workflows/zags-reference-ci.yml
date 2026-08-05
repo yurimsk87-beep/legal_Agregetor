@@ -1,0 +1,66 @@
+name: Legal reference routes CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - agent/zags-reference-final-clean
+      - agent/divorce-property-route-hardening
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: legal_aggregator_ci
+          POSTGRES_USER: legal_user
+          POSTGRES_PASSWORD: legal_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U legal_user -d legal_aggregator_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://legal_user:legal_password@localhost:5432/legal_aggregator_ci?schema=public
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      SITE_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run prisma:generate
+      - run: npx prisma db push --skip-generate
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - name: Run AI Navigator quality check
+        run: |
+          npm run dev > /tmp/zags-next.log 2>&1 &
+          app_pid=$!
+          trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+
+          for attempt in {1..60}; do
+            if curl --fail --silent http://localhost:3000/ > /dev/null; then
+              npm run quality:ai-navigator
+              exit $?
+            fi
+            sleep 1
+          done
+
+          cat /tmp/zags-next.log
+          exit 1
+      - run: npm run build

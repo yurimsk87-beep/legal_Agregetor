@@ -2,6 +2,8 @@ import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { AUTH_COOKIE_NAME, verifySessionToken } from "@/lib/auth";
 import { canonicalizePublicPathSegments } from "@/lib/canonical-slugs";
+import { getNavigatorDocument } from "@/data/documents";
+import { getLegalProblem, legalProblems } from "@/data/legal-problems";
 
 const botPattern = /(googlebot|yandexbot|bingbot|duckduckbot|slurp|baiduspider)/i;
 
@@ -42,23 +44,7 @@ const publicSeoRedirects: Record<string, string> = {
   "/user-agreement/": "/legal/terms/",
   "/personal-data-consent/": "/legal/personal-data-consent/",
   "/question-rules/": "/legal/qna-rules/",
-  "/answer-rules/": "/legal/qna-rules/",
-  // Объединённые дубли ситуаций: канонический slug — из problems_target_structure.json
-  "/problems/semya/razvod-s-detmi/": "/problems/semya-i-deti/razvod/",
-  "/problems/semya-i-deti/razvod-s-detmi/": "/problems/semya-i-deti/razvod/",
-  "/problems/semya/alimenty-ne-platyat/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya-i-deti/alimenty-ne-platyat/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya/vzyiskat-alimenty/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya-i-deti/vzyiskat-alimenty/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya/dolg-po-alimentam/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya-i-deti/dolg-po-alimentam/": "/problems/semya-i-deti/alimenty/",
-  "/problems/dolgi-kredity-i-pristavy/dolgi-po-alimentam/": "/problems/semya-i-deti/alimenty/",
-  "/problems/semya/osporit-otcovstvo/": "/problems/semya-i-deti/ustanovlenie-ili-osparivanie-otcovstva/",
-  "/problems/semya-i-deti/osporit-otcovstvo/": "/problems/semya-i-deti/ustanovlenie-ili-osparivanie-otcovstva/",
-  "/problems/semya/ustanovit-otcovstvo/": "/problems/semya-i-deti/ustanovlenie-ili-osparivanie-otcovstva/",
-  "/problems/semya-i-deti/ustanovit-otcovstvo/": "/problems/semya-i-deti/ustanovlenie-ili-osparivanie-otcovstva/",
-  "/problems/semya-i-deti/razdel-imuschestva-pri-razvode/": "/problems/semya-i-deti/razdel-imushchestva-suprugov/",
-  "/problems/semya-i-deti/domashnee-nasilie/": "/problems/semya-i-deti/nasilie-v-seme/"
+  "/answer-rules/": "/legal/qna-rules/"
 };
 
 type SeoMergeResponse = {
@@ -113,6 +99,16 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
     if (technicalNoindexPath) trailingSlashResponse.headers.set("x-robots-tag", "noindex, nofollow");
     trackBotVisit(request, event, userAgent, trailingSlashResponse.status, trailingSlashResponse);
     return trailingSlashResponse;
+  }
+
+  if (isMissingNavigatorPath(normalizedPath)) {
+    const notFoundUrl = request.nextUrl.clone();
+    notFoundUrl.pathname = "/not-found-page/";
+    notFoundUrl.search = "";
+    const notFoundResponse = NextResponse.rewrite(notFoundUrl, { status: 404 });
+    notFoundResponse.headers.set("x-robots-tag", "noindex, nofollow");
+    trackBotVisit(request, event, userAgent, 404, notFoundResponse);
+    return notFoundResponse;
   }
 
   if (technicalNoindexPath) {
@@ -206,6 +202,24 @@ function canonicalSlugRedirect(pathname: string) {
 
 function isNavigatorPath(pathname: string) {
   return pathname === "/problems/" || pathname.startsWith("/problems/") || pathname === "/documents/" || pathname.startsWith("/documents/") || pathname === "/tools/" || pathname.startsWith("/tools/");
+}
+
+function isMissingNavigatorPath(pathname: string) {
+  const segments = pathname.split("/").filter(Boolean);
+
+  if (segments[0] === "documents" && segments.length === 2) {
+    return !getNavigatorDocument(segments[1]);
+  }
+
+  if (segments[0] === "problems" && segments.length === 2) {
+    return !legalProblems.some((problem) => problem.categorySlug === segments[1]);
+  }
+
+  if (segments[0] === "problems" && segments.length === 3) {
+    return !getLegalProblem(segments[1], segments[2]);
+  }
+
+  return false;
 }
 
 function isTechnicalNoindexPath(pathname: string) {
