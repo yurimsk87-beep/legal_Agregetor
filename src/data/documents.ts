@@ -1,5 +1,6 @@
 import type { LegalReferenceKey } from "@/data/legal-references";
 import { DIVORCE_PROPERTY_DOCUMENTS } from "@/data/divorce-property-documents";
+import { GUARDIANSHIP_DOCUMENTS } from "@/data/guardianship-documents";
 
 export type DocumentFaqItem = {
   question: string;
@@ -259,7 +260,8 @@ export const navigatorDocuments: NavigatorDocument[] = [
   "lastReviewedAt": "2026-07-30",
   "disclaimer": "Страница не заменяет официальный бланк ЗАГС. Если точную форму нельзя подтвердить для вашей процедуры, используйте официальный сервис или бланк органа ЗАГС."
 },
-...DIVORCE_PROPERTY_DOCUMENTS
+...DIVORCE_PROPERTY_DOCUMENTS,
+...GUARDIANSHIP_DOCUMENTS
 ];
 
 export function getNavigatorDocument(slug: string) {

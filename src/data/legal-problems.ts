@@ -1,6 +1,7 @@
 import { legalCategories, normalizeLegalCategorySlug } from "@/data/legal-categories";
 import type { LegalReferenceKey } from "@/data/legal-references";
 import { DIVORCE_PROPERTY_PROBLEM } from "@/data/divorce-property-problem";
+import { GUARDIANSHIP_PROBLEM } from "@/data/guardianship-problem";
 
 export type LegalProblemFaq = {
   question: string;
@@ -172,9 +173,9 @@ const referenceProblem = {
   "relatedProblemSlugs": []
 } satisfies LegalProblem;
 
-export const legalProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM];
+export const legalProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM, GUARDIANSHIP_PROBLEM];
 
-export const popularProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM];
+export const popularProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM, GUARDIANSHIP_PROBLEM];
 
 export function getLegalProblem(categorySlug: string, slug: string) {
   const normalizedCategorySlug = normalizeLegalCategorySlug(categorySlug);

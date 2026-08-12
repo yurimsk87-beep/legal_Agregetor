@@ -19,7 +19,15 @@ const divorceDocuments = [
   "/documents/soglashenie-o-razdele-imushchestva/",
   "/documents/isk-o-razdele-imushchestva-suprugov/"
 ];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments];
+const guardianshipProblem = "/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/";
+const guardianshipDocuments = [
+  "/documents/zayavlenie-o-naznachenii-opekuna-rebenku/",
+  "/documents/zayavlenie-roditelya-o-naznachenii-opekuna/",
+  "/documents/dokumenty-po-imushchestvu-podopechnogo/",
+  "/documents/zhaloba-na-organ-opeki/"
+];
+const guardianshipContent = [guardianshipProblem, ...guardianshipDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -33,7 +41,24 @@ const queries = [
   { query: "соглашение о разделе имущества", expected: [divorceProblem, divorceDocuments[2]] },
   { query: "ипотека при разводе", expected: [divorceProblem, divorceDocuments[2], divorceDocuments[3]] },
   { query: "супруг продал имущество перед разводом", expected: [divorceProblem, divorceDocuments[3]] },
-  { query: "срок раздела имущества", expected: [divorceProblem, divorceDocuments[3]] }
+  { query: "срок раздела имущества", expected: [divorceProblem, divorceDocuments[3]] },
+  { query: "оформить опеку над ребёнком", expected: guardianshipContent },
+  { query: "стать опекуном ребёнка", expected: guardianshipContent },
+  { query: "опека над ребёнком до 14 лет", expected: guardianshipContent },
+  { query: "попечительство над ребёнком 15 лет", expected: guardianshipContent },
+  { query: "предварительная опека", expected: guardianshipContent },
+  { query: "срочно назначить опекуна ребёнку", expected: guardianshipContent },
+  { query: "временная опека бабушкой", expected: guardianshipContent },
+  { query: "родители уезжают ребёнок остаётся с родственником", expected: guardianshipContent },
+  { query: "заявление родителей о назначении опекуна", expected: guardianshipContent },
+  { query: "отчёт опекуна", expected: guardianshipContent },
+  { query: "номинальный счёт опекуна", expected: guardianshipContent },
+  { query: "разрешение опеки на имущество ребёнка", expected: guardianshipContent },
+  { query: "продажа квартиры ребёнка разрешение опеки", expected: guardianshipContent },
+  { query: "орган опеки отказал", expected: guardianshipContent },
+  { query: "орган опеки не отвечает", expected: guardianshipContent },
+  { query: "усыновить ребёнка", expected: [], forbidden: guardianshipContent },
+  { query: "опека над недееспособным взрослым", expected: [], forbidden: guardianshipContent }
 ];
 
 async function main() {
@@ -41,6 +66,7 @@ async function main() {
 
   for (const testCase of queries) {
     const { query, expected } = testCase;
+    const forbidden: string[] = "forbidden" in testCase ? testCase.forbidden ?? [] : [];
     const url = new URL("/api/ai-navigator?fast=1", baseUrl);
     const response = await fetch(url, {
       method: "POST",
@@ -63,12 +89,15 @@ async function main() {
       (href) => !allowedContentPrefixes.some((allowed) => href.startsWith(allowed))
     );
     const primaryHref = data.primaryAction?.href ?? "";
-    const primaryIsAllowed = expected.some((allowed) => primaryHref.startsWith(allowed));
+    const primaryIsAllowed = expected.length === 0 || expected.some((allowed) => primaryHref.startsWith(allowed));
+    const forbiddenLinks = [primaryHref, ...contentLinks].filter(
+      (href) => href && forbidden.some((blocked) => href.startsWith(blocked))
+    );
 
-    if (!primaryIsAllowed || invalidLinks.length) {
+    if (!primaryIsAllowed || invalidLinks.length || forbiddenLinks.length) {
       failed += 1;
       console.error(
-        "FAIL " + query + ": primary=" + (primaryHref || "none") + " invalid=" + (invalidLinks.join(",") || "none")
+        "FAIL " + query + ": primary=" + (primaryHref || "none") + " invalid=" + (invalidLinks.join(",") || "none") + " forbidden=" + (forbiddenLinks.join(",") || "none")
       );
     } else {
       console.log("PASS " + query + ": " + primaryHref);

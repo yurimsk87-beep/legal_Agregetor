@@ -14,12 +14,20 @@ const divorceDocumentHrefs = [
   "/documents/soglashenie-o-razdele-imushchestva/",
   "/documents/isk-o-razdele-imushchestva-suprugov/"
 ];
+const guardianshipProblemHref = "/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/";
+const guardianshipDocumentHrefs = [
+  "/documents/zayavlenie-o-naznachenii-opekuna-rebenku/",
+  "/documents/zayavlenie-roditelya-o-naznachenii-opekuna/",
+  "/documents/dokumenty-po-imushchestvu-podopechnogo/",
+  "/documents/zhaloba-na-organ-opeki/"
+];
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
   [
     { categorySlug: "semya-i-deti", slug: "brak-zags-i-smena-familii" },
-    { categorySlug: "semya-i-deti", slug: "razvod-i-razdel-imushchestva" }
+    { categorySlug: "semya-i-deti", slug: "razvod-i-razdel-imushchestva" },
+    { categorySlug: "semya-i-deti", slug: "opeka-i-popechitelstvo-nad-rebenkom" }
   ]
 );
 assert.deepEqual(
@@ -29,7 +37,11 @@ assert.deepEqual(
     "zayavlenie-o-rastorzhenii-braka-v-zags",
     "isk-o-rastorzhenii-braka",
     "soglashenie-o-razdele-imushchestva",
-    "isk-o-razdele-imushchestva-suprugov"
+    "isk-o-razdele-imushchestva-suprugov",
+    "zayavlenie-o-naznachenii-opekuna-rebenku",
+    "zayavlenie-roditelya-o-naznachenii-opekuna",
+    "dokumenty-po-imushchestvu-podopechnogo",
+    "zhaloba-na-organ-opeki"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -43,12 +55,16 @@ assert.ok(indexedContentHrefs.includes(targetProblemHref));
 assert.ok(indexedContentHrefs.includes(targetDocumentHref));
 assert.ok(indexedContentHrefs.includes(divorceProblemHref));
 for (const href of divorceDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(guardianshipProblemHref));
+for (const href of guardianshipDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
       || href.startsWith(targetDocumentHref)
       || href === divorceProblemHref
       || divorceDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === guardianshipProblemHref
+      || guardianshipDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );
@@ -74,9 +90,24 @@ const divorceQueryMetadata = buildMetadata({
 assert.equal(divorceQueryMetadata.robots && typeof divorceQueryMetadata.robots === "object" ? divorceQueryMetadata.robots.index : true, false);
 assert.equal(String(divorceQueryMetadata.alternates?.canonical).endsWith(divorceProblemHref), true);
 
+const guardianshipQueryMetadata = buildMetadata({
+  title: "Опека и попечительство над ребёнком",
+  description: "Проверка query-страницы",
+  path: guardianshipProblemHref,
+  isIndexable: true,
+  searchParams: { scenario: "appointment" }
+});
+assert.equal(guardianshipQueryMetadata.robots && typeof guardianshipQueryMetadata.robots === "object" ? guardianshipQueryMetadata.robots.index : true, false);
+assert.equal(String(guardianshipQueryMetadata.alternates?.canonical).endsWith(guardianshipProblemHref), true);
+
 for (const excludedQuery of ["алименты", "место жительства ребёнка", "порядок общения с ребёнком", "лишение родительских прав", "установление отцовства"]) {
   const hrefs = searchSite(excludedQuery).map(({ href }) => href);
   assert.equal(hrefs.some((href) => href === divorceProblemHref || divorceDocumentHrefs.includes(href)), false, excludedQuery);
+}
+
+for (const excludedQuery of ["усыновить ребёнка", "опека над недееспособным взрослым", "лишение родительских прав"]) {
+  const hrefs = searchSite(excludedQuery).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === guardianshipProblemHref || guardianshipDocumentHrefs.includes(href)), false, excludedQuery);
 }
 
 console.log("content-reset tests passed");
