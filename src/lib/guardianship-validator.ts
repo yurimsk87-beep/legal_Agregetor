@@ -3,6 +3,12 @@ import {
   type GuardianshipField,
   type GuardianshipScenarioKey
 } from "@/data/guardianship-route";
+import {
+  findGuardianshipTerritory,
+  GUARDIANSHIP_DIRECTORY_METADATA,
+  RUSSIAN_REGIONS,
+  TERRITORY_NOT_FOUND_ID
+} from "@/data/guardianship-territories";
 
 export type GuardianshipValues = Record<string, string | undefined>;
 
@@ -66,6 +72,7 @@ export function isGuardianshipFieldVisible(
     if (["responseDate", "refusalDetails"].includes(fieldName)) return values.responseState === "written-refusal";
     if (fieldName === "responseDeadlineExpired") return values.responseState === "no-response";
   }
+  if (fieldName === "authorityName") return values.municipality !== TERRITORY_NOT_FOUND_ID;
   return true;
 }
 
@@ -75,6 +82,11 @@ export function resetGuardianshipDependentValues(
   values: GuardianshipValues
 ) {
   const next = { ...values };
+  if (changedField === "region") {
+    delete next.municipality;
+    delete next.authorityName;
+  }
+  if (changedField === "municipality") delete next.authorityName;
   if (scenarioKey === "appointment" && changedField === "householdAdults" && next.householdAdults !== "yes") {
     delete next.householdConsent;
   }
@@ -109,14 +121,17 @@ export function validateGuardianshipApplication(
   scenarioKey: GuardianshipScenarioKey,
   inputValues: GuardianshipValues
 ): GuardianshipDecision {
-  const values = normalize(inputValues);
+  const rawValues = normalize(inputValues);
   const issues: GuardianshipIssue[] = [];
   const notices: string[] = [];
-  const visibleFields = getVisibleGuardianshipFields(scenarioKey, values);
+  const visibleFields = getVisibleGuardianshipFields(scenarioKey, rawValues);
 
   for (const field of visibleFields.filter((item) => item.required)) {
-    if (!values[field.name]) issues.push({ field: field.name, message: `Заполните поле «${field.label}».` });
+    if (!rawValues[field.name]) issues.push({ field: field.name, message: `Заполните поле «${field.label}».` });
   }
+
+  validateGuardianshipTerritory(rawValues, issues);
+  const values = resolveGuardianshipTerritoryValues(rawValues);
 
   const base = baseDecision(scenarioKey, values, issues, notices);
   if (scenarioKey === "appointment") validateAppointment(values, base);
@@ -354,9 +369,10 @@ function baseDecision(
     fee: scenario.fee,
     deadline: scenario.term,
     filingSteps: [
-      `Проверьте официальное наименование: ${values.authorityName || "орган опеки не указан"}.`,
-      `Уточните компетенцию для муниципального образования: ${values.municipality || "не указано"}.`,
-      "Сверьте региональный способ подачи и часы приёма на официальном сайте органа.",
+      `Выбранный орган: ${values.authorityName || "орган опеки не подтверждён"}.`,
+      `Адрес: ${values.authorityAddress || "не подтверждён"}.`,
+      `Муниципальное образование: ${values.municipality || "не подтверждено"}.`,
+      `Сверьте способ подачи и часы приёма на официальном сайте: ${values.authorityWebsite || GUARDIANSHIP_DIRECTORY_METADATA.authoritySearchUrl}.`,
       "Подготовьте документ и персональные приложения.",
       "Предъявите оригиналы, если это предусмотрено применимым порядком.",
       "Получите подтверждение регистрации обращения.",
@@ -412,7 +428,48 @@ function numericAge(raw: string | undefined) {
 }
 
 function value(values: GuardianshipValues, key: string) {
+  if (key === "authorityName" && values.authorityName && values.authorityAddress) {
+    return `${values.authorityName}\nАдрес: ${values.authorityAddress}`;
+  }
   return values[key] || "не указано";
+}
+
+function validateGuardianshipTerritory(values: GuardianshipValues, issues: GuardianshipIssue[]) {
+  if (!values.region || !values.municipality) return;
+  if (!RUSSIAN_REGIONS.some((region) => region.id === values.region)) {
+    issues.push({ field: "region", message: "Выберите регион из официального списка." });
+    return;
+  }
+  if (values.municipality === TERRITORY_NOT_FOUND_ID) {
+    issues.push({
+      field: "municipality",
+      message: `Муниципальное образование не подтверждено. Найдите официальный сайт региона в федеральном каталоге ${GUARDIANSHIP_DIRECTORY_METADATA.authoritySearchUrl} и проверьте компетентный орган. Готовый документ не формируется.`
+    });
+    return;
+  }
+  if (values.authorityName === TERRITORY_NOT_FOUND_ID) {
+    issues.push({
+      field: "authorityName",
+      message: `Орган опеки не подтверждён. Проверьте его на официальном сайте выбранного региона: ${GUARDIANSHIP_DIRECTORY_METADATA.authoritySearchUrl}. Готовый документ не формируется.`
+    });
+    return;
+  }
+  const { municipality, authority } = findGuardianshipTerritory(values.region, values.municipality, values.authorityName);
+  if (!municipality) issues.push({ field: "municipality", message: "Выбранное муниципальное образование не относится к указанному региону." });
+  if (values.authorityName && !authority) issues.push({ field: "authorityName", message: "Выбранный орган опеки не подтверждён для указанного муниципального образования." });
+}
+
+function resolveGuardianshipTerritoryValues(values: GuardianshipValues): GuardianshipValues {
+  const { region, municipality, authority } = findGuardianshipTerritory(values.region, values.municipality, values.authorityName);
+  return {
+    ...values,
+    region: region?.label,
+    municipality: municipality?.name,
+    authorityName: authority?.name,
+    authorityAddress: authority?.address,
+    authorityWebsite: authority?.website,
+    authoritySource: authority ? `${authority.sourceName}, проверено ${authority.lastVerifiedAt}` : undefined
+  };
 }
 
 export function fieldByName(scenarioKey: GuardianshipScenarioKey, name: string): GuardianshipField | undefined {

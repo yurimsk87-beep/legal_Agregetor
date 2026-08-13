@@ -17,7 +17,7 @@ export type GuardianshipScenarioKey = (typeof GUARDIANSHIP_SCENARIO_KEYS)[number
 export type GuardianshipField = {
   name: string;
   label: string;
-  type?: "text" | "date" | "number" | "textarea" | "select";
+  type?: "text" | "date" | "number" | "textarea" | "select" | "territory-region" | "territory-municipality" | "guardianship-authority";
   required?: boolean;
   hint?: string;
   options?: Array<{ label: string; value: string }>;
@@ -48,9 +48,9 @@ const yesNoUnsure = [
 ];
 
 const authorityFields: GuardianshipField[] = [
-  { name: "region", label: "Регион", type: "text", required: true, hint: "Регион нужен для поиска местного органа и способа подачи." },
-  { name: "municipality", label: "Муниципальное образование", type: "text", required: true },
-  { name: "authorityName", label: "Орган опеки и попечительства", type: "text", required: true, hint: "Введите название вручную. Сервис не подтверждает официальность введённых реквизитов." }
+  { name: "region", label: "Регион", type: "territory-region", required: true, hint: "Выберите субъект Российской Федерации из официального перечня." },
+  { name: "municipality", label: "Муниципальное образование", type: "territory-municipality", required: true, hint: "Показаны только территории, сверенные с официальными источниками." },
+  { name: "authorityName", label: "Орган опеки и попечительства", type: "guardianship-authority", required: true, hint: "В документ попадут официальное наименование и адрес выбранного органа." }
 ];
 
 const sources = {

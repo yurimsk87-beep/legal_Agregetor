@@ -3,6 +3,13 @@ import { inflateRawSync } from "node:zlib";
 import { GUARDIANSHIP_LEGAL_RULES } from "@/data/guardianship-legal-review";
 import { GUARDIANSHIP_SCENARIOS } from "@/data/guardianship-route";
 import {
+  getGuardianshipAuthorityOptions,
+  getGuardianshipMunicipalityOptions,
+  GUARDIANSHIP_DIRECTORY_METADATA,
+  RUSSIAN_REGIONS,
+  TERRITORY_NOT_FOUND_ID
+} from "@/data/guardianship-territories";
+import {
   getVisibleGuardianshipFields,
   resetGuardianshipDependentValues,
   validateGuardianshipApplication
@@ -12,8 +19,9 @@ import {
   ensureGuardianshipDraftMarker,
   getGuardianshipDocxFilename
 } from "@/lib/guardianship-docx";
+import { filterSearchableSelectOptions } from "@/lib/searchable-select";
 
-const authority = { region: "Москва", municipality: "муниципальный округ", authorityName: "Наименование органа введено пользователем" };
+const authority = { region: "region-moscow", municipality: "moscow-gagarinsky", authorityName: "moscow-gagarinsky-administration" };
 const appointmentBase = {
   childAge: "8",
   childWithoutCare: "yes",
@@ -44,6 +52,8 @@ assert.equal(preliminary.allowed, true);
 assert.equal(preliminary.outputMode, "draft");
 assert.equal(preliminary.requiresLegalReview, true);
 assert.equal(preliminary.draftText.includes("предварительной опеки"), true);
+assert.equal(preliminary.draftText.includes("Администрация муниципального округа Гагаринский"), true);
+assert.equal(preliminary.draftText.includes("119296, Москва, Университетский проспект, д. 5"), true);
 assert.equal(preliminary.draftText.includes("определённый период"), false);
 
 const parentBase = {
@@ -201,10 +211,50 @@ const resetRefusal = resetGuardianshipDependentValues("refusal-inaction", "respo
 assert.equal(resetRefusal.responseDeadlineExpired, undefined);
 assert.equal(getVisibleGuardianshipFields("refusal-inaction", { responseState: "written-refusal" }).some(({ name }) => name === "responseDeadlineExpired"), false);
 
+const resetRegion = resetGuardianshipDependentValues("appointment", "region", { ...authority, region: "region-saint-petersburg" });
+assert.equal(resetRegion.municipality, undefined);
+assert.equal(resetRegion.authorityName, undefined);
+const resetMunicipality = resetGuardianshipDependentValues("appointment", "municipality", { ...authority, municipality: "moscow-kurkino" });
+assert.equal(resetMunicipality.authorityName, undefined);
+
+assert.equal(RUSSIAN_REGIONS.length, 89);
+assert.equal(new Set(RUSSIAN_REGIONS.map(({ id }) => id)).size, RUSSIAN_REGIONS.length);
+assert.equal(filterSearchableSelectOptions(RUSSIAN_REGIONS, "моск").some(({ id }) => id === "region-moscow"), true);
+assert.equal(filterSearchableSelectOptions(RUSSIAN_REGIONS, "северная осетия").some(({ id }) => id === "region-north-ossetia"), true);
+assert.equal(filterSearchableSelectOptions([{ id: "oryol", label: "Орёл" }], "орел").length, 1);
+assert.equal(getGuardianshipMunicipalityOptions("region-moscow").some(({ id }) => id === "moscow-gagarinsky"), true);
+assert.equal(getGuardianshipAuthorityOptions("moscow-gagarinsky").some(({ id }) => id === "moscow-gagarinsky-administration"), true);
+assert.equal(GUARDIANSHIP_DIRECTORY_METADATA.isComplete, false);
+
+const missingMunicipality = validateGuardianshipApplication("appointment", {
+  ...appointmentBase,
+  municipality: TERRITORY_NOT_FOUND_ID,
+  authorityName: undefined
+});
+assert.equal(missingMunicipality.allowed, false);
+assert.equal(missingMunicipality.draftText, "");
+assert.equal(missingMunicipality.issues.some(({ field }) => field === "municipality"), true);
+
+const missingAuthority = validateGuardianshipApplication("appointment", {
+  ...appointmentBase,
+  authorityName: TERRITORY_NOT_FOUND_ID
+});
+assert.equal(missingAuthority.allowed, false);
+assert.equal(missingAuthority.issues.some(({ field }) => field === "authorityName"), true);
+
+const mismatchedAuthority = validateGuardianshipApplication("appointment", {
+  ...appointmentBase,
+  municipality: "moscow-kurkino",
+  authorityName: "moscow-gagarinsky-administration"
+});
+assert.equal(mismatchedAuthority.allowed, false);
+assert.equal(mismatchedAuthority.issues.some(({ field }) => field === "authorityName"), true);
+
 const routeText = JSON.stringify(GUARDIANSHIP_SCENARIOS);
 assert.equal(routeText.includes("Приказ Минобрнауки"), false);
 assert.equal(routeText.includes("№ 334"), false);
 assert.equal(routeText.includes("0 ₽"), false);
+assert.equal(routeText.includes("Введите название вручную"), false);
 assert.equal(GUARDIANSHIP_LEGAL_RULES.some(({ scopeNote }) => scopeNote.includes("Приказ № 334 признан утратившим силу")), true);
 assert.equal(getGuardianshipDocxFilename("zhaloba-na-organ-opeki"), "CHERNOVIK-zhaloba-na-organ-opeki.docx");
 assert.equal(ensureGuardianshipDraftMarker("Пользователь удалил заголовок").startsWith("ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА"), true);

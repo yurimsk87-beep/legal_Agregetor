@@ -2,6 +2,15 @@
 
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import { SearchableSelect } from "@/components/forms/SearchableSelect";
+import {
+  findGuardianshipTerritory,
+  getGuardianshipAuthorityOptions,
+  getGuardianshipMunicipalityOptions,
+  getGuardianshipRegionOptions,
+  GUARDIANSHIP_DIRECTORY_METADATA,
+  TERRITORY_NOT_FOUND_ID
+} from "@/data/guardianship-territories";
 import { GUARDIANSHIP_SCENARIOS } from "@/data/guardianship-route";
 import type { GuardianshipField, GuardianshipScenarioKey } from "@/data/guardianship-route";
 import {
@@ -116,7 +125,7 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
             <div className="h-full bg-trust" style={{ width: `${((safeStep + 1) / fields.length) * 100}%` }} />
           </div>
           <div className="mt-6">
-            <HelperField field={field} onChange={setField} value={values[field.name] ?? ""} />
+            <HelperField field={field} onChange={setField} value={values[field.name] ?? ""} values={values} />
             {fieldError ? <p className="mt-2 text-sm text-rose-700" role="alert">{fieldError}</p> : null}
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -186,12 +195,35 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
   );
 }
 
-function HelperField({ field, onChange, value }: { field: GuardianshipField; onChange: (name: string, value: string) => void; value: string }) {
+function HelperField({ field, onChange, value, values }: { field: GuardianshipField; onChange: (name: string, value: string) => void; value: string; values: GuardianshipValues }) {
   const id = `guardianship-${field.name}`;
+  const territorialOptions = field.type === "territory-region"
+    ? getGuardianshipRegionOptions()
+    : field.type === "territory-municipality"
+      ? getGuardianshipMunicipalityOptions(values.region)
+      : field.type === "guardianship-authority"
+        ? getGuardianshipAuthorityOptions(values.municipality)
+        : [];
+  const isTerritorialField = ["territory-region", "territory-municipality", "guardianship-authority"].includes(field.type ?? "");
+  const selectedAuthority = field.type === "guardianship-authority"
+    ? findGuardianshipTerritory(values.region, values.municipality, value).authority
+    : undefined;
   return (
-    <label htmlFor={id} className="grid gap-2 text-sm font-semibold text-ink">
-      {field.label}{field.required ? <span className="sr-only"> (обязательно)</span> : null}
-      {field.type === "select" ? (
+    <div className="grid gap-2 text-sm font-semibold text-ink">
+      <label htmlFor={id}>{field.label}{field.required ? <span className="sr-only"> (обязательно)</span> : null}</label>
+      {isTerritorialField ? (
+        <SearchableSelect
+          id={id}
+          label={field.label}
+          options={territorialOptions}
+          value={value}
+          onChange={(selectedValue) => onChange(field.name, selectedValue)}
+          required={field.required}
+          disabled={field.type === "territory-municipality" ? !values.region : field.type === "guardianship-authority" ? !values.municipality || values.municipality === TERRITORY_NOT_FOUND_ID : false}
+          placeholder={field.type === "territory-region" ? "Выберите регион" : field.type === "territory-municipality" ? "Выберите муниципальное образование" : "Выберите орган опеки"}
+          searchPlaceholder={field.type === "territory-region" ? "Поиск региона" : field.type === "territory-municipality" ? "Поиск муниципального образования" : "Поиск органа опеки"}
+        />
+      ) : field.type === "select" ? (
         <select id={id} value={value} onChange={(event) => onChange(field.name, event.target.value)} className="min-h-11 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-normal outline-none focus:border-trust focus:ring-2 focus:ring-trust/20">
           <option value="">Выберите вариант</option>
           {field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
@@ -202,7 +234,25 @@ function HelperField({ field, onChange, value }: { field: GuardianshipField; onC
         <input id={id} type={field.type ?? "text"} min={field.type === "number" ? 0 : undefined} value={value} onChange={(event) => onChange(field.name, event.target.value)} className="min-h-11 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-normal outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" />
       )}
       {field.hint ? <span className="text-xs font-normal leading-5 text-zinc-600">{field.hint}</span> : null}
-    </label>
+      {isTerritorialField ? <span className="text-xs font-normal leading-5 text-zinc-600">Справочник не считается полным. Проверка данных: {GUARDIANSHIP_DIRECTORY_METADATA.lastVerifiedAt}.</span> : null}
+      {value === TERRITORY_NOT_FOUND_ID ? (
+        <div className="border border-amber-300 bg-amber-50 p-3 text-sm font-normal leading-6 text-amber-950">
+          <p>Реквизиты не подтверждены. Помощник не сформирует готовый документ с вымышленным адресатом.</p>
+          <a href={GUARDIANSHIP_DIRECTORY_METADATA.authoritySearchUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">
+            Открыть официальный каталог сайтов регионов
+          </a>
+        </div>
+      ) : null}
+      {selectedAuthority ? (
+        <div className="border-l-2 border-trust pl-3 text-xs font-normal leading-5 text-zinc-600">
+          <p>{selectedAuthority.address}</p>
+          <a href={selectedAuthority.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">
+            {selectedAuthority.sourceName}
+          </a>
+          <p>Проверено: {selectedAuthority.lastVerifiedAt}.</p>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
