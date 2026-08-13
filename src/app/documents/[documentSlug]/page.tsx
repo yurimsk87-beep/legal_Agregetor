@@ -201,9 +201,10 @@ function guardianshipSourceLabel(source: "official" | "official-court" | "consol
   return "контрольная консолидированная редакция";
 }
 
-function guardianshipStatusLabel(status: "current" | "primary-unavailable" | "regional-check-required") {
+function guardianshipStatusLabel(status: "current" | "primary-unavailable" | "regional-check-required" | "not-found") {
   if (status === "current") return "актуально";
   if (status === "regional-check-required") return "нужна региональная проверка";
+  if (status === "not-found") return "подтверждающая норма не найдена";
   return "первичный портал недоступен при проверке";
 }
 

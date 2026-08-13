@@ -48,7 +48,7 @@ const queries = [
   { query: "попечительство над ребёнком 15 лет", expected: guardianshipContent },
   { query: "предварительная опека", expected: guardianshipContent },
   { query: "срочно назначить опекуна ребёнку", expected: guardianshipContent },
-  { query: "временная опека бабушкой", expected: guardianshipContent },
+  { query: "опека бабушкой по заявлению родителей на определённый период", expected: guardianshipContent },
   { query: "родители уезжают ребёнок остаётся с родственником", expected: guardianshipContent },
   { query: "заявление родителей о назначении опекуна", expected: guardianshipContent },
   { query: "отчёт опекуна", expected: guardianshipContent },

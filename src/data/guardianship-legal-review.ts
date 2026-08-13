@@ -1,5 +1,5 @@
 export type GuardianshipLegalSourceType = "official" | "official-court" | "consolidated-fallback";
-export type GuardianshipLegalStatus = "current" | "primary-unavailable" | "regional-check-required";
+export type GuardianshipLegalStatus = "current" | "primary-unavailable" | "regional-check-required" | "not-found";
 
 export type GuardianshipLegalRule = {
   id: string;
@@ -15,7 +15,7 @@ export type GuardianshipLegalRule = {
   scopeNote: string;
 };
 
-const reviewedAt = "2026-08-12";
+const reviewedAt = "2026-08-13";
 
 export const GUARDIANSHIP_LEGAL_RULES: GuardianshipLegalRule[] = [
   {
@@ -56,6 +56,19 @@ export const GUARDIANSHIP_LEGAL_RULES: GuardianshipLegalRule[] = [
     status: "primary-unavailable",
     scenarios: ["appointment"],
     scopeNote: "Не смешивается с назначением по заявлению родителей на определённый период."
+  },
+  {
+    id: "immediate-child-threat",
+    statement: "При непосредственной угрозе жизни ребёнка или его здоровью обычная подготовка документа не должна задерживать экстренное обращение.",
+    act: "Семейный кодекс РФ и официальные рекомендации МЧС России",
+    provision: "статья 77 СК РФ; единый номер экстренных служб 112",
+    url: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925",
+    supplementaryUrl: "https://mchs.gov.ru/deyatelnost/bezopasnost-grazhdan/kak-pravilno-vyzvat-skoruyu_5",
+    sourceType: "official",
+    reviewedAt,
+    status: "current",
+    scenarios: ["appointment", "parent-period", "property-report", "refusal-inaction"],
+    scopeNote: "Экран срочных действий применяется только при непосредственной угрозе жизни или здоровью, а не к любому спору об имуществе или жилье."
   },
   {
     id: "parent-and-child-application",
@@ -114,8 +127,8 @@ export const GUARDIANSHIP_LEGAL_RULES: GuardianshipLegalRule[] = [
     statement: "Предварительное разрешение требуется для действий, способных уменьшить имущество или права подопечного; письменное решение выдают не позднее 15 дней.",
     act: "ГК РФ и Федеральный закон № 48-ФЗ",
     provision: "статья 37 ГК РФ; статьи 20-21 Закона № 48-ФЗ",
-    url: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102033239",
-    supplementaryUrl: "https://www.consultant.ru/document/cons_doc_LAW_5142/9deaf716ae6188bcfecb901fc9e9f941c551f6d7/",
+    url: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102121394",
+    supplementaryUrl: "https://www.consultant.ru/document/cons_doc_LAW_76459/9b84ad600c3e341d901bafef2e52b352dc1b4fe5/",
     sourceType: "consolidated-fallback",
     reviewedAt,
     status: "primary-unavailable",
@@ -134,6 +147,45 @@ export const GUARDIANSHIP_LEGAL_RULES: GuardianshipLegalRule[] = [
     status: "primary-unavailable",
     scenarios: ["property-report"],
     scopeNote: "Изменение 2025 года об отчёте организаций до 1 апреля не переносится на опекуна-гражданина."
+  },
+  {
+    id: "guardian-report-organization",
+    statement: "Организация, исполняющая обязанности опекуна или попечителя, представляет ежегодный отчёт не позднее 1 апреля текущего года.",
+    act: "Федеральный закон № 48-ФЗ",
+    provision: "статья 25, часть 1.1",
+    url: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102121394",
+    supplementaryUrl: "https://www.consultant.ru/document/cons_doc_LAW_76459/72e1a6801dc7a6fe07fdb517df734513f33b88ed/",
+    sourceType: "consolidated-fallback",
+    reviewedAt,
+    status: "primary-unavailable",
+    scenarios: ["property-report"],
+    scopeNote: "Срок 1 апреля применяется только к организациям из части 5 статьи 11 Закона № 48-ФЗ."
+  },
+  {
+    id: "nominal-account-reporting",
+    statement: "Сведения о расходовании сумм с отдельного номинального счёта включаются в ежегодный отчёт в пределах статьи 25 Закона № 48-ФЗ.",
+    act: "ГК РФ и Федеральный закон № 48-ФЗ",
+    provision: "пункт 1 статьи 37 ГК РФ; статья 25 Закона № 48-ФЗ",
+    url: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102033239",
+    supplementaryUrl: "https://www.consultant.ru/document/cons_doc_LAW_76459/72e1a6801dc7a6fe07fdb517df734513f33b88ed/",
+    sourceType: "consolidated-fallback",
+    reviewedAt,
+    status: "primary-unavailable",
+    scenarios: ["property-report"],
+    scopeNote: "Помощник не формирует банковское заявление и не подменяет правила конкретного банка."
+  },
+  {
+    id: "guardianship-federal-fee-search",
+    statement: "Специальная федеральная госпошлина за перечисленные обращения в орган опеки в проверенных нормах не найдена.",
+    act: "Федеральный закон № 48-ФЗ и глава 25.3 НК РФ",
+    provision: "контрольный поиск специальной нормы",
+    url: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102121394",
+    supplementaryUrl: "https://www.consultant.ru/document/cons_doc_LAW_28165/",
+    sourceType: "consolidated-fallback",
+    reviewedAt,
+    status: "not-found",
+    scenarios: ["appointment", "parent-period", "property-report"],
+    scopeNote: "Это не утверждение об отсутствии любых расходов: нотариальные, банковские, оценочные и регистрационные действия проверяются отдельно."
   },
   {
     id: "supreme-court-property",
@@ -184,7 +236,8 @@ export const GUARDIANSHIP_LEGAL_REVIEW = {
     government423: { title: "Постановление Правительства РФ № 423", href: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102130032" },
     educationForm: { title: "Приказ Минпросвещения № 4: официальное опубликование", href: "https://publication.pravo.gov.ru/Document/View/0001201903270001" },
     medical: { title: "Приказ Минздрава № 254н: действующий порядок освидетельствования", href: "https://publication.pravo.gov.ru/document/0001202505300028" },
-    supremeCourt: { title: "ВС РФ: определение № 49-В12-1", href: "https://vsrf.ru/files/14005/" }
+    supremeCourt: { title: "ВС РФ: определение № 49-В12-1", href: "https://vsrf.ru/files/14005/" },
+    emergency: { title: "СК РФ, статья 77, и официальный номер 112", href: "https://mchs.gov.ru/deyatelnost/bezopasnost-grazhdan/kak-pravilno-vyzvat-skoruyu_5" }
   }
 } as const;
 

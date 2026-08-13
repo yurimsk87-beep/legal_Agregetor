@@ -47,6 +47,15 @@ const yesNoUnsure = [
   { label: "Не уверен", value: "unsure" }
 ];
 
+const immediateThreatField: GuardianshipField = {
+  name: "immediateThreat",
+  label: "Есть непосредственная угроза жизни или здоровью ребёнка прямо сейчас?",
+  type: "select",
+  required: true,
+  options: yesNoUnsure,
+  hint: "При непосредственной угрозе обычная подготовка документа прекращается: сначала нужна экстренная помощь."
+};
+
 const authorityFields: GuardianshipField[] = [
   { name: "region", label: "Регион", type: "territory-region", required: true, hint: "Выберите субъект Российской Федерации из официального перечня." },
   { name: "municipality", label: "Муниципальное образование", type: "territory-municipality", required: true, hint: "Показаны только территории, сверенные с официальными источниками." },
@@ -60,7 +69,8 @@ const sources = {
   government423: GUARDIANSHIP_LEGAL_REVIEW.sources.government423,
   educationForm: GUARDIANSHIP_LEGAL_REVIEW.sources.educationForm,
   medical: GUARDIANSHIP_LEGAL_REVIEW.sources.medical,
-  supremeCourt: GUARDIANSHIP_LEGAL_REVIEW.sources.supremeCourt
+  supremeCourt: GUARDIANSHIP_LEGAL_REVIEW.sources.supremeCourt,
+  emergency: GUARDIANSHIP_LEGAL_REVIEW.sources.emergency
 };
 
 export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, GuardianshipScenario> = {
@@ -85,14 +95,15 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
       "Документ, удостоверяющий личность, и обследование условий жизни — для предварительной опеки.",
       "Автобиография, подтверждение дохода, медицинское заключение и согласия семьи — когда применим общий порядок."
     ],
-    fee: "Специальная федеральная госпошлина за подачу заявления о назначении опекуна в проверенных нормах не установлена. Возможные сопутствующие расходы нельзя рассчитывать без фактических обстоятельств.",
+    fee: "Специальная федеральная госпошлина за подачу заявления о назначении опекуна в проверенных нормах не найдена. Возможные сопутствующие расходы нельзя рассчитывать без фактических обстоятельств.",
     term: "При обычном порядке сроки зависят от межведомственных ответов, обследования и решения органа. Предварительная опека прекращается через 6 месяцев, а при исключительных обстоятельствах срок может быть увеличен до 8 месяцев, если общее назначение не состоялось.",
     filing: "В орган опеки по месту жительства кандидата для получения заключения; конкретное назначение также связано с органом по месту жительства ребёнка. Региональные электронные способы требуют отдельной проверки.",
     mainDocument: "Помощник по подготовке данных для официального заявления кандидата либо черновик обращения о предварительной опеке.",
     documentSlug: "zayavlenie-o-naznachenii-opekuna-rebenku",
     warning: "Официальную форму заявления сервис не воспроизводит приблизительно. При срочном порядке решение о предварительной опеке принимает орган опеки.",
-    legalSources: [sources.guardianshipLaw, sources.familyCode, sources.government423, sources.educationForm, sources.medical],
+    legalSources: [sources.guardianshipLaw, sources.familyCode, sources.government423, sources.educationForm, sources.medical, sources.emergency],
     helperFields: [
+      immediateThreatField,
       { name: "childAge", label: "Возраст ребёнка", type: "number", required: true },
       { name: "childWithoutCare", label: "Ребёнок остался без попечения родителей?", type: "select", required: true, options: yesNoUnsure },
       { name: "urgentNeed", label: "Нужно назначить опекуна немедленно?", type: "select", required: true, options: yesNoUnsure, hint: "Это вопрос о предварительной опеке по статье 12 Закона № 48-ФЗ, а не о временном отъезде родителей." },
@@ -100,6 +111,7 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
       { name: "candidateAge", label: "Возраст кандидата", type: "number", required: true },
       { name: "candidateCapacity", label: "Кандидат полностью дееспособен?", type: "select", required: true, options: yesNoUnsure },
       { name: "candidateObstacles", label: "Есть обстоятельства, препятствующие назначению по статье 146 СК РФ?", type: "select", required: true, options: yesNoUnsure, hint: "Например, лишение родительских прав, отдельные судимости, отстранение от опеки или медицинские противопоказания." },
+      { name: "candidateMaritalStatus", label: "Кандидат состоит в браке?", type: "select", required: true, options: yesNoUnsure },
       { name: "closeRelative", label: "Кандидат — близкий родственник ребёнка?", type: "select", required: true, options: yesNoUnsure },
       { name: "householdAdults", label: "С кандидатом совместно проживают совершеннолетние члены семьи?", type: "select", required: true, options: yesNoUnsure },
       { name: "householdConsent", label: "Получено их письменное согласие с учётом мнения совместно проживающих детей от 10 лет?", type: "select", required: true, options: yesNoUnsure },
@@ -110,33 +122,34 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
   },
   "parent-period": {
     key: "parent-period",
-    title: "Назначение на период отсутствия родителя",
-    shortTitle: "Родитель временно не может заботиться",
-    choiceDescription: "Проверить статью 13 Закона № 48-ФЗ и подготовить заявление родителей или ребёнка старше 14 лет.",
+    title: "Назначение по заявлению родителей или ребёнка с 14 лет",
+    shortTitle: "Родители или ребёнок выбирают конкретного попечителя",
+    choiceDescription: "Разделить совместное заявление родителей на определённый период и самостоятельное заявление ребёнка с 14 лет.",
     description: [
       "Родители могут совместно указать конкретного опекуна или попечителя на период, когда по уважительным причинам не могут исполнять обязанности. Период полномочий должен быть указан в акте органа опеки.",
-      "Ребёнок с 14 лет может сам просить назначить конкретного попечителя. Орган вправе отказать в указанной кандидатуре, если назначение противоречит закону или интересам ребёнка."
+      "Ребёнок с 14 лет может сам просить назначить конкретного попечителя. Для этого заявления закон не устанавливает условие о временном отсутствии родителей или определённом периоде."
     ],
     steps: [
-      "Определите, кто подаёт заявление и применима ли статья 13.",
-      "Укажите причину и точный предполагаемый период.",
+      "Определите, кто подаёт заявление и какая часть статьи 13 применяется.",
+      "Для родителей укажите уважительную причину и период; для ребёнка с 14 лет эти сведения не запрашиваются.",
       "Получите согласие предлагаемого опекуна или попечителя.",
       "Подготовьте сведения о ребёнке, родителях и кандидате.",
       "Подайте документ в орган опеки по месту жительства ребёнка."
     ],
     documents: [
-      "Совместное заявление родителей либо заявление несовершеннолетнего от 14 лет.",
+      "Совместное заявление родителей на определённый период либо отдельное заявление несовершеннолетнего от 14 лет.",
       "Документы, подтверждающие личности заявителей и кандидата.",
       "Подтверждение причины и периода — если его запросит орган по применимому регламенту."
     ],
-    fee: "Специальная федеральная госпошлина за такое заявление в проверенных нормах не установлена.",
+    fee: "Специальная федеральная госпошлина за такое заявление в проверенных нормах не найдена.",
     term: "Единый федеральный срок для всех региональных процедур по этому заявлению не подтверждён. Срок полномочий указывается в акте органа опеки.",
     filing: "Орган опеки и попечительства по месту жительства ребёнка. Доступность МФЦ или электронной подачи проверяется по региональному регламенту.",
-    mainDocument: "Черновик заявления по статье 13 Закона № 48-ФЗ с обязательной проверкой органом опеки.",
+    mainDocument: "Черновик применимого заявления по статье 13 Закона № 48-ФЗ.",
     documentSlug: "zayavlenie-roditelya-o-naznachenii-opekuna",
     warning: "Отъезд родителя или проживание ребёнка с родственником сами по себе не подтверждают применимость статьи 13. При одном заявляющем родителе или споре между представителями автоматизация останавливается.",
-    legalSources: [sources.guardianshipLaw, sources.familyCode],
+    legalSources: [sources.guardianshipLaw, sources.familyCode, sources.emergency],
     helperFields: [
+      immediateThreatField,
       { name: "applicantRole", label: "Кто подаёт заявление?", type: "select", required: true, options: [
         { label: "Оба родителя совместно", value: "both-parents" },
         { label: "Один родитель", value: "one-parent" },
@@ -144,14 +157,13 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
         { label: "Не уверен", value: "unsure" }
       ] },
       { name: "childAge", label: "Возраст ребёнка", type: "number", required: true },
-      { name: "reason", label: "Почему родители временно не могут исполнять обязанности?", type: "textarea", required: true },
+      { name: "reason", label: "Почему родители не смогут исполнять обязанности в указанный период?", type: "textarea", required: true },
       { name: "periodStart", label: "Предполагаемая дата начала полномочий", type: "date", required: true },
       { name: "periodEnd", label: "Предполагаемая дата окончания полномочий", type: "date", required: true },
       { name: "nomineeData", label: "ФИО, дата рождения и адрес предлагаемого опекуна или попечителя", type: "textarea", required: true },
       { name: "nomineeConsent", label: "Предлагаемое лицо согласно на назначение?", type: "select", required: true, options: yesNoUnsure },
       { name: "childData", label: "ФИО, дата рождения и адрес ребёнка", type: "textarea", required: true },
       { name: "parentsData", label: "ФИО, адреса и паспортные сведения родителей", type: "textarea", required: true },
-      { name: "otherRepresentative", label: "Есть второй родитель или иной законный представитель, чья позиция не отражена?", type: "select", required: true, options: yesNoUnsure },
       { name: "childInterests", label: "Есть сомнения, что назначение соответствует интересам ребёнка?", type: "select", required: true, options: yesNoUnsure },
       ...authorityFields
     ]
@@ -177,14 +189,15 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
       "Документы о доходах, расходах и имуществе подопечного.",
       "Правоустанавливающие документы и проект сделки — для запроса разрешения."
     ],
-    fee: "Федеральная госпошлина за обращение в орган опеки за предварительным разрешением в проверенных нормах не установлена. Оценка, нотариальные или регистрационные действия могут оплачиваться отдельно.",
-    term: "Отчёт опекуна-гражданина подаётся ежегодно не позднее 1 февраля, если договором не установлен иной срок. Разрешение или мотивированный отказ по статье 21 Закона № 48-ФЗ выдаётся письменно не позднее 15 дней с даты заявления.",
+    fee: "Специальная федеральная госпошлина за обращение в орган опеки за предварительным разрешением в проверенных нормах не найдена. Оценка, нотариальные, банковские или регистрационные действия могут оплачиваться отдельно.",
+    term: "Отчёт гражданина подаётся не позднее 1 февраля, если договором не установлен иной срок; отчёт организации — не позднее 1 апреля. Разрешение или мотивированный отказ по статье 21 Закона № 48-ФЗ выдаётся письменно не позднее 15 дней с даты заявления.",
     filing: "В орган опеки по месту жительства подопечного. Способ подачи и региональный состав приложений необходимо уточнить в выбранном органе.",
     mainDocument: "Помощник по данным для официального отчёта либо черновик обращения за предварительным разрешением.",
     documentSlug: "dokumenty-po-imushchestvu-podopechnogo",
     warning: "Недвижимость, ипотека, доли, материнский капитал, наследство, продажа с последующей покупкой и конфликт интересов всегда требуют юридической проверки.",
-    legalSources: [sources.guardianshipLaw, sources.civilCode, sources.government423, sources.supremeCourt],
+    legalSources: [sources.guardianshipLaw, sources.civilCode, sources.government423, sources.supremeCourt, sources.emergency],
     helperFields: [
+      immediateThreatField,
       { name: "propertyAction", label: "Что нужно сделать?", type: "select", required: true, options: [
         { label: "Подготовить ежегодный отчёт", value: "annual-report" },
         { label: "Понять порядок расходования выплат и номинального счёта", value: "nominal-account" },
@@ -192,9 +205,25 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
         { label: "Продать или обменять недвижимость ребёнка", value: "real-estate" },
         { label: "Другое или не уверен", value: "unsure" }
       ] },
+      { name: "guardianType", label: "Кто представляет ежегодный отчёт?", type: "select", required: true, options: [
+        { label: "Опекун или попечитель — гражданин", value: "citizen" },
+        { label: "Организация, исполняющая обязанности опекуна", value: "organization" },
+        { label: "Не уверен", value: "unsure" }
+      ] },
       { name: "guardianData", label: "ФИО, адрес и реквизиты акта о назначении опекуна", type: "textarea", required: true },
       { name: "childData", label: "ФИО, дата рождения и адрес подопечного", type: "textarea", required: true },
       { name: "reportYear", label: "Отчётный год", type: "number" },
+      { name: "operationType", label: "Какое имущественное действие планируется?", type: "select", required: true, options: [
+        { label: "Расходование денежных средств", value: "money" },
+        { label: "Движимое имущество", value: "movable" },
+        { label: "Продажа недвижимости", value: "real-estate-sale" },
+        { label: "Обмен недвижимости", value: "real-estate-exchange" },
+        { label: "Залог или аренда", value: "pledge-rent" },
+        { label: "Отказ от права, раздел или выдел доли", value: "waiver-division" },
+        { label: "Доверенность от имени подопечного", value: "power-of-attorney" },
+        { label: "Мировое соглашение или отказ от иска", value: "court-settlement" },
+        { label: "Другое или не уверен", value: "unsure" }
+      ] },
       { name: "assetDetails", label: "Имущество, счета, доходы и расходы, которых касается обращение", type: "textarea", required: true },
       { name: "operationDetails", label: "Опишите предполагаемое действие и его условия", type: "textarea" },
       { name: "rightsImpact", label: "Как будут сохранены имущественные и жилищные права ребёнка?", type: "textarea" },
@@ -215,7 +244,7 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
     steps: [
       "Зафиксируйте исходное обращение, дату и подтверждение подачи.",
       "Получите письменное решение или подтвердите отсутствие ответа.",
-      "Определите срочность для жизни, здоровья, жилья или имущества ребёнка.",
+      "Отдельно проверьте, нет ли непосредственной угрозы жизни или здоровью ребёнка.",
       "Подготовьте внесудебную жалобу либо материалы для правовой проверки.",
       "Судебный способ выбирайте только после определения процессуальной формы."
     ],
@@ -230,8 +259,9 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
     mainDocument: "Черновик внесудебной жалобы либо результат «Требуется юридическая проверка способа обжалования».",
     documentSlug: "zhaloba-na-organ-opeki",
     warning: "Судебное административное исковое заявление автоматически не формируется.",
-    legalSources: [sources.guardianshipLaw, sources.supremeCourt],
+    legalSources: [sources.guardianshipLaw, sources.supremeCourt, sources.emergency],
     helperFields: [
+      immediateThreatField,
       { name: "responseState", label: "Что произошло?", type: "select", required: true, options: [
         { label: "Получен письменный отказ", value: "written-refusal" },
         { label: "Ответ не получен", value: "no-response" },
@@ -244,7 +274,6 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
       { name: "refusalDetails", label: "Реквизиты и причины письменного отказа", type: "textarea" },
       { name: "filingProof", label: "Как подтверждается подача первоначального обращения?", type: "textarea", required: true },
       { name: "responseDeadlineExpired", label: "Подтверждённый срок ответа по исходной процедуре истёк?", type: "select", required: true, options: yesNoUnsure, hint: "Универсального срока для всех обращений нет. Сверьте срок по письменному регламенту или уведомлению органа." },
-      { name: "urgentThreat", label: "Есть срочная угроза жизни, здоровью, жилью или имуществу ребёнка?", type: "select", required: true, options: yesNoUnsure },
       { name: "complaintChannel", label: "Куда планируете обратиться?", type: "select", required: true, options: [
         { label: "Вышестоящий орган", value: "higher-authority" },
         { label: "Прокуратура", value: "prosecutor" },
