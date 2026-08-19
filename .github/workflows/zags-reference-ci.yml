@@ -35,7 +35,7 @@ jobs:
       DATABASE_URL: postgresql://legal_user:legal_password@localhost:5432/legal_aggregator_ci?schema=public
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       SITE_URL: http://localhost:3000
-      LEAD_ATTACHMENT_STORAGE_ROOT: ${{ runner.temp }}/private-lead-attachments
+      LEAD_ATTACHMENT_STORAGE_ROOT: /tmp/private-lead-attachments
 
     steps:
       - uses: actions/checkout@v4
