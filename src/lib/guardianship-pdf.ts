@@ -1,10 +1,9 @@
 import type { Content, TDocumentDefinitions } from "pdfmake/interfaces";
+import { getGuardianshipLegalReviewDate } from "@/data/guardianship-legal-review";
 import type { GuardianshipDecision } from "@/lib/guardianship-validator";
 
-const reviewedAt = "13.08.2026";
-
-export function getGuardianshipPdfFilename(outcomeKey: string) {
-  return `opeka-${outcomeKey}.pdf`;
+export function getGuardianshipPdfFilename(outcomeKey: string, isDraft = false) {
+  return `${isDraft ? "CHERNOVIK-" : ""}opeka-${outcomeKey}.pdf`;
 }
 
 export function buildGuardianshipPdfText(decision: GuardianshipDecision, draft: string) {
@@ -14,6 +13,15 @@ export function buildGuardianshipPdfText(decision: GuardianshipDecision, draft: 
     decision.documentTitle,
     "",
     ...decision.notices,
+    ...(decision.issues.length ? ["", "Что нужно уточнить:", ...decision.issues.map((issue) => `- ${issue.message}`)] : []),
+    "",
+    `Можно подавать результат сразу: ${decision.filingReady ? "да" : "нет"}.`,
+    ...(decision.requiresLegalReview ? ["Причина: результат требует юридической проверки до подачи."] : []),
+    "",
+    "Подготовленные сведения:",
+    ...(decision.preparedData.length
+      ? decision.preparedData.map((item) => `- ${item.label}: ${item.value}`)
+      : ["- Для этого результата персональные сведения не требуются."]),
     "",
     `Пошлина и расходы: ${decision.fee}`,
     `Срок: ${decision.deadline}`,
@@ -31,9 +39,7 @@ export function buildGuardianshipPdfText(decision: GuardianshipDecision, draft: 
     "",
     "Алгоритм действий:",
     ...decision.filingSteps.map((item, index) => `${index + 1}. ${item}`),
-    ...(draft ? ["", "Маркированный черновик:", draft] : []),
-    "",
-    `Правовая сверка маршрута: ${reviewedAt}.`
+    ...(draft ? ["", "Маркированный черновик:", draft] : [])
   ].join("\n");
 }
 
@@ -51,15 +57,26 @@ export async function createGuardianshipPdfBlob(decision: GuardianshipDecision, 
   (pdfMake as typeof pdfMake & { addVirtualFileSystem: (files: Record<string, string>) => void }).addVirtualFileSystem(vfs);
 
   const content: Content[] = [
-    { text: decision.resultLabel, style: "eyebrow" },
-    { text: decision.documentTitle, style: "title" },
     {
-      text: decision.requiresLegalReview
-        ? "ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА"
-        : "ЛИСТ ПОДГОТОВЛЕННЫХ ДАННЫХ — НЕ ОФИЦИАЛЬНЫЙ БЛАНК",
-      style: "warning"
+      unbreakable: true,
+      stack: [
+        { text: decision.resultLabel, style: "eyebrow" },
+        { text: decision.documentTitle, style: "title" },
+        {
+          text: decision.requiresLegalReview
+            ? "ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА"
+            : `${decision.resultLabel.toUpperCase()} — НЕ ОФИЦИАЛЬНЫЙ БЛАНК`,
+          style: "warning"
+        }
+      ]
     },
     ...decision.notices.map((text) => ({ text, margin: [0, 0, 0, 6] }) as Content),
+    ...(decision.issues.length ? [section("Что нужно уточнить", decision.issues.map((issue) => issue.message))] : []),
+    section("Статус использования", [
+      decision.filingReady ? "Результат можно использовать по инструкции." : "Результат нельзя считать готовым к подаче.",
+      ...(decision.requiresLegalReview ? ["До подачи требуется юридическая проверка."] : [])
+    ]),
+    preparedDataSection(decision),
     section("Пошлина и расходы", [decision.fee]),
     section("Срок", [decision.deadline]),
     documentSection("Предоставляет заявитель", decision.providedDocuments),
@@ -79,11 +96,18 @@ export async function createGuardianshipPdfBlob(decision: GuardianshipDecision, 
     );
   }
 
-  content.push({ text: `Правовая сверка маршрута: ${reviewedAt}.`, style: "footerNote" });
+  const reviewedAt = getGuardianshipLegalReviewDate().split("-").reverse().join(".");
 
   const definition: TDocumentDefinitions = {
     pageSize: "A4",
-    pageMargins: [42, 48, 42, 48],
+    pageMargins: [42, 48, 42, 60],
+    footer: (currentPage, pageCount) => ({
+      margin: [42, 12, 42, 0],
+      columns: [
+        { text: `Правовая сверка: ${reviewedAt}`, style: "footerNote" },
+        { text: `Страница ${currentPage} из ${pageCount}`, alignment: "right", style: "footerNote" }
+      ]
+    }),
     defaultStyle: { font: "Roboto", fontSize: 10, lineHeight: 1.35, color: "#18181b" },
     content,
     styles: {
@@ -113,9 +137,28 @@ export async function createGuardianshipPdfBlob(decision: GuardianshipDecision, 
 function section(title: string, items: string[]): Content {
   if (!items.length) return { text: "" };
   return {
+    unbreakable: items.length <= 4,
     stack: [
       { text: title, style: "heading" },
       { ul: [...items] }
+    ]
+  };
+}
+
+function preparedDataSection(decision: GuardianshipDecision): Content {
+  const rows = decision.preparedData.length
+    ? decision.preparedData.map((item) => [
+        { text: item.label, bold: true, margin: [0, 2, 4, 2] },
+        { text: item.value, margin: [0, 2, 0, 2] }
+      ])
+    : [[{ text: "Для этого результата персональные сведения не требуются.", colSpan: 2 }, {}]];
+  return {
+    stack: [
+      { text: "Подготовленные сведения", style: "heading" },
+      {
+        table: { widths: ["38%", "62%"], body: rows, dontBreakRows: true },
+        layout: "lightHorizontalLines"
+      }
     ]
   };
 }

@@ -30,7 +30,7 @@ export async function GET(request: Request, { params }: RouteProps) {
   }
 
   try {
-    const file = await readLeadPdfAttachment(attachment.storageKey);
+    const file = await readLeadPdfAttachment(attachment);
     await logAdminAudit({
       request,
       adminId: admin.id,

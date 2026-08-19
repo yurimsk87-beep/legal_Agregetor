@@ -13,6 +13,7 @@ export type GuardianshipLegalRule = {
   status: GuardianshipLegalStatus;
   scenarios: string[];
   scopeNote: string;
+  edition?: string;
 };
 
 const reviewedAt = "2026-08-13";
@@ -81,7 +82,22 @@ export const GUARDIANSHIP_LEGAL_RULES: GuardianshipLegalRule[] = [
     reviewedAt,
     status: "primary-unavailable",
     scenarios: ["parent-period"],
-    scopeNote: "Одностороннее заявление родителя по части 1 не автоматизируется без индивидуальной проверки."
+    scopeNote: "Порядок на определённый период по части 1 и заявление ребёнка по части 3 не смешиваются с распоряжением на случай смерти.",
+    edition: "редакция Федерального закона № 48-ФЗ от 29.09.2025"
+  },
+  {
+    id: "parent-death-application",
+    statement: "Единственный родитель на случай своей смерти или оба родителя на случай одновременной смерти вправе определить конкретного опекуна или попечителя, изменить либо отменить заявление.",
+    act: "Федеральный закон № 48-ФЗ",
+    provision: "статья 13, часть 2",
+    url: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102121394",
+    supplementaryUrl: "https://www.consultant.ru/document/cons_doc_LAW_76459/ff202d87e686459df7304a4758f30cb25f706054/",
+    sourceType: "consolidated-fallback",
+    reviewedAt,
+    status: "primary-unavailable",
+    scenarios: ["parent-period"],
+    scopeNote: "Черновик не заменяет собственноручную подпись, дату заявления и удостоверение подписи одним из способов, прямо перечисленных в части 2 статьи 13.",
+    edition: "редакция Федерального закона № 48-ФЗ от 29.09.2025"
   },
   {
     id: "candidate-documents",
@@ -146,7 +162,8 @@ export const GUARDIANSHIP_LEGAL_RULES: GuardianshipLegalRule[] = [
     reviewedAt,
     status: "primary-unavailable",
     scenarios: ["property-report"],
-    scopeNote: "Изменение 2025 года об отчёте организаций до 1 апреля не переносится на опекуна-гражданина."
+    scopeNote: "Изменение 2025 года об отчёте организаций до 1 апреля не переносится на опекуна-гражданина.",
+    edition: "редакция Федерального закона № 48-ФЗ от 29.09.2025"
   },
   {
     id: "guardian-report-organization",
@@ -159,7 +176,8 @@ export const GUARDIANSHIP_LEGAL_RULES: GuardianshipLegalRule[] = [
     reviewedAt,
     status: "primary-unavailable",
     scenarios: ["property-report"],
-    scopeNote: "Срок 1 апреля применяется только к организациям из части 5 статьи 11 Закона № 48-ФЗ."
+    scopeNote: "Срок 1 апреля применяется только к организациям из части 5 статьи 11 Закона № 48-ФЗ.",
+    edition: "редакция Федерального закона № 48-ФЗ от 29.09.2025"
   },
   {
     id: "nominal-account-reporting",
@@ -222,7 +240,7 @@ export const GUARDIANSHIP_LEGAL_RULES: GuardianshipLegalRule[] = [
     reviewedAt,
     status: "primary-unavailable",
     scenarios: ["refusal-inaction"],
-    scopeNote: "Автоматический судебный документ отключён; возможен только черновик внесудебной жалобы."
+    scopeNote: "Автоматические судебные и внесудебные жалобы отключены до подтверждения конкретного адресата и применимого порядка."
   }
 ];
 

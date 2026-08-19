@@ -31,7 +31,10 @@ export const GUARDIANSHIP_OUTCOME_KEYS = [
   "appointment-preliminary",
   "parent-period-parents",
   "parent-period-child-14",
-  "parent-period-single-parent-review",
+  "parent-death-sole",
+  "parent-death-both",
+  "parent-death-change",
+  "parent-death-cancel",
   "annual-report-citizen",
   "annual-report-organization",
   "nominal-account",
@@ -50,6 +53,8 @@ export const GUARDIANSHIP_OUTCOME_KEYS = [
 export type GuardianshipOutcomeKey = (typeof GUARDIANSHIP_OUTCOME_KEYS)[number];
 export type GuardianshipResultKind = "data-sheet" | "checklist" | "draft" | "urgent";
 
+export type GuardianshipPreparedDataItem = { label: string; value: string };
+
 export type GuardianshipDecision = {
   allowed: boolean;
   outputMode: "official-helper" | "draft" | "manual-review" | "urgent";
@@ -65,6 +70,8 @@ export type GuardianshipDecision = {
   notices: string[];
   requiresLegalReview: boolean;
   officialFormUrl?: string;
+  officialFormLinkLabel?: string;
+  preparedData: GuardianshipPreparedDataItem[];
   providedDocuments: GuardianshipDocumentItem[];
   interagencyInformation: GuardianshipDocumentItem[];
   originals: string[];
@@ -93,21 +100,31 @@ export function isGuardianshipFieldVisible(
   if (fieldName !== "immediateThreat" && values.immediateThreat === "yes") return false;
   if (scenarioKey === "appointment") {
     const preliminary = values.urgentNeed === "yes";
-    if (["candidateObstacles", "candidateMaritalStatus", "closeRelative", "householdAdults", "householdConsent"].includes(fieldName)) {
+    if (["parentalRightsRestricted", "formerGuardianRemoved", "adoptionCancelledForFault", "knownCriminalRestriction", "healthContraindications", "candidateMaritalStatus", "trainingStatus", "householdAdults", "householdConsent"].includes(fieldName)) {
       if (preliminary) return false;
       if (fieldName === "householdConsent") return values.householdAdults === "yes";
     }
     if (fieldName === "childData") return preliminary || values.knownChild !== "no";
   }
   if (scenarioKey === "parent-period") {
-    const parentsOnly = ["reason", "periodStart", "periodEnd", "parentsData"];
-    if (parentsOnly.includes(fieldName)) return values.applicantRole !== "child-14";
+    const basis = values.article13Basis;
+    if (["reason", "periodStart", "periodEnd"].includes(fieldName)) return basis === "parents-period";
+    if (fieldName === "parentsData") return basis !== "child-14";
+    if (fieldName === "soleParentConfirmed") return basis === "sole-parent-death";
+    if (fieldName === "previousStatementDetails") return basis === "change-death" || basis === "cancel-death";
+    if (fieldName === "deathStatementApplicant") return basis === "change-death" || basis === "cancel-death";
+    if (fieldName === "statementDate") return ["sole-parent-death", "both-parents-death", "change-death", "cancel-death"].includes(basis ?? "");
+    if (fieldName === "signatureAuthentication") return ["sole-parent-death", "both-parents-death", "change-death", "cancel-death"].includes(basis ?? "");
+    if (["nomineeData", "nomineeConsent", "childInterests"].includes(fieldName)) return basis !== "cancel-death";
   }
   if (scenarioKey === "property-report") {
     const action = values.propertyAction;
-    if (["guardianData", "childData", "assetDetails"].includes(fieldName)) return action !== "nominal-account";
+    if (["guardianData", "childData"].includes(fieldName)) return action !== "nominal-account";
+    if (fieldName === "assetDetails") return action === "permission" || action === "real-estate";
     if (fieldName === "guardianType") return action === "annual-report";
     if (fieldName === "reportYear") return action === "annual-report";
+    if (["assetCondition", "assetLocation", "replacementProperty", "managementIncome", "wardExpenses", "nominalAccountTransactions", "supportingDocuments", "minorHouseholdExpenses"].includes(fieldName)) return action === "annual-report";
+    if (["nominalAccountDetails", "nominalOperations"].includes(fieldName)) return action === "nominal-account";
     if (fieldName === "operationType") return action === "permission" || action === "real-estate";
     if (["operationDetails", "rightsImpact", "complexProperty", "conflictInterest"].includes(fieldName)) {
       return action === "permission" || action === "real-estate";
@@ -135,18 +152,27 @@ export function resetGuardianshipDependentValues(
   if (scenarioKey === "appointment" && changedField === "householdAdults" && next.householdAdults !== "yes") {
     delete next.householdConsent;
   }
-  if (scenarioKey === "parent-period" && changedField === "applicantRole") {
-    if (next.applicantRole === "child-14") {
-      delete next.reason;
-      delete next.periodStart;
-      delete next.periodEnd;
-      delete next.parentsData;
+  if (scenarioKey === "parent-period" && changedField === "article13Basis") {
+    for (const field of ["reason", "periodStart", "periodEnd", "parentsData", "soleParentConfirmed", "previousStatementDetails", "deathStatementApplicant", "statementDate", "signatureAuthentication", "nomineeData", "nomineeConsent", "childInterests"]) {
+      if (!isGuardianshipFieldVisible(scenarioKey, field, next)) delete next[field];
     }
   }
   if (scenarioKey === "property-report" && changedField === "propertyAction") {
     if (next.propertyAction !== "annual-report") {
       delete next.guardianType;
       delete next.reportYear;
+      delete next.assetCondition;
+      delete next.assetLocation;
+      delete next.replacementProperty;
+      delete next.managementIncome;
+      delete next.wardExpenses;
+      delete next.nominalAccountTransactions;
+      delete next.supportingDocuments;
+      delete next.minorHouseholdExpenses;
+    }
+    if (next.propertyAction !== "nominal-account") {
+      delete next.nominalAccountDetails;
+      delete next.nominalOperations;
     }
     if (!(["permission", "real-estate"].includes(next.propertyAction ?? ""))) {
       delete next.operationType;
@@ -200,6 +226,7 @@ export function validateGuardianshipApplication(
   if (scenarioKey === "parent-period") validateParentPeriod(values, base);
   if (scenarioKey === "property-report") validateProperty(values, base);
   if (scenarioKey === "refusal-inaction") validateComplaint(values, base);
+  base.preparedData = buildPreparedData(visibleFields, rawValues, values);
   base.allowed = base.issues.length === 0 && base.outputMode !== "manual-review";
   const missingRequired = base.issues.some(({ message }) => message.startsWith("Заполните поле"));
   const unverifiedAuthority = base.issues.some(({ field }) => ["region", "municipality", "authorityName"].includes(field ?? ""));
@@ -240,8 +267,20 @@ function validateAppointment(values: GuardianshipValues, decision: GuardianshipD
   if (values.knownChild === "yes" && !values.childData) {
     decision.issues.push({ field: "childData", message: "Укажите сведения о конкретном ребёнке." });
   }
-  if (!isPreliminary && values.candidateObstacles !== "no") {
-    decision.issues.push({ field: "candidateObstacles", message: "Препятствия или неопределённость должен проверить орган опеки до подготовки данных для общего порядка." });
+  if (!isPreliminary) {
+    const obstacleFields = [
+      ["parentalRightsRestricted", "Лишение или ограничение родительских прав препятствует автоматической подготовке результата."],
+      ["formerGuardianRemoved", "Предыдущее отстранение от обязанностей по вине кандидата требует проверки органом опеки."],
+      ["adoptionCancelledForFault", "Отмена усыновления по вине кандидата требует проверки органом опеки."],
+      ["knownCriminalRestriction", "Сведения о судимости или уголовном преследовании должен проверить орган опеки."],
+      ["healthContraindications", "Медицинские противопоказания должны быть проверены по установленному перечню."]
+    ] as const;
+    for (const [field, message] of obstacleFields) {
+      if (values[field] !== "no") decision.issues.push({ field, message });
+    }
+    if (values.trainingStatus === "not-completed" || values.trainingStatus === "unsure" || !values.trainingStatus) {
+      decision.issues.push({ field: "trainingStatus", message: "Подтвердите прохождение подготовки либо одно из прямо предусмотренных законом исключений." });
+    }
   }
   if (!isPreliminary && values.candidateMaritalStatus === "unsure") {
     decision.issues.push({ field: "candidateMaritalStatus", message: "Уточните семейное положение: от него зависит приложение копии свидетельства о браке." });
@@ -297,17 +336,19 @@ function validateAppointment(values: GuardianshipValues, decision: GuardianshipD
     decision.originals = ["Документ, удостоверяющий личность.", "Оригиналы приложенных документов до вынесения решения."];
     decision.copies = [
       ...(values.candidateMaritalStatus === "yes" ? ["Копия свидетельства о браке."] : []),
-      ...(values.closeRelative !== "yes" ? ["Копия свидетельства о прохождении подготовки."] : [])
+      ...(values.trainingStatus === "completed" ? ["Копия свидетельства о прохождении подготовки."] : [])
     ];
-    decision.deadline = "Орган направляет межведомственные запросы в течение 2 рабочих дней. После подтверждения сведений обследование проводится в течение 3 рабочих дней, решение принимается в течение 10 рабочих дней, а акт или заключение направляется заявителю в течение 3 дней после подписания.";
+    decision.deadline = "Запросы направляются в течение 2 рабочих дней, ответы поступают в течение 5 рабочих дней. После подтверждения сведений обследование проводится в течение 3 рабочих дней; акт обследования оформляется в течение 3 дней и направляется заявителю в течение 3 дней после утверждения. Решение принимается в течение 10 рабочих дней после подтверждения сведений и направляется в течение 3 дней после подписания. Внесение в журнал — в течение 3 дней; заключение действительно 2 года.";
     decision.filingSteps = authoritySteps(values, [
       "Откройте действующую официальную форму заявления и перенесите в неё подготовленные сведения.",
       "Приложите только документы, которые предоставляет кандидат по федеральным Правилам и вашим ответам.",
       "Подайте заявление лично либо через предусмотренный Правилами № 423 электронный канал или МФЦ, если для выбранного органа такой канал технически доступен и действует соглашение о взаимодействии.",
-      "Сохраните подтверждение регистрации и акт обследования условий жизни.",
+      "Орган направляет межведомственные запросы в течение 2 рабочих дней; ответы на них направляются в течение 5 рабочих дней.",
+      "После подтверждения сведений орган проводит обследование в течение 3 рабочих дней, оформляет акт в течение 3 дней и направляет экземпляр заявителю в течение 3 дней после утверждения.",
+      "Орган принимает решение в течение 10 рабочих дней после подтверждения сведений и направляет его в течение 3 дней после подписания.",
       appointmentForChild
-        ? "Получите письменный акт о назначении либо отказ; при отказе сохраните полный мотивированный текст."
-        : "Получите заключение о возможности быть опекуном или попечителем; после постановки на учёт орган предоставляет сведения о детях и направление для посещения ребёнка."
+        ? "Лично познакомьтесь с ребёнком, ознакомьтесь с документами его личного дела и письменно подтвердите ознакомление с медицинским заключением."
+        : "После подписания заключения орган в течение 3 дней вносит сведения в журнал, предоставляет сведения о детях и выдаёт направление для посещения; заключение действительно 2 года."
     ]);
   }
 }
@@ -317,44 +358,63 @@ function validateParentPeriod(values: GuardianshipValues, decision: Guardianship
   if (childAge === null || childAge < 0 || childAge >= 18) {
     decision.issues.push({ field: "childAge", message: "Укажите возраст несовершеннолетнего от 0 до 17 лет." });
   }
-  if (values.applicantRole === "child-14" && (childAge === null || childAge < 14)) {
+  const basis = values.article13Basis;
+  if (basis === "child-14" && (childAge === null || childAge < 14)) {
     decision.issues.push({ field: "childAge", message: "Заявление самого несовершеннолетнего допускается только после достижения 14 лет." });
   }
-  if (values.applicantRole === "one-parent" || values.applicantRole === "unsure") {
+  if (basis === "unsure" || !basis) {
     decision.outputMode = "manual-review";
-    decision.outcomeKey = values.applicantRole === "one-parent" ? "parent-period-single-parent-review" : "unresolved";
+    decision.outcomeKey = "unresolved";
     decision.resultKind = "checklist";
     decision.resultLabel = "Лист юридической проверки применимого порядка";
     decision.requiresLegalReview = true;
-    decision.issues.push({ field: "applicantRole", message: "Часть 1 статьи 13 предусматривает совместное заявление родителей. Односторонний случай требует индивидуальной проверки." });
+    decision.issues.push({ field: "article13Basis", message: "Выберите конкретное основание из частей 1-3 статьи 13 Закона № 48-ФЗ." });
   }
-  if (values.nomineeConsent !== "yes") {
+  const cancelsDeathStatement = basis === "cancel-death";
+  const deathStatement = ["sole-parent-death", "both-parents-death", "change-death", "cancel-death"].includes(basis ?? "");
+  if (!cancelsDeathStatement && values.nomineeConsent !== "yes") {
     decision.issues.push({ field: "nomineeConsent", message: "Без согласия предлагаемого лица подготовка заявления небезопасна." });
   }
-  if (values.childInterests !== "no") {
+  if (!cancelsDeathStatement && values.childInterests !== "no") {
     decision.issues.push({ field: "childInterests", message: "При сомнении в интересах ребёнка кандидатуру должен сначала проверить орган опеки." });
   }
-  const isChildApplication = values.applicantRole === "child-14";
-  if (!isChildApplication && values.periodStart && values.periodEnd && values.periodEnd < values.periodStart) {
+  if (basis === "parents-period" && values.periodStart && values.periodEnd && values.periodEnd < values.periodStart) {
     decision.issues.push({ field: "periodEnd", message: "Дата окончания не может быть раньше даты начала." });
+  }
+  if (basis === "sole-parent-death" && values.soleParentConfirmed !== "yes") {
+    decision.issues.push({ field: "soleParentConfirmed", message: "Статус единственного родителя должен быть подтверждён до подготовки заявления по части 2 статьи 13." });
+  }
+  if (deathStatement && (values.signatureAuthentication === "unsure" || !values.signatureAuthentication)) {
+    decision.issues.push({ field: "signatureAuthentication", message: "Для заявления по части 2 статьи 13 необходимо определить предусмотренный законом способ удостоверения подписи." });
+  }
+  if (basis === "change-death" && values.deathStatementApplicant === "one-of-two") {
+    decision.issues.push({ field: "deathStatementApplicant", message: "Изменить такое заявление вправе единственный родитель либо оба родителя совместно. Один из двух родителей может отдельно отменить заявление, но не изменить его." });
+  }
+  if ((basis === "change-death" || basis === "cancel-death") && (values.deathStatementApplicant === "unsure" || !values.deathStatementApplicant)) {
+    decision.issues.push({ field: "deathStatementApplicant", message: "Уточните, кто изменяет или отменяет ранее поданное заявление." });
   }
 
   decision.outputMode = decision.outputMode === "manual-review" ? "manual-review" : "draft";
-  decision.outcomeKey = decision.outputMode === "manual-review"
-    ? decision.outcomeKey
-    : isChildApplication ? "parent-period-child-14" : "parent-period-parents";
+  if (decision.outputMode !== "manual-review") {
+    decision.outcomeKey = ({
+      "parents-period": "parent-period-parents",
+      "child-14": "parent-period-child-14",
+      "sole-parent-death": "parent-death-sole",
+      "both-parents-death": "parent-death-both",
+      "change-death": "parent-death-change",
+      "cancel-death": "parent-death-cancel"
+    } as const)[basis as "parents-period" | "child-14" | "sole-parent-death" | "both-parents-death" | "change-death" | "cancel-death"] ?? "unresolved";
+  }
   decision.resultKind = decision.outputMode === "manual-review" ? "checklist" : "draft";
   decision.resultLabel = decision.outputMode === "manual-review" ? decision.resultLabel : "Маркированный черновик заявления";
-  decision.documentTitle = isChildApplication
-    ? "Заявление несовершеннолетнего о назначении конкретного попечителя"
-    : "Совместное заявление родителей о назначении опекуна или попечителя на определённый период";
+  decision.documentTitle = article13DocumentTitle(basis);
   decision.requiresLegalReview = true;
   decision.draftText = decision.outputMode === "manual-review" ? "" : buildParentPeriodRequest(values);
   decision.providedDocuments = [
     item("Документы, удостоверяющие личности заявителей", "Подтверждают личность и возраст.", "компетентные органы, выдавшие документы", "оригиналы", "предъявляют заявители", "статья 13 Закона № 48-ФЗ"),
     item(
       "Черновик заявления",
-      isChildApplication ? "Указывает конкретного предлагаемого попечителя." : "Указывает конкретное лицо, уважительную причину и определённый период.",
+      article13DraftPurpose(basis),
       "составляют заявители",
       "свободная форма; проверить в органе",
       "предоставляют заявители",
@@ -362,25 +422,14 @@ function validateParentPeriod(values: GuardianshipValues, decision: Guardianship
     )
   ];
   decision.originals = ["Документы, удостоверяющие личности заявителей и предлагаемого лица."];
-  decision.regionalDocuments = isChildApplication
-    ? ["Региональный способ подачи необходимо проверить в выбранном органе."]
-    : ["Подтверждения уважительной причины и региональный способ подачи — уточнить в выбранном органе."];
-  decision.deadline = isChildApplication
-    ? "Универсальный федеральный срок принятия решения по заявлению ребёнка с 14 лет в проверенных нормах не найден."
-    : "Срок полномочий указывается в акте органа опеки. Универсальный срок принятия решения для всех регионов не подтверждён.";
-  decision.filingSteps = authoritySteps(values, isChildApplication ? [
-    "Проверьте данные конкретного предлагаемого попечителя и его согласие.",
-    "Подайте самостоятельное заявление ребёнка с 14 лет в орган опеки по месту жительства ребёнка.",
-    "Не добавляйте период отсутствия родителей: он относится к совместному заявлению родителей, а не к заявлению ребёнка.",
-    "Сохраните подтверждение регистрации заявления.",
-    "Получите письменный акт либо мотивированный отказ по указанной кандидатуре."
-  ] : [
-    "Оба родителя подписывают совместное заявление с указанием конкретного лица, уважительной причины и периода.",
-    "Подайте заявление в орган опеки по месту жительства ребёнка и предъявите документы заявителей.",
-    "Сохраните подтверждение регистрации заявления.",
-    "Получите письменный акт с точным сроком полномочий опекуна или попечителя.",
-    "При отказе запросите и сохраните мотивированный письменный текст."
-  ]);
+  decision.regionalDocuments = basis === "parents-period"
+    ? ["Подтверждения уважительной причины и региональный способ подачи — уточнить в выбранном органе."]
+    : ["Региональный способ подачи необходимо проверить в выбранном органе."];
+  decision.deadline = basis === "parents-period"
+    ? "Срок полномочий указывается в акте органа опеки. Универсальный срок принятия решения для всех регионов не подтверждён."
+    : "Универсальный федеральный срок рассмотрения этого заявления в проверенной статье 13 не установлен.";
+  decision.fee = "Специальная федеральная госпошлина за подачу заявления по статье 13 Закона № 48-ФЗ в проверенных нормах не найдена. Расходы на удостоверение подписи зависят от применимого способа и автоматически не рассчитываются.";
+  decision.filingSteps = authoritySteps(values, article13FilingSteps(basis));
 }
 
 function validateProperty(values: GuardianshipValues, decision: GuardianshipDecision) {
@@ -401,11 +450,16 @@ function validateProperty(values: GuardianshipValues, decision: GuardianshipDeci
     decision.resultLabel = "Лист подготовленных данных для официальной формы отчёта";
     decision.documentTitle = "Данные для официального ежегодного отчёта опекуна";
     decision.officialFormUrl = reportFormFallback;
+    decision.officialFormLinkLabel = "Открыть контрольную редакцию формы";
     decision.providedDocuments = [
       item("Официальная форма отчёта", "Фиксирует имущество, доходы и расходы за год.", "заполняет опекун по утверждённой форме", "утверждённая форма; не заменять свободным текстом", "предоставляет опекун", "Постановление Правительства РФ № 423"),
       item("Платёжные документы", "Подтверждают отражённые доходы и расходы, кроме исключённых законом мелких бытовых расходов.", "банки, продавцы, налоговые и иные компетентные организации", "копии", "предоставляет опекун, когда документ подтверждает включённые в отчёт сведения", "статья 25 Закона № 48-ФЗ")
     ];
     decision.copies = ["Товарные чеки, налоговые квитанции, страховые и другие платёжные документы — когда они подтверждают сведения отчёта."];
+    decision.fee = "Специальная федеральная госпошлина за представление ежегодного отчёта в проверенных нормах не найдена. Сопутствующие расходы автоматически не рассчитываются.";
+    if (values.minorHouseholdExpenses === "yes") {
+      decision.notices.push("К отчёту не прилагаются платёжные документы по расходам на питание, предметы первой необходимости и прочие мелкие бытовые нужды; сами относящиеся к отчёту сведения подготовлены отдельно.");
+    }
     decision.deadline = values.guardianType === "organization"
       ? "Организация, на которую возложено исполнение обязанностей опекуна или попечителя, представляет отчёт ежегодно не позднее 1 апреля текущего года."
       : "Опекун или попечитель — гражданин представляет отчёт за предыдущий год не позднее 1 февраля, если договором не установлен иной срок.";
@@ -425,6 +479,7 @@ function validateProperty(values: GuardianshipValues, decision: GuardianshipDeci
     decision.resultLabel = "Персональный чек-лист по номинальному счёту";
     decision.documentTitle = "Памятка по выплатам и отдельному номинальному счёту";
     decision.notices.push("Это информационный результат, а не заявление в банк или орган опеки.");
+    decision.fee = "Специальная федеральная госпошлина за информационную подготовку сведений о номинальном счёте в проверенных нормах не найдена. Банковские тарифы зависят от выбранного банка и автоматически не рассчитываются.";
     decision.providedDocuments = [
       item("Документы банка по номинальному счёту", "Подтверждают реквизиты счёта и операции.", "банк, в котором открыт счёт", "по правилам банка", "получает и хранит опекун", "статья 37 ГК РФ"),
       item("Подтверждения целевого расходования", "Нужны для отчётности в предусмотренных законом пределах.", "продавцы, банки и иные участники расчётов", "копии", "предоставляет опекун в применимых пределах", "статья 25 Закона № 48-ФЗ")
@@ -499,10 +554,12 @@ function validateComplaint(values: GuardianshipValues, decision: GuardianshipDec
     decision.outputMode = "manual-review";
     decision.issues.push({ field: "responseState", message: "Нужно определить, есть письменный отказ или подтверждённое отсутствие ответа." });
   }
+  decision.outputMode = "manual-review";
+  decision.requiresLegalReview = true;
   if (values.complaintChannel === "court" || values.complaintChannel === "unsure") {
-    decision.outputMode = "manual-review";
-    decision.requiresLegalReview = true;
-    decision.issues.push({ field: "complaintChannel", message: "Судебная форма, подсудность, срок и пошлина требуют индивидуальной процессуальной проверки." });
+    decision.issues.push({ field: "complaintChannel", message: "Судебная форма, подсудность, срок, участники и пошлина требуют индивидуальной процессуальной проверки." });
+  } else {
+    decision.issues.push({ field: "complaintChannel", message: "Конкретный компетентный адресат не подтверждён официальным территориальным источником. Жалоба с шапкой не формируется." });
   }
   if (values.responseState === "written-refusal" && (!values.responseDate || !values.refusalDetails)) {
     decision.issues.push({ field: "refusalDetails", message: "Для письменного отказа укажите дату, реквизиты и причины." });
@@ -514,7 +571,6 @@ function validateComplaint(values: GuardianshipValues, decision: GuardianshipDec
       message: "Бездействие нельзя подтверждать автоматически, пока не установлен и не истёк применимый срок ответа. Сверьте срок исходной процедуры."
     });
   }
-  if (decision.outputMode !== "manual-review") decision.outputMode = "draft";
   const responsePrefix = values.responseState === "no-response" ? "inaction" : "refusal";
   const channelSuffix = values.complaintChannel === "prosecutor"
     ? "prosecutor"
@@ -522,17 +578,13 @@ function validateComplaint(values: GuardianshipValues, decision: GuardianshipDec
   if (values.responseState !== "oral-refusal" && values.responseState !== "unsure") {
     decision.outcomeKey = `${responsePrefix}-${channelSuffix}` as GuardianshipOutcomeKey;
   }
-  decision.resultKind = decision.outputMode === "manual-review" ? "checklist" : "draft";
-  decision.resultLabel = decision.outputMode === "manual-review"
-    ? "Лист данных для выбора процессуального способа защиты"
-    : values.complaintChannel === "prosecutor"
-      ? "Маркированный черновик обращения в прокуратуру"
-      : "Маркированный черновик обращения в вышестоящий орган";
+  decision.resultKind = "checklist";
+  decision.resultLabel = "Чек-лист определения компетентного адресата и способа защиты";
   decision.requiresLegalReview = true;
   decision.documentTitle = values.responseState === "no-response"
-    ? "Жалоба на бездействие органа опеки"
-    : "Жалоба на решение органа опеки";
-  decision.draftText = decision.outputMode === "manual-review" ? "" : buildComplaint(values);
+    ? "Данные для проверки бездействия органа опеки"
+    : "Данные для проверки отказа органа опеки";
+  decision.draftText = "";
   decision.providedDocuments = [
     item("Исходное обращение", "Подтверждает предмет и объём просьбы.", "составляет заявитель", "копия", "предоставляет заявитель", "фактическое основание жалобы"),
     item("Подтверждение подачи", "Подтверждает дату регистрации.", "орган или сервис, принявший обращение", "копия", "предоставляет заявитель", "фактическое основание жалобы"),
@@ -563,19 +615,19 @@ function validateComplaint(values: GuardianshipValues, decision: GuardianshipDec
   }
   decision.filingSteps = values.complaintChannel === "prosecutor"
     ? [
-        "Проверьте, относится ли вопрос к компетенции прокуратуры; помощник не заменяет эту проверку.",
+        "Определите территориально компетентную прокуратуру по официальному источнику; до этого жалоба с адресатом не формируется.",
         `Официальная интернет-приёмная Генеральной прокуратуры: ${prosecutorReception}.`,
         "Приложите исходное обращение, подтверждение подачи и письменный отказ либо сведения о подтверждённом бездействии.",
         "Сохраните подтверждение регистрации обращения.",
         "Получите письменный ответ; судебный способ и срок при необходимости определяются отдельно."
       ]
-    : authoritySteps(values, [
-        "Определите вышестоящий орган по официальной структуре выбранного органа опеки; автоматически адресат не подтверждён.",
+    : [
+        "Определите вышестоящий орган по официальной структуре выбранного органа опеки; до этого жалоба с адресатом не формируется.",
         "Приложите исходное обращение, подтверждение подачи и письменный отказ либо сведения о подтверждённом бездействии.",
         "Подайте жалобу и сохраните подтверждение регистрации.",
         "Получите письменный ответ вышестоящего органа.",
         "Если нарушение не устранено, отдельно проверьте возможность обращения в прокуратуру или суд."
-      ]);
+      ];
 }
 
 function baseDecision(
@@ -599,6 +651,7 @@ function baseDecision(
     issues,
     notices,
     requiresLegalReview: false,
+    preparedData: [],
     providedDocuments: [],
     interagencyInformation: [],
     originals: [],
@@ -639,6 +692,7 @@ function urgentProtectionDecision(): GuardianshipDecision {
       "Статья 77 СК РФ предусматривает немедленные действия органа опеки при непосредственной угрозе жизни ребёнка или его здоровью."
     ],
     requiresLegalReview: false,
+    preparedData: [],
     officialFormUrl: emergencySource,
     providedDocuments: [],
     interagencyInformation: [],
@@ -679,7 +733,7 @@ function candidateDocuments(values: GuardianshipValues): GuardianshipDocumentIte
   if (values.candidateMaritalStatus === "yes") {
     result.push(item("Свидетельство о браке", "Подтверждает семейное положение кандидата.", "орган ЗАГС", "копия; оригинал предъявляется для изготовления копии органом, если копия не приложена", "предоставляет кандидат, состоящий в браке", "пункты 4-5 Правил № 423"));
   }
-  if (values.closeRelative !== "yes") {
+  if (values.trainingStatus === "completed") {
     result.push(item("Свидетельство о прохождении подготовки", "Подтверждает обязательную подготовку кандидата.", "уполномоченная организация подготовки", "копия", "не предоставляется при подтверждённом законом освобождении", "пункт 4 Правил № 423"));
   }
   return result;
@@ -690,20 +744,77 @@ function buildPreliminaryRequest(values: GuardianshipValues, role: string) {
 }
 
 function buildParentPeriodRequest(values: GuardianshipValues) {
-  const isChild = values.applicantRole === "child-14";
-  if (isChild) {
+  const basis = values.article13Basis;
+  if (basis === "child-14") {
     return `В ${value(values, "authorityName")}\n\nЗаявитель: ${value(values, "childData")}\n\nЗАЯВЛЕНИЕ\nнесовершеннолетнего о назначении конкретного попечителя\n\nПрошу назначить ${value(values, "nomineeData")} моим попечителем. Указанное лицо согласно на назначение.\n\nПрошу проверить соответствие кандидатуры требованиям закона и моим интересам и выдать письменный акт либо мотивированный отказ.\n\nДата: ____________    Подпись: ____________`;
   }
-  return `В ${value(values, "authorityName")}\n\nЗаявители: ${value(values, "parentsData")}\n\nСОВМЕСТНОЕ ЗАЯВЛЕНИЕ\nродителей о назначении опекуна или попечителя на определённый период\n\nПросим назначить ${value(values, "nomineeData")} ${Number(values.childAge) < 14 ? "опекуном" : "попечителем"} ребёнка ${value(values, "childData")} на период с ${value(values, "periodStart")} по ${value(values, "periodEnd")}.\n\nУважительная причина: ${value(values, "reason")}\n\nПредлагаемое лицо согласно на назначение. Просим проверить соответствие назначения закону и интересам ребёнка и выдать письменный акт с указанием срока полномочий.\n\nДата: ____________    Подписи родителей: ____________`;
+  if (basis === "parents-period") {
+    return `В ${value(values, "authorityName")}\n\nЗаявители: ${value(values, "parentsData")}\n\nСОВМЕСТНОЕ ЗАЯВЛЕНИЕ\nродителей о назначении опекуна или попечителя на определённый период\n\nПросим назначить ${value(values, "nomineeData")} ${Number(values.childAge) < 14 ? "опекуном" : "попечителем"} ребёнка ${value(values, "childData")} на период с ${value(values, "periodStart")} по ${value(values, "periodEnd")}.\n\nУважительная причина: ${value(values, "reason")}\n\nПредлагаемое лицо согласно на назначение. Просим проверить соответствие назначения закону и интересам ребёнка и выдать письменный акт с указанием срока полномочий.\n\nДата: ____________    Подписи родителей: ____________`;
+  }
+  const applicant = value(values, "parentsData");
+  const previous = value(values, "previousStatementDetails");
+  const date = value(values, "statementDate");
+  const signature = signatureAuthenticationLabel(values.signatureAuthentication);
+  if (basis === "cancel-death") {
+    return `В ${value(values, "authorityName")}\n\nЗаявитель(и): ${applicant}\n\nЗАЯВЛЕНИЕ\nоб отмене ранее поданного заявления об определении опекуна или попечителя на случай смерти\n\nПрошу (просим) отменить ранее поданное заявление: ${previous}.\n\nДата составления: ${date}\nСобственноручная подпись (подписи): ____________\nСпособ удостоверения подписи: ${signature}`;
+  }
+  const action = basis === "change-death" ? `изменить ранее поданное заявление: ${previous}` : "определить указанное лицо";
+  const event = basis === "both-parents-death" ? "на случай одновременной смерти обоих родителей (смерти в один и тот же день)" : "на случай смерти единственного родителя";
+  return `В ${value(values, "authorityName")}\n\nЗаявитель(и): ${applicant}\n\nЗАЯВЛЕНИЕ\nоб определении опекуна или попечителя ${event}\n\nПрошу (просим) ${action} и определить ${value(values, "nomineeData")} ${Number(values.childAge) < 14 ? "опекуном" : "попечителем"} ребёнка ${value(values, "childData")}.\n\nДата составления: ${date}\nСобственноручная подпись (подписи): ____________\nСпособ удостоверения подписи: ${signature}`;
+}
+
+function article13DocumentTitle(basis: string | undefined) {
+  return ({
+    "parents-period": "Совместное заявление родителей о назначении опекуна или попечителя на определённый период",
+    "child-14": "Заявление несовершеннолетнего о назначении конкретного попечителя",
+    "sole-parent-death": "Заявление единственного родителя об определении опекуна или попечителя на случай смерти",
+    "both-parents-death": "Совместное заявление родителей об определении опекуна или попечителя на случай одновременной смерти",
+    "change-death": "Заявление об изменении ранее поданного заявления на случай смерти",
+    "cancel-death": "Заявление об отмене ранее поданного заявления на случай смерти"
+  } as Record<string, string>)[basis ?? ""] ?? "Лист юридической проверки порядка по статье 13 Закона № 48-ФЗ";
+}
+
+function article13DraftPurpose(basis: string | undefined) {
+  if (basis === "parents-period") return "Указывает конкретное лицо, уважительную причину и определённый период.";
+  if (basis === "child-14") return "Указывает конкретного предлагаемого попечителя.";
+  if (basis === "cancel-death") return "Фиксирует отмену ранее поданного заявления на случай смерти.";
+  if (basis === "change-death") return "Фиксирует изменение ранее поданного заявления на случай смерти.";
+  return "Определяет конкретное лицо на случай смерти единственного родителя или одновременной смерти обоих родителей.";
+}
+
+function article13FilingSteps(basis: string | undefined) {
+  if (basis === "child-14") return [
+    "Проверьте данные конкретного предлагаемого попечителя и его согласие.",
+    "Подайте самостоятельное заявление ребёнка с 14 лет в орган опеки по месту жительства ребёнка.",
+    "Не добавляйте период отсутствия родителей: он относится к совместному заявлению родителей.",
+    "Сохраните подтверждение регистрации заявления.",
+    "Получите письменный акт либо мотивированный отказ по указанной кандидатуре."
+  ];
+  if (basis === "parents-period") return [
+    "Оба родителя подписывают совместное заявление с указанием конкретного лица, уважительной причины и периода.",
+    "Подайте заявление в орган опеки по месту жительства ребёнка и предъявите документы заявителей.",
+    "Сохраните подтверждение регистрации заявления.",
+    "Получите письменный акт с точным сроком полномочий опекуна или попечителя."
+  ];
+  return [
+    "Проверьте, соответствует ли выбранный вариант части 2 статьи 13 Закона № 48-ФЗ.",
+    "Составьте заявление с датой и подпишите его собственноручно.",
+    "Удостоверьте подпись способом, прямо предусмотренным частью 2 статьи 13.",
+    "Подайте заявление в орган опеки по месту жительства ребёнка и сохраните подтверждение регистрации.",
+    "Черновик перед подачей требует юридической проверки и не заменяет удостоверение подписи."
+  ];
+}
+
+function signatureAuthenticationLabel(raw: string | undefined) {
+  return ({
+    "guardianship-head": "руководителем органа опеки и попечительства при личной подаче",
+    notary: "нотариально при невозможности личной явки",
+    "other-statutory": "иной способ, прямо предусмотренный частью 2 статьи 13; требуется проверка применимости"
+  } as Record<string, string>)[raw ?? ""] ?? "не определён";
 }
 
 function buildPropertyPermissionRequest(values: GuardianshipValues) {
   return `В ${value(values, "authorityName")}\n\nОт: ${value(values, "guardianData")}\n\nОБРАЩЕНИЕ\nо предварительном разрешении на действие с имуществом подопечного\n\nПодопечный: ${value(values, "childData")}\n\nВид действия: ${operationTypeLabel(values.operationType)}\n\nИмущество и относящиеся к нему сведения: ${value(values, "assetDetails")}\n\nПредполагаемое действие и условия: ${value(values, "operationDetails")}\n\nСохранение прав и интересов ребёнка: ${value(values, "rightsImpact")}\n\nДо получения письменного предварительного разрешения действие совершаться не будет. Прошу выдать письменное разрешение либо мотивированный отказ в срок, предусмотренный статьёй 21 Федерального закона № 48-ФЗ.\n\nДата: ____________    Подпись: ____________`;
-}
-
-function buildComplaint(values: GuardianshipValues) {
-  const addressee = values.complaintChannel === "prosecutor" ? "В прокуратуру (компетенцию уточнить)" : "В вышестоящий орган (компетенцию уточнить)";
-  return `${addressee}\n\nОт: ${value(values, "applicantData")}\n\nЖАЛОБА\nна ${values.responseState === "no-response" ? "бездействие" : "решение"} органа опеки и попечительства\n\n${value(values, "initialRequestDate")} я обратился(ась) в ${value(values, "authorityName")} со следующим вопросом: ${value(values, "requestedAction")}\n\nПодтверждение подачи: ${value(values, "filingProof")}\n\n${values.responseState === "written-refusal" ? `Получен письменный отказ от ${value(values, "responseDate")}: ${value(values, "refusalDetails")}` : "На дату подготовки жалобы ответ не получен. Заявитель подтверждает, что применимый срок ответа по исходной процедуре истёк."}\n\nЗатронутые права и интересы ребёнка: ${value(values, "childInterest")}\n\nПрошу проверить законность решения или бездействия в пределах компетенции адресата, сообщить результат письменно и разъяснить порядок дальнейшего обжалования.\n\nДата: ____________    Подпись: ____________`;
 }
 
 function item(title: string, purpose: string, issuedBy: string, format: string, selfProvision: string, source: string, validity?: string): GuardianshipDocumentItem {
@@ -712,6 +823,23 @@ function item(title: string, purpose: string, issuedBy: string, format: string, 
 
 function normalize(values: GuardianshipValues) {
   return Object.fromEntries(Object.entries(values).map(([key, raw]) => [key, raw?.trim() || undefined]));
+}
+
+function buildPreparedData(
+  fields: GuardianshipField[],
+  rawValues: GuardianshipValues,
+  resolvedValues: GuardianshipValues
+): GuardianshipPreparedDataItem[] {
+  return fields.flatMap((field) => {
+    if (field.name === "immediateThreat") return [];
+    const rawValue = rawValues[field.name];
+    if (!rawValue) return [];
+    const isTerritory = ["territory-region", "territory-municipality", "guardianship-authority"].includes(field.type ?? "");
+    const resolvedValue = isTerritory ? resolvedValues[field.name] : undefined;
+    const optionLabel = field.options?.find((option) => option.value === rawValue)?.label;
+    const displayValue = resolvedValue || optionLabel || rawValue;
+    return displayValue ? [{ label: field.label, value: displayValue }] : [];
+  });
 }
 
 function numericAge(raw: string | undefined) {

@@ -110,9 +110,20 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
       { name: "knownChild", label: "Известен конкретный ребёнок?", type: "select", required: true, options: yesNoUnsure },
       { name: "candidateAge", label: "Возраст кандидата", type: "number", required: true },
       { name: "candidateCapacity", label: "Кандидат полностью дееспособен?", type: "select", required: true, options: yesNoUnsure },
-      { name: "candidateObstacles", label: "Есть обстоятельства, препятствующие назначению по статье 146 СК РФ?", type: "select", required: true, options: yesNoUnsure, hint: "Например, лишение родительских прав, отдельные судимости, отстранение от опеки или медицинские противопоказания." },
+      { name: "parentalRightsRestricted", label: "Кандидат лишён или ограничен в родительских правах?", type: "select", required: true, options: yesNoUnsure },
+      { name: "formerGuardianRemoved", label: "Кандидата ранее отстраняли от обязанностей опекуна или попечителя по его вине?", type: "select", required: true, options: yesNoUnsure },
+      { name: "adoptionCancelledForFault", label: "Усыновление кандидата ранее отменяли по его вине?", type: "select", required: true, options: yesNoUnsure },
+      { name: "knownCriminalRestriction", label: "Кандидату известно о судимости или уголовном преследовании, которое может препятствовать назначению?", type: "select", required: true, options: yesNoUnsure, hint: "Окончательную проверку предусмотренных законом сведений проводит орган опеки, в том числе межведомственно." },
+      { name: "healthContraindications", label: "У кандидата выявлены заболевания из установленного Правительством перечня, препятствующие назначению?", type: "select", required: true, options: yesNoUnsure },
       { name: "candidateMaritalStatus", label: "Кандидат состоит в браке?", type: "select", required: true, options: yesNoUnsure },
-      { name: "closeRelative", label: "Кандидат — близкий родственник ребёнка?", type: "select", required: true, options: yesNoUnsure },
+      { name: "trainingStatus", label: "Какое основание относится к подготовке кандидата?", type: "select", required: true, options: [
+        { label: "Кандидат прошёл подготовку", value: "completed" },
+        { label: "Близкий родственник ребёнка", value: "close-relative" },
+        { label: "Действующий или бывший усыновитель; усыновление не отменено", value: "adopter" },
+        { label: "Действующий или бывший опекун; не был отстранён", value: "guardian" },
+        { label: "Подготовка ещё не пройдена", value: "not-completed" },
+        { label: "Не уверен", value: "unsure" }
+      ] },
       { name: "householdAdults", label: "С кандидатом совместно проживают совершеннолетние члены семьи?", type: "select", required: true, options: yesNoUnsure },
       { name: "householdConsent", label: "Получено их письменное согласие с учётом мнения совместно проживающих детей от 10 лет?", type: "select", required: true, options: yesNoUnsure },
       { name: "candidateData", label: "ФИО, дата рождения, адрес и паспорт кандидата", type: "textarea", required: true },
@@ -122,38 +133,41 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
   },
   "parent-period": {
     key: "parent-period",
-    title: "Назначение по заявлению родителей или ребёнка с 14 лет",
-    shortTitle: "Родители или ребёнок выбирают конкретного попечителя",
-    choiceDescription: "Разделить совместное заявление родителей на определённый период и самостоятельное заявление ребёнка с 14 лет.",
+    title: "Назначение по заявлению родителей или ребёнка",
+    shortTitle: "Родители или ребёнок выбирают конкретного опекуна",
+    choiceDescription: "Заявление на определённый период, заявление ребёнка с 14 лет или распоряжение родителей на случай смерти.",
     description: [
       "Родители могут совместно указать конкретного опекуна или попечителя на период, когда по уважительным причинам не могут исполнять обязанности. Период полномочий должен быть указан в акте органа опеки.",
-      "Ребёнок с 14 лет может сам просить назначить конкретного попечителя. Для этого заявления закон не устанавливает условие о временном отсутствии родителей или определённом периоде."
+      "Ребёнок с 14 лет может сам просить назначить конкретного попечителя. Отдельно единственный родитель или оба родителя могут определить конкретное лицо на случай смерти, изменить либо отменить такое заявление."
     ],
     steps: [
-      "Определите, кто подаёт заявление и какая часть статьи 13 применяется.",
-      "Для родителей укажите уважительную причину и период; для ребёнка с 14 лет эти сведения не запрашиваются.",
+      "Определите основание заявления и применимую часть статьи 13.",
+      "Укажите только сведения, относящиеся к выбранному основанию.",
       "Получите согласие предлагаемого опекуна или попечителя.",
       "Подготовьте сведения о ребёнке, родителях и кандидате.",
       "Подайте документ в орган опеки по месту жительства ребёнка."
     ],
     documents: [
-      "Совместное заявление родителей на определённый период либо отдельное заявление несовершеннолетнего от 14 лет.",
+      "Заявление, соответствующее выбранному основанию статьи 13 Закона № 48-ФЗ.",
       "Документы, подтверждающие личности заявителей и кандидата.",
       "Подтверждение причины и периода — если его запросит орган по применимому регламенту."
     ],
     fee: "Специальная федеральная госпошлина за такое заявление в проверенных нормах не найдена.",
     term: "Единый федеральный срок для всех региональных процедур по этому заявлению не подтверждён. Срок полномочий указывается в акте органа опеки.",
     filing: "Орган опеки и попечительства по месту жительства ребёнка. Доступность МФЦ или электронной подачи проверяется по региональному регламенту.",
-    mainDocument: "Черновик применимого заявления по статье 13 Закона № 48-ФЗ.",
+    mainDocument: "Подготовка заявления об определении опекуна или попечителя по статье 13 Закона № 48-ФЗ.",
     documentSlug: "zayavlenie-roditelya-o-naznachenii-opekuna",
-    warning: "Отъезд родителя или проживание ребёнка с родственником сами по себе не подтверждают применимость статьи 13. При одном заявляющем родителе или споре между представителями автоматизация останавливается.",
+    warning: "Порядки по частям 1, 2 и 3 статьи 13 различаются. Для заявления на случай смерти обязательны собственноручная подпись, дата и удостоверение подписи в предусмотренном законом порядке.",
     legalSources: [sources.guardianshipLaw, sources.familyCode, sources.emergency],
     helperFields: [
       immediateThreatField,
-      { name: "applicantRole", label: "Кто подаёт заявление?", type: "select", required: true, options: [
-        { label: "Оба родителя совместно", value: "both-parents" },
-        { label: "Один родитель", value: "one-parent" },
-        { label: "Сам ребёнок от 14 лет", value: "child-14" },
+      { name: "article13Basis", label: "Какое заявление нужно подготовить?", type: "select", required: true, options: [
+        { label: "Оба родителя назначают на определённый период", value: "parents-period" },
+        { label: "Ребёнок с 14 лет просит назначить попечителя", value: "child-14" },
+        { label: "Единственный родитель определяет лицо на случай своей смерти", value: "sole-parent-death" },
+        { label: "Оба родителя определяют лицо на случай одновременной смерти", value: "both-parents-death" },
+        { label: "Изменить ранее поданное заявление на случай смерти", value: "change-death" },
+        { label: "Отменить ранее поданное заявление на случай смерти", value: "cancel-death" },
         { label: "Не уверен", value: "unsure" }
       ] },
       { name: "childAge", label: "Возраст ребёнка", type: "number", required: true },
@@ -164,6 +178,21 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
       { name: "nomineeConsent", label: "Предлагаемое лицо согласно на назначение?", type: "select", required: true, options: yesNoUnsure },
       { name: "childData", label: "ФИО, дата рождения и адрес ребёнка", type: "textarea", required: true },
       { name: "parentsData", label: "ФИО, адреса и паспортные сведения родителей", type: "textarea", required: true },
+      { name: "soleParentConfirmed", label: "Статус единственного родителя подтверждён документами?", type: "select", required: true, options: yesNoUnsure },
+      { name: "previousStatementDetails", label: "Дата и сведения о ранее поданном заявлении", type: "textarea", required: true },
+      { name: "deathStatementApplicant", label: "Кто изменяет или отменяет ранее поданное заявление?", type: "select", required: true, options: [
+        { label: "Единственный родитель", value: "sole-parent" },
+        { label: "Один из двух родителей", value: "one-of-two" },
+        { label: "Оба родителя совместно", value: "both-parents" },
+        { label: "Не уверен", value: "unsure" }
+      ] },
+      { name: "statementDate", label: "Дата составления заявления", type: "date", required: true },
+      { name: "signatureAuthentication", label: "Как будет удостоверена собственноручная подпись?", type: "select", required: true, options: [
+        { label: "Руководителем органа опеки при личной подаче", value: "guardianship-head" },
+        { label: "Нотариально, поскольку личная явка невозможна", value: "notary" },
+        { label: "Иным прямо предусмотренным статьёй 13 способом", value: "other-statutory" },
+        { label: "Не уверен", value: "unsure" }
+      ] },
       { name: "childInterests", label: "Есть сомнения, что назначение соответствует интересам ребёнка?", type: "select", required: true, options: yesNoUnsure },
       ...authorityFields
     ]
@@ -213,6 +242,16 @@ export const GUARDIANSHIP_SCENARIOS: Record<GuardianshipScenarioKey, Guardianshi
       { name: "guardianData", label: "ФИО, адрес и реквизиты акта о назначении опекуна", type: "textarea", required: true },
       { name: "childData", label: "ФИО, дата рождения и адрес подопечного", type: "textarea", required: true },
       { name: "reportYear", label: "Отчётный год", type: "number" },
+      { name: "assetCondition", label: "Состояние имущества подопечного", type: "textarea", required: true, hint: "Если имущества нет, прямо укажите это." },
+      { name: "assetLocation", label: "Место хранения или нахождения имущества", type: "textarea", required: true, hint: "Если имущества нет, прямо укажите это." },
+      { name: "replacementProperty", label: "Имущество, приобретённое взамен отчуждённого", type: "textarea", required: true, hint: "Если таких операций не было, укажите «не было»." },
+      { name: "managementIncome", label: "Доходы от управления имуществом подопечного", type: "textarea", required: true, hint: "Если доходов не было, укажите «не было»." },
+      { name: "wardExpenses", label: "Расходы за счёт имущества подопечного", type: "textarea", required: true, hint: "Отдельно обозначьте питание, предметы первой необходимости и мелкие бытовые нужды." },
+      { name: "nominalAccountTransactions", label: "Операции и расходы по отдельному номинальному счёту", type: "textarea", required: true, hint: "Если счёт не использовался, укажите это." },
+      { name: "supportingDocuments", label: "Подтверждающие документы", type: "textarea", required: true, hint: "Перечислите чеки, квитанции и другие платёжные документы либо укажите, что приложений нет." },
+      { name: "minorHouseholdExpenses", label: "Есть расходы на питание, предметы первой необходимости или иные мелкие бытовые нужды?", type: "select", required: true, options: yesNoUnsure },
+      { name: "nominalAccountDetails", label: "Реквизиты отдельного номинального счёта и цель выплат", type: "textarea", required: true },
+      { name: "nominalOperations", label: "Какие операции или расходы нужно учесть?", type: "textarea", required: true },
       { name: "operationType", label: "Какое имущественное действие планируется?", type: "select", required: true, options: [
         { label: "Расходование денежных средств", value: "money" },
         { label: "Движимое имущество", value: "movable" },

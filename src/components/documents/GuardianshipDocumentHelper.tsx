@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import Link from "next/link";
 import { Download, ShieldCheck } from "lucide-react";
 import { SearchableSelect } from "@/components/forms/SearchableSelect";
+import { DOCUMENT_REVIEW_RETENTION_DAYS } from "@/data/document-review-policy";
 import {
   findGuardianshipTerritory,
   getGuardianshipAuthorityOptions,
@@ -29,7 +30,7 @@ import {
 import { createGuardianshipPdfBlob, getGuardianshipPdfFilename } from "@/lib/guardianship-pdf";
 import { sendAnalyticsEvent } from "@/lib/analytics-client";
 
-type ReviewStatus = "idle" | "submitting" | "success" | "error";
+type ReviewStatus = "idle" | "submitting" | "success" | "withdrawing" | "withdrawn" | "error";
 
 export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: GuardianshipScenarioKey }) {
   const scenario = GUARDIANSHIP_SCENARIOS[scenarioKey];
@@ -42,6 +43,7 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewStatus, setReviewStatus] = useState<ReviewStatus>("idle");
   const [reviewMessage, setReviewMessage] = useState("");
+  const [reviewReceipt, setReviewReceipt] = useState<{ leadId: string; withdrawalToken: string } | null>(null);
   const fields = useMemo(() => getVisibleGuardianshipFields(scenarioKey, values), [scenarioKey, values]);
   const safeStep = Math.min(step, Math.max(fields.length - 1, 0));
   const field = fields[safeStep];
@@ -55,6 +57,7 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
     setReviewOpen(false);
     setReviewStatus("idle");
     setReviewMessage("");
+    setReviewReceipt(null);
   }
 
   function advance(event: FormEvent) {
@@ -80,6 +83,7 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
       setReviewOpen(false);
       setReviewStatus("idle");
       setReviewMessage("");
+      setReviewReceipt(null);
       return;
     }
     setStep((current) => Math.max(0, current - 1));
@@ -134,7 +138,7 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
       const url = URL.createObjectURL(blob);
       const anchor = window.document.createElement("a");
       anchor.href = url;
-      anchor.download = getGuardianshipPdfFilename(decision.outcomeKey);
+      anchor.download = getGuardianshipPdfFilename(decision.outcomeKey, decision.resultKind === "draft");
       anchor.click();
       URL.revokeObjectURL(url);
       setNotice("PDF сформирован. Проверьте маркировку результата перед использованием.");
@@ -169,12 +173,14 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
         scenarioKey,
         outcomeKey: decision.outcomeKey,
         resultKind: decision.resultKind,
-        requiresLegalReview: decision.requiresLegalReview
+        requiresLegalReview: decision.requiresLegalReview,
+        resultStatus: decision.filingReady ? "FILING_READY" : "NOT_READY_FOR_FILING",
+        reviewStatus: "AWAITING_LAWYER_ASSIGNMENT"
       }));
-      payload.set("attachment", new File([blob], getGuardianshipPdfFilename(decision.outcomeKey), { type: "application/pdf" }));
+      payload.set("attachment", new File([blob], getGuardianshipPdfFilename(decision.outcomeKey, decision.resultKind === "draft"), { type: "application/pdf" }));
 
       const response = await fetch("/api/leads/", { method: "POST", body: payload });
-      const result = (await response.json().catch(() => null)) as { id?: string; message?: string } | null;
+      const result = (await response.json().catch(() => null)) as { id?: string; message?: string; withdrawalToken?: string } | null;
       if (!response.ok) throw new Error(result?.message || "Не удалось передать PDF на проверку.");
 
       sendAnalyticsEvent({
@@ -182,15 +188,35 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
         sourcePage: window.location.pathname,
         targetType: "GUARDIANSHIP_OUTCOME",
         targetId: decision.outcomeKey,
-        payload: { scenarioKey, outcomeKey: decision.outcomeKey, leadId: result?.id }
+        payload: { scenarioKey, outcomeKey: decision.outcomeKey }
       });
       setReviewStatus("success");
-      setReviewMessage("Заявка и PDF переданы администратору платформы. Контакты и файл не публикуются.");
+      if (result?.id && result.withdrawalToken) setReviewReceipt({ leadId: result.id, withdrawalToken: result.withdrawalToken });
+      setReviewMessage("Заявка принята платформой и ожидает назначения юриста. PDF и контакты не публикуются. О передаче конкретному юристу платформа сообщит отдельно.");
       form.reset();
     } catch (error) {
       setReviewStatus("error");
       setReviewMessage(error instanceof Error ? error.message : "Не удалось передать PDF на проверку.");
     }
+  }
+
+  async function withdrawReviewConsent() {
+    if (!reviewReceipt) return;
+    setReviewStatus("withdrawing");
+    const response = await fetch(`/api/leads/${encodeURIComponent(reviewReceipt.leadId)}/document-review/`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: reviewReceipt.withdrawalToken })
+    });
+    const result = (await response.json().catch(() => null)) as { message?: string } | null;
+    if (!response.ok) {
+      setReviewStatus("error");
+      setReviewMessage(result?.message || "Не удалось отозвать согласие.");
+      return;
+    }
+    setReviewStatus("withdrawn");
+    setReviewReceipt(null);
+    setReviewMessage(result?.message || "Согласие отозвано, PDF удалён.");
   }
 
   return (
@@ -256,6 +282,20 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
             <ResultFact title="Срок" text={decision.deadline} />
           </div>
 
+          {decision.preparedData.length ? (
+            <section className="mt-6 border-t border-line pt-5">
+              <h3 className="text-xl font-semibold text-ink">Подготовленные сведения</h3>
+              <dl className="mt-3 grid gap-3 text-sm leading-6">
+                {decision.preparedData.map((item) => (
+                  <div key={item.label} className="border-l-2 border-line pl-3">
+                    <dt className="font-semibold text-ink">{item.label}</dt>
+                    <dd className="whitespace-pre-wrap text-zinc-700">{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          ) : null}
+
           <DocumentGroup title="Предоставляет заявитель" items={decision.providedDocuments} />
           <DocumentGroup title="Орган получает межведомственно" items={decision.interagencyInformation} />
           <StringGroup title="Оригиналы" items={decision.originals} />
@@ -270,7 +310,7 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
 
           {decision.outputMode === "official-helper" && decision.officialFormUrl && !decision.issues.length ? (
             <a href={decision.officialFormUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">
-              Открыть источник официальной формы
+              {decision.officialFormLinkLabel ?? "Открыть официальный источник формы"}
             </a>
           ) : null}
 
@@ -308,7 +348,8 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
             <form onSubmit={submitForReview} className="mt-5 grid gap-4 border border-line bg-zinc-50 p-5">
               <div>
                 <h3 className="text-lg font-semibold text-ink">Передать PDF на проверку</h3>
-                <p className="mt-1 text-sm leading-6 text-zinc-700">Администратор платформы получит заявку и закрытый PDF. Файл не публикуется.</p>
+                <p className="mt-1 text-sm leading-6 text-zinc-700">Платформа сохранит заявку и закрытый PDF в очереди на назначение. Отправка формы не означает, что конкретный юрист уже назначен или получил файл.</p>
+                <p className="mt-1 text-sm leading-6 text-zinc-700">Срок закрытого хранения PDF — до {DOCUMENT_REVIEW_RETENTION_DAYS} дней. Согласие можно отозвать после отправки: файл будет удалён сразу.</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-1 text-sm font-medium text-zinc-700">Имя<input name="name" required minLength={2} className="min-h-11 rounded-md border border-line bg-white px-3 py-2 outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" /></label>
@@ -324,9 +365,14 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
                 <input name="contactTransferConsent" type="checkbox" required className="mt-1 h-4 w-4 shrink-0" />
                 <span>Отдельно соглашаюсь передать сформированный PDF и мои контакты юристу для проверки этого результата.</span>
               </label>
-              <button type="submit" disabled={reviewStatus === "submitting" || reviewStatus === "success"} className="inline-flex min-h-11 w-fit items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">
-                {reviewStatus === "submitting" ? "Передаём PDF" : reviewStatus === "success" ? "PDF передан" : "Передать PDF на проверку"}
+              <button type="submit" disabled={["submitting", "success", "withdrawing", "withdrawn"].includes(reviewStatus)} className="inline-flex min-h-11 w-fit items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">
+                {reviewStatus === "submitting" ? "Отправляем заявку" : reviewStatus === "success" ? "Заявка принята" : "Проверить у юриста"}
               </button>
+              {reviewReceipt ? (
+                <button type="button" onClick={withdrawReviewConsent} disabled={reviewStatus === "withdrawing"} className="inline-flex min-h-11 w-fit items-center justify-center rounded-md border border-line bg-white px-5 py-3 text-sm font-semibold text-ink disabled:opacity-60">
+                  {reviewStatus === "withdrawing" ? "Удаляем PDF" : "Отозвать согласие и удалить PDF"}
+                </button>
+              ) : null}
               {reviewMessage ? <p role="status" className={`text-sm font-medium ${reviewStatus === "error" ? "text-red-700" : "text-leaf"}`}>{reviewMessage}</p> : null}
             </form>
           ) : null}

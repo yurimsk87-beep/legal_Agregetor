@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -67,7 +68,7 @@ const formatMap = {
 } as const;
 
 const successMessage =
-  "Ваша ситуация передана через платформу. Администратор обработает заявку, а контакты не будут опубликованы в Q&A.";
+  "Заявка принята платформой и ожидает назначения юриста. Контакты и PDF не публикуются.";
 const errorMessage = "Не удалось сохранить обращение. Проверьте данные и попробуйте еще раз.";
 
 export async function GET(request: Request) {
@@ -141,6 +142,7 @@ export async function POST(request: Request) {
 
   const data = parsed.data;
   const sourceType = normalizeSourceType(data.sourceType);
+  const withdrawalToken = sourceType === "DOCUMENT_REVIEW" ? crypto.randomBytes(32).toString("base64url") : null;
   const lawyerId = data.lawyerId || null;
   const questionId = data.questionId || null;
 
@@ -198,7 +200,16 @@ export async function POST(request: Request) {
         messenger: data.messenger || null,
         availableTime: data.availableTime || null,
         documentsNote: data.documentsNote || null,
-        structuredPayload: data.structuredPayload as Prisma.InputJsonValue | undefined,
+        structuredPayload: {
+          ...(data.structuredPayload ?? {}),
+          ...(withdrawalToken ? {
+            documentReviewConsent: {
+              grantedAt: new Date().toISOString(),
+              withdrawalTokenHash: hashWithdrawalToken(withdrawalToken)
+            },
+            reviewStatus: "PLATFORM_ACCEPTED"
+          } : {})
+        } as Prisma.InputJsonValue,
         leadScore: data.leadScore ?? 0,
         contactTransferConsentAt: data.contactTransferConsent ? new Date() : null,
         desiredFormat: data.format ? formatMap[data.format] : null,
@@ -216,6 +227,11 @@ export async function POST(request: Request) {
           data: {
             structuredPayload: {
               ...(data.structuredPayload ?? {}),
+              reviewStatus: "AWAITING_LAWYER_ASSIGNMENT",
+              documentReviewConsent: {
+                grantedAt: new Date().toISOString(),
+                withdrawalTokenHash: hashWithdrawalToken(withdrawalToken ?? "")
+              },
               documentReviewAttachment: storedAttachment
             } as Prisma.InputJsonValue
           }
@@ -233,10 +249,15 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       id: lead.id,
-      message: successMessage
+      message: successMessage,
+      reviewStatus: sourceType === "DOCUMENT_REVIEW" ? "AWAITING_LAWYER_ASSIGNMENT" : undefined,
+      withdrawalToken
     });
   } catch (error) {
-    console.error("Lead create failed", error);
+    console.error("Lead create failed", {
+      sourceType,
+      errorName: error instanceof Error ? error.name : "UnknownError"
+    });
     return NextResponse.json(
       {
         ok: false,
@@ -252,6 +273,10 @@ function normalizeSourceType(sourceType: LeadSourceTypeInput | undefined) {
   if (sourceType === "CITY_SERVICE") return "CITY_SERVICE_PAGE";
   if (sourceType === "CONTACTS" || sourceType === "CHECKLIST") return "GENERAL";
   return sourceType;
+}
+
+function hashWithdrawalToken(token: string) {
+  return crypto.createHash("sha256").update(token).digest("hex");
 }
 
 async function readLeadRequest(request: Request): Promise<{ json: unknown; attachment: File | null }> {

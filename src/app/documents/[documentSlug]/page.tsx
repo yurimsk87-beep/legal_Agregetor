@@ -177,6 +177,9 @@ function GuardianshipDocumentPage({
               <li key={rule.id} className="border-l-2 border-line pl-3">
                 <p className="font-medium text-ink">{rule.statement}</p>
                 <p className="text-zinc-600">{rule.act}, {rule.provision}. Тип: {guardianshipSourceLabel(rule.sourceType)}. Статус: {guardianshipStatusLabel(rule.status)}.</p>
+                <p className="text-zinc-600">
+                  {rule.edition ? `${rule.edition}. ` : ""}Проверено: {rule.reviewedAt.split("-").reverse().join(".")}.
+                </p>
                 <p className="text-zinc-600">Граница применения: {rule.scopeNote}</p>
                 <a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Основной источник</a>
                 {rule.supplementaryUrl ? <a href={rule.supplementaryUrl} target="_blank" rel="noreferrer" className="ml-4 inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Контрольная редакция</a> : null}

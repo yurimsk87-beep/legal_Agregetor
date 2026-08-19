@@ -12,6 +12,7 @@ export type GuardianshipAuthority = {
   sourceUrl: string;
   sourceName: string;
   lastVerifiedAt: string;
+  verificationStatus: "verified";
 };
 
 export type GuardianshipMunicipality = {
@@ -90,21 +91,8 @@ export const GUARDIANSHIP_MUNICIPALITIES: GuardianshipMunicipality[] = [
       website: "https://gagarinskoe.com/administration/opeka/",
       sourceUrl: "https://gagarinskoe.com/administration/opeka/",
       sourceName: "Официальный сайт муниципального округа Гагаринский",
-      lastVerifiedAt: "2026-08-13"
-    }]
-  },
-  {
-    id: "moscow-kurkino",
-    regionId: "region-moscow",
-    name: "Муниципальный округ Куркино",
-    authorities: [{
-      id: "moscow-kurkino-administration",
-      name: "Администрация муниципального округа Куркино в городе Москве",
-      address: "125466, Москва, ул. Соловьиная роща, д. 8, корп. 1",
-      website: "https://www.kurkino-vmo.ru/",
-      sourceUrl: "https://www.kurkino-vmo.ru/",
-      sourceName: "Официальный сайт муниципального округа Куркино",
-      lastVerifiedAt: "2026-08-13"
+      lastVerifiedAt: "2026-08-13",
+      verificationStatus: "verified"
     }]
   },
   {
@@ -118,7 +106,8 @@ export const GUARDIANSHIP_MUNICIPALITIES: GuardianshipMunicipality[] = [
       website: "https://mogagarinskoe.ru/opeka.php/",
       sourceUrl: "https://mogagarinskoe.ru/opeka.php/spravochnaya-i-kontaktnaya-informacziya-otdela.html",
       sourceName: "Официальный сайт МО Гагаринское",
-      lastVerifiedAt: "2026-08-13"
+      lastVerifiedAt: "2026-08-13",
+      verificationStatus: "verified"
     }]
   },
   {
@@ -132,7 +121,8 @@ export const GUARDIANSHIP_MUNICIPALITIES: GuardianshipMunicipality[] = [
       website: "https://mokupchino.ru/index.php/2016-04-17-21-44-53/strukturnye-podrazdeleniya/opeka",
       sourceUrl: "https://mokupchino.ru/index.php/2016-04-17-21-44-53/strukturnye-podrazdeleniya/opeka",
       sourceName: "Официальный сайт МО Купчино",
-      lastVerifiedAt: "2026-08-13"
+      lastVerifiedAt: "2026-08-13",
+      verificationStatus: "verified"
     }]
   },
   {
@@ -146,7 +136,8 @@ export const GUARDIANSHIP_MUNICIPALITIES: GuardianshipMunicipality[] = [
       website: "https://edu.admin-smolensk.ru/spravochniki/perechen-organov-opeki-i-popechitelstva-municipalnyh-okrugov/",
       sourceUrl: "https://edu.admin-smolensk.ru/spravochniki/perechen-organov-opeki-i-popechitelstva-municipalnyh-okrugov/",
       sourceName: "Министерство образования и науки Смоленской области: перечень органов опеки",
-      lastVerifiedAt: "2026-08-13"
+      lastVerifiedAt: "2026-08-13",
+      verificationStatus: "verified"
     }]
   }
 ];

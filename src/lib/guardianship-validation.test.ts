@@ -25,7 +25,8 @@ import {
   createGuardianshipPdfBlob,
   getGuardianshipPdfFilename
 } from "@/lib/guardianship-pdf";
-import { validateLeadPdfAttachment } from "@/lib/lead-attachments";
+import { validateLeadPdfAttachment, validateLeadPdfBuffer } from "@/lib/lead-attachments";
+import { isUnknownNavigatorPath } from "@/lib/navigator-paths";
 import { filterSearchableSelectOptions } from "@/lib/searchable-select";
 
 const authority = { region: "region-moscow", municipality: "moscow-gagarinsky", authorityName: "moscow-gagarinsky-administration" };
@@ -38,9 +39,13 @@ const appointmentBase = {
   knownChild: "yes",
   candidateAge: "35",
   candidateCapacity: "yes",
-  candidateObstacles: "no",
+  parentalRightsRestricted: "no",
+  formerGuardianRemoved: "no",
+  adoptionCancelledForFault: "no",
+  knownCriminalRestriction: "no",
+  healthContraindications: "no",
   candidateMaritalStatus: "no",
-  closeRelative: "no",
+  trainingStatus: "completed",
   householdAdults: "no",
   candidateData: "Иванов Иван Иванович, данные кандидата",
   childData: "Иванов Пётр Иванович, данные ребёнка"
@@ -96,7 +101,7 @@ async function run() {
     childData: "Данные ребёнка"
   };
   const preliminaryFields = getVisibleGuardianshipFields("appointment", preliminaryValues).map(({ name }) => name);
-  for (const hidden of ["candidateObstacles", "candidateMaritalStatus", "closeRelative", "householdAdults", "householdConsent"]) {
+  for (const hidden of ["parentalRightsRestricted", "formerGuardianRemoved", "adoptionCancelledForFault", "knownCriminalRestriction", "healthContraindications", "candidateMaritalStatus", "trainingStatus", "householdAdults", "householdConsent"]) {
     assert.equal(preliminaryFields.includes(hidden), false, hidden);
   }
   const preliminary = record(validateGuardianshipApplication("appointment", preliminaryValues));
@@ -108,7 +113,7 @@ async function run() {
 
   const parentBase = {
     ...safeBase,
-    applicantRole: "both-parents",
+    article13Basis: "parents-period",
     childAge: "9",
     reason: "Уважительная причина подтверждается заявителями",
     periodStart: "2026-09-01",
@@ -126,7 +131,7 @@ async function run() {
 
   const child14Values = {
     ...safeBase,
-    applicantRole: "child-14",
+    article13Basis: "child-14",
     childAge: "15",
     nomineeData: "Данные предлагаемого попечителя",
     nomineeConsent: "yes",
@@ -149,10 +154,35 @@ async function run() {
   assert.equal(childUnder14.draftText, "");
   assert.equal(childUnder14.issues.some(({ message }) => message.includes("14 лет")), true);
 
-  const singleParent = record(validateGuardianshipApplication("parent-period", { ...parentBase, applicantRole: "one-parent" }));
-  assert.equal(singleParent.outcomeKey, "parent-period-single-parent-review");
-  assert.equal(singleParent.outputMode, "manual-review");
-  assert.equal(singleParent.pdfAvailable, true);
+  const deathBase = {
+    ...safeBase,
+    childAge: "9",
+    nomineeData: "Данные предлагаемого опекуна",
+    nomineeConsent: "yes",
+    childData: "Данные ребёнка",
+    parentsData: "Данные родителя или родителей",
+    childInterests: "no",
+    statementDate: "2026-08-13",
+    signatureAuthentication: "guardianship-head"
+  };
+  const deathScenarios = [
+    ["sole-parent-death", "parent-death-sole"],
+    ["both-parents-death", "parent-death-both"],
+    ["change-death", "parent-death-change"],
+    ["cancel-death", "parent-death-cancel"]
+  ] as const;
+  for (const [article13Basis, outcomeKey] of deathScenarios) {
+    const result = record(validateGuardianshipApplication("parent-period", {
+      ...deathBase,
+      article13Basis,
+      ...(article13Basis === "sole-parent-death" ? { soleParentConfirmed: "yes" } : {}),
+      ...(["change-death", "cancel-death"].includes(article13Basis) ? { previousStatementDetails: "Заявление от 01.02.2026", deathStatementApplicant: "both-parents" } : {})
+    }));
+    assert.equal(result.outcomeKey, outcomeKey);
+    assert.equal(result.draftText.includes("Собственноручная подпись"), true);
+    assert.equal(result.pdfAvailable, true);
+    if (article13Basis === "cancel-death") assert.equal(result.draftText.includes("отменить"), true);
+  }
 
   const propertyBase = {
     ...safeBase,
@@ -160,26 +190,40 @@ async function run() {
     childData: "Данные подопечного",
     assetDetails: "Сведения об имуществе и операциях"
   };
+  const reportData = {
+    assetCondition: "Квартира и вклад сохранены",
+    assetLocation: "Квартира по адресу; вклад в банке",
+    replacementProperty: "Не приобреталось",
+    managementIncome: "Проценты по вкладу 1000 рублей",
+    wardExpenses: "Питание и одежда 5000 рублей",
+    nominalAccountTransactions: "Получено пособие, оплачены нужды ребёнка",
+    supportingDocuments: "Выписка банка и квитанции",
+    minorHouseholdExpenses: "yes"
+  };
   const annualCitizen = record(validateGuardianshipApplication("property-report", {
-    ...propertyBase, propertyAction: "annual-report", guardianType: "citizen", reportYear: "2025"
+    ...propertyBase, ...reportData, propertyAction: "annual-report", guardianType: "citizen", reportYear: "2025"
   }));
   assert.equal(annualCitizen.outcomeKey, "annual-report-citizen");
   assert.equal(annualCitizen.deadline.includes("1 февраля"), true);
 
   const annualOrganization = record(validateGuardianshipApplication("property-report", {
-    ...propertyBase, propertyAction: "annual-report", guardianType: "organization", reportYear: "2025"
+    ...propertyBase, ...reportData, propertyAction: "annual-report", guardianType: "organization", reportYear: "2025"
   }));
   assert.equal(annualOrganization.outcomeKey, "annual-report-organization");
   assert.equal(annualOrganization.deadline.includes("1 апреля"), true);
 
   const nominalAccount = record(validateGuardianshipApplication("property-report", {
-    ...propertyBase, propertyAction: "nominal-account"
+    ...propertyBase,
+    propertyAction: "nominal-account",
+    nominalAccountDetails: "Счёт 1234, выплаты на содержание ребёнка",
+    nominalOperations: "Оплата питания и одежды"
   }));
   assert.equal(nominalAccount.outcomeKey, "nominal-account");
   assert.equal(nominalAccount.resultKind, "checklist");
   assert.equal(nominalAccount.notices.some((notice) => notice.includes("не заявление")), true);
   const nominalFields = getVisibleGuardianshipFields("property-report", { ...propertyBase, propertyAction: "nominal-account" }).map(({ name }) => name);
-  for (const unnecessary of ["guardianData", "childData", "assetDetails"]) assert.equal(nominalFields.includes(unnecessary), false);
+  for (const unnecessary of ["guardianData", "childData", "assetDetails", "assetCondition"]) assert.equal(nominalFields.includes(unnecessary), false);
+  assert.equal(nominalFields.includes("nominalAccountDetails"), true);
 
   const propertyPermissionBase = {
     ...propertyBase,
@@ -237,7 +281,9 @@ async function run() {
       }));
       assert.equal(decision.outcomeKey, `${responseState === "no-response" ? "inaction" : "refusal"}-${complaintChannel}`);
       assert.equal(decision.pdfAvailable, true);
-      if (complaintChannel === "court") assert.equal(decision.outputMode, "manual-review");
+      assert.equal(decision.outputMode, "manual-review");
+      assert.equal(decision.draftText, "");
+      assert.equal(decision.resultKind, "checklist");
     }
   }
 
@@ -260,7 +306,7 @@ async function run() {
   const resetRegion = resetGuardianshipDependentValues("appointment", "region", { ...authority, region: "region-saint-petersburg" });
   assert.equal(resetRegion.municipality, undefined);
   assert.equal(resetRegion.authorityName, undefined);
-  const resetMunicipality = resetGuardianshipDependentValues("appointment", "municipality", { ...authority, municipality: "moscow-kurkino" });
+  const resetMunicipality = resetGuardianshipDependentValues("appointment", "municipality", { ...authority, municipality: "spb-gagarinskoe" });
   assert.equal(resetMunicipality.authorityName, undefined);
 
   assert.equal(RUSSIAN_REGIONS.length, 89);
@@ -268,6 +314,7 @@ async function run() {
   assert.equal(filterSearchableSelectOptions(RUSSIAN_REGIONS, "моск").some(({ id }) => id === "region-moscow"), true);
   assert.equal(filterSearchableSelectOptions([{ id: "oryol", label: "Орёл" }], "орел").length, 1);
   assert.equal(getGuardianshipMunicipalityOptions("region-moscow").some(({ id }) => id === "moscow-gagarinsky"), true);
+  assert.equal(getGuardianshipMunicipalityOptions("region-moscow").some(({ id }) => id === "moscow-kurkino"), false);
   assert.equal(getGuardianshipAuthorityOptions("moscow-gagarinsky").some(({ id }) => id === "moscow-gagarinsky-administration"), true);
   assert.equal(GUARDIANSHIP_DIRECTORY_METADATA.isComplete, false);
 
@@ -286,6 +333,10 @@ async function run() {
   assert.equal(routeText.includes("Введите название вручную"), false);
   assert.equal(routeText.includes("временная опека"), false);
   assert.equal(GUARDIANSHIP_LEGAL_RULES.some(({ status }) => status === "not-found"), true);
+  assert.equal(isUnknownNavigatorPath("/documents/ne-sushchestvuet/"), true);
+  assert.equal(isUnknownNavigatorPath("/problems/ne-sushchestvuet/"), true);
+  assert.equal(isUnknownNavigatorPath("/problems/semya-i-deti/ne-sushchestvuet/"), true);
+  assert.equal(isUnknownNavigatorPath("/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/"), false);
 
   assert.equal(getGuardianshipDocxFilename("zhaloba-na-organ-opeki"), "CHERNOVIK-zhaloba-na-organ-opeki.docx");
   assert.equal(ensureGuardianshipDraftMarker("Текст").startsWith("ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА"), true);
@@ -296,7 +347,12 @@ async function run() {
   const pdfText = buildGuardianshipPdfText(propertyComplex, ensureGuardianshipDraftMarker(propertyComplex.draftText));
   assert.equal(pdfText.includes("ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА"), true);
   assert.equal(pdfText.includes("15 дней"), true);
-  assert.equal(getGuardianshipPdfFilename(propertyComplex.outcomeKey), "opeka-property-permission-complex.pdf");
+  assert.equal(pdfText.includes("Сведения об имуществе и операциях"), true);
+  assert.equal(pdfText.includes("Можно подавать результат сразу: нет"), true);
+  assert.equal(getGuardianshipPdfFilename(propertyComplex.outcomeKey, true), "CHERNOVIK-opeka-property-permission-complex.pdf");
+  const reportPdfText = buildGuardianshipPdfText(annualCitizen, "");
+  assert.equal(reportPdfText.includes("Квартира и вклад сохранены"), true);
+  assert.equal(reportPdfText.includes("2025"), true);
   const filingStepsBeforePdf = [...propertyComplex.filingSteps];
   const originalsBeforePdf = [...propertyComplex.originals];
   const pdfBuffer = Buffer.from(await (await createGuardianshipPdfBlob(propertyComplex, propertyComplex.draftText)).arrayBuffer());
@@ -305,6 +361,13 @@ async function run() {
   assert.deepEqual(propertyComplex.originals, originalsBeforePdf);
   assert.equal(validateLeadPdfAttachment(new File([pdfBuffer], "result.pdf", { type: "application/pdf" })), null);
   assert.equal(validateLeadPdfAttachment(new File(["x"], "result.txt", { type: "text/plain" }))?.includes("PDF"), true);
+  assert.equal(validateLeadPdfBuffer(pdfBuffer), null);
+  assert.equal(validateLeadPdfBuffer(Buffer.from("not a pdf"))?.includes("формату PDF"), true);
+  assert.equal(
+    validateLeadPdfBuffer(Buffer.from("%PDF-1.4\n1 0 obj << /JavaScript true >>\n%%EOF"))?.includes("запрещённые"),
+    true
+  );
+  assert.equal(validateLeadPdfBuffer(Buffer.from("%PDF-1.4\n1 0 obj <<>>\n"))?.includes("завершения"), true);
 
   console.log("guardianship validation tests passed");
 }

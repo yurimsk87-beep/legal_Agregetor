@@ -9,6 +9,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx src/lib/contact-safety.test.ts && tsx src/lib/qna-publication-rules.test.ts && tsx src/lib/related-questions.test.ts && tsx src/lib/content-reset.test.ts && tsx src/lib/zags-route-validation.test.ts && tsx src/lib/divorce-property-validation.test.ts && tsx src/lib/guardianship-validation.test.ts",
+    "test:e2e:guardianship": "playwright test tests/e2e/guardianship-route.spec.ts",
+    "audit:guardianship-pdf": "tsx scripts/audit-guardianship-pdfs.ts",
     "quality:ai-navigator": "tsx scripts/check-ai-navigator-quality.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
@@ -37,6 +39,7 @@
     "zod": "^3.25.28"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/node": "^22.15.29",
     "@types/pdfmake": "0.2.11",
     "@types/react": "^19.1.6",

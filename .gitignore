@@ -7,6 +7,9 @@ node_modules
 !.env.production.example
 dist
 coverage
+/playwright-report/
+/test-results/
+/tmp/
 /outputs/
 /reports/
 /harant_parser/outputs/
