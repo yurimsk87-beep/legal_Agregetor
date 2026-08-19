@@ -56,10 +56,14 @@ services:
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
       S3_PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL:-}
       MAX_UPLOAD_SIZE_MB: ${MAX_UPLOAD_SIZE_MB:-10}
+      LEAD_ATTACHMENT_STORAGE_ROOT: /app/private/lead-attachments
     volumes:
       - ./public/uploads:/app/public/uploads
+      - lead_attachments:/app/private/lead-attachments
     ports:
       - "3000:3000"
 
 volumes:
   postgres_data:
+  lead_attachments:
+

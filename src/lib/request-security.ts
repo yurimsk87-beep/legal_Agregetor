@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "./prisma";
+import { isSameOriginRequest } from "./origin-security";
 
 type RateLimitOptions = {
   key: string;
@@ -84,25 +85,9 @@ export function checkRateLimit(options: RateLimitOptions) {
 }
 
 export function rejectCrossOrigin(request: Request) {
-  const requestOrigin = new URL(request.url).origin;
-  const origin = request.headers.get("origin");
-  const referer = request.headers.get("referer");
-
-  if (origin && origin !== requestOrigin) {
-    return NextResponse.json({ ok: false, message: "Cross-origin request is not allowed." }, { status: 403 });
-  }
-
-  if (!origin && referer) {
-    try {
-      if (new URL(referer).origin !== requestOrigin) {
-        return NextResponse.json({ ok: false, message: "Cross-origin request is not allowed." }, { status: 403 });
-      }
-    } catch {
-      return NextResponse.json({ ok: false, message: "Invalid referer." }, { status: 403 });
-    }
-  }
-
-  return null;
+  return isSameOriginRequest(request)
+    ? null
+    : NextResponse.json({ ok: false, message: "Cross-origin request is not allowed." }, { status: 403 });
 }
 
 export async function readJsonWithLimit<T = unknown>(request: Request, maxBytes = 16_384): Promise<T> {
@@ -316,3 +301,4 @@ const safeAuditStringKeys = new Set([
   "maskedEmail",
   "emailHash"
 ]);
+

@@ -155,10 +155,11 @@ function preparedDataSection(decision: GuardianshipDecision): Content {
   return {
     stack: [
       { text: "Подготовленные сведения", style: "heading" },
-      {
-        table: { widths: ["38%", "62%"], body: rows, dontBreakRows: true },
+      ...rows.map((row) => ({
+        unbreakable: true,
+        table: { widths: ["38%", "62%"], body: [row] },
         layout: "lightHorizontalLines"
-      }
+      }))
     ]
   };
 }
@@ -166,3 +167,4 @@ function preparedDataSection(decision: GuardianshipDecision): Content {
 function documentSection(title: string, items: GuardianshipDecision["providedDocuments"]): Content {
   return section(title, items.map((item) => `${item.title}. ${item.purpose} Формат: ${item.format}. ${item.selfProvision}`));
 }
+

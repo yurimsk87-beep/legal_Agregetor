@@ -5,7 +5,23 @@ import { DOCUMENT_REVIEW_RETENTION_DAYS } from "@/data/document-review-policy";
 
 const maxPdfSizeMb = 5;
 const maxPdfBytes = maxPdfSizeMb * 1024 * 1024;
-const dangerousPdfTokens = ["/JavaScript", "/JS", "/Launch", "/EmbeddedFile", "/OpenAction", "/AA"];
+const dangerousPdfTokens = [
+  "/javascript",
+  "/js",
+  "/launch",
+  "/embeddedfile",
+  "/openaction",
+  "/aa",
+  "/richmedia",
+  "/submitform",
+  "/importdata",
+  "/gotoe",
+  "/rendition",
+  "/sound",
+  "/movie",
+  "/objstm",
+  "/xrefstm"
+];
 
 export type StoredLeadAttachment = {
   fileName: string;
@@ -39,7 +55,10 @@ export function validateLeadPdfBuffer(buffer: Buffer): string | null {
   if (!buffer.subarray(Math.max(0, buffer.length - 2048)).toString("latin1").includes("%%EOF")) {
     return "PDF не содержит корректного завершения файла.";
   }
-  const pdfSource = buffer.toString("latin1");
+  const pdfSource = buffer
+    .toString("latin1")
+    .replace(/#([0-9a-f]{2})/gi, (_, hex: string) => String.fromCharCode(Number.parseInt(hex, 16)))
+    .toLowerCase();
   if (dangerousPdfTokens.some((token) => pdfSource.includes(token))) {
     return "PDF содержит запрещённые активные или вложенные объекты.";
   }
@@ -136,3 +155,4 @@ function safeDownloadName(name: string) {
   const base = path.parse(name).name.replace(/[^a-zA-Z0-9а-яА-ЯёЁ._-]+/g, "-").slice(0, 100);
   return `${base || "document-review"}.pdf`;
 }
+

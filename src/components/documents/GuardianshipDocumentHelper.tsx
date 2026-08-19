@@ -350,6 +350,7 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
                 <h3 className="text-lg font-semibold text-ink">Передать PDF на проверку</h3>
                 <p className="mt-1 text-sm leading-6 text-zinc-700">Платформа сохранит заявку и закрытый PDF в очереди на назначение. Отправка формы не означает, что конкретный юрист уже назначен или получил файл.</p>
                 <p className="mt-1 text-sm leading-6 text-zinc-700">Срок закрытого хранения PDF — до {DOCUMENT_REVIEW_RETENTION_DAYS} дней. Согласие можно отозвать после отправки: файл будет удалён сразу.</p>
+                <p className="mt-1 text-sm leading-6 text-zinc-700">После закрытия страницы запрос на отзыв можно отправить на <a href="mailto:admin@pravopoisk.ru" className="font-semibold text-trust underline underline-offset-4">admin@pravopoisk.ru</a>, указав имя и телефон или email из заявки.</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-1 text-sm font-medium text-zinc-700">Имя<input name="name" required minLength={2} className="min-h-11 rounded-md border border-line bg-white px-3 py-2 outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" /></label>
@@ -487,3 +488,4 @@ function ResultFact({ text, title }: { text: string; title: string }) {
 function escapeHtml(value: string) {
   return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character] ?? character));
 }
+

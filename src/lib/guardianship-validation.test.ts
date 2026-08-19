@@ -367,6 +367,10 @@ async function run() {
     validateLeadPdfBuffer(Buffer.from("%PDF-1.4\n1 0 obj << /JavaScript true >>\n%%EOF"))?.includes("запрещённые"),
     true
   );
+  assert.equal(
+    validateLeadPdfBuffer(Buffer.from("%PDF-1.4\n1 0 obj << /Java#53cript true >>\n%%EOF"))?.includes("запрещённые"),
+    true
+  );
   assert.equal(validateLeadPdfBuffer(Buffer.from("%PDF-1.4\n1 0 obj <<>>\n"))?.includes("завершения"), true);
 
   console.log("guardianship validation tests passed");
@@ -400,3 +404,4 @@ function extractZipEntry(buffer: Buffer, expectedName: string) {
   }
   throw new Error(`DOCX entry not found: ${expectedName}`);
 }
+
