@@ -12,7 +12,8 @@ import {
   getGuardianshipMunicipalityOptions,
   getGuardianshipRegionOptions,
   GUARDIANSHIP_DIRECTORY_METADATA,
-  TERRITORY_NOT_FOUND_ID
+  TERRITORY_NOT_FOUND_ID,
+  type GuardianshipCity
 } from "@/data/guardianship-territories";
 import { GUARDIANSHIP_SCENARIOS } from "@/data/guardianship-route";
 import type { GuardianshipField, GuardianshipScenarioKey } from "@/data/guardianship-route";
@@ -32,7 +33,7 @@ import { sendAnalyticsEvent } from "@/lib/analytics-client";
 
 type ReviewStatus = "idle" | "submitting" | "success" | "withdrawing" | "withdrawn" | "error";
 
-export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: GuardianshipScenarioKey }) {
+export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKey: GuardianshipScenarioKey; cities: GuardianshipCity[] }) {
   const scenario = GUARDIANSHIP_SCENARIOS[scenarioKey];
   const [values, setValues] = useState<GuardianshipValues>({});
   const [step, setStep] = useState(0);
@@ -237,7 +238,7 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
             <div className="h-full bg-trust" style={{ width: `${((safeStep + 1) / fields.length) * 100}%` }} />
           </div>
           <div className="mt-6">
-            <HelperField field={field} onChange={setField} value={values[field.name] ?? ""} values={values} />
+            <HelperField field={field} onChange={setField} value={values[field.name] ?? ""} values={values} cities={cities} />
             {fieldError ? <p className="mt-2 text-sm text-rose-700" role="alert">{fieldError}</p> : null}
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -385,12 +386,12 @@ export function GuardianshipDocumentHelper({ scenarioKey }: { scenarioKey: Guard
   );
 }
 
-function HelperField({ field, onChange, value, values }: { field: GuardianshipField; onChange: (name: string, value: string) => void; value: string; values: GuardianshipValues }) {
+function HelperField({ field, onChange, value, values, cities }: { field: GuardianshipField; onChange: (name: string, value: string) => void; value: string; values: GuardianshipValues; cities: GuardianshipCity[] }) {
   const id = `guardianship-${field.name}`;
   const territorialOptions = field.type === "territory-region"
     ? getGuardianshipRegionOptions()
     : field.type === "territory-municipality"
-      ? getGuardianshipMunicipalityOptions(values.region)
+      ? getGuardianshipMunicipalityOptions(values.region, cities)
       : field.type === "guardianship-authority"
         ? getGuardianshipAuthorityOptions(values.municipality)
         : [];
@@ -427,10 +428,7 @@ function HelperField({ field, onChange, value, values }: { field: GuardianshipFi
       {isTerritorialField ? <span className="text-xs font-normal leading-5 text-zinc-600">Справочник не считается полным. Проверка данных: {GUARDIANSHIP_DIRECTORY_METADATA.lastVerifiedAt}.</span> : null}
       {value === TERRITORY_NOT_FOUND_ID ? (
         <div className="border border-amber-300 bg-amber-50 p-3 text-sm font-normal leading-6 text-amber-950">
-          <p>Реквизиты не подтверждены. Помощник не сформирует готовый документ с вымышленным адресатом.</p>
-          <a href={GUARDIANSHIP_DIRECTORY_METADATA.authoritySearchUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">
-            Открыть официальный каталог сайтов регионов
-          </a>
+          <p>Нужного значения пока нет во внутреннем списке. Помощник не отправляет на сторонний сайт и не сформирует документ с неподтверждённым адресатом.</p>
         </div>
       ) : null}
       {selectedAuthority ? (

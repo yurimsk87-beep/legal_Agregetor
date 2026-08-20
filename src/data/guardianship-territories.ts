@@ -1,6 +1,8 @@
 import type { SearchableSelectOption } from "@/lib/searchable-select";
+import type { City } from "@/lib/types";
 
 export const TERRITORY_NOT_FOUND_ID = "territory-not-found";
+export const CITY_MUNICIPALITY_PREFIX = "city-municipality-";
 
 export type RussianRegion = SearchableSelectOption;
 
@@ -21,6 +23,8 @@ export type GuardianshipMunicipality = {
   name: string;
   authorities: GuardianshipAuthority[];
 };
+
+export type GuardianshipCity = Pick<City, "id" | "name" | "region" | "slug">;
 
 export const GUARDIANSHIP_DIRECTORY_METADATA = {
   regionSourceUrl: "https://www.gov.ru/main/regions/regioni-44.html",
@@ -148,16 +152,36 @@ const notFoundOption = (label: string): SearchableSelectOption => ({
   description: "Выберите этот вариант, чтобы получить официальный порядок поиска. Готовый документ сформирован не будет."
 });
 
+const CITY_REGION_OVERRIDES: Record<string, string> = {
+  moskva: "region-moscow",
+  "sankt-peterburg": "region-saint-petersburg",
+  sevastopol: "region-sevastopol"
+};
+
 export function getGuardianshipRegionOptions() {
   return RUSSIAN_REGIONS;
 }
 
-export function getGuardianshipMunicipalityOptions(regionId: string | undefined): SearchableSelectOption[] {
+export function getGuardianshipMunicipalityOptions(
+  regionId: string | undefined,
+  cities: GuardianshipCity[] = []
+): SearchableSelectOption[] {
   if (!regionId) return [];
   const verified = GUARDIANSHIP_MUNICIPALITIES
     .filter((municipality) => municipality.regionId === regionId)
     .map((municipality) => ({ id: municipality.id, label: municipality.name }));
-  return [...verified, notFoundOption("Не нашёл нужное муниципальное образование")];
+  const cityOptions = cities
+    .filter((city) => getGuardianshipCityRegionId(city) === regionId)
+    .map((city) => ({
+      id: `${CITY_MUNICIPALITY_PREFIX}${city.slug}`,
+      label: city.name,
+      description: "Город из внутреннего списка ПравоПоиска. Орган опеки потребуется подтвердить отдельно.",
+      keywords: [city.region]
+    }));
+  const options = [...verified, ...cityOptions]
+    .filter((option, index, all) => all.findIndex((candidate) => candidate.id === option.id) === index)
+    .sort((left, right) => left.label.localeCompare(right.label, "ru"));
+  return [...options, notFoundOption("Нужного города или муниципального образования нет в списке")];
 }
 
 export function getGuardianshipAuthorityOptions(municipalityId: string | undefined): SearchableSelectOption[] {
@@ -171,9 +195,32 @@ export function getGuardianshipAuthorityOptions(municipalityId: string | undefin
   return [...verified, notFoundOption("Не нашёл нужный орган опеки")];
 }
 
+export function isCityMunicipalityId(value: string | undefined) {
+  return Boolean(value?.startsWith(CITY_MUNICIPALITY_PREFIX));
+}
+
 export function findGuardianshipTerritory(regionId: string | undefined, municipalityId: string | undefined, authorityId: string | undefined) {
   const region = RUSSIAN_REGIONS.find((item) => item.id === regionId);
   const municipality = GUARDIANSHIP_MUNICIPALITIES.find((item) => item.id === municipalityId && item.regionId === regionId);
   const authority = municipality?.authorities.find((item) => item.id === authorityId);
   return { region, municipality, authority };
+}
+
+function getGuardianshipCityRegionId(city: GuardianshipCity) {
+  const override = CITY_REGION_OVERRIDES[city.slug];
+  if (override) return override;
+  const cityRegion = normalizeRegionName(city.region);
+  return RUSSIAN_REGIONS.find((region) => {
+    const regionName = normalizeRegionName(region.label);
+    return regionName === cityRegion || regionName.startsWith(`${cityRegion} `) || cityRegion.startsWith(`${regionName} `);
+  })?.id;
+}
+
+function normalizeRegionName(value: string) {
+  return value
+    .trim()
+    .toLocaleLowerCase("ru-RU")
+    .replace(/ё/g, "е")
+    .replace(/[()]/g, " ")
+    .replace(/\s+/g, " ");
 }

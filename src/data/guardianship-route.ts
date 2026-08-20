@@ -58,7 +58,7 @@ const immediateThreatField: GuardianshipField = {
 
 const authorityFields: GuardianshipField[] = [
   { name: "region", label: "Регион", type: "territory-region", required: true, hint: "Выберите субъект Российской Федерации из официального перечня." },
-  { name: "municipality", label: "Муниципальное образование", type: "territory-municipality", required: true, hint: "Показаны только территории, сверенные с официальными источниками." },
+  { name: "municipality", label: "Муниципальное образование", type: "territory-municipality", required: true, hint: "Начните вводить название города или муниципального образования. Города берутся из внутреннего списка ПравоПоиска; официальный орган опеки подтверждается отдельно." },
   { name: "authorityName", label: "Орган опеки и попечительства", type: "guardianship-authority", required: true, hint: "В документ попадут официальное наименование и адрес выбранного органа." }
 ];
 

@@ -22,6 +22,7 @@ import {
 } from "@/data/guardianship-legal-review";
 import { getGuardianshipScenarioByDocumentSlug } from "@/data/guardianship-route";
 import type { GuardianshipScenario } from "@/data/guardianship-route";
+import type { GuardianshipCity } from "@/data/guardianship-territories";
 import {
   getZagsScenario,
   ZAGS_PROBLEM_ROUTE,
@@ -29,6 +30,8 @@ import {
 } from "@/data/zags-route";
 import type { ZagsScenario, ZagsScenarioKey } from "@/data/zags-route";
 import { breadcrumbJsonLd } from "@/lib/jsonld";
+import { getCities } from "@/lib/repositories";
+import { cities as fallbackCities } from "@/lib/sample-data";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
 type PageProps = {
@@ -71,7 +74,10 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
   }
   const guardianshipScenario = getGuardianshipScenarioByDocumentSlug(document.slug);
   if (guardianshipScenario) {
-    return <GuardianshipDocumentPage document={document} scenario={guardianshipScenario} />;
+    const repositoryCities = await getCities();
+    const cities = (repositoryCities.length ? repositoryCities : fallbackCities)
+      .map(({ id, name, region, slug }) => ({ id, name, region, slug }));
+    return <GuardianshipDocumentPage document={document} scenario={guardianshipScenario} cities={cities} />;
   }
   if (document.slug !== ZAGS_PROBLEM_ROUTE.documentSlug) notFound();
 
@@ -137,10 +143,12 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
 
 function GuardianshipDocumentPage({
   document,
-  scenario
+  scenario,
+  cities
 }: {
   document: NonNullable<ReturnType<typeof getNavigatorDocument>>;
   scenario: GuardianshipScenario;
+  cities: GuardianshipCity[];
 }) {
   const documentPath = `/documents/${document.slug}/`;
   const breadcrumbs = [
@@ -167,7 +175,7 @@ function GuardianshipDocumentPage({
           <DocumentFact title="Подача и срок" items={[scenario.filing, scenario.term]} />
         </section>
         {scenario.warning ? <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div> : null}
-        <div className="mt-7"><GuardianshipDocumentHelper scenarioKey={scenario.key} /></div>
+        <div className="mt-7"><GuardianshipDocumentHelper scenarioKey={scenario.key} cities={cities} /></div>
 
         <section className="mt-7 border-t border-line pt-6">
           <h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2>

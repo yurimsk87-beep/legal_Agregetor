@@ -6,6 +6,7 @@ import {
   getGuardianshipAuthorityOptions,
   getGuardianshipMunicipalityOptions,
   GUARDIANSHIP_DIRECTORY_METADATA,
+  isCityMunicipalityId,
   RUSSIAN_REGIONS,
   TERRITORY_NOT_FOUND_ID
 } from "@/data/guardianship-territories";
@@ -313,8 +314,18 @@ async function run() {
   assert.equal(new Set(RUSSIAN_REGIONS.map(({ id }) => id)).size, RUSSIAN_REGIONS.length);
   assert.equal(filterSearchableSelectOptions(RUSSIAN_REGIONS, "моск").some(({ id }) => id === "region-moscow"), true);
   assert.equal(filterSearchableSelectOptions([{ id: "oryol", label: "Орёл" }], "орел").length, 1);
-  assert.equal(getGuardianshipMunicipalityOptions("region-moscow").some(({ id }) => id === "moscow-gagarinsky"), true);
-  assert.equal(getGuardianshipMunicipalityOptions("region-moscow").some(({ id }) => id === "moscow-kurkino"), false);
+  const platformCities = [
+    { id: "city-moskva", name: "Москва", slug: "moskva", region: "Москва" },
+    { id: "city-sankt-peterburg", name: "Санкт-Петербург", slug: "sankt-peterburg", region: "Ленинградская область" },
+    { id: "city-novosibirsk", name: "Новосибирск", slug: "novosibirsk", region: "Новосибирская область" }
+  ];
+  const moscowMunicipalities = getGuardianshipMunicipalityOptions("region-moscow", platformCities);
+  assert.equal(moscowMunicipalities.some(({ id }) => id === "moscow-gagarinsky"), true);
+  assert.equal(moscowMunicipalities.some(({ id }) => id === "city-municipality-moskva"), true);
+  assert.equal(moscowMunicipalities.some(({ id }) => id === "moscow-kurkino"), false);
+  assert.equal(getGuardianshipMunicipalityOptions("region-saint-petersburg", platformCities).some(({ id }) => id === "city-municipality-sankt-peterburg"), true);
+  assert.equal(getGuardianshipMunicipalityOptions("region-novosibirsk", platformCities).some(({ label }) => label === "Новосибирск"), true);
+  assert.equal(isCityMunicipalityId("city-municipality-novosibirsk"), true);
   assert.equal(getGuardianshipAuthorityOptions("moscow-gagarinsky").some(({ id }) => id === "moscow-gagarinsky-administration"), true);
   assert.equal(GUARDIANSHIP_DIRECTORY_METADATA.isComplete, false);
 
@@ -323,6 +334,13 @@ async function run() {
   assert.equal(missingMunicipality.draftText, "");
   const missingAuthority = validateGuardianshipApplication("appointment", { ...appointmentBase, authorityName: TERRITORY_NOT_FOUND_ID });
   assert.equal(missingAuthority.pdfAvailable, false);
+  const cityWithoutVerifiedAuthority = validateGuardianshipApplication("appointment", {
+    ...appointmentBase,
+    municipality: "city-municipality-novosibirsk",
+    authorityName: TERRITORY_NOT_FOUND_ID
+  });
+  assert.equal(cityWithoutVerifiedAuthority.pdfAvailable, false);
+  assert.equal(cityWithoutVerifiedAuthority.issues.some(({ message }) => message.includes("сторонний сайт")), false);
   const mismatchedAuthority = validateGuardianshipApplication("appointment", { ...appointmentBase, municipality: "moscow-kurkino", authorityName: "moscow-gagarinsky-administration" });
   assert.equal(mismatchedAuthority.pdfAvailable, false);
 

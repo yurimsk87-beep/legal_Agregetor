@@ -51,6 +51,15 @@ test("searchable territory cascade works by keyboard and resets dependent values
   await answerInput(page, "ФИО, дата рождения, адрес и паспорт кандидата", "Иванов Иван Иванович, 01.01.1990, Москва, паспорт 0000 000000");
   await answerInput(page, "ФИО, дата рождения и место жительства ребёнка", "Иванов Пётр Иванович, 01.01.2018, Москва");
 
+  await chooseCombobox(page, "Регион", "Новосибирская область");
+  await page.getByRole("combobox", { name: "Муниципальное образование" }).press("ArrowDown");
+  const municipalitySearch = page.getByPlaceholder("Поиск муниципального образования");
+  await municipalitySearch.fill("Новосибирск");
+  await expect(page.getByRole("option", { name: /Новосибирск/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /официальный каталог сайтов регионов/i })).toHaveCount(0);
+  await municipalitySearch.press("Escape");
+  await page.getByRole("button", { name: "Назад" }).click();
+
   await chooseCombobox(page, "Регион", "Москва");
   await chooseCombobox(page, "Муниципальное образование", "Гагаринский");
   await chooseCombobox(page, "Орган опеки и попечительства", "Администрация");

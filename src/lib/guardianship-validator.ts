@@ -6,6 +6,7 @@ import {
 import {
   findGuardianshipTerritory,
   GUARDIANSHIP_DIRECTORY_METADATA,
+  isCityMunicipalityId,
   RUSSIAN_REGIONS,
   TERRITORY_NOT_FOUND_ID
 } from "@/data/guardianship-territories";
@@ -877,14 +878,21 @@ function validateGuardianshipTerritory(values: GuardianshipValues, issues: Guard
   if (values.municipality === TERRITORY_NOT_FOUND_ID) {
     issues.push({
       field: "municipality",
-      message: `Муниципальное образование не подтверждено. Найдите официальный сайт региона в федеральном каталоге ${GUARDIANSHIP_DIRECTORY_METADATA.authoritySearchUrl} и проверьте компетентный орган. Готовый документ не формируется.`
+      message: "Муниципальное образование отсутствует во внутреннем списке. Готовый документ не формируется без подтверждённого адресата."
+    });
+    return;
+  }
+  if (isCityMunicipalityId(values.municipality)) {
+    issues.push({
+      field: "authorityName",
+      message: "Город выбран из внутреннего списка, но компетентный орган опеки для него ещё не подтверждён. Готовый документ не формируется без официального наименования и адреса органа."
     });
     return;
   }
   if (values.authorityName === TERRITORY_NOT_FOUND_ID) {
     issues.push({
       field: "authorityName",
-      message: `Орган опеки не подтверждён. Проверьте его на официальном сайте выбранного региона: ${GUARDIANSHIP_DIRECTORY_METADATA.authoritySearchUrl}. Готовый документ не формируется.`
+      message: "Орган опеки отсутствует во внутреннем проверенном списке. Готовый документ не формируется без официального наименования и адреса органа."
     });
     return;
   }
