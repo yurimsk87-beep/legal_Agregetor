@@ -1,7 +1,14 @@
 import type { Prisma } from "@prisma/client";
+import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import {
+  deleteLeadPdfAttachment,
+  LeadAttachmentValidationError,
+  storeLeadPdfAttachment,
+  validateLeadPdfAttachment
+} from "@/lib/lead-attachments";
 import { getCurrentAdminUser } from "@/lib/server-auth";
 import {
   checkRateLimit,
@@ -61,7 +68,7 @@ const formatMap = {
 } as const;
 
 const successMessage =
-  "Ваша ситуация передана через платформу. Администратор обработает заявку, а контакты не будут опубликованы в Q&A.";
+  "Заявка принята платформой и ожидает назначения юриста. Контакты и PDF не публикуются.";
 const errorMessage = "Не удалось сохранить обращение. Проверьте данные и попробуйте еще раз.";
 
 export async function GET(request: Request) {
@@ -118,8 +125,11 @@ export async function POST(request: Request) {
   if (limited) return limited;
 
   let json: unknown;
+  let attachment: File | null = null;
   try {
-    json = await readJsonWithLimit(request, 24_000);
+    const parsedRequest = await readLeadRequest(request);
+    json = parsedRequest.json;
+    attachment = parsedRequest.attachment;
   } catch (error) {
     if (error instanceof RequestPayloadTooLargeError) return payloadTooLargeResponse();
     return NextResponse.json({ ok: false, message: "Invalid JSON." }, { status: 400 });
@@ -132,14 +142,25 @@ export async function POST(request: Request) {
 
   const data = parsed.data;
   const sourceType = normalizeSourceType(data.sourceType);
+  const withdrawalToken = sourceType === "DOCUMENT_REVIEW" ? crypto.randomBytes(32).toString("base64url") : null;
   const lawyerId = data.lawyerId || null;
   const questionId = data.questionId || null;
 
-  if ((sourceType === "QUESTION" || questionId) && data.contactTransferConsent !== true) {
+  if ((sourceType === "QUESTION" || sourceType === "DOCUMENT_REVIEW" || questionId) && data.contactTransferConsent !== true) {
     return NextResponse.json(
       { ok: false, message: "Нужно отдельное согласие на передачу контактов юристу по этой ситуации." },
       { status: 400 }
     );
+  }
+
+  if (sourceType === "DOCUMENT_REVIEW") {
+    if (!attachment) {
+      return NextResponse.json({ ok: false, message: "Для проверки необходимо приложить сформированный PDF." }, { status: 400 });
+    }
+    const attachmentError = validateLeadPdfAttachment(attachment);
+    if (attachmentError) {
+      return NextResponse.json({ ok: false, message: attachmentError }, { status: 400 });
+    }
   }
 
   try {
@@ -179,7 +200,16 @@ export async function POST(request: Request) {
         messenger: data.messenger || null,
         availableTime: data.availableTime || null,
         documentsNote: data.documentsNote || null,
-        structuredPayload: data.structuredPayload as Prisma.InputJsonValue | undefined,
+        structuredPayload: {
+          ...(data.structuredPayload ?? {}),
+          ...(withdrawalToken ? {
+            documentReviewConsent: {
+              grantedAt: new Date().toISOString(),
+              withdrawalTokenHash: hashWithdrawalToken(withdrawalToken)
+            },
+            reviewStatus: "PLATFORM_ACCEPTED"
+          } : {})
+        } as Prisma.InputJsonValue,
         leadScore: data.leadScore ?? 0,
         contactTransferConsentAt: data.contactTransferConsent ? new Date() : null,
         desiredFormat: data.format ? formatMap[data.format] : null,
@@ -188,13 +218,46 @@ export async function POST(request: Request) {
       }
     });
 
+    if (sourceType === "DOCUMENT_REVIEW" && attachment) {
+      let storedAttachment: Awaited<ReturnType<typeof storeLeadPdfAttachment>> | null = null;
+      try {
+        storedAttachment = await storeLeadPdfAttachment(lead.id, attachment);
+        await prisma.lead.update({
+          where: { id: lead.id },
+          data: {
+            structuredPayload: {
+              ...(data.structuredPayload ?? {}),
+              reviewStatus: "AWAITING_LAWYER_ASSIGNMENT",
+              documentReviewConsent: {
+                grantedAt: new Date().toISOString(),
+                withdrawalTokenHash: hashWithdrawalToken(withdrawalToken ?? "")
+              },
+              documentReviewAttachment: storedAttachment
+            } as Prisma.InputJsonValue
+          }
+        });
+      } catch (error) {
+        if (storedAttachment) await deleteLeadPdfAttachment(storedAttachment.storageKey).catch(() => undefined);
+        await prisma.lead.delete({ where: { id: lead.id } }).catch(() => undefined);
+        if (error instanceof LeadAttachmentValidationError) {
+          return NextResponse.json({ ok: false, message: error.message }, { status: 400 });
+        }
+        throw error;
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       id: lead.id,
-      message: successMessage
+      message: successMessage,
+      reviewStatus: sourceType === "DOCUMENT_REVIEW" ? "AWAITING_LAWYER_ASSIGNMENT" : undefined,
+      withdrawalToken
     });
   } catch (error) {
-    console.error("Lead create failed", error);
+    console.error("Lead create failed", {
+      sourceType,
+      errorName: error instanceof Error ? error.name : "UnknownError"
+    });
     return NextResponse.json(
       {
         ok: false,
@@ -208,6 +271,58 @@ export async function POST(request: Request) {
 function normalizeSourceType(sourceType: LeadSourceTypeInput | undefined) {
   if (!sourceType) return "LAWYER_PROFILE";
   if (sourceType === "CITY_SERVICE") return "CITY_SERVICE_PAGE";
-  if (sourceType === "CONTACTS" || sourceType === "CHECKLIST" || sourceType === "DOCUMENT_REVIEW") return "GENERAL";
+  if (sourceType === "CONTACTS" || sourceType === "CHECKLIST") return "GENERAL";
   return sourceType;
+}
+
+function hashWithdrawalToken(token: string) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
+
+async function readLeadRequest(request: Request): Promise<{ json: unknown; attachment: File | null }> {
+  const contentType = request.headers.get("content-type") ?? "";
+  if (!contentType.toLowerCase().includes("multipart/form-data")) {
+    return { json: await readJsonWithLimit(request, 24_000), attachment: null };
+  }
+
+  const contentLength = Number(request.headers.get("content-length") ?? 0);
+  if (contentLength > 5.25 * 1024 * 1024) throw new RequestPayloadTooLargeError();
+
+  const formData = await request.formData();
+  const attachmentEntry = formData.get("attachment");
+  const structuredPayload = parseStructuredPayload(formData.get("structuredPayload"));
+  return {
+    attachment: attachmentEntry instanceof File && attachmentEntry.size > 0 ? attachmentEntry : null,
+    json: {
+      name: textValue(formData, "name"),
+      phone: textValue(formData, "phone"),
+      email: textValue(formData, "email"),
+      cityId: textValue(formData, "cityId"),
+      serviceId: textValue(formData, "serviceId"),
+      lawyerId: textValue(formData, "lawyerId"),
+      questionId: textValue(formData, "questionId"),
+      message: textValue(formData, "message"),
+      messenger: textValue(formData, "messenger"),
+      availableTime: textValue(formData, "availableTime"),
+      documentsNote: textValue(formData, "documentsNote"),
+      sourcePage: textValue(formData, "sourcePage"),
+      sourceType: textValue(formData, "sourceType"),
+      format: textValue(formData, "format") || undefined,
+      consent: formData.get("consent") === "true",
+      contactTransferConsent: formData.get("contactTransferConsent") === "true",
+      structuredPayload
+    }
+  };
+}
+
+function textValue(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return typeof value === "string" ? value : "";
+}
+
+function parseStructuredPayload(value: FormDataEntryValue | null) {
+  if (typeof value !== "string" || !value) return undefined;
+  const parsed = JSON.parse(value) as unknown;
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Invalid structured payload.");
+  return parsed as Record<string, unknown>;
 }

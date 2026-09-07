@@ -29,7 +29,10 @@ const sourceTypes = [
   "ARTICLE",
   "QUESTION",
   "DOCUMENT",
-  "CALCULATOR"
+  "CALCULATOR",
+  "CHECKLIST",
+  "CONTACTS",
+  "DOCUMENT_REVIEW"
 ] as const satisfies readonly LeadSourceType[];
 
 export const dynamic = "force-dynamic";
@@ -75,7 +78,7 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
         <p className="text-sm font-semibold text-trust">Admin CRM</p>
         <h1 className="text-4xl font-semibold text-ink">Заявки</h1>
         <p className="mt-3 max-w-3xl text-zinc-600">
-          Все обращения пользователей обрабатывает только администратор платформы. Юрист-источник показан справочно и не получает контакты пользователя.
+          Все обращения пользователей сначала обрабатывает администратор платформы. Контакты и PDF передаются юристу только при отдельном согласии пользователя.
         </p>
       </div>
 
@@ -146,6 +149,15 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
                   </td>
                   <td className="px-4 py-4">
                     <p className="max-w-xs whitespace-pre-wrap text-zinc-700">{lead.message}</p>
+                    {lead.documentsNote ? <p className="mt-2 max-w-xs whitespace-pre-wrap text-xs text-zinc-600">{lead.documentsNote}</p> : null}
+                    {getLeadAttachmentName(lead.structuredPayload) ? (
+                      <a
+                        href={`/api/admin/leads/${lead.id}/attachment/`}
+                        className="mt-3 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30"
+                      >
+                        Скачать PDF: {getLeadAttachmentName(lead.structuredPayload)}
+                      </a>
+                    ) : null}
                   </td>
                   <td className="px-4 py-4">
                     <form action={updateLeadAction} className="grid min-w-64 gap-2">
@@ -288,4 +300,12 @@ function pickLeadAuditFilters(filters: ReturnType<typeof parseFilters>) {
     dateFrom: filters.dateFrom,
     dateTo: filters.dateTo
   };
+}
+
+function getLeadAttachmentName(payload: Prisma.JsonValue | null) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+  const attachment = (payload as Prisma.JsonObject).documentReviewAttachment;
+  if (!attachment || typeof attachment !== "object" || Array.isArray(attachment)) return null;
+  const fileName = (attachment as Prisma.JsonObject).fileName;
+  return typeof fileName === "string" ? fileName : null;
 }

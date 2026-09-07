@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { DivorcePropertyDocumentHelper } from "@/components/documents/DivorcePropertyDocumentHelper";
+import { GuardianshipDocumentHelper } from "@/components/documents/GuardianshipDocumentHelper";
 import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
@@ -15,12 +16,22 @@ import {
 import { getDivorceScenarioByDocumentSlug } from "@/data/divorce-property-route";
 import type { DivorcePropertyScenario } from "@/data/divorce-property-route";
 import {
+  GUARDIANSHIP_LEGAL_RULES,
+  getGuardianshipLegalReviewDate,
+  isGuardianshipLegalReviewFullyPrimaryVerified
+} from "@/data/guardianship-legal-review";
+import { getGuardianshipScenarioByDocumentSlug } from "@/data/guardianship-route";
+import type { GuardianshipScenario } from "@/data/guardianship-route";
+import type { GuardianshipCity } from "@/data/guardianship-territories";
+import {
   getZagsScenario,
   ZAGS_PROBLEM_ROUTE,
   ZAGS_SCENARIO_CHOICES
 } from "@/data/zags-route";
 import type { ZagsScenario, ZagsScenarioKey } from "@/data/zags-route";
 import { breadcrumbJsonLd } from "@/lib/jsonld";
+import { getCities } from "@/lib/repositories";
+import { cities as fallbackCities } from "@/lib/sample-data";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
 type PageProps = {
@@ -60,6 +71,13 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
   const divorceScenario = getDivorceScenarioByDocumentSlug(document.slug);
   if (divorceScenario) {
     return <DivorcePropertyDocumentPage document={document} scenario={divorceScenario} />;
+  }
+  const guardianshipScenario = getGuardianshipScenarioByDocumentSlug(document.slug);
+  if (guardianshipScenario) {
+    const repositoryCities = await getCities();
+    const cities = (repositoryCities.length ? repositoryCities : fallbackCities)
+      .map(({ id, name, region, slug }) => ({ id, name, region, slug }));
+    return <GuardianshipDocumentPage document={document} scenario={guardianshipScenario} cities={cities} />;
   }
   if (document.slug !== ZAGS_PROBLEM_ROUTE.documentSlug) notFound();
 
@@ -121,6 +139,84 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
       </article>
     </>
   );
+}
+
+function GuardianshipDocumentPage({
+  document,
+  scenario,
+  cities
+}: {
+  document: NonNullable<ReturnType<typeof getNavigatorDocument>>;
+  scenario: GuardianshipScenario;
+  cities: GuardianshipCity[];
+}) {
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [
+    { name: "Главная", path: "/" },
+    { name: "Документы", path: "/documents/" },
+    { name: document.title, path: documentPath }
+  ];
+  return (
+    <>
+      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="border-b border-line pb-7">
+          <p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p>
+          <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p>
+          <a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить документ</a>
+        </header>
+
+        <section className="mt-7 grid gap-4 md:grid-cols-2">
+          <DocumentFact title="Когда подходит" items={scenario.description} />
+          <DocumentFact title="Что подготовить" items={scenario.documents} />
+          <DocumentFact title="Пошлина и расходы" items={[scenario.fee]} />
+          <DocumentFact title="Подача и срок" items={[scenario.filing, scenario.term]} />
+        </section>
+        {scenario.warning ? <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div> : null}
+        <div className="mt-7"><GuardianshipDocumentHelper scenarioKey={scenario.key} cities={cities} /></div>
+
+        <section className="mt-7 border-t border-line pt-6">
+          <h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-700">Для каждого правила указаны источник, предел применения и статус проверки. Региональные сведения не выдаются за федеральное правило.</p>
+          <ul className="mt-4 grid gap-4 text-sm leading-6">
+            {GUARDIANSHIP_LEGAL_RULES.filter((rule) => rule.scenarios.includes(scenario.key)).map((rule) => (
+              <li key={rule.id} className="border-l-2 border-line pl-3">
+                <p className="font-medium text-ink">{rule.statement}</p>
+                <p className="text-zinc-600">{rule.act}, {rule.provision}. Тип: {guardianshipSourceLabel(rule.sourceType)}. Статус: {guardianshipStatusLabel(rule.status)}.</p>
+                <p className="text-zinc-600">
+                  {rule.edition ? `${rule.edition}. ` : ""}Проверено: {rule.reviewedAt.split("-").reverse().join(".")}.
+                </p>
+                <p className="text-zinc-600">Граница применения: {rule.scopeNote}</p>
+                <a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Основной источник</a>
+                {rule.supplementaryUrl ? <a href={rule.supplementaryUrl} target="_blank" rel="noreferrer" className="ml-4 inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Контрольная редакция</a> : null}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs leading-5 text-zinc-500">
+            Последняя документированная сверка: {getGuardianshipLegalReviewDate(scenario.key).split("-").reverse().join(".")}.
+            {isGuardianshipLegalReviewFullyPrimaryVerified(scenario.key)
+              ? " Все первичные официальные источники доступны."
+              : " Недоступность первичного источника или необходимость региональной проверки раскрыта у соответствующего правила."}
+          </p>
+        </section>
+      </article>
+    </>
+  );
+}
+
+function guardianshipSourceLabel(source: "official" | "official-court" | "consolidated-fallback") {
+  if (source === "official") return "официальный";
+  if (source === "official-court") return "официальная судебная практика";
+  return "контрольная консолидированная редакция";
+}
+
+function guardianshipStatusLabel(status: "current" | "primary-unavailable" | "regional-check-required" | "not-found") {
+  if (status === "current") return "актуально";
+  if (status === "regional-check-required") return "нужна региональная проверка";
+  if (status === "not-found") return "подтверждающая норма не найдена";
+  return "первичный портал недоступен при проверке";
 }
 
 function DivorcePropertyDocumentPage({

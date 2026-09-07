@@ -7,6 +7,7 @@ on:
       - main
       - agent/zags-reference-final-clean
       - agent/divorce-property-route-hardening
+      - agent/child-guardianship-reference-route
 
 permissions:
   contents: read
@@ -34,6 +35,7 @@ jobs:
       DATABASE_URL: postgresql://legal_user:legal_password@localhost:5432/legal_aggregator_ci?schema=public
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       SITE_URL: http://localhost:3000
+      LEAD_ATTACHMENT_STORAGE_ROOT: /tmp/private-lead-attachments
 
     steps:
       - uses: actions/checkout@v4
@@ -47,9 +49,10 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
+      - run: npm run build
       - name: Run AI Navigator quality check
         run: |
-          npm run dev > /tmp/zags-next.log 2>&1 &
+          npm run start -- -p 3000 > /tmp/reference-routes-next.log 2>&1 &
           app_pid=$!
           trap 'kill "$app_pid" 2>/dev/null || true' EXIT
 
@@ -61,6 +64,42 @@ jobs:
             sleep 1
           done
 
-          cat /tmp/zags-next.log
+          cat /tmp/reference-routes-next.log
           exit 1
-      - run: npm run build
+      - name: Install Chromium for route acceptance
+        run: npx playwright install --with-deps chromium
+      - name: Run guardianship route acceptance
+        env:
+          E2E_SUBMIT_REVIEW: "true"
+        run: npm run test:e2e:guardianship
+      - name: Confirm withdrawn review PDF was deleted
+        run: test -z "$(find "$LEAD_ATTACHMENT_STORAGE_ROOT" -type f -name '*.pdf' -print -quit 2>/dev/null)"
+      - name: Generate and inspect guardianship PDFs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+          export GUARDIANSHIP_PDF_AUDIT_DIR="$RUNNER_TEMP/guardianship-pdf-audit"
+          npm run audit:guardianship-pdf
+          for pdf in "$GUARDIANSHIP_PDF_AUDIT_DIR"/*.pdf; do
+            pages="$(pdfinfo "$pdf" | awk '/^Pages:/ { print $2 }')"
+            test "${pages:-0}" -gt 0
+            pdftotext "$pdf" "${pdf%.pdf}.txt"
+            test -s "${pdf%.pdf}.txt"
+            grep -q 'Подготовленные сведения' "${pdf%.pdf}.txt"
+            grep -q 'Правовая сверка:' "${pdf%.pdf}.txt"
+            grep -q 'Страница 1 из' "${pdf%.pdf}.txt"
+            for page in $(seq 1 "$pages"); do
+              pdftotext -f "$page" -l "$page" "$pdf" - | grep -q '[[:alnum:]]'
+            done
+            pdftoppm -png -r 120 "$pdf" "${pdf%.pdf}-page"
+            test "$(find "$GUARDIANSHIP_PDF_AUDIT_DIR" -maxdepth 1 -name "$(basename "${pdf%.pdf}")-page-*.png" | wc -l)" -eq "$pages"
+          done
+      - name: Upload PDF and browser acceptance artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardianship-acceptance
+          path: |
+            ${{ runner.temp }}/guardianship-pdf-audit
+            playwright-report
+            test-results

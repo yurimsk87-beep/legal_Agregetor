@@ -70,6 +70,20 @@ nano .env
 Обязательно заполнить: `DATABASE_URL` (с реальным паролем), `JWT_SECRET`, `AUTH_SECRET`,
 `ADMIN_PASSWORD`. `SITE_URL`/`NEXT_PUBLIC_SITE_URL` уже стоят на `https://pravopoisk.ru`.
 
+Создайте закрытый каталог для PDF, передаваемых юристу. Он не должен находиться внутри `public`:
+
+```bash
+sudo install -d -m 700 -o pravopoisk -g pravopoisk /var/lib/pravopoisk/lead-attachments
+```
+
+Замените `pravopoisk` на системного пользователя PM2, если приложение запущено от другого пользователя. Для гарантированного удаления файлов старше 30 дней добавьте ежедневное задание root в `/etc/cron.d/pravopoisk-attachments`:
+
+```cron
+17 3 * * * root find /var/lib/pravopoisk/lead-attachments -type f -name '*.pdf' -mmin +43200 -delete
+```
+
+В Docker Compose закрытое хранилище и ежедневная очистка уже настроены именованным volume и сервисом `attachment-cleaner`.
+
 > ⚠️ `NEXT_PUBLIC_*` зашиваются на этапе **build**, поэтому `.env` должен существовать **до** шага 6.
 
 ---
@@ -212,3 +226,4 @@ pm2 restart legal-aggregator   # полный рестарт
 pm2 reload legal-aggregator    # рестарт без даунтайма
 pm2 monit                      # мониторинг
 ```
+

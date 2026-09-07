@@ -109,7 +109,28 @@ function isZagsNavigatorIntent(query: string, primary: NavigatorResult | null) {
   );
 }
 
+function isGuardianshipNavigatorIntent(query: string, primary: NavigatorResult | null) {
+  const normalized = query.toLowerCase().replace(/ё/g, "е");
+  if (/(усынов|удочер|лишен.*родитель|совершеннолет|опека над взросл)/.test(normalized) || (normalized.includes("недееспособ") && normalized.includes("взросл"))) return false;
+  const href = primary?.href ?? "";
+  return href.includes("opeka-i-popechitelstvo-nad-rebenkom") ||
+    href.includes("naznachenii-opekuna") ||
+    href.includes("imushchestvu-podopechnogo") ||
+    href.includes("zhaloba-na-organ-opeki") ||
+    /(опек.*ребен|попечитель.*ребен|предварительн.*опек|отчет опекуна|орган опеки.*(отказ|не отвечает)|имущество ребенка.*опек)/.test(normalized);
+}
+
 function buildIntentContent(query: string, primary: NavigatorResult | null): IntentContent | null {
+  if (isGuardianshipNavigatorIntent(query, primary)) {
+    return {
+      summary: "Похоже, вопрос касается опеки или попечительства над несовершеннолетним. Маршрут разделяет обычное и предварительное назначение, заявление родителей, отчётность и имущественные разрешения.",
+      steps: [
+        "Выберите задачу: оформление, временное отсутствие родителей, имущество и отчёт либо отказ органа опеки.",
+        "Ответьте на вопросы о возрасте ребёнка, заявителе и требуемом результате.",
+        "Получите персональный перечень и подготовьте данные для официальной формы либо маркированный черновик."
+      ]
+    };
+  }
   if (!isZagsNavigatorIntent(query, primary)) return null;
   return {
     summary: "Похоже, вопрос связан с регистрацией брака или другой процедурой ЗАГС. Сначала выберите нужную процедуру, затем подготовьте сведения для соответствующего официального бланка.",
@@ -122,6 +143,13 @@ function buildIntentContent(query: string, primary: NavigatorResult | null): Int
 }
 
 function buildClarifyingQuestions(query: string, primary: NavigatorResult | null): string[] {
+  if (isGuardianshipNavigatorIntent(query, primary)) {
+    return [
+      "Что требуется: назначить опекуна, оформить период отсутствия родителей, решить имущественный вопрос или обжаловать действие органа опеки?",
+      "Сколько лет ребёнку и остался ли он без попечения родителей?",
+      "Есть письменное решение органа опеки или зарегистрированное обращение без ответа?"
+    ];
+  }
   if (!isZagsNavigatorIntent(query, primary)) return [];
   return [
     "Что именно вы хотите сделать: заключить брак, переменить имя, получить повторный документ или исправить запись ЗАГС?",

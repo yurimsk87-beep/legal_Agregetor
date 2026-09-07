@@ -31,10 +31,20 @@ services:
         condition: service_started
     env_file:
       - .env.production
+    environment:
+      LEAD_ATTACHMENT_STORAGE_ROOT: /app/private/lead-attachments
     volumes:
       - ./public/uploads:/app/public/uploads
+      - lead_attachments:/app/private/lead-attachments
     expose:
       - "3000"
+
+  attachment-cleaner:
+    image: alpine:3.20
+    restart: unless-stopped
+    command: /bin/sh -c 'while true; do find /attachments -type f -name "*.pdf" -mmin +43200 -delete; sleep 86400; done'
+    volumes:
+      - lead_attachments:/attachments
 
   postgres:
     image: postgres:16-alpine
@@ -59,3 +69,5 @@ volumes:
   postgres_data:
   caddy_data:
   caddy_config:
+  lead_attachments:
+

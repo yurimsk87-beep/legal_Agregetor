@@ -635,6 +635,9 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   // Точное совпадение названия — сильный прямой сигнал, домен-конфликт не применяем.
   if (result.normalizedTitle === normalizedQuery) return false;
 
+  if (isGuardianshipRouteResult(result.href) && isExcludedGuardianshipQuery(normalizedQuery)) return true;
+  if (isGuardianshipRouteResult(result.href) && isChildGuardianshipQuery(normalizedQuery)) return false;
+
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
   if (queryDomains.some((domain) => resultDomains.has(domain))) return false;
@@ -693,8 +696,55 @@ function isZagsProcedureQuery(normalizedQuery: string) {
   ].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isGuardianshipRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/") || [
+    "/documents/zayavlenie-o-naznachenii-opekuna-rebenku/",
+    "/documents/zayavlenie-roditelya-o-naznachenii-opekuna/",
+    "/documents/dokumenty-po-imushchestvu-podopechnogo/",
+    "/documents/zhaloba-na-organ-opeki/"
+  ].some((path) => href.includes(path));
+}
+
+function isExcludedGuardianshipQuery(normalizedQuery: string) {
+  return (normalizedQuery.includes("недееспособ") && normalizedQuery.includes("взросл")) ||
+    (normalizedQuery.includes("лишен") && normalizedQuery.includes("родитель")) || [
+    "усынов",
+    "удочер",
+    "ограничен родитель",
+    "место жительства ребенка",
+    "порядок общения",
+    "алимент",
+    "эмансип",
+    "совершеннолет",
+    "опека над взросл"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isChildGuardianshipQuery(normalizedQuery: string) {
+  if (isExcludedGuardianshipQuery(normalizedQuery)) return false;
+  return [
+    "оформить опеку над ребенком",
+    "стать опекуном ребенка",
+    "опека над ребенком",
+    "попечительство над ребенком",
+    "опека бабушкой по заявлению родителей на определённый период",
+    "родители уезжают",
+    "ребенок остается с родственником",
+    "предварительная опека",
+    "разрешение опеки на имущество ребенка",
+    "продажа квартиры ребенка",
+    "продать недвижимость ребенка",
+    "отчет опекуна",
+    "номинальный счет опекуна",
+    "орган опеки отказал",
+    "орган опеки не отвечает"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isChildGuardianshipQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/")) return 1000;
+  if (isChildGuardianshipQuery(normalizedQuery) && isGuardianshipRouteResult(href)) return 980;
   if (isZagsProcedureQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/brak-zags-i-smena-familii/")) return 990;
   if (isZagsProcedureQuery(normalizedQuery) && href.includes("/documents/zayavlenie-v-zags/")) return 970;
   return 0;

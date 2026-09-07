@@ -2,8 +2,7 @@ import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { AUTH_COOKIE_NAME, verifySessionToken } from "@/lib/auth";
 import { canonicalizePublicPathSegments } from "@/lib/canonical-slugs";
-import { getNavigatorDocument } from "@/data/documents";
-import { getLegalProblem, legalProblems } from "@/data/legal-problems";
+import { isUnknownNavigatorPath } from "@/lib/navigator-paths";
 
 const botPattern = /(googlebot|yandexbot|bingbot|duckduckbot|slurp|baiduspider)/i;
 
@@ -101,11 +100,8 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
     return trailingSlashResponse;
   }
 
-  if (isMissingNavigatorPath(normalizedPath)) {
-    const notFoundUrl = request.nextUrl.clone();
-    notFoundUrl.pathname = "/not-found-page/";
-    notFoundUrl.search = "";
-    const notFoundResponse = NextResponse.rewrite(notFoundUrl, { status: 404 });
+  if (isUnknownNavigatorPath(request.nextUrl.pathname)) {
+    const notFoundResponse = NextResponse.next({ status: 404 });
     notFoundResponse.headers.set("x-robots-tag", "noindex, nofollow");
     trackBotVisit(request, event, userAgent, 404, notFoundResponse);
     return notFoundResponse;
@@ -202,24 +198,6 @@ function canonicalSlugRedirect(pathname: string) {
 
 function isNavigatorPath(pathname: string) {
   return pathname === "/problems/" || pathname.startsWith("/problems/") || pathname === "/documents/" || pathname.startsWith("/documents/") || pathname === "/tools/" || pathname.startsWith("/tools/");
-}
-
-function isMissingNavigatorPath(pathname: string) {
-  const segments = pathname.split("/").filter(Boolean);
-
-  if (segments[0] === "documents" && segments.length === 2) {
-    return !getNavigatorDocument(segments[1]);
-  }
-
-  if (segments[0] === "problems" && segments.length === 2) {
-    return !legalProblems.some((problem) => problem.categorySlug === segments[1]);
-  }
-
-  if (segments[0] === "problems" && segments.length === 3) {
-    return !getLegalProblem(segments[1], segments[2]);
-  }
-
-  return false;
 }
 
 function isTechnicalNoindexPath(pathname: string) {
