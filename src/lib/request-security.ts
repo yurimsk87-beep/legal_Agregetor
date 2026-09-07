@@ -33,6 +33,8 @@ type AuditInput = {
 // multiplied by the number of running instances and resets on cold start.
 // Acceptable for the single-instance MVP, but NOT production-grade for
 // horizontal scaling.
+// Repository deployment defaults agree: ecosystem.config.js uses one fork;
+// docker-compose.prod.yml declares a single app without replicas.
 //
 // Redis is already provisioned (see docker-compose `redis` service / REDIS_URL),
 // but no Redis client is bundled and `checkRateLimit` is synchronous, so a

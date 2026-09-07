@@ -6,6 +6,7 @@ import {
 import {
   findGuardianshipTerritory,
   GUARDIANSHIP_DIRECTORY_METADATA,
+  GUARDIANSHIP_TERRITORY_NEXT_STEP,
   isCityMunicipalityId,
   RUSSIAN_REGIONS,
   TERRITORY_NOT_FOUND_ID
@@ -231,6 +232,13 @@ export function validateGuardianshipApplication(
   base.allowed = base.issues.length === 0 && base.outputMode !== "manual-review";
   const missingRequired = base.issues.some(({ message }) => message.startsWith("Заполните поле"));
   const unverifiedAuthority = base.issues.some(({ field }) => ["region", "municipality", "authorityName"].includes(field ?? ""));
+  if (unverifiedAuthority) {
+    base.requiresLegalReview = true;
+    base.filingReady = false;
+    base.issues = base.issues.map((issue) => ["municipality", "authorityName"].includes(issue.field ?? "")
+      ? { ...issue, message: `${issue.message} ${GUARDIANSHIP_TERRITORY_NEXT_STEP}` }
+      : issue);
+  }
   const manualChecklist = base.outputMode === "manual-review" && base.outcomeKey !== "unresolved";
   if (base.issues.length && !manualChecklist) base.draftText = "";
   base.pdfAvailable = !missingRequired

@@ -12,6 +12,7 @@ import {
   getGuardianshipMunicipalityOptions,
   getGuardianshipRegionOptions,
   GUARDIANSHIP_DIRECTORY_METADATA,
+  GUARDIANSHIP_TERRITORY_NEXT_STEP,
   TERRITORY_NOT_FOUND_ID,
   type GuardianshipCity
 } from "@/data/guardianship-territories";
@@ -48,6 +49,7 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
   const fields = useMemo(() => getVisibleGuardianshipFields(scenarioKey, values), [scenarioKey, values]);
   const safeStep = Math.min(step, Math.max(fields.length - 1, 0));
   const field = fields[safeStep];
+  const canAdvance = !field?.required || Boolean(values[field.name]?.trim());
 
   function setField(name: string, value: string) {
     setValues((current) => resetGuardianshipDependentValues(scenarioKey, name, { ...current, [name]: value }));
@@ -243,7 +245,7 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
             {safeStep > 0 ? <button type="button" onClick={goBack} className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/30">Назад</button> : null}
-            <button type="submit" className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+            <button type="submit" disabled={!canAdvance} className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30 disabled:cursor-not-allowed disabled:opacity-60">
               {safeStep === fields.length - 1 ? "Подготовить документ" : "Продолжить"}
             </button>
           </div>
@@ -428,7 +430,7 @@ function HelperField({ field, onChange, value, values, cities }: { field: Guardi
       {isTerritorialField ? <span className="text-xs font-normal leading-5 text-zinc-600">Справочник не считается полным. Проверка данных: {GUARDIANSHIP_DIRECTORY_METADATA.lastVerifiedAt}.</span> : null}
       {value === TERRITORY_NOT_FOUND_ID ? (
         <div className="border border-amber-300 bg-amber-50 p-3 text-sm font-normal leading-6 text-amber-950">
-          <p>Нужного значения пока нет во внутреннем списке. Помощник не отправляет на сторонний сайт и не сформирует документ с неподтверждённым адресатом.</p>
+          <p>Нужного значения пока нет в проверенном списке. {GUARDIANSHIP_TERRITORY_NEXT_STEP}</p>
         </div>
       ) : null}
       {selectedAuthority ? (

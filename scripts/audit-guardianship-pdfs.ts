@@ -5,7 +5,7 @@ import { createGuardianshipPdfBlob, getGuardianshipPdfFilename } from "@/lib/gua
 import { ensureGuardianshipDraftMarker } from "@/lib/guardianship-docx";
 import { validateGuardianshipApplication, type GuardianshipValues } from "@/lib/guardianship-validator";
 
-const authority = { immediateThreat: "no", region: "region-moscow", municipality: "moscow-gagarinsky", authorityName: "moscow-gagarinsky-administration" };
+const authority = { immediateThreat: "no", region: "region-saint-petersburg", municipality: "spb-gagarinskoe", authorityName: "spb-gagarinskoe-guardianship" };
 const appointment = {
   ...authority,
   childAge: "8", childWithoutCare: "yes", urgentNeed: "no", knownChild: "yes", candidateAge: "35", candidateCapacity: "yes",

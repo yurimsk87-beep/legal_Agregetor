@@ -27,8 +27,7 @@ for (const viewport of [
   });
 }
 
-test("searchable territory cascade works by keyboard and resets dependent values", async ({ page }) => {
-  await page.setViewportSize({ width: 375, height: 812 });
+async function reachRegion(page: Page) {
   await page.goto(appointmentPath);
   await dismissAnalytics(page);
   await answerSelect(page, "Есть непосредственная угроза", "Нет");
@@ -50,19 +49,89 @@ test("searchable territory cascade works by keyboard and resets dependent values
   await answerSelect(page, "совместно проживают совершеннолетние", "Нет");
   await answerInput(page, "ФИО, дата рождения, адрес и паспорт кандидата", "Иванов Иван Иванович, 01.01.1990, Москва, паспорт 0000 000000");
   await answerInput(page, "ФИО, дата рождения и место жительства ребёнка", "Иванов Пётр Иванович, 01.01.2018, Москва");
+}
+
+test("SearchableSelect preserves focus, selection and keyboard navigation", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await reachRegion(page);
+  const combo = page.getByRole("combobox", { name: "Регион", exact: true });
+  const next = page.getByRole("button", { name: "Продолжить", exact: true });
+  await combo.focus();
+  await combo.press("ArrowDown");
+  const listId = await combo.getAttribute("aria-controls");
+  expect(listId).toBeTruthy();
+  await expect(page.getByRole("listbox")).toHaveAttribute("id", listId!);
+  await combo.press("ArrowDown");
+  const secondId = await page.getByRole("option").nth(1).getAttribute("id");
+  await expect(combo).toHaveAttribute("aria-activedescendant", secondId!);
+  await combo.press("ArrowUp");
+  await expect(combo).toHaveAttribute("aria-activedescendant", (await page.getByRole("option").first().getAttribute("id"))!);
+  await combo.press("Escape");
+  await expect(combo).toHaveAttribute("aria-expanded", "false");
+  await expect(combo).toBeFocused();
+  await expect(combo).not.toHaveAttribute("aria-activedescendant");
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  await expect(next).toBeDisabled();
+
+  await combo.press("ArrowUp");
+  await expect(combo).toHaveAttribute("aria-activedescendant", (await page.getByRole("option").last().getAttribute("id"))!);
+  await combo.press("Escape");
+  await combo.pressSequentially("м");
+  await expect(combo).toHaveValue("м");
+  await combo.fill("  МоСКВА  ");
+  await expect(page.getByRole("option")).toHaveCount(1);
+  await expect(next).toBeDisabled();
+  await combo.press("Enter");
+  await expect(combo).toHaveValue("Москва");
+  await expect(combo).toBeFocused();
+  await expect(combo).toHaveAttribute("aria-expanded", "false");
+  await expect(next).toBeEnabled();
+
+  await combo.press("ArrowDown");
+  await combo.fill("несуществующее значение");
+  await expect(page.getByRole("option")).toHaveCount(0);
+  await expect(combo).not.toHaveAttribute("aria-activedescendant");
+  await combo.press("Enter");
+  await expect(combo).toBeFocused();
+  await combo.press("Escape");
+  await expect(combo).toHaveValue("Москва");
+  await combo.press("ArrowDown");
+  await combo.press("Tab");
+  await expect(combo).toHaveAttribute("aria-expanded", "false");
+  await expect(combo).not.toBeFocused();
+  await expect(page.locator("body")).not.toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(combo).toBeFocused();
+  await combo.press("ArrowDown");
+  await combo.press("Shift+Tab");
+  await expect(combo).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator("body")).not.toBeFocused();
+});
+
+test("searchable territory cascade works by keyboard and resets dependent values", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await reachRegion(page);
 
   await chooseCombobox(page, "Регион", "Новосибирская область");
   await page.getByRole("combobox", { name: "Муниципальное образование" }).press("ArrowDown");
+  const municipalityCombobox = page.getByRole("combobox", { name: "Муниципальное образование" });
   const municipalitySearch = page.getByPlaceholder("Поиск муниципального образования");
   await municipalitySearch.fill("Новосибирск");
   await expect(page.getByRole("option", { name: /Новосибирск/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /официальный каталог сайтов регионов/i })).toHaveCount(0);
   await municipalitySearch.press("Escape");
+  await expect(municipalityCombobox).toHaveAttribute("aria-expanded", "false");
+  await expect(municipalityCombobox).toBeFocused();
+  await municipalityCombobox.press("Tab");
+  await expect(page.locator("body")).not.toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(municipalityCombobox).toBeFocused();
+  await municipalityCombobox.press("Escape");
   await page.getByRole("button", { name: "Назад" }).click();
 
-  await chooseCombobox(page, "Регион", "Москва");
-  await chooseCombobox(page, "Муниципальное образование", "Гагаринский");
-  await chooseCombobox(page, "Орган опеки и попечительства", "Администрация");
+  await chooseCombobox(page, "Регион", "Санкт-Петербург");
+  await chooseCombobox(page, "Муниципальное образование", "Гагаринское");
+  await chooseCombobox(page, "Орган опеки и попечительства", "Отдел опеки");
   await expect(page.getByText("Лист подготовленных данных для официальной формы", { exact: true })).toBeVisible();
   await expect(page.getByText("Иванов Иван Иванович", { exact: false })).toBeVisible();
 
@@ -114,13 +183,12 @@ test("unknown navigator URLs return real 404 and noindex", async ({ request }) =
   }
 });
 
-test("canonical content is present without JavaScript", async ({ browser }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false });
-  const page = await context.newPage();
-  await page.goto(problemPath);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Опека и попечительство");
-  await expect(page.getByText("Оформить опеку или попечительство", { exact: true })).toBeVisible();
-  await context.close();
+test("canonical content is present in the server HTML", async ({ request }) => {
+  const response = await request.get(problemPath);
+  expect(response.status()).toBe(200);
+  const html = await response.text();
+  expect(html).toContain("Опека и попечительство над ребёнком");
+  expect(html).toContain("Оформить опеку или попечительство");
 });
 
 async function answerSelect(page: Page, label: string, option: string) {
@@ -134,10 +202,14 @@ async function answerInput(page: Page, label: string, value: string) {
 }
 
 async function chooseCombobox(page: Page, label: string, query: string) {
-  await page.getByRole("combobox", { name: label }).press("ArrowDown");
+  const combobox = page.getByRole("combobox", { name: label });
+  await combobox.press("ArrowDown");
+  await expect(combobox).toHaveAttribute("aria-expanded", "true");
+  await expect(combobox).toHaveAttribute("aria-controls", /-listbox$/);
   const placeholder = label === "Регион" ? "Поиск региона" : label === "Муниципальное образование" ? "Поиск муниципального образования" : "Поиск органа опеки";
   const search = page.getByPlaceholder(placeholder);
   await search.fill(query);
+  await expect(combobox).toHaveAttribute("aria-activedescendant", /-listbox-/);
   await search.press("ArrowDown");
   await search.press("ArrowUp");
   await search.press("Enter");

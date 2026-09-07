@@ -2,6 +2,7 @@ import type { SearchableSelectOption } from "@/lib/searchable-select";
 import type { City } from "@/lib/types";
 
 export const TERRITORY_NOT_FOUND_ID = "territory-not-found";
+export const GUARDIANSHIP_TERRITORY_NEXT_STEP = "На официальном сайте выбранного региона найдите раздел об опеке над несовершеннолетними и уточните, какой орган обслуживает адрес ребёнка. До подтверждения адресата готовый документ не формируется; реквизиты требуют юридической проверки.";
 export const CITY_MUNICIPALITY_PREFIX = "city-municipality-";
 
 export type RussianRegion = SearchableSelectOption;
@@ -83,22 +84,9 @@ export const RUSSIAN_REGIONS: RussianRegion[] = [
   ["region-yamalo-nenets", "Ямало-Ненецкий автономный округ"]
 ].map(([id, label]) => ({ id, label }));
 
+// Moscow's gagarinskoe.com/administration/opeka/ does not establish child
+// guardianship competence. Its former entry was withdrawn on 2026-09-07.
 export const GUARDIANSHIP_MUNICIPALITIES: GuardianshipMunicipality[] = [
-  {
-    id: "moscow-gagarinsky",
-    regionId: "region-moscow",
-    name: "Муниципальный округ Гагаринский",
-    authorities: [{
-      id: "moscow-gagarinsky-administration",
-      name: "Администрация муниципального округа Гагаринский в городе Москве",
-      address: "119296, Москва, Университетский проспект, д. 5",
-      website: "https://gagarinskoe.com/administration/opeka/",
-      sourceUrl: "https://gagarinskoe.com/administration/opeka/",
-      sourceName: "Официальный сайт муниципального округа Гагаринский",
-      lastVerifiedAt: "2026-08-13",
-      verificationStatus: "verified"
-    }]
-  },
   {
     id: "spb-gagarinskoe",
     regionId: "region-saint-petersburg",
