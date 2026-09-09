@@ -114,7 +114,7 @@ export const DIVORCE_PROPERTY_PROBLEM = {
     "соглашение о разделе имущества"
   ],
   relatedLawyerSpecializations: ["семейное право", "гражданское право", "судебные споры"],
-  relatedProblemSlugs: [],
+  relatedProblemSlugs: ["roditeli-i-rebenok-posle-razvoda"],
   heroNote: {
     title: "Один вопрос в начале",
     text: "Сначала выберите, хотите вы расторгнуть брак или разделить имущество. Алименты и споры о детях относятся к отдельным процедурам."

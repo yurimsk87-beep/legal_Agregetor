@@ -635,8 +635,12 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   // Точное совпадение названия — сильный прямой сигнал, домен-конфликт не применяем.
   if (result.normalizedTitle === normalizedQuery) return false;
 
+  if (isUnsupportedChildRouteQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+
   if (isGuardianshipRouteResult(result.href) && isExcludedGuardianshipQuery(normalizedQuery)) return true;
   if (isGuardianshipRouteResult(result.href) && isChildGuardianshipQuery(normalizedQuery)) return false;
+  if (isParentsChildRouteResult(result.href) && isExcludedParentsChildQuery(normalizedQuery)) return true;
+  if (isParentsChildRouteResult(result.href) && isParentsChildQuery(normalizedQuery)) return false;
 
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
@@ -707,7 +711,7 @@ function isGuardianshipRouteResult(href: string) {
 
 function isExcludedGuardianshipQuery(normalizedQuery: string) {
   return (normalizedQuery.includes("недееспособ") && normalizedQuery.includes("взросл")) ||
-    (normalizedQuery.includes("лишен") && normalizedQuery.includes("родитель")) || [
+    ((normalizedQuery.includes("лишен") || normalizedQuery.includes("лишит")) && normalizedQuery.includes("родитель")) || [
     "усынов",
     "удочер",
     "ограничен родитель",
@@ -741,8 +745,69 @@ function isChildGuardianshipQuery(normalizedQuery: string) {
   ].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isUnsupportedChildRouteQuery(normalizedQuery: string) {
+  return ((normalizedQuery.includes("лишен") || normalizedQuery.includes("лишит")) && normalizedQuery.includes("родитель")) || [
+    "установить отцовство",
+    "оспорить отцовство",
+    "выезд ребенка за границу",
+    "сменить имя ребенку",
+    "сменить фамилию ребенку"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentsChildRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/") || [
+    "/documents/mesto-zhitelstva-rebenka-posle-razvoda/",
+    "/documents/poryadok-obshcheniya-s-rebenkom/",
+    "/documents/izmenenie-poryadka-po-rebenku/",
+    "/documents/ispolnenie-resheniya-o-rebenke/"
+  ].some((path) => href.includes(path));
+}
+
+function isExcludedParentsChildQuery(normalizedQuery: string) {
+  return (normalizedQuery.includes("недееспособ") && normalizedQuery.includes("взросл")) || [
+    "алимент",
+    "лишен родитель",
+    "лишит родитель",
+    "лишить родитель",
+    "ограничен родитель",
+    "установить отцовство",
+    "оспорить отцовство",
+    "усынов",
+    "удочер",
+    "оформить опеку",
+    "выезд ребенка за границу",
+    "сменить имя ребенку",
+    "сменить фамилию ребенку"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentsChildQuery(normalizedQuery: string) {
+  if (isExcludedParentsChildQuery(normalizedQuery)) return false;
+  return [
+    "с кем будет жить ребенок",
+    "с кем останется ребенок",
+    "ребенок должен жить со мной",
+    "место жительства ребенка после развода",
+    "порядок общения с ребенком",
+    "график общения с ребенком",
+    "не дает видеться с ребенком",
+    "не дают видеться с ребенком",
+    "не дает видеть сына",
+    "не дает видеть дочь",
+    "не дает видеть ребенка",
+    "хочет видеть ребенка",
+    "изменить порядок общения",
+    "изменить график общения",
+    "не исполняется решение суда об общении",
+    "исполнение решения о ребенке"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isParentsChildQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/")) return 1020;
+  if (isParentsChildQuery(normalizedQuery) && isParentsChildRouteResult(href)) return 1000;
   if (isChildGuardianshipQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/")) return 1000;
   if (isChildGuardianshipQuery(normalizedQuery) && isGuardianshipRouteResult(href)) return 980;
   if (isZagsProcedureQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/brak-zags-i-smena-familii/")) return 990;
