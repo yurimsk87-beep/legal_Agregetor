@@ -8,6 +8,7 @@ on:
       - agent/zags-reference-final-clean
       - agent/divorce-property-route-hardening
       - agent/child-guardianship-reference-route
+      - agent/parents-child-after-divorce-reference-route
 
 permissions:
   contents: read
@@ -72,6 +73,8 @@ jobs:
         env:
           E2E_SUBMIT_REVIEW: "true"
         run: npm run test:e2e:guardianship
+      - name: Run parents and child route acceptance
+        run: npm run test:e2e:parents-child
       - name: Confirm withdrawn review PDF was deleted
         run: test -z "$(find "$LEAD_ATTACHMENT_STORAGE_ROOT" -type f -name '*.pdf' -print -quit 2>/dev/null)"
       - name: Generate and inspect guardianship PDFs
@@ -94,6 +97,8 @@ jobs:
             pdftoppm -png -r 120 "$pdf" "${pdf%.pdf}-page"
             test "$(find "$GUARDIANSHIP_PDF_AUDIT_DIR" -maxdepth 1 -name "$(basename "${pdf%.pdf}")-page-*.png" | wc -l)" -eq "$pages"
           done
+      - name: Generate and inspect parents and child PDF
+        run: npm run audit:parents-child-pdf
       - name: Upload PDF and browser acceptance artifacts
         if: always()
         uses: actions/upload-artifact@v4
