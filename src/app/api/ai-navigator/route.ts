@@ -111,7 +111,7 @@ function isZagsNavigatorIntent(query: string, primary: NavigatorResult | null) {
 
 function isGuardianshipNavigatorIntent(query: string, primary: NavigatorResult | null) {
   const normalized = query.toLowerCase().replace(/ё/g, "е");
-  if (/(усынов|удочер|лишен.*родитель|совершеннолет|опека над взросл)/.test(normalized) || (normalized.includes("недееспособ") && normalized.includes("взросл"))) return false;
+  if (/(усынов|удочер|лиш.*родитель|совершеннолет|опека над взросл)/.test(normalized) || (normalized.includes("недееспособ") && normalized.includes("взросл"))) return false;
   const href = primary?.href ?? "";
   return href.includes("opeka-i-popechitelstvo-nad-rebenkom") ||
     href.includes("naznachenii-opekuna") ||
@@ -120,7 +120,29 @@ function isGuardianshipNavigatorIntent(query: string, primary: NavigatorResult |
     /(опек.*ребен|попечитель.*ребен|предварительн.*опек|отчет опекуна|орган опеки.*(отказ|не отвечает)|имущество ребенка.*опек)/.test(normalized);
 }
 
+function isParentsChildNavigatorIntent(query: string, primary: NavigatorResult | null) {
+  const normalized = query.toLowerCase().replace(/ё/g, "е");
+  if (/(алимент|лишен.*родитель|ограничен.*родитель|отцовств|усынов|удочер|оформить опек|выезд.*за границ|сменить (имя|фамилию).*ребен)/.test(normalized)) return false;
+  const href = primary?.href ?? "";
+  return href.includes("roditeli-i-rebenok-posle-razvoda") ||
+    href.includes("mesto-zhitelstva-rebenka-posle-razvoda") ||
+    href.includes("poryadok-obshcheniya-s-rebenkom") ||
+    href.includes("izmenenie-poryadka-po-rebenku") ||
+    href.includes("ispolnenie-resheniya-o-rebenke") ||
+    /(с кем.*(жить|остан).*ребен|ребен.*должен жить со мной|место жительства ребенка|порядок общения.*ребен|график общения.*ребен|не дает.*(видеть|видеться|общаться).*(ребен|сын|доч)|хочет видеть ребенка|изменить.*общен.*ребен|не исполня.*решен.*ребен)/.test(normalized);
+}
+
 function buildIntentContent(query: string, primary: NavigatorResult | null): IntentContent | null {
+  if (isParentsChildNavigatorIntent(query, primary)) {
+    return {
+      summary: "Похоже, вопрос касается места жительства ребёнка, общения родителей или исполнения уже принятого решения.",
+      steps: [
+        "Выберите задачу: проживание, общение, изменение порядка или исполнение решения.",
+        "Укажите, есть ли согласие родителей и действующий судебный акт.",
+        "Получите соглашение, чек-лист либо маркированный черновик, который требует проверки."
+      ]
+    };
+  }
   if (isGuardianshipNavigatorIntent(query, primary)) {
     return {
       summary: "Похоже, вопрос касается опеки или попечительства над несовершеннолетним. Маршрут разделяет обычное и предварительное назначение, заявление родителей, отчётность и имущественные разрешения.",
@@ -143,6 +165,13 @@ function buildIntentContent(query: string, primary: NavigatorResult | null): Int
 }
 
 function buildClarifyingQuestions(query: string, primary: NavigatorResult | null): string[] {
+  if (isParentsChildNavigatorIntent(query, primary)) {
+    return [
+      "Что нужно решить: место жительства, порядок общения, изменение прежнего порядка или исполнение решения?",
+      "Родители согласны между собой или есть спор?",
+      "Есть вступивший в силу судебный акт и исполнительный лист?"
+    ];
+  }
   if (isGuardianshipNavigatorIntent(query, primary)) {
     return [
       "Что требуется: назначить опекуна, оформить период отсутствия родителей, решить имущественный вопрос или обжаловать действие органа опеки?",
