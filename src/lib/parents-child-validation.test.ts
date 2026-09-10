@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { getParentsChildRules } from "@/data/parents-child-legal-review";
 import { PARENTS_CHILD_SCENARIO_KEYS } from "@/data/parents-child-route";
 import { buildParentsChildPdfText } from "@/lib/parents-child-pdf";
 import { getVisibleParentsChildFields, validateParentsChildApplication } from "@/lib/parents-child-validator";
@@ -59,15 +60,65 @@ async function run() {
   }));
   assert.equal(communicationCourt.filingReady, false);
 
-  const changeAgreement = record(validateParentsChildApplication("change", {
-    ...safe, existingBasis: "agreement", bothAgree: "yes", ...parties, existingDocument: "Письменное соглашение", changedCircumstances: "Изменился режим работы", requestedChanges: "Новый график"
+  const changeBase = { ...safe, ...parties, changedCircumstances: "Изменились обстоятельства" };
+  const residenceWritten = record(validateParentsChildApplication("change", {
+    ...changeBase, changeSubject: "residence", existingBasis: "agreement", bothAgree: "yes", currentResidenceArrangement: "Письменное соглашение", requestedResidenceChange: "Новое место жительства"
   }));
-  assert.equal(changeAgreement.resultKind, "agreement");
+  assert.equal(residenceWritten.outcomeKey, "change-residence-agreement");
+  assert.equal(residenceWritten.filingReady, true);
+  assert.equal(residenceWritten.documentTitle, "Проект соглашения об изменении места жительства ребёнка");
+  assert.match(residenceWritten.draftText, /пункт 3 статьи 65 СК РФ/);
 
-  const changeCourt = record(validateParentsChildApplication("change", {
-    ...safe, existingBasis: "court", bothAgree: "yes", ...parties, ...court, existingDocument: "Решение суда", changedCircumstances: "Изменились обстоятельства", requestedChanges: "Новый порядок"
+  const communicationWritten = record(validateParentsChildApplication("change", {
+    ...changeBase, changeSubject: "communication", existingBasis: "agreement", bothAgree: "yes", currentCommunicationArrangement: "Письменное соглашение", requestedCommunicationChange: "Новый график общения"
   }));
-  assert.equal(changeCourt.filingReady, false);
+  assert.equal(communicationWritten.outcomeKey, "change-communication-agreement");
+  assert.equal(communicationWritten.filingReady, true);
+  assert.equal(communicationWritten.documentTitle, "Проект соглашения об изменении порядка общения с ребёнком");
+  assert.match(communicationWritten.draftText, /пункт 2 статьи 66 СК РФ/);
+
+  const residenceOral = validateParentsChildApplication("change", {
+    ...changeBase, changeSubject: "residence", existingBasis: "oral", bothAgree: "yes", currentResidenceArrangement: "Устная договорённость", requestedResidenceChange: "Новое место жительства"
+  });
+  assert.equal(residenceOral.outcomeKey, "change-residence-agreement");
+  assert.equal(residenceOral.filingReady, true);
+  assert.equal(getVisibleParentsChildFields("change", { changeSubject: "residence", existingBasis: "oral", bothAgree: "yes" }).some((field) => field.name === "courtName"), false);
+
+  const communicationOral = validateParentsChildApplication("change", {
+    ...changeBase, changeSubject: "communication", existingBasis: "oral", bothAgree: "yes", currentCommunicationArrangement: "Устная договорённость", requestedCommunicationChange: "Письменный график общения"
+  });
+  assert.equal(communicationOral.outcomeKey, "change-communication-agreement");
+  assert.equal(communicationOral.filingReady, true);
+
+  const changeResidenceCourt = record(validateParentsChildApplication("change", {
+    ...changeBase, ...court, changeSubject: "residence", existingBasis: "court", bothAgree: "yes", currentResidenceArrangement: "Место жительства установлено судом", requestedResidenceChange: "Изменить место жительства"
+  }));
+  assert.equal(changeResidenceCourt.outcomeKey, "change-residence-court-draft");
+  assert.equal(changeResidenceCourt.filingReady, false);
+  assert.equal(changeResidenceCourt.requiresLegalReview, true);
+  assert.match(changeResidenceCourt.draftText, /^ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ/);
+
+  const changeCommunicationCourt = record(validateParentsChildApplication("change", {
+    ...changeBase, ...court, changeSubject: "communication", existingBasis: "court", bothAgree: "yes", currentCommunicationArrangement: "График установлен судом", requestedCommunicationChange: "Изменить график общения"
+  }));
+  assert.equal(changeCommunicationCourt.outcomeKey, "change-communication-court-draft");
+  assert.equal(changeCommunicationCourt.filingReady, false);
+  assert.equal(changeCommunicationCourt.requiresLegalReview, true);
+
+  const missingChangeSubject = validateParentsChildApplication("change", {
+    ...changeBase, existingBasis: "agreement", bothAgree: "yes"
+  });
+  assert.equal(missingChangeSubject.allowed, false);
+  assert.equal(missingChangeSubject.pdfAvailable, false);
+  assert.equal(missingChangeSubject.draftText, "");
+  assert.equal(missingChangeSubject.issues.some((issue) => issue.field === "changeSubject"), true);
+
+  assert.equal(getParentsChildRules("change", "residence").some((rule) => rule.id === "sk-65-residence"), true);
+  assert.equal(getParentsChildRules("change", "residence").some((rule) => rule.id === "sk-66-communication"), false);
+  assert.equal(getParentsChildRules("change", "communication").some((rule) => rule.id === "sk-65-residence"), false);
+  assert.equal(getParentsChildRules("change", "communication").some((rule) => rule.id === "sk-66-communication"), true);
+  assert.equal(getParentsChildRules("change", "residence", "voluntary").some((rule) => rule.id === "sk-78-guardianship"), false);
+  assert.equal(getParentsChildRules("change", "residence", "court").some((rule) => rule.id === "sk-78-guardianship"), true);
 
   const enforcementBase = { ...safe, ...parties };
   assert.equal(record(validateParentsChildApplication("enforcement", { ...enforcementBase, decisionExists: "no" })).outcomeKey, "enforcement-check-decision");
@@ -96,7 +147,7 @@ async function run() {
 
   for (const key of PARENTS_CHILD_SCENARIO_KEYS) assert.equal(Boolean(getVisibleParentsChildFields(key, safe).length), true);
   assert.deepEqual([...reached].sort(), [
-    "change-agreement", "change-court-draft", "communication-agreement", "communication-court-draft",
+    "change-communication-agreement", "change-communication-court-draft", "change-residence-agreement", "change-residence-court-draft", "communication-agreement", "communication-court-draft",
     "enforcement-bailiff-draft", "enforcement-check-decision", "enforcement-check-effective", "enforcement-opening-draft", "enforcement-request-writ",
     "existing-order-enforcement", "residence-agreement", "residence-court-draft", "urgent-child-safety"
   ].sort());

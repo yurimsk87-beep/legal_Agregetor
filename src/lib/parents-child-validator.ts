@@ -1,5 +1,5 @@
 import { PARENTS_CHILD_SCENARIOS } from "@/data/parents-child-route";
-import type { ParentsChildField, ParentsChildScenarioKey } from "@/data/parents-child-route";
+import type { ParentsChildChangeSubject, ParentsChildField, ParentsChildScenarioKey } from "@/data/parents-child-route";
 
 export type ParentsChildValues = Record<string, string | undefined>;
 export type ParentsChildIssue = { field: string; message: string };
@@ -41,8 +41,12 @@ export function getVisibleParentsChildFields(scenarioKey: ParentsChildScenarioKe
   }
 
   if (scenarioKey === "change") {
-    const voluntary = values.existingBasis === "agreement" && values.bothAgree === "yes";
-    return fields.filter((field) => !courtFields.has(field.name) || !voluntary);
+    const voluntary = isVoluntaryChange(values);
+    return fields.filter((field) => {
+      if (field.name === "currentResidenceArrangement" || field.name === "requestedResidenceChange") return values.changeSubject === "residence";
+      if (field.name === "currentCommunicationArrangement" || field.name === "requestedCommunicationChange") return values.changeSubject === "communication";
+      return !courtFields.has(field.name) || !voluntary;
+    });
   }
 
   if (scenarioKey === "enforcement") {
@@ -76,16 +80,19 @@ export function validateParentsChildApplication(scenarioKey: ParentsChildScenari
     .filter((field) => field.required && !values[field.name]?.trim())
     .map((field) => ({ field: field.name, message: `Заполните поле «${field.label}».` }));
   const complexRisk = values.complexRisk !== "no" || values.international !== "no" || values.immediateThreat !== "no";
-  const courtPath = isCourtPath(scenarioKey, values);
+  const preparedData = visibleFields
+    .filter((field) => values[field.name]?.trim())
+    .map((field) => ({ label: field.label, value: optionLabel(field, values[field.name] ?? "") }));
 
+  if (scenarioKey === "change" && !isChangeSubject(values.changeSubject)) {
+    return missingChangeSubjectDecision(issues, preparedData);
+  }
+
+  const courtPath = isCourtPath(scenarioKey, values);
   if (courtPath) {
     if (values.courtConfirmed !== "yes") issues.push({ field: "courtConfirmed", message: "Конкретный суд не подтверждён на официальном ресурсе." });
     if (values.courtSource && !isOfficialCourtUrl(values.courtSource)) issues.push({ field: "courtSource", message: "Ссылка не распознана как официальная страница судебной системы. Адресат требует проверки." });
   }
-
-  const preparedData = visibleFields
-    .filter((field) => values[field.name]?.trim())
-    .map((field) => ({ label: field.label, value: optionLabel(field, values[field.name] ?? "") }));
 
   if ((scenarioKey === "residence" || scenarioKey === "communication") && values.existingOrder !== "no") {
     return existingOrderDecision(values, issues, preparedData);
@@ -97,7 +104,8 @@ export function validateParentsChildApplication(scenarioKey: ParentsChildScenari
   const resultKind: ParentsChildResultKind = voluntary ? "agreement" : "draft";
   const requiresLegalReview = complexRisk || courtPath || issues.length > 0;
   const filingReady = voluntary && !requiresLegalReview;
-  const documentTitle = titleFor(scenarioKey, voluntary);
+  const changeSubject = isChangeSubject(values.changeSubject) ? values.changeSubject : undefined;
+  const documentTitle = titleFor(scenarioKey, voluntary, changeSubject);
   const notices = safetyNotices(values);
   if (courtPath) notices.push("ПравоПоиск не определяет конкретный суд по адресу. Введённые реквизиты считаются данными пользователя и требуют проверки.");
   if (values.childOpinion?.trim()) notices.push("Записано только сообщение заявителя о мнении ребёнка. Оно не является опросом ребёнка или заключением органа опеки.");
@@ -106,7 +114,7 @@ export function validateParentsChildApplication(scenarioKey: ParentsChildScenari
 
   return {
     allowed: issues.length === 0,
-    outcomeKey: `${scenarioKey}-${voluntary ? "agreement" : "court-draft"}`,
+    outcomeKey: `${scenarioKey === "change" ? `change-${changeSubject}` : scenarioKey}-${voluntary ? "agreement" : "court-draft"}`,
     resultKind,
     resultLabel: voluntary ? "Проект письменного соглашения" : "ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ",
     documentTitle,
@@ -116,9 +124,7 @@ export function validateParentsChildApplication(scenarioKey: ParentsChildScenari
     issues,
     notices,
     preparedData,
-    filingSteps: voluntary
-      ? ["Проверьте данные и условия соглашения.", "Обсудите каждое условие со вторым родителем без давления на ребёнка.", "Подпишите одинаковые экземпляры соглашения и храните их у обоих родителей.", "При споре или риске для ребёнка не полагайтесь на соглашение без индивидуальной проверки."]
-      : ["Проверьте вид требования и содержание черновика с юристом.", "Найдите районный или городской суд через официальный ресурс и перепроверьте территориальную подсудность.", "Уточните действующую пошлину и реквизиты непосредственно перед подачей.", "Подготовьте приложения по статьям 131 и 132 ГПК РФ.", "Не добавляйте от имени ребёнка или органа опеки сведения, которых они не сообщали."],
+    filingSteps: filingStepsFor(scenarioKey, voluntary, changeSubject),
     draftText: issues.length ? "" : buildDraft(scenarioKey, values, voluntary, documentTitle)
   };
 }
@@ -210,10 +216,36 @@ function urgentDecision(): ParentsChildDecision {
   };
 }
 
+function missingChangeSubjectDecision(issues: ParentsChildIssue[], preparedData: ParentsChildDecision["preparedData"]): ParentsChildDecision {
+  return {
+    allowed: false,
+    outcomeKey: "change-subject-required",
+    resultKind: "checklist",
+    resultLabel: "Требуется уточнение",
+    documentTitle: "Сначала выберите предмет изменения",
+    filingReady: false,
+    requiresLegalReview: false,
+    pdfAvailable: false,
+    issues,
+    notices: [],
+    preparedData,
+    filingSteps: ["Выберите, нужно изменить место жительства ребёнка или порядок общения с ребёнком."],
+    draftText: ""
+  };
+}
+
 function isCourtPath(scenarioKey: ParentsChildScenarioKey, values: ParentsChildValues) {
   if (scenarioKey === "residence" || scenarioKey === "communication") return values.agreement !== "yes";
-  if (scenarioKey === "change") return values.existingBasis !== "agreement" || values.bothAgree !== "yes";
+  if (scenarioKey === "change") return !isVoluntaryChange(values);
   return false;
+}
+
+function isVoluntaryChange(values: ParentsChildValues) {
+  return (values.existingBasis === "agreement" || values.existingBasis === "oral") && values.bothAgree === "yes";
+}
+
+function isChangeSubject(value: string | undefined): value is ParentsChildChangeSubject {
+  return value === "residence" || value === "communication";
 }
 
 function safetyNotices(values: ParentsChildValues) {
@@ -236,27 +268,49 @@ function optionLabel(field: ParentsChildField, value: string) {
   return field.options?.find((option) => option.value === value)?.label ?? value;
 }
 
-function titleFor(scenarioKey: ParentsChildScenarioKey, voluntary: boolean) {
+function titleFor(scenarioKey: ParentsChildScenarioKey, voluntary: boolean, changeSubject?: ParentsChildChangeSubject) {
   if (scenarioKey === "residence") return voluntary ? "Проект соглашения о месте жительства ребёнка" : "Черновик искового заявления об определении места жительства ребёнка";
   if (scenarioKey === "communication") return voluntary ? "Проект соглашения о порядке общения с ребёнком" : "Черновик искового заявления об определении порядка общения с ребёнком";
-  return voluntary ? "Проект соглашения об изменении порядка" : "Черновик требования об изменении установленного порядка";
+  if (changeSubject === "residence") return voluntary ? "Проект соглашения об изменении места жительства ребёнка" : "Черновик требования об изменении места жительства ребёнка";
+  return voluntary ? "Проект соглашения об изменении порядка общения с ребёнком" : "Черновик требования об изменении порядка общения с ребёнком";
+}
+
+function filingStepsFor(scenarioKey: ParentsChildScenarioKey, voluntary: boolean, changeSubject?: ParentsChildChangeSubject) {
+  if (voluntary) {
+    const subjectStep = scenarioKey === "change" && changeSubject === "residence"
+      ? "Проверьте, что соглашение однозначно определяет новое место жительства ребёнка."
+      : scenarioKey === "change"
+        ? "Проверьте, что соглашение однозначно определяет новый порядок общения с ребёнком."
+        : "Проверьте данные и условия соглашения.";
+    return [subjectStep, "Обсудите каждое условие со вторым родителем без давления на ребёнка.", "Подпишите одинаковые экземпляры соглашения и храните их у обоих родителей.", "При споре или риске для ребёнка не полагайтесь на соглашение без индивидуальной проверки."];
+  }
+  const subjectStep = scenarioKey === "change" && changeSubject === "residence"
+    ? "Проверьте с юристом требование об изменении места жительства ребёнка и содержание черновика."
+    : scenarioKey === "change"
+      ? "Проверьте с юристом требование об изменении порядка общения с ребёнком и содержание черновика."
+      : "Проверьте вид требования и содержание черновика с юристом.";
+  return [subjectStep, "Найдите районный или городской суд через официальный ресурс и перепроверьте территориальную подсудность.", "Уточните действующую пошлину и реквизиты непосредственно перед подачей.", "Подготовьте приложения по статьям 131 и 132 ГПК РФ.", "Не добавляйте от имени ребёнка или органа опеки сведения, которых они не сообщали."];
 }
 
 function buildDraft(scenarioKey: ParentsChildScenarioKey, values: ParentsChildValues, voluntary: boolean, title: string) {
   const marker = voluntary ? "ПРОЕКТ СОГЛАШЕНИЯ — НЕ ЯВЛЯЕТСЯ ОФИЦИАЛЬНОЙ ФОРМОЙ" : "ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ\nТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА";
-  const subject = scenarioKey === "residence" ? values.requestedResidence : scenarioKey === "communication" ? values.requestedOrder : values.requestedChanges;
-  const facts = scenarioKey === "residence" ? values.currentCircumstances : scenarioKey === "communication" ? values.currentOrder : values.changedCircumstances;
+  const changeResidence = scenarioKey === "change" && values.changeSubject === "residence";
+  const subject = scenarioKey === "residence" ? values.requestedResidence : scenarioKey === "communication" ? values.requestedOrder : changeResidence ? values.requestedResidenceChange : values.requestedCommunicationChange;
+  const facts = scenarioKey === "residence" ? values.currentCircumstances : scenarioKey === "communication" ? values.currentOrder : changeResidence ? values.currentResidenceArrangement : values.currentCommunicationArrangement;
+  const legalBasis = scenarioKey === "residence" || changeResidence ? "пункт 3 статьи 65 СК РФ" : "пункт 2 статьи 66 СК РФ";
   return [
     marker,
     "",
     voluntary ? "" : `В ${values.courtName ?? "[районный суд требует проверки]"}`,
     title,
+    `Правовое основание: ${legalBasis}.`,
     "",
     `Заявитель / первый родитель: ${values.applicantData ?? ""}`,
     `Второй родитель: ${values.otherParentData ?? ""}`,
     `Ребёнок: ${values.childData ?? ""}`,
     "",
-    `Фактические обстоятельства: ${facts ?? ""}`,
+    `Действующий порядок и фактические обстоятельства: ${facts ?? ""}`,
+    scenarioKey === "change" ? `Изменившиеся обстоятельства: ${values.changedCircumstances ?? ""}` : "",
     `Предлагаемое условие или требование: ${subject ?? ""}`,
     values.evidence ? `Подтверждающие документы: ${values.evidence}` : "",
     values.childOpinion ? `Сообщение заявителя о мнении ребёнка: ${values.childOpinion}` : "Мнение ребёнка в документе не сформулировано.",

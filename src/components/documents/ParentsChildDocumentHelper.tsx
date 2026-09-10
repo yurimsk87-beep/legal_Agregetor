@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import { Download, ShieldCheck } from "lucide-react";
+import { getParentsChildRules } from "@/data/parents-child-legal-review";
 import { PARENTS_CHILD_SCENARIOS } from "@/data/parents-child-route";
-import type { ParentsChildField, ParentsChildScenarioKey } from "@/data/parents-child-route";
+import type { ParentsChildChangeSubject, ParentsChildField, ParentsChildScenarioKey } from "@/data/parents-child-route";
 import { createParentsChildDocxBlob, getParentsChildDocxFilename } from "@/lib/parents-child-docx";
 import { createParentsChildPdfBlob, getParentsChildPdfFilename } from "@/lib/parents-child-pdf";
 import { getVisibleParentsChildFields, validateParentsChildApplication } from "@/lib/parents-child-validator";
@@ -22,6 +23,8 @@ export function ParentsChildDocumentHelper({ scenarioKey }: { scenarioKey: Paren
   const safeStep = Math.min(step, Math.max(fields.length - 1, 0));
   const field = fields[safeStep];
   const canAdvance = !field?.required || Boolean(values[field.name]?.trim());
+  const changeSubject = values.changeSubject === "residence" || values.changeSubject === "communication" ? values.changeSubject as ParentsChildChangeSubject : undefined;
+  const applicableRules = getParentsChildRules(scenarioKey, changeSubject, decision?.resultKind === "agreement" ? "voluntary" : decision ? "court" : undefined);
 
   function setField(name: string, value: string) {
     setValues((current) => ({ ...current, [name]: value }));
@@ -128,6 +131,8 @@ export function ParentsChildDocumentHelper({ scenarioKey }: { scenarioKey: Paren
           {decision.preparedData.length ? <section className="mt-6 border-t border-line pt-5"><h3 className="text-xl font-semibold text-ink">Подготовленные сведения</h3><dl className="mt-3 grid gap-3 text-sm leading-6">{decision.preparedData.map((item) => <div key={item.label} className="border-l-2 border-line pl-3"><dt className="font-semibold text-ink">{item.label}</dt><dd className="whitespace-pre-wrap text-zinc-700">{item.value}</dd></div>)}</dl></section> : null}
 
           <section className="mt-6 border-t border-line pt-5"><h3 className="text-xl font-semibold text-ink">Что делать дальше</h3><ol className="mt-3 grid gap-2 text-sm leading-6 text-zinc-700">{decision.filingSteps.map((item, index) => <li key={item}><strong>{index + 1}.</strong> {item}</li>)}</ol></section>
+
+          <section className="mt-6 border-t border-line pt-5"><h3 className="text-xl font-semibold text-ink">Применимые правовые основания</h3><ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-700">{applicableRules.map((rule) => <li key={rule.id}><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.norm}</a><span className="block text-xs leading-5 text-zinc-600">{rule.scope}</span></li>)}</ul></section>
 
           {draft && !decision.issues.length ? <section className="mt-6 border border-amber-300 bg-amber-50 p-4"><p className="font-semibold text-amber-950">{decision.resultKind === "agreement" ? "ПРОЕКТ СОГЛАШЕНИЯ" : "ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"}</p><textarea aria-label="Текст подготовленного результата" value={draft} onChange={(event) => setDraft(event.target.value)} className="mt-4 min-h-[28rem] w-full border border-line bg-white p-4 font-mono text-sm leading-6 text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" /><div className="mt-4 flex flex-wrap gap-3"><button type="button" onClick={copyDraft} className="min-h-11 rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold">Копировать</button><button type="button" onClick={downloadDocx} className="min-h-11 rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold">Скачать DOCX</button><button type="button" onClick={printDraft} className="min-h-11 rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold">Печать</button></div></section> : null}
 

@@ -42,6 +42,18 @@ test("scenario is keyboard reachable", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Определить порядок общения с ребёнком" })).toBeVisible();
 });
 
+test("change flow requires a concrete subject", async ({ page }) => {
+  await page.goto(`${route}?scenario=change`);
+  await page.getByRole("link", { name: "Подготовить документ" }).click();
+  for (const label of [/непосредственная угроза/, /насилие, жестокое обращение/, /за пределами России/]) {
+    await page.getByLabel(label).selectOption("no");
+    await page.getByRole("button", { name: "Продолжить" }).click();
+  }
+  const subject = page.getByLabel("Что вы хотите изменить?");
+  await expect(subject).toBeVisible();
+  await expect(subject.locator("option")).toHaveText(["Выберите вариант", "Место жительства ребёнка", "Порядок общения с ребёнком"]);
+});
+
 test("sitemap and unknown route have correct HTTP behavior", async ({ request }) => {
   const sitemap = await request.get("/sitemap-problems.xml");
   expect(sitemap.status()).toBe(200);

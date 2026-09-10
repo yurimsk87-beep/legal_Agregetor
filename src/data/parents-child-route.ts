@@ -5,6 +5,8 @@ export const PARENTS_CHILD_ROUTE = {
 
 export const PARENTS_CHILD_SCENARIO_KEYS = ["residence", "communication", "change", "enforcement"] as const;
 export type ParentsChildScenarioKey = (typeof PARENTS_CHILD_SCENARIO_KEYS)[number];
+export const PARENTS_CHILD_CHANGE_SUBJECTS = ["residence", "communication"] as const;
+export type ParentsChildChangeSubject = (typeof PARENTS_CHILD_CHANGE_SUBJECTS)[number];
 
 export type ParentsChildField = {
   name: string;
@@ -108,13 +110,13 @@ export const PARENTS_CHILD_SCENARIOS: Record<ParentsChildScenarioKey, ParentsChi
     ],
     steps: ["Укажите основание действующего порядка.", "Зафиксируйте, что именно изменилось.", "Опишите новый предлагаемый порядок.", "При судебном порядке проверьте способ обращения и подсудность.", "Используйте результат только с указанной маркировкой."],
     documents: ["Действующее соглашение или судебный акт.", "Документы об изменившихся обстоятельствах.", "Сведения о ребёнке и родителях."],
-    mainDocument: "Изменение соглашения или черновик требования об изменении порядка",
+    mainDocument: "Изменение места жительства или порядка общения с ребёнком",
     documentSlug: "izmenenie-poryadka-po-rebenku",
     filing: "Изменение соглашения подписывают родители. Изменение судебного порядка требует судебной процедуры, которую нужно проверить применительно к делу.",
     term: "Единый срок для добровольного изменения соглашения не установлен помощником; срок судебной процедуры зависит от дела.",
     fee: "Судебные расходы проверяются до подачи по виду требования и реквизитам суда.",
     warning: "Если действующий порядок установлен судом, документ всегда остаётся черновиком и не готов к подаче без проверки.",
-    helperFields: [...safetyFields, { name: "existingBasis", label: "Чем установлен действующий порядок?", type: "select", required: true, options: [{ label: "Письменным соглашением родителей", value: "agreement" }, { label: "Судебным актом", value: "court" }, { label: "Устной договорённостью", value: "oral" }, { label: "Не уверен", value: "unsure" }] }, { name: "bothAgree", label: "Оба родителя согласны с изменениями?", type: "select", required: true, options: yesNoUnsure }, ...partiesFields, { name: "existingDocument", label: "Реквизиты и содержание действующего соглашения или судебного акта", type: "textarea", required: true }, { name: "changedCircumstances", label: "Какие обстоятельства изменились?", type: "textarea", required: true }, { name: "requestedChanges", label: "Какой новый порядок предлагается?", type: "textarea", required: true }, ...courtFields]
+    helperFields: [...safetyFields, { name: "changeSubject", label: "Что вы хотите изменить?", type: "select", required: true, options: [{ label: "Место жительства ребёнка", value: "residence" }, { label: "Порядок общения с ребёнком", value: "communication" }] }, { name: "existingBasis", label: "Чем установлен действующий порядок?", type: "select", required: true, options: [{ label: "Письменным соглашением родителей", value: "agreement" }, { label: "Судебным актом", value: "court" }, { label: "Устной договорённостью", value: "oral" }, { label: "Не уверен", value: "unsure" }] }, { name: "bothAgree", label: "Оба родителя согласны с изменениями?", type: "select", required: true, options: yesNoUnsure }, ...partiesFields, { name: "currentResidenceArrangement", label: "Как сейчас определено и фактически устроено место жительства ребёнка?", type: "textarea", required: true }, { name: "currentCommunicationArrangement", label: "Как сейчас установлен и фактически исполняется порядок общения?", type: "textarea", required: true }, { name: "changedCircumstances", label: "Какие обстоятельства изменились?", type: "textarea", required: true }, { name: "requestedResidenceChange", label: "Какое место жительства ребёнка родители согласовали или заявитель просит определить?", type: "textarea", required: true }, { name: "requestedCommunicationChange", label: "Какой новый порядок общения родители согласовали или заявитель предлагает установить?", type: "textarea", required: true }, { name: "evidence", label: "Какие документы подтверждают изменившиеся обстоятельства?", type: "textarea" }, ...courtFields]
   },
   enforcement: {
     key: "enforcement",

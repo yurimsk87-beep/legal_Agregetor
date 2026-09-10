@@ -1,6 +1,7 @@
-import type { ParentsChildScenarioKey } from "@/data/parents-child-route";
+import type { ParentsChildChangeSubject, ParentsChildScenarioKey } from "@/data/parents-child-route";
 
-export const PARENTS_CHILD_REVIEWED_AT = "2026-09-08";
+export const PARENTS_CHILD_REVIEWED_AT = "2026-09-10";
+export type ParentsChildLegalPath = "voluntary" | "court";
 
 export type ParentsChildLegalRule = {
   id: string;
@@ -8,6 +9,8 @@ export type ParentsChildLegalRule = {
   norm: string;
   url: string;
   scenarios: ParentsChildScenarioKey[];
+  changeSubjects?: ParentsChildChangeSubject[];
+  paths?: ParentsChildLegalPath[];
   scope: string;
 };
 
@@ -18,6 +21,7 @@ export const PARENTS_CHILD_LEGAL_RULES: ParentsChildLegalRule[] = [
     norm: "пункт 3 статьи 65 СК РФ",
     url: "https://www.consultant.ru/document/cons_doc_LAW_8982/62983d3753a7a65cbeec6d5ca47586894b5ae733/",
     scenarios: ["residence", "change"],
+    changeSubjects: ["residence"],
     scope: "Не предсказывает, с кем суд оставит ребёнка, и не устанавливает преимущество матери или отца."
   },
   {
@@ -26,6 +30,7 @@ export const PARENTS_CHILD_LEGAL_RULES: ParentsChildLegalRule[] = [
     norm: "пункты 1 и 2 статьи 66 СК РФ",
     url: "https://www.consultant.ru/document/cons_doc_LAW_8982/089e2c39f3d69b45c77a033d3c169a39ced19370/",
     scenarios: ["communication", "change", "enforcement"],
+    changeSubjects: ["communication"],
     scope: "Содержание графика формулирует пользователь; сервис не определяет подходящий объём общения."
   },
   {
@@ -42,6 +47,7 @@ export const PARENTS_CHILD_LEGAL_RULES: ParentsChildLegalRule[] = [
     norm: "статья 78 СК РФ",
     url: "https://www.consultant.ru/document/cons_doc_LAW_8982/89a95ffdef29e0133a9ed546817ed5bf5155cedd/",
     scenarios: ["residence", "communication", "change"],
+    paths: ["court"],
     scope: "Пользователь не должен придумывать заключение органа опеки или мнение ребёнка."
   },
   {
@@ -50,6 +56,7 @@ export const PARENTS_CHILD_LEGAL_RULES: ParentsChildLegalRule[] = [
     norm: "пункты 5 и 8 Постановления Пленума ВС РФ от 27.05.1998 № 10",
     url: "https://vsrf.ru/documents/own/8220/",
     scenarios: ["residence", "communication", "change"],
+    paths: ["court"],
     scope: "Перечень обстоятельств не превращается в автоматический прогноз исхода дела."
   },
   {
@@ -58,6 +65,7 @@ export const PARENTS_CHILD_LEGAL_RULES: ParentsChildLegalRule[] = [
     norm: "статьи 24 и 28 ГПК РФ; Обзор ВС РФ от 20.07.2011",
     url: "https://vsrf.ru/documents/all/15101/",
     scenarios: ["residence", "communication", "change"],
+    paths: ["court"],
     scope: "Конкретный суд по адресу автоматически не определяется без подтверждённого территориального справочника."
   },
   {
@@ -66,6 +74,7 @@ export const PARENTS_CHILD_LEGAL_RULES: ParentsChildLegalRule[] = [
     norm: "статьи 131 и 132 ГПК РФ",
     url: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828",
     scenarios: ["residence", "communication", "change"],
+    paths: ["court"],
     scope: "Помощник формирует только маркированный черновик и не подтверждает его готовность к подаче без юридической проверки."
   },
   {
@@ -86,6 +95,10 @@ export const PARENTS_CHILD_LEGAL_RULES: ParentsChildLegalRule[] = [
   }
 ];
 
-export function getParentsChildRules(scenario: ParentsChildScenarioKey) {
-  return PARENTS_CHILD_LEGAL_RULES.filter((rule) => rule.scenarios.includes(scenario));
+export function getParentsChildRules(scenario: ParentsChildScenarioKey, changeSubject?: ParentsChildChangeSubject, path?: ParentsChildLegalPath) {
+  return PARENTS_CHILD_LEGAL_RULES.filter((rule) =>
+    rule.scenarios.includes(scenario)
+    && (scenario !== "change" || !changeSubject || !rule.changeSubjects || rule.changeSubjects.includes(changeSubject))
+    && (!path || !rule.paths || rule.paths.includes(path))
+  );
 }
