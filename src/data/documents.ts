@@ -2,6 +2,9 @@ import type { LegalReferenceKey } from "@/data/legal-references";
 import { DIVORCE_PROPERTY_DOCUMENTS } from "@/data/divorce-property-documents";
 import { GUARDIANSHIP_DOCUMENTS } from "@/data/guardianship-documents";
 import { PARENTS_CHILD_DOCUMENTS } from "@/data/parents-child-documents";
+import { CHILD_SUPPORT_DOCUMENTS } from "@/data/child-support-documents";
+import { PARENTAL_RIGHTS_DEPRIVATION_DOCUMENTS } from "@/data/parental-rights-deprivation-documents";
+import { PARENTAL_RIGHTS_RESTRICTION_DOCUMENTS } from "@/data/parental-rights-restriction-documents";
 
 export type DocumentFaqItem = {
   question: string;
@@ -263,7 +266,10 @@ export const navigatorDocuments: NavigatorDocument[] = [
 },
 ...DIVORCE_PROPERTY_DOCUMENTS,
 ...GUARDIANSHIP_DOCUMENTS,
-...PARENTS_CHILD_DOCUMENTS
+...PARENTS_CHILD_DOCUMENTS,
+...CHILD_SUPPORT_DOCUMENTS,
+...PARENTAL_RIGHTS_DEPRIVATION_DOCUMENTS,
+...PARENTAL_RIGHTS_RESTRICTION_DOCUMENTS
 ];
 
 export function getNavigatorDocument(slug: string) {

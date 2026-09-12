@@ -28,6 +28,27 @@ const parentsChildDocumentHrefs = [
   "/documents/izmenenie-poryadka-po-rebenku/",
   "/documents/ispolnenie-resheniya-o-rebenke/"
 ];
+const childSupportProblemHref = "/problems/semya-i-deti/alimenty-na-rebenka/";
+const childSupportDocumentHrefs = [
+  "/documents/soglashenie-ob-uplate-alimentov-na-rebenka/",
+  "/documents/vzyskanie-alimentov-na-rebenka/",
+  "/documents/izmenenie-razmera-alimentov-na-rebenka/",
+  "/documents/raschet-zadolzhennosti-po-alimentam/",
+  "/documents/ispolnenie-alimentov-na-rebenka/"
+];
+const deprivationProblemHref = "/problems/semya-i-deti/lishenie-roditelskih-prav/";
+const deprivationDocumentHrefs = [
+  "/documents/proverka-osnovaniy-lisheniya-roditelskih-prav/",
+  "/documents/isk-o-lishenii-roditelskih-prav/",
+  "/documents/uchet-resheniy-pri-lishenii-roditelskih-prav/",
+  "/documents/lishenie-roditelskih-prav-i-alimenty/"
+];
+const restrictionProblemHref = "/problems/semya-i-deti/ogranichenie-roditelskih-prav/";
+const restrictionDocumentHrefs = [
+  "/documents/ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam/",
+  "/documents/proverka-opasnogo-povedeniya-roditelya/",
+  "/documents/isk-ob-ogranichenii-roditelskih-prav/"
+];
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -35,7 +56,10 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "brak-zags-i-smena-familii" },
     { categorySlug: "semya-i-deti", slug: "razvod-i-razdel-imushchestva" },
     { categorySlug: "semya-i-deti", slug: "opeka-i-popechitelstvo-nad-rebenkom" },
-    { categorySlug: "semya-i-deti", slug: "roditeli-i-rebenok-posle-razvoda" }
+    { categorySlug: "semya-i-deti", slug: "roditeli-i-rebenok-posle-razvoda" },
+    { categorySlug: "semya-i-deti", slug: "alimenty-na-rebenka" },
+    { categorySlug: "semya-i-deti", slug: "lishenie-roditelskih-prav" },
+    { categorySlug: "semya-i-deti", slug: "ogranichenie-roditelskih-prav" }
   ]
 );
 assert.deepEqual(
@@ -53,7 +77,19 @@ assert.deepEqual(
     "mesto-zhitelstva-rebenka-posle-razvoda",
     "poryadok-obshcheniya-s-rebenkom",
     "izmenenie-poryadka-po-rebenku",
-    "ispolnenie-resheniya-o-rebenke"
+    "ispolnenie-resheniya-o-rebenke",
+    "soglashenie-ob-uplate-alimentov-na-rebenka",
+    "vzyskanie-alimentov-na-rebenka",
+    "izmenenie-razmera-alimentov-na-rebenka",
+    "raschet-zadolzhennosti-po-alimentam",
+    "ispolnenie-alimentov-na-rebenka",
+    "proverka-osnovaniy-lisheniya-roditelskih-prav",
+    "isk-o-lishenii-roditelskih-prav",
+    "uchet-resheniy-pri-lishenii-roditelskih-prav",
+    "lishenie-roditelskih-prav-i-alimenty",
+    "ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam",
+    "proverka-opasnogo-povedeniya-roditelya",
+    "isk-ob-ogranichenii-roditelskih-prav"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -71,6 +107,12 @@ assert.ok(indexedContentHrefs.includes(guardianshipProblemHref));
 for (const href of guardianshipDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(parentsChildProblemHref));
 for (const href of parentsChildDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(childSupportProblemHref));
+for (const href of childSupportDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(deprivationProblemHref));
+for (const href of deprivationDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(restrictionProblemHref));
+for (const href of restrictionDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -81,6 +123,12 @@ assert.equal(
       || guardianshipDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === parentsChildProblemHref
       || parentsChildDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === childSupportProblemHref
+      || childSupportDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === deprivationProblemHref
+      || deprivationDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === restrictionProblemHref
+      || restrictionDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );
@@ -126,6 +174,36 @@ const parentsChildQueryMetadata = buildMetadata({
 assert.equal(parentsChildQueryMetadata.robots && typeof parentsChildQueryMetadata.robots === "object" ? parentsChildQueryMetadata.robots.index : true, false);
 assert.equal(String(parentsChildQueryMetadata.alternates?.canonical).endsWith(parentsChildProblemHref), true);
 
+const childSupportQueryMetadata = buildMetadata({
+  title: "Алименты на ребёнка",
+  description: "Проверка query-страницы",
+  path: childSupportProblemHref,
+  isIndexable: true,
+  searchParams: { scenario: "first" }
+});
+assert.equal(childSupportQueryMetadata.robots && typeof childSupportQueryMetadata.robots === "object" ? childSupportQueryMetadata.robots.index : true, false);
+assert.equal(String(childSupportQueryMetadata.alternates?.canonical).endsWith(childSupportProblemHref), true);
+
+const deprivationQueryMetadata = buildMetadata({
+  title: "Лишение родительских прав",
+  description: "Проверка query-страницы",
+  path: deprivationProblemHref,
+  isIndexable: true,
+  searchParams: { scenario: "court" }
+});
+assert.equal(deprivationQueryMetadata.robots && typeof deprivationQueryMetadata.robots === "object" ? deprivationQueryMetadata.robots.index : true, false);
+assert.equal(String(deprivationQueryMetadata.alternates?.canonical).endsWith(deprivationProblemHref), true);
+
+const restrictionQueryMetadata = buildMetadata({
+  title: "Ограничение родительских прав",
+  description: "Проверка query-страницы",
+  path: restrictionProblemHref,
+  isIndexable: true,
+  searchParams: { scenario: "court" }
+});
+assert.equal(restrictionQueryMetadata.robots && typeof restrictionQueryMetadata.robots === "object" ? restrictionQueryMetadata.robots.index : true, false);
+assert.equal(String(restrictionQueryMetadata.alternates?.canonical).endsWith(restrictionProblemHref), true);
+
 for (const excludedQuery of ["алименты", "место жительства ребёнка", "порядок общения с ребёнком", "лишение родительских прав", "установление отцовства"]) {
   const hrefs = searchSite(excludedQuery).map(({ href }) => href);
   assert.equal(hrefs.some((href) => href === divorceProblemHref || divorceDocumentHrefs.includes(href)), false, excludedQuery);
@@ -144,6 +222,33 @@ for (const query of ["с кем будет жить ребёнок после р
 for (const excludedQuery of ["взыскать алименты", "лишить родительских прав", "установить отцовство", "оформить опеку над ребёнком", "выезд ребёнка за границу"]) {
   const hrefs = searchSite(excludedQuery).map(({ href }) => href);
   assert.equal(hrefs.some((href) => href === parentsChildProblemHref || parentsChildDocumentHrefs.includes(href)), false, excludedQuery);
+}
+
+for (const query of ["взыскать алименты на ребёнка", "задолженность по алиментам на ребёнка", "соглашение об алиментах на ребёнка"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(childSupportProblemHref), true, query);
+}
+for (const excludedQuery of ["алименты жене", "содержание бывшего супруга", "установить отцовство", "усыновить ребёнка", "оформить опеку над ребёнком"]) {
+  const hrefs = searchSite(excludedQuery).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === childSupportProblemHref || childSupportDocumentHrefs.includes(href)), false, excludedQuery);
+}
+
+for (const query of ["лишить отца родительских прав", "основания лишения родительских прав", "лишить родительских прав и взыскать алименты"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(deprivationProblemHref), true, query);
+}
+for (const excludedQuery of ["ограничить родительские права", "восстановить родительские права", "оспорить отцовство", "усыновить ребёнка"]) {
+  const hrefs = searchSite(excludedQuery).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === deprivationProblemHref || deprivationDocumentHrefs.includes(href)), false, excludedQuery);
+}
+
+for (const query of ["ограничить родительские права", "ограничение родительских прав из-за болезни", "иск об ограничении родительских прав"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(restrictionProblemHref), true, query);
+}
+for (const excludedQuery of ["лишить родительских прав", "восстановить родительские права", "отменить ограничение родительских прав", "усыновить ребёнка"]) {
+  const hrefs = searchSite(excludedQuery).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === restrictionProblemHref || restrictionDocumentHrefs.includes(href)), false, excludedQuery);
 }
 
 console.log("content-reset tests passed");

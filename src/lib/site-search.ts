@@ -641,6 +641,12 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isGuardianshipRouteResult(result.href) && isChildGuardianshipQuery(normalizedQuery)) return false;
   if (isParentsChildRouteResult(result.href) && isExcludedParentsChildQuery(normalizedQuery)) return true;
   if (isParentsChildRouteResult(result.href) && isParentsChildQuery(normalizedQuery)) return false;
+  if (isChildSupportRouteResult(result.href) && isExcludedChildSupportQuery(normalizedQuery)) return true;
+  if (isChildSupportRouteResult(result.href) && isChildSupportQuery(normalizedQuery)) return false;
+  if (isParentalRightsDeprivationRouteResult(result.href) && isExcludedParentalRightsDeprivationQuery(normalizedQuery)) return true;
+  if (isParentalRightsDeprivationRouteResult(result.href) && isParentalRightsDeprivationQuery(normalizedQuery)) return false;
+  if (isParentalRightsRestrictionRouteResult(result.href) && isExcludedParentalRightsRestrictionQuery(normalizedQuery)) return true;
+  if (isParentalRightsRestrictionRouteResult(result.href) && isParentalRightsRestrictionQuery(normalizedQuery)) return false;
 
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
@@ -746,7 +752,7 @@ function isChildGuardianshipQuery(normalizedQuery: string) {
 }
 
 function isUnsupportedChildRouteQuery(normalizedQuery: string) {
-  return ((normalizedQuery.includes("лишен") || normalizedQuery.includes("лишит")) && normalizedQuery.includes("родитель")) || [
+  return [
     "установить отцовство",
     "оспорить отцовство",
     "выезд ребенка за границу",
@@ -804,8 +810,126 @@ function isParentsChildQuery(normalizedQuery: string) {
   ].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isChildSupportRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/alimenty-na-rebenka/") || [
+    "/documents/soglashenie-ob-uplate-alimentov-na-rebenka/",
+    "/documents/vzyskanie-alimentov-na-rebenka/",
+    "/documents/izmenenie-razmera-alimentov-na-rebenka/",
+    "/documents/raschet-zadolzhennosti-po-alimentam/",
+    "/documents/ispolnenie-alimentov-na-rebenka/"
+  ].some((path) => href.includes(path));
+}
+
+function isExcludedChildSupportQuery(normalizedQuery: string) {
+  return [
+    "алименты жене",
+    "алименты мужу",
+    "содержание супруг",
+    "содержание бывшего супруг",
+    "дополнительные расходы на ребенка",
+    "установить отцовств",
+    "оспорить отцовств",
+    "усынов",
+    "удочер",
+    "опек",
+    "попечитель",
+    "лишить родитель",
+    "лишен родитель",
+    "ограничить родитель",
+    "место жительства ребенка",
+    "порядок общения"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isChildSupportQuery(normalizedQuery: string) {
+  if (isExcludedChildSupportQuery(normalizedQuery)) return false;
+  return normalizedQuery.includes("алимент") && [
+    "ребен",
+    "сын",
+    "доч",
+    "соглашен",
+    "судебн приказ",
+    "твердо",
+    "долг",
+    "задолж",
+    "не платит",
+    "увелич",
+    "уменьш"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentalRightsDeprivationRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/lishenie-roditelskih-prav/") || [
+    "/documents/proverka-osnovaniy-lisheniya-roditelskih-prav/",
+    "/documents/isk-o-lishenii-roditelskih-prav/",
+    "/documents/uchet-resheniy-pri-lishenii-roditelskih-prav/",
+    "/documents/lishenie-roditelskih-prav-i-alimenty/"
+  ].some((path) => href.includes(path));
+}
+
+function isExcludedParentalRightsDeprivationQuery(normalizedQuery: string) {
+  const explicitDeprivationIntent = normalizedQuery.includes("родитель") && ["лишить", "лишен", "лишит", "лишение"].some((marker) => normalizedQuery.includes(marker));
+  return !explicitDeprivationIntent || [
+    "ограничить родитель",
+    "ограничение родитель",
+    "восстановить родитель",
+    "восстановление родитель",
+    "отмена ограничения",
+    "отменить ограничение",
+    "установить отцовств",
+    "оспорить отцовств",
+    "усынов",
+    "удочер",
+    "оформить опек",
+    "порядок общения",
+    "место жительства ребенка"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentalRightsDeprivationQuery(normalizedQuery: string) {
+  if (isExcludedParentalRightsDeprivationQuery(normalizedQuery)) return false;
+  return true;
+}
+
+function isParentalRightsRestrictionRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/ogranichenie-roditelskih-prav/") || [
+    "/documents/ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam/",
+    "/documents/proverka-opasnogo-povedeniya-roditelya/",
+    "/documents/isk-ob-ogranichenii-roditelskih-prav/"
+  ].some((path) => href.includes(path));
+}
+
+function isExcludedParentalRightsRestrictionQuery(normalizedQuery: string) {
+  const explicitRestrictionIntent = normalizedQuery.includes("родитель") && ["ограничить", "ограничение", "ограничен"].some((marker) => normalizedQuery.includes(marker));
+  return !explicitRestrictionIntent || [
+    "лишить родитель",
+    "лишение родитель",
+    "восстановить родитель",
+    "восстановление родитель",
+    "отмена ограничения",
+    "отменить ограничение",
+    "установить отцовств",
+    "оспорить отцовств",
+    "усынов",
+    "удочер",
+    "оформить опек",
+    "порядок общения",
+    "место жительства ребенка"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentalRightsRestrictionQuery(normalizedQuery: string) {
+  return !isExcludedParentalRightsRestrictionQuery(normalizedQuery);
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isParentalRightsRestrictionQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/ogranichenie-roditelskih-prav/")) return 1140;
+  if (isParentalRightsRestrictionQuery(normalizedQuery) && isParentalRightsRestrictionRouteResult(href)) return 1120;
+  if (isParentalRightsDeprivationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/lishenie-roditelskih-prav/")) return 1100;
+  if (isParentalRightsDeprivationQuery(normalizedQuery) && isParentalRightsDeprivationRouteResult(href)) return 1080;
+  if (isChildSupportQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/alimenty-na-rebenka/")) return 1060;
+  if (isChildSupportQuery(normalizedQuery) && isChildSupportRouteResult(href)) return 1040;
   if (isParentsChildQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/")) return 1020;
   if (isParentsChildQuery(normalizedQuery) && isParentsChildRouteResult(href)) return 1000;
   if (isChildGuardianshipQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/")) return 1000;

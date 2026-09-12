@@ -6,6 +6,9 @@ import { JsonLd } from "@/components/JsonLd";
 import { DivorcePropertyDocumentHelper } from "@/components/documents/DivorcePropertyDocumentHelper";
 import { GuardianshipDocumentHelper } from "@/components/documents/GuardianshipDocumentHelper";
 import { ParentsChildDocumentHelper } from "@/components/documents/ParentsChildDocumentHelper";
+import { ChildSupportDocumentHelper } from "@/components/documents/ChildSupportDocumentHelper";
+import { ParentalRightsDeprivationDocumentHelper } from "@/components/documents/ParentalRightsDeprivationDocumentHelper";
+import { ParentalRightsRestrictionDocumentHelper } from "@/components/documents/ParentalRightsRestrictionDocumentHelper";
 import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
@@ -27,6 +30,15 @@ import type { GuardianshipCity } from "@/data/guardianship-territories";
 import { getParentsChildRules, PARENTS_CHILD_REVIEWED_AT } from "@/data/parents-child-legal-review";
 import { getParentsChildScenarioByDocumentSlug, PARENTS_CHILD_ROUTE } from "@/data/parents-child-route";
 import type { ParentsChildScenario } from "@/data/parents-child-route";
+import { CHILD_SUPPORT_REVIEWED_AT, getChildSupportRules } from "@/data/child-support-legal-review";
+import { CHILD_SUPPORT_ROUTE, getChildSupportScenarioByDocumentSlug } from "@/data/child-support-route";
+import type { ChildSupportScenario } from "@/data/child-support-route";
+import { getParentalRightsDeprivationRules, PARENTAL_RIGHTS_DEPRIVATION_REVIEWED_AT } from "@/data/parental-rights-deprivation-legal-review";
+import { getParentalRightsDeprivationScenarioByDocumentSlug, PARENTAL_RIGHTS_DEPRIVATION_ROUTE } from "@/data/parental-rights-deprivation-route";
+import type { ParentalRightsDeprivationScenario } from "@/data/parental-rights-deprivation-route";
+import { getParentalRightsRestrictionRules, PARENTAL_RIGHTS_RESTRICTION_REVIEWED_AT } from "@/data/parental-rights-restriction-legal-review";
+import { getParentalRightsRestrictionScenarioByDocumentSlug, PARENTAL_RIGHTS_RESTRICTION_ROUTE } from "@/data/parental-rights-restriction-route";
+import type { ParentalRightsRestrictionScenario } from "@/data/parental-rights-restriction-route";
 import {
   getZagsScenario,
   ZAGS_PROBLEM_ROUTE,
@@ -85,6 +97,12 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
   }
   const parentsChildScenario = getParentsChildScenarioByDocumentSlug(document.slug);
   if (parentsChildScenario) return <ParentsChildDocumentPage document={document} scenario={parentsChildScenario} />;
+  const childSupportScenario = getChildSupportScenarioByDocumentSlug(document.slug);
+  if (childSupportScenario) return <ChildSupportDocumentPage document={document} scenario={childSupportScenario} />;
+  const deprivationScenario = getParentalRightsDeprivationScenarioByDocumentSlug(document.slug);
+  if (deprivationScenario) return <ParentalRightsDeprivationDocumentPage document={document} scenario={deprivationScenario} />;
+  const restrictionScenario = getParentalRightsRestrictionScenarioByDocumentSlug(document.slug);
+  if (restrictionScenario) return <ParentalRightsRestrictionDocumentPage document={document} scenario={restrictionScenario} />;
   if (document.slug !== ZAGS_PROBLEM_ROUTE.documentSlug) notFound();
 
   const resolvedSearchParams = searchParams ? await searchParams : {};
@@ -142,6 +160,61 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
             <ZagsScenarioOverview basePath={documentPath} queryKey="variant" linkLabel="Открыть подготовку данных" />
           </>
         )}
+      </article>
+    </>
+  );
+}
+
+function ParentalRightsRestrictionDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ParentalRightsRestrictionScenario }) {
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }];
+  return <>
+    <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+    <Breadcrumbs items={breadcrumbs} />
+    <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить ситуацию</a></header>
+      <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
+      <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+      <div className="mt-7"><ParentalRightsRestrictionDocumentHelper scenarioKey={scenario.key} /></div>
+      <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getParentalRightsRestrictionRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PARENTAL_RIGHTS_RESTRICTION_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+      <Link href={`/problems/semya-i-deti/${PARENTAL_RIGHTS_RESTRICTION_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link>
+    </article>
+  </>;
+}
+
+function ParentalRightsDeprivationDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ParentalRightsDeprivationScenario }) {
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }];
+  return (
+    <>
+      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить ситуацию</a></header>
+        <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
+        <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+        <div className="mt-7"><ParentalRightsDeprivationDocumentHelper scenarioKey={scenario.key} /></div>
+        <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getParentalRightsDeprivationRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PARENTAL_RIGHTS_DEPRIVATION_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+        <Link href={`/problems/semya-i-deti/${PARENTAL_RIGHTS_DEPRIVATION_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link>
+      </article>
+    </>
+  );
+}
+
+function ChildSupportDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ChildSupportScenario }) {
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }];
+  return (
+    <>
+      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить документ</a></header>
+        <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
+        <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+        <div className="mt-7"><ChildSupportDocumentHelper scenarioKey={scenario.key} /></div>
+        <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getChildSupportRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {CHILD_SUPPORT_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+        <Link href={`/problems/semya-i-deti/${CHILD_SUPPORT_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link>
       </article>
     </>
   );

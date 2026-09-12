@@ -35,7 +35,31 @@ const parentsChildDocuments = [
   "/documents/ispolnenie-resheniya-o-rebenke/"
 ];
 const parentsChildContent = [parentsChildProblem, ...parentsChildDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent];
+const childSupportProblem = "/problems/semya-i-deti/alimenty-na-rebenka/";
+const childSupportDocuments = [
+  "/documents/soglashenie-ob-uplate-alimentov-na-rebenka/",
+  "/documents/vzyskanie-alimentov-na-rebenka/",
+  "/documents/izmenenie-razmera-alimentov-na-rebenka/",
+  "/documents/raschet-zadolzhennosti-po-alimentam/",
+  "/documents/ispolnenie-alimentov-na-rebenka/"
+];
+const childSupportContent = [childSupportProblem, ...childSupportDocuments];
+const deprivationProblem = "/problems/semya-i-deti/lishenie-roditelskih-prav/";
+const deprivationDocuments = [
+  "/documents/proverka-osnovaniy-lisheniya-roditelskih-prav/",
+  "/documents/isk-o-lishenii-roditelskih-prav/",
+  "/documents/uchet-resheniy-pri-lishenii-roditelskih-prav/",
+  "/documents/lishenie-roditelskih-prav-i-alimenty/"
+];
+const deprivationContent = [deprivationProblem, ...deprivationDocuments];
+const restrictionProblem = "/problems/semya-i-deti/ogranichenie-roditelskih-prav/";
+const restrictionDocuments = [
+  "/documents/ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam/",
+  "/documents/proverka-opasnogo-povedeniya-roditelya/",
+  "/documents/isk-ob-ogranichenii-roditelskih-prav/"
+];
+const restrictionContent = [restrictionProblem, ...restrictionDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -65,8 +89,8 @@ const queries = [
   { query: "продажа квартиры ребёнка разрешение опеки", expected: guardianshipContent },
   { query: "орган опеки отказал", expected: guardianshipContent },
   { query: "орган опеки не отвечает", expected: guardianshipContent },
-  { query: "усыновить ребёнка", expected: [], forbidden: guardianshipContent },
-  { query: "опека над недееспособным взрослым", expected: [], forbidden: [...guardianshipContent, ...parentsChildContent] },
+  { query: "усыновить ребёнка", expected: [], forbidden: [...guardianshipContent, ...childSupportContent, ...deprivationContent] },
+  { query: "опека над недееспособным взрослым", expected: [], forbidden: [...guardianshipContent, ...parentsChildContent, ...deprivationContent] },
   { query: "После развода ребёнок должен жить со мной", expected: [parentsChildProblem, parentsChildDocuments[0]] },
   { query: "С кем останется ребёнок после развода", expected: [parentsChildProblem, parentsChildDocuments[0]] },
   { query: "Бывшая жена не даёт видеть сына", expected: [parentsChildProblem, parentsChildDocuments[1]] },
@@ -75,8 +99,25 @@ const queries = [
   { query: "изменить график общения с ребёнком", expected: [parentsChildProblem, parentsChildDocuments[2]] },
   { query: "Есть решение суда, но ребёнка всё равно не дают видеть", expected: [parentsChildProblem, parentsChildDocuments[3]] },
   { query: "Как определить место жительства ребёнка", expected: [parentsChildProblem, parentsChildDocuments[0]] },
-  { query: "взыскать алименты на ребёнка", expected: [], forbidden: parentsChildContent },
-  { query: "лишить отца родительских прав", expected: [], forbidden: allowedContentPrefixes },
+  { query: "взыскать алименты на ребёнка", expected: [childSupportProblem, childSupportDocuments[1]], forbidden: parentsChildContent },
+  { query: "соглашение об алиментах на ребёнка", expected: [childSupportProblem, childSupportDocuments[0]] },
+  { query: "алименты в твёрдой сумме на ребёнка", expected: [childSupportProblem, childSupportDocuments[1]] },
+  { query: "изменить размер алиментов на ребёнка", expected: [childSupportProblem, childSupportDocuments[2]] },
+  { query: "задолженность по алиментам на ребёнка", expected: [childSupportProblem, childSupportDocuments[3], childSupportDocuments[4]] },
+  { query: "бывший муж не платит алименты на сына", expected: [childSupportProblem, childSupportDocuments[3], childSupportDocuments[4]] },
+  { query: "алименты жене", expected: [], forbidden: [...childSupportContent, ...deprivationContent] },
+  { query: "дополнительные расходы на ребёнка", expected: [], forbidden: [...childSupportContent, ...deprivationContent] },
+  { query: "лишить отца родительских прав", expected: [deprivationProblem, deprivationDocuments[1]], forbidden: [...guardianshipContent, ...parentsChildContent] },
+  { query: "есть ли основания лишить родительских прав", expected: [deprivationProblem, deprivationDocuments[0]] },
+  { query: "лишение родительских прав после решения об ограничении", expected: [deprivationProblem, deprivationDocuments[2]] },
+  { query: "лишить родительских прав и взыскать алименты", expected: [deprivationProblem, deprivationDocuments[3]], forbidden: childSupportContent },
+  { query: "ограничить родительские права", expected: [restrictionProblem, restrictionDocuments[2]], forbidden: deprivationContent },
+  { query: "ограничение родительских прав из-за болезни", expected: [restrictionProblem, restrictionDocuments[0]], forbidden: deprivationContent },
+  { query: "ограничить родительские права из-за опасного поведения", expected: [restrictionProblem, restrictionDocuments[1], restrictionDocuments[2]], forbidden: deprivationContent },
+  { query: "иск об ограничении родительских прав", expected: [restrictionProblem, restrictionDocuments[2]], forbidden: deprivationContent },
+  { query: "лишить мать родительских прав", expected: [deprivationProblem, deprivationDocuments[1]], forbidden: restrictionContent },
+  { query: "восстановить родительские права после лишения", expected: [], forbidden: [...deprivationContent, ...restrictionContent] },
+  { query: "отменить ограничение родительских прав", expected: [], forbidden: restrictionContent },
   { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: parentsChildContent }
 ];
 
