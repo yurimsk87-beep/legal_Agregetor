@@ -78,6 +78,8 @@ jobs:
         run: npm run test:e2e:parents-child
       - name: Run child support route acceptance
         run: npm run test:e2e:child-support
+      - name: Run parental rights deprivation route acceptance
+        run: npm run test:e2e:parental-rights-deprivation
       - name: Confirm withdrawn review PDF was deleted
         run: test -z "$(find "$LEAD_ATTACHMENT_STORAGE_ROOT" -type f -name '*.pdf' -print -quit 2>/dev/null)"
       - name: Generate and inspect guardianship PDFs
@@ -104,6 +106,8 @@ jobs:
         run: npm run audit:parents-child-pdf
       - name: Generate and inspect child support PDF and DOCX
         run: npm run audit:child-support-pdf
+      - name: Generate and inspect parental rights deprivation PDF and DOCX
+        run: npm run audit:parental-rights-deprivation-pdf
       - name: Upload PDF and browser acceptance artifacts
         if: always()
         uses: actions/upload-artifact@v4

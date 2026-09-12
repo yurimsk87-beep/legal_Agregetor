@@ -643,6 +643,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentsChildRouteResult(result.href) && isParentsChildQuery(normalizedQuery)) return false;
   if (isChildSupportRouteResult(result.href) && isExcludedChildSupportQuery(normalizedQuery)) return true;
   if (isChildSupportRouteResult(result.href) && isChildSupportQuery(normalizedQuery)) return false;
+  if (isParentalRightsDeprivationRouteResult(result.href) && isExcludedParentalRightsDeprivationQuery(normalizedQuery)) return true;
+  if (isParentalRightsDeprivationRouteResult(result.href) && isParentalRightsDeprivationQuery(normalizedQuery)) return false;
 
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
@@ -748,7 +750,7 @@ function isChildGuardianshipQuery(normalizedQuery: string) {
 }
 
 function isUnsupportedChildRouteQuery(normalizedQuery: string) {
-  return ((normalizedQuery.includes("лишен") || normalizedQuery.includes("лишит")) && normalizedQuery.includes("родитель")) || [
+  return [
     "установить отцовство",
     "оспорить отцовство",
     "выезд ребенка за границу",
@@ -854,8 +856,42 @@ function isChildSupportQuery(normalizedQuery: string) {
   ].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isParentalRightsDeprivationRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/lishenie-roditelskih-prav/") || [
+    "/documents/proverka-osnovaniy-lisheniya-roditelskih-prav/",
+    "/documents/isk-o-lishenii-roditelskih-prav/",
+    "/documents/uchet-resheniy-pri-lishenii-roditelskih-prav/",
+    "/documents/lishenie-roditelskih-prav-i-alimenty/"
+  ].some((path) => href.includes(path));
+}
+
+function isExcludedParentalRightsDeprivationQuery(normalizedQuery: string) {
+  const explicitDeprivationIntent = normalizedQuery.includes("родитель") && ["лишить", "лишен", "лишит", "лишение"].some((marker) => normalizedQuery.includes(marker));
+  return !explicitDeprivationIntent || [
+    "ограничить родитель",
+    "ограничение родитель",
+    "восстановить родитель",
+    "восстановление родитель",
+    "отмена ограничения",
+    "установить отцовств",
+    "оспорить отцовств",
+    "усынов",
+    "удочер",
+    "оформить опек",
+    "порядок общения",
+    "место жительства ребенка"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentalRightsDeprivationQuery(normalizedQuery: string) {
+  if (isExcludedParentalRightsDeprivationQuery(normalizedQuery)) return false;
+  return true;
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isParentalRightsDeprivationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/lishenie-roditelskih-prav/")) return 1100;
+  if (isParentalRightsDeprivationQuery(normalizedQuery) && isParentalRightsDeprivationRouteResult(href)) return 1080;
   if (isChildSupportQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/alimenty-na-rebenka/")) return 1060;
   if (isChildSupportQuery(normalizedQuery) && isChildSupportRouteResult(href)) return 1040;
   if (isParentsChildQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/")) return 1020;

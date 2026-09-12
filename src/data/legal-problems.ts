@@ -4,6 +4,7 @@ import { DIVORCE_PROPERTY_PROBLEM } from "@/data/divorce-property-problem";
 import { GUARDIANSHIP_PROBLEM } from "@/data/guardianship-problem";
 import { PARENTS_CHILD_PROBLEM } from "@/data/parents-child-problem";
 import { CHILD_SUPPORT_PROBLEM } from "@/data/child-support-problem";
+import { PARENTAL_RIGHTS_DEPRIVATION_PROBLEM } from "@/data/parental-rights-deprivation-problem";
 
 export type LegalProblemFaq = {
   question: string;
@@ -175,9 +176,9 @@ const referenceProblem = {
   "relatedProblemSlugs": []
 } satisfies LegalProblem;
 
-export const legalProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM, GUARDIANSHIP_PROBLEM, PARENTS_CHILD_PROBLEM, CHILD_SUPPORT_PROBLEM];
+export const legalProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM, GUARDIANSHIP_PROBLEM, PARENTS_CHILD_PROBLEM, CHILD_SUPPORT_PROBLEM, PARENTAL_RIGHTS_DEPRIVATION_PROBLEM];
 
-export const popularProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM, GUARDIANSHIP_PROBLEM, PARENTS_CHILD_PROBLEM, CHILD_SUPPORT_PROBLEM];
+export const popularProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM, GUARDIANSHIP_PROBLEM, PARENTS_CHILD_PROBLEM, CHILD_SUPPORT_PROBLEM, PARENTAL_RIGHTS_DEPRIVATION_PROBLEM];
 
 export function getLegalProblem(categorySlug: string, slug: string) {
   const normalizedCategorySlug = normalizeLegalCategorySlug(categorySlug);
