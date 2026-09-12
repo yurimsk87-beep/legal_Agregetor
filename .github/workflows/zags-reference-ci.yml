@@ -9,6 +9,7 @@ on:
       - agent/divorce-property-route-hardening
       - agent/child-guardianship-reference-route
       - agent/parents-child-after-divorce-reference-route
+      - agent/family-law-reference-routes-expansion
 
 permissions:
   contents: read
@@ -75,6 +76,8 @@ jobs:
         run: npm run test:e2e:guardianship
       - name: Run parents and child route acceptance
         run: npm run test:e2e:parents-child
+      - name: Run child support route acceptance
+        run: npm run test:e2e:child-support
       - name: Confirm withdrawn review PDF was deleted
         run: test -z "$(find "$LEAD_ATTACHMENT_STORAGE_ROOT" -type f -name '*.pdf' -print -quit 2>/dev/null)"
       - name: Generate and inspect guardianship PDFs
@@ -99,6 +102,8 @@ jobs:
           done
       - name: Generate and inspect parents and child PDF
         run: npm run audit:parents-child-pdf
+      - name: Generate and inspect child support PDF and DOCX
+        run: npm run audit:child-support-pdf
       - name: Upload PDF and browser acceptance artifacts
         if: always()
         uses: actions/upload-artifact@v4

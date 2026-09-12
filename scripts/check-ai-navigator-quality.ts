@@ -35,7 +35,16 @@ const parentsChildDocuments = [
   "/documents/ispolnenie-resheniya-o-rebenke/"
 ];
 const parentsChildContent = [parentsChildProblem, ...parentsChildDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent];
+const childSupportProblem = "/problems/semya-i-deti/alimenty-na-rebenka/";
+const childSupportDocuments = [
+  "/documents/soglashenie-ob-uplate-alimentov-na-rebenka/",
+  "/documents/vzyskanie-alimentov-na-rebenka/",
+  "/documents/izmenenie-razmera-alimentov-na-rebenka/",
+  "/documents/raschet-zadolzhennosti-po-alimentam/",
+  "/documents/ispolnenie-alimentov-na-rebenka/"
+];
+const childSupportContent = [childSupportProblem, ...childSupportDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -65,7 +74,7 @@ const queries = [
   { query: "продажа квартиры ребёнка разрешение опеки", expected: guardianshipContent },
   { query: "орган опеки отказал", expected: guardianshipContent },
   { query: "орган опеки не отвечает", expected: guardianshipContent },
-  { query: "усыновить ребёнка", expected: [], forbidden: guardianshipContent },
+  { query: "усыновить ребёнка", expected: [], forbidden: [...guardianshipContent, ...childSupportContent] },
   { query: "опека над недееспособным взрослым", expected: [], forbidden: [...guardianshipContent, ...parentsChildContent] },
   { query: "После развода ребёнок должен жить со мной", expected: [parentsChildProblem, parentsChildDocuments[0]] },
   { query: "С кем останется ребёнок после развода", expected: [parentsChildProblem, parentsChildDocuments[0]] },
@@ -75,7 +84,14 @@ const queries = [
   { query: "изменить график общения с ребёнком", expected: [parentsChildProblem, parentsChildDocuments[2]] },
   { query: "Есть решение суда, но ребёнка всё равно не дают видеть", expected: [parentsChildProblem, parentsChildDocuments[3]] },
   { query: "Как определить место жительства ребёнка", expected: [parentsChildProblem, parentsChildDocuments[0]] },
-  { query: "взыскать алименты на ребёнка", expected: [], forbidden: parentsChildContent },
+  { query: "взыскать алименты на ребёнка", expected: [childSupportProblem, childSupportDocuments[1]], forbidden: parentsChildContent },
+  { query: "соглашение об алиментах на ребёнка", expected: [childSupportProblem, childSupportDocuments[0]] },
+  { query: "алименты в твёрдой сумме на ребёнка", expected: [childSupportProblem, childSupportDocuments[1]] },
+  { query: "изменить размер алиментов на ребёнка", expected: [childSupportProblem, childSupportDocuments[2]] },
+  { query: "задолженность по алиментам на ребёнка", expected: [childSupportProblem, childSupportDocuments[3], childSupportDocuments[4]] },
+  { query: "бывший муж не платит алименты на сына", expected: [childSupportProblem, childSupportDocuments[3], childSupportDocuments[4]] },
+  { query: "алименты жене", expected: [], forbidden: childSupportContent },
+  { query: "дополнительные расходы на ребёнка", expected: [], forbidden: childSupportContent },
   { query: "лишить отца родительских прав", expected: [], forbidden: allowedContentPrefixes },
   { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: parentsChildContent }
 ];

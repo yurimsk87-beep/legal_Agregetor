@@ -641,6 +641,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isGuardianshipRouteResult(result.href) && isChildGuardianshipQuery(normalizedQuery)) return false;
   if (isParentsChildRouteResult(result.href) && isExcludedParentsChildQuery(normalizedQuery)) return true;
   if (isParentsChildRouteResult(result.href) && isParentsChildQuery(normalizedQuery)) return false;
+  if (isChildSupportRouteResult(result.href) && isExcludedChildSupportQuery(normalizedQuery)) return true;
+  if (isChildSupportRouteResult(result.href) && isChildSupportQuery(normalizedQuery)) return false;
 
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
@@ -804,8 +806,58 @@ function isParentsChildQuery(normalizedQuery: string) {
   ].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isChildSupportRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/alimenty-na-rebenka/") || [
+    "/documents/soglashenie-ob-uplate-alimentov-na-rebenka/",
+    "/documents/vzyskanie-alimentov-na-rebenka/",
+    "/documents/izmenenie-razmera-alimentov-na-rebenka/",
+    "/documents/raschet-zadolzhennosti-po-alimentam/",
+    "/documents/ispolnenie-alimentov-na-rebenka/"
+  ].some((path) => href.includes(path));
+}
+
+function isExcludedChildSupportQuery(normalizedQuery: string) {
+  return [
+    "алименты жене",
+    "алименты мужу",
+    "содержание супруг",
+    "содержание бывшего супруг",
+    "дополнительные расходы на ребенка",
+    "установить отцовств",
+    "оспорить отцовств",
+    "усынов",
+    "удочер",
+    "опек",
+    "попечитель",
+    "лишить родитель",
+    "лишен родитель",
+    "ограничить родитель",
+    "место жительства ребенка",
+    "порядок общения"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isChildSupportQuery(normalizedQuery: string) {
+  if (isExcludedChildSupportQuery(normalizedQuery)) return false;
+  return normalizedQuery.includes("алимент") && [
+    "ребен",
+    "сын",
+    "доч",
+    "соглашен",
+    "судебн приказ",
+    "твердо",
+    "долг",
+    "задолж",
+    "не платит",
+    "увелич",
+    "уменьш"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isChildSupportQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/alimenty-na-rebenka/")) return 1060;
+  if (isChildSupportQuery(normalizedQuery) && isChildSupportRouteResult(href)) return 1040;
   if (isParentsChildQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/")) return 1020;
   if (isParentsChildQuery(normalizedQuery) && isParentsChildRouteResult(href)) return 1000;
   if (isChildGuardianshipQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/")) return 1000;
