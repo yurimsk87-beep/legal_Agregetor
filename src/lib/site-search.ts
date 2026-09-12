@@ -645,6 +645,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isChildSupportRouteResult(result.href) && isChildSupportQuery(normalizedQuery)) return false;
   if (isParentalRightsDeprivationRouteResult(result.href) && isExcludedParentalRightsDeprivationQuery(normalizedQuery)) return true;
   if (isParentalRightsDeprivationRouteResult(result.href) && isParentalRightsDeprivationQuery(normalizedQuery)) return false;
+  if (isParentalRightsRestrictionRouteResult(result.href) && isExcludedParentalRightsRestrictionQuery(normalizedQuery)) return true;
+  if (isParentalRightsRestrictionRouteResult(result.href) && isParentalRightsRestrictionQuery(normalizedQuery)) return false;
 
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
@@ -873,6 +875,7 @@ function isExcludedParentalRightsDeprivationQuery(normalizedQuery: string) {
     "восстановить родитель",
     "восстановление родитель",
     "отмена ограничения",
+    "отменить ограничение",
     "установить отцовств",
     "оспорить отцовств",
     "усынов",
@@ -888,8 +891,41 @@ function isParentalRightsDeprivationQuery(normalizedQuery: string) {
   return true;
 }
 
+function isParentalRightsRestrictionRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/ogranichenie-roditelskih-prav/") || [
+    "/documents/ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam/",
+    "/documents/proverka-opasnogo-povedeniya-roditelya/",
+    "/documents/isk-ob-ogranichenii-roditelskih-prav/"
+  ].some((path) => href.includes(path));
+}
+
+function isExcludedParentalRightsRestrictionQuery(normalizedQuery: string) {
+  const explicitRestrictionIntent = normalizedQuery.includes("родитель") && ["ограничить", "ограничение", "ограничен"].some((marker) => normalizedQuery.includes(marker));
+  return !explicitRestrictionIntent || [
+    "лишить родитель",
+    "лишение родитель",
+    "восстановить родитель",
+    "восстановление родитель",
+    "отмена ограничения",
+    "отменить ограничение",
+    "установить отцовств",
+    "оспорить отцовств",
+    "усынов",
+    "удочер",
+    "оформить опек",
+    "порядок общения",
+    "место жительства ребенка"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentalRightsRestrictionQuery(normalizedQuery: string) {
+  return !isExcludedParentalRightsRestrictionQuery(normalizedQuery);
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isParentalRightsRestrictionQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/ogranichenie-roditelskih-prav/")) return 1140;
+  if (isParentalRightsRestrictionQuery(normalizedQuery) && isParentalRightsRestrictionRouteResult(href)) return 1120;
   if (isParentalRightsDeprivationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/lishenie-roditelskih-prav/")) return 1100;
   if (isParentalRightsDeprivationQuery(normalizedQuery) && isParentalRightsDeprivationRouteResult(href)) return 1080;
   if (isChildSupportQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/alimenty-na-rebenka/")) return 1060;
