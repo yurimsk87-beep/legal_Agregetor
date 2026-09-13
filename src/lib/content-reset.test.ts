@@ -49,6 +49,14 @@ const restrictionDocumentHrefs = [
   "/documents/proverka-opasnogo-povedeniya-roditelya/",
   "/documents/isk-ob-ogranichenii-roditelskih-prav/"
 ];
+const paternityProblemHref = "/problems/semya-i-deti/ustanovlenie-otcovstva/";
+const paternityDocumentHrefs = [
+  "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
+  "/documents/isk-ob-ustanovlenii-otcovstva/",
+  "/documents/ustanovlenie-otcovstva-umershego/",
+  "/documents/zapis-ob-otce-uzhe-sushchestvuet/",
+  "/documents/ustanovlenie-otcovstva-i-drugoe-trebovanie/"
+];
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -59,7 +67,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "roditeli-i-rebenok-posle-razvoda" },
     { categorySlug: "semya-i-deti", slug: "alimenty-na-rebenka" },
     { categorySlug: "semya-i-deti", slug: "lishenie-roditelskih-prav" },
-    { categorySlug: "semya-i-deti", slug: "ogranichenie-roditelskih-prav" }
+    { categorySlug: "semya-i-deti", slug: "ogranichenie-roditelskih-prav" },
+    { categorySlug: "semya-i-deti", slug: "ustanovlenie-otcovstva" }
   ]
 );
 assert.deepEqual(
@@ -89,7 +98,12 @@ assert.deepEqual(
     "lishenie-roditelskih-prav-i-alimenty",
     "ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam",
     "proverka-opasnogo-povedeniya-roditelya",
-    "isk-ob-ogranichenii-roditelskih-prav"
+    "isk-ob-ogranichenii-roditelskih-prav",
+    "zayavlenie-ob-ustanovlenii-otcovstva",
+    "isk-ob-ustanovlenii-otcovstva",
+    "ustanovlenie-otcovstva-umershego",
+    "zapis-ob-otce-uzhe-sushchestvuet",
+    "ustanovlenie-otcovstva-i-drugoe-trebovanie"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -113,6 +127,8 @@ assert.ok(indexedContentHrefs.includes(deprivationProblemHref));
 for (const href of deprivationDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(restrictionProblemHref));
 for (const href of restrictionDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(paternityProblemHref));
+for (const href of paternityDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -129,6 +145,8 @@ assert.equal(
       || deprivationDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === restrictionProblemHref
       || restrictionDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === paternityProblemHref
+      || paternityDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );

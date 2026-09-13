@@ -59,7 +59,16 @@ const restrictionDocuments = [
   "/documents/isk-ob-ogranichenii-roditelskih-prav/"
 ];
 const restrictionContent = [restrictionProblem, ...restrictionDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent];
+const paternityProblem = "/problems/semya-i-deti/ustanovlenie-otcovstva/";
+const paternityDocuments = [
+  "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
+  "/documents/isk-ob-ustanovlenii-otcovstva/",
+  "/documents/ustanovlenie-otcovstva-umershego/",
+  "/documents/zapis-ob-otce-uzhe-sushchestvuet/",
+  "/documents/ustanovlenie-otcovstva-i-drugoe-trebovanie/"
+];
+const paternityContent = [paternityProblem, ...paternityDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -118,6 +127,12 @@ const queries = [
   { query: "лишить мать родительских прав", expected: [deprivationProblem, deprivationDocuments[1]], forbidden: restrictionContent },
   { query: "восстановить родительские права после лишения", expected: [], forbidden: [...deprivationContent, ...restrictionContent] },
   { query: "отменить ограничение родительских прав", expected: [], forbidden: restrictionContent },
+  { query: "установить отцовство через загс", expected: [paternityProblem, paternityDocuments[0]] },
+  { query: "иск об установлении отцовства", expected: [paternityProblem, paternityDocuments[1]] },
+  { query: "установить отцовство после смерти отца", expected: [paternityProblem, paternityDocuments[2]] },
+  { query: "в свидетельстве записан другой отец", expected: [paternityProblem, paternityDocuments[3]] },
+  { query: "установление отцовства и алименты", expected: [paternityProblem, paternityDocuments[4]], forbidden: deprivationContent },
+  { query: "оспорить отцовство", expected: [], forbidden: paternityContent },
   { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: parentsChildContent }
 ];
 

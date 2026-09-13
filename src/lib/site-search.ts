@@ -647,6 +647,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalRightsDeprivationRouteResult(result.href) && isParentalRightsDeprivationQuery(normalizedQuery)) return false;
   if (isParentalRightsRestrictionRouteResult(result.href) && isExcludedParentalRightsRestrictionQuery(normalizedQuery)) return true;
   if (isParentalRightsRestrictionRouteResult(result.href) && isParentalRightsRestrictionQuery(normalizedQuery)) return false;
+  if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
+  if (isPaternityEstablishmentRouteResult(result.href)) return true;
 
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
@@ -753,7 +755,6 @@ function isChildGuardianshipQuery(normalizedQuery: string) {
 
 function isUnsupportedChildRouteQuery(normalizedQuery: string) {
   return [
-    "установить отцовство",
     "оспорить отцовство",
     "выезд ребенка за границу",
     "сменить имя ребенку",
@@ -922,8 +923,26 @@ function isParentalRightsRestrictionQuery(normalizedQuery: string) {
   return !isExcludedParentalRightsRestrictionQuery(normalizedQuery);
 }
 
+function isPaternityEstablishmentRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
+    "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
+    "/documents/isk-ob-ustanovlenii-otcovstva/",
+    "/documents/ustanovlenie-otcovstva-umershego/",
+    "/documents/zapis-ob-otce-uzhe-sushchestvuet/",
+    "/documents/ustanovlenie-otcovstva-i-drugoe-trebovanie/"
+  ].some((path) => href.includes(path));
+}
+
+function isPaternityEstablishmentQuery(normalizedQuery: string) {
+  const establishment = (normalizedQuery.includes("установ") && normalizedQuery.includes("отцовств")) || ["признание отцовств", "отцовство после смерти", "записать отца", "записан другой отец", "свидетельстве записан другой отец", "отцовство и алимент"].some((marker) => normalizedQuery.includes(marker));
+  const excluded = ["оспорить отцовств", "оспаривание отцовств"].some((marker) => normalizedQuery.includes(marker));
+  return establishment && !excluded;
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isPaternityEstablishmentQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/")) return 1180;
+  if (isPaternityEstablishmentQuery(normalizedQuery) && isPaternityEstablishmentRouteResult(href)) return 1160;
   if (isParentalRightsRestrictionQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/ogranichenie-roditelskih-prav/")) return 1140;
   if (isParentalRightsRestrictionQuery(normalizedQuery) && isParentalRightsRestrictionRouteResult(href)) return 1120;
   if (isParentalRightsDeprivationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/lishenie-roditelskih-prav/")) return 1100;
