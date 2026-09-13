@@ -76,7 +76,15 @@ const paternityContestDocuments = [
   "/documents/osparivanie-otcovstva-posle-smerti/"
 ];
 const paternityContestContent = [paternityContestProblem, ...paternityContestDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent];
+const adoptionProblem = "/problems/semya-i-deti/usynovlenie-rebenka/";
+const adoptionDocuments = [
+  "/documents/usynovlenie-rebenka-suprugom-roditelya/",
+  "/documents/chek-list-vnutrirossiyskogo-usynovleniya/",
+  "/documents/soglasiya-pri-usynovlenii-rebenka/",
+  "/documents/mezhdunarodnoe-usynovlenie-proverka/"
+];
+const adoptionContent = [adoptionProblem, ...adoptionDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -106,7 +114,7 @@ const queries = [
   { query: "продажа квартиры ребёнка разрешение опеки", expected: guardianshipContent },
   { query: "орган опеки отказал", expected: guardianshipContent },
   { query: "орган опеки не отвечает", expected: guardianshipContent },
-  { query: "усыновить ребёнка", expected: [], forbidden: [...guardianshipContent, ...childSupportContent, ...deprivationContent] },
+  { query: "усыновить ребёнка", expected: adoptionContent, forbidden: [...guardianshipContent, ...childSupportContent, ...deprivationContent] },
   { query: "опека над недееспособным взрослым", expected: [], forbidden: [...guardianshipContent, ...parentsChildContent, ...deprivationContent] },
   { query: "После развода ребёнок должен жить со мной", expected: [parentsChildProblem, parentsChildDocuments[0]] },
   { query: "С кем останется ребёнок после развода", expected: [parentsChildProblem, parentsChildDocuments[0]] },
@@ -145,6 +153,10 @@ const queries = [
   { query: "совершеннолетний ребенок хочет оспорить отцовство", expected: [paternityContestProblem, paternityContestDocuments[2]], forbidden: paternityContent },
   { query: "оспорить отцовство после смерти", expected: [paternityContestProblem, paternityContestDocuments[3]], forbidden: paternityContent },
   { query: "днк экспертиза при оспаривании отцовства", expected: paternityContestContent, forbidden: paternityContent },
+  { query: "усыновить ребёнка жены", expected: [adoptionProblem, adoptionDocuments[0]], forbidden: guardianshipContent },
+  { query: "как усыновить ребёнка в россии", expected: [adoptionProblem, adoptionDocuments[1]], forbidden: guardianshipContent },
+  { query: "усыновление без согласия отца", expected: [adoptionProblem, adoptionDocuments[2]], forbidden: guardianshipContent },
+  { query: "международное усыновление", expected: [adoptionProblem, adoptionDocuments[3]], forbidden: guardianshipContent },
   { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: parentsChildContent }
 ];
 

@@ -635,6 +635,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   // Точное совпадение названия — сильный прямой сигнал, домен-конфликт не применяем.
   if (result.normalizedTitle === normalizedQuery) return false;
 
+  if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
 
   if (isUnsupportedChildRouteQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
@@ -653,6 +654,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isPaternityEstablishmentRouteResult(result.href)) return true;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
   if (isPaternityContestRouteResult(result.href)) return true;
+  if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
+  if (isAdoptionRouteResult(result.href)) return true;
 
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
@@ -955,8 +958,23 @@ function isPaternityContestQuery(normalizedQuery: string) {
   return ["оспорить отцовств", "оспаривание отцовств", "исключить запись об отце", "записан отцом но не отец", "биологический отец оспорить", "биологический отец хочет оспорить запись", "днк экспертиза отцовств", "днк экспертиза при оспаривании"].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isAdoptionRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/usynovlenie-rebenka/") || [
+    "/documents/usynovlenie-rebenka-suprugom-roditelya/",
+    "/documents/chek-list-vnutrirossiyskogo-usynovleniya/",
+    "/documents/soglasiya-pri-usynovlenii-rebenka/",
+    "/documents/mezhdunarodnoe-usynovlenie-proverka/"
+  ].some((path) => href.includes(path));
+}
+
+function isAdoptionQuery(normalizedQuery: string) {
+  return ["усынов", "удочер", "стать усыновителем"].some((marker) => normalizedQuery.includes(marker));
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isAdoptionQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/usynovlenie-rebenka/")) return 1260;
+  if (isAdoptionQuery(normalizedQuery) && isAdoptionRouteResult(href)) return 1240;
   if (isPaternityContestQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/osparivanie-otcovstva/")) return 1220;
   if (isPaternityContestQuery(normalizedQuery) && isPaternityContestRouteResult(href)) return 1200;
   if (isPaternityEstablishmentQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/")) return 1180;
