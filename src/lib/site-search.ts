@@ -635,6 +635,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   // Точное совпадение названия — сильный прямой сигнал, домен-конфликт не применяем.
   if (result.normalizedTitle === normalizedQuery) return false;
 
+  if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
+
   if (isUnsupportedChildRouteQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
   if (isGuardianshipRouteResult(result.href) && isExcludedGuardianshipQuery(normalizedQuery)) return true;
@@ -649,6 +651,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalRightsRestrictionRouteResult(result.href) && isParentalRightsRestrictionQuery(normalizedQuery)) return false;
   if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
   if (isPaternityEstablishmentRouteResult(result.href)) return true;
+  if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
+  if (isPaternityContestRouteResult(result.href)) return true;
 
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
@@ -755,7 +759,6 @@ function isChildGuardianshipQuery(normalizedQuery: string) {
 
 function isUnsupportedChildRouteQuery(normalizedQuery: string) {
   return [
-    "оспорить отцовство",
     "выезд ребенка за границу",
     "сменить имя ребенку",
     "сменить фамилию ребенку"
@@ -939,8 +942,23 @@ function isPaternityEstablishmentQuery(normalizedQuery: string) {
   return establishment && !excluded;
 }
 
+function isPaternityContestRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/osparivanie-otcovstva/") || [
+    "/documents/isk-ob-osparivanii-otcovstva-zapisannym-roditelem/",
+    "/documents/isk-ob-osparivanii-zapisi-biologicheskim-roditelem/",
+    "/documents/isk-ob-osparivanii-otcovstva-rebenkom-ili-opekunom/",
+    "/documents/osparivanie-otcovstva-posle-smerti/"
+  ].some((path) => href.includes(path));
+}
+
+function isPaternityContestQuery(normalizedQuery: string) {
+  return ["оспорить отцовств", "оспаривание отцовств", "исключить запись об отце", "записан отцом но не отец", "биологический отец оспорить", "биологический отец хочет оспорить запись", "днк экспертиза отцовств", "днк экспертиза при оспаривании"].some((marker) => normalizedQuery.includes(marker));
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isPaternityContestQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/osparivanie-otcovstva/")) return 1220;
+  if (isPaternityContestQuery(normalizedQuery) && isPaternityContestRouteResult(href)) return 1200;
   if (isPaternityEstablishmentQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/")) return 1180;
   if (isPaternityEstablishmentQuery(normalizedQuery) && isPaternityEstablishmentRouteResult(href)) return 1160;
   if (isParentalRightsRestrictionQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/ogranichenie-roditelskih-prav/")) return 1140;

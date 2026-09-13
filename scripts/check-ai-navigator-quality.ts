@@ -68,7 +68,15 @@ const paternityDocuments = [
   "/documents/ustanovlenie-otcovstva-i-drugoe-trebovanie/"
 ];
 const paternityContent = [paternityProblem, ...paternityDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent];
+const paternityContestProblem = "/problems/semya-i-deti/osparivanie-otcovstva/";
+const paternityContestDocuments = [
+  "/documents/isk-ob-osparivanii-otcovstva-zapisannym-roditelem/",
+  "/documents/isk-ob-osparivanii-zapisi-biologicheskim-roditelem/",
+  "/documents/isk-ob-osparivanii-otcovstva-rebenkom-ili-opekunom/",
+  "/documents/osparivanie-otcovstva-posle-smerti/"
+];
+const paternityContestContent = [paternityContestProblem, ...paternityContestDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -132,7 +140,11 @@ const queries = [
   { query: "установить отцовство после смерти отца", expected: [paternityProblem, paternityDocuments[2]] },
   { query: "в свидетельстве записан другой отец", expected: [paternityProblem, paternityDocuments[3]] },
   { query: "установление отцовства и алименты", expected: [paternityProblem, paternityDocuments[4]], forbidden: deprivationContent },
-  { query: "оспорить отцовство", expected: [], forbidden: paternityContent },
+  { query: "оспорить отцовство", expected: [paternityContestProblem, paternityContestDocuments[0]], forbidden: paternityContent },
+  { query: "биологический отец хочет оспорить запись", expected: [paternityContestProblem, paternityContestDocuments[1]], forbidden: paternityContent },
+  { query: "совершеннолетний ребенок хочет оспорить отцовство", expected: [paternityContestProblem, paternityContestDocuments[2]], forbidden: paternityContent },
+  { query: "оспорить отцовство после смерти", expected: [paternityContestProblem, paternityContestDocuments[3]], forbidden: paternityContent },
+  { query: "днк экспертиза при оспаривании отцовства", expected: paternityContestContent, forbidden: paternityContent },
   { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: parentsChildContent }
 ];
 

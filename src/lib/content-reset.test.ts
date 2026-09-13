@@ -57,6 +57,13 @@ const paternityDocumentHrefs = [
   "/documents/zapis-ob-otce-uzhe-sushchestvuet/",
   "/documents/ustanovlenie-otcovstva-i-drugoe-trebovanie/"
 ];
+const paternityContestProblemHref = "/problems/semya-i-deti/osparivanie-otcovstva/";
+const paternityContestDocumentHrefs = [
+  "/documents/isk-ob-osparivanii-otcovstva-zapisannym-roditelem/",
+  "/documents/isk-ob-osparivanii-zapisi-biologicheskim-roditelem/",
+  "/documents/isk-ob-osparivanii-otcovstva-rebenkom-ili-opekunom/",
+  "/documents/osparivanie-otcovstva-posle-smerti/"
+];
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -68,7 +75,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "alimenty-na-rebenka" },
     { categorySlug: "semya-i-deti", slug: "lishenie-roditelskih-prav" },
     { categorySlug: "semya-i-deti", slug: "ogranichenie-roditelskih-prav" },
-    { categorySlug: "semya-i-deti", slug: "ustanovlenie-otcovstva" }
+    { categorySlug: "semya-i-deti", slug: "ustanovlenie-otcovstva" },
+    { categorySlug: "semya-i-deti", slug: "osparivanie-otcovstva" }
   ]
 );
 assert.deepEqual(
@@ -103,7 +111,11 @@ assert.deepEqual(
     "isk-ob-ustanovlenii-otcovstva",
     "ustanovlenie-otcovstva-umershego",
     "zapis-ob-otce-uzhe-sushchestvuet",
-    "ustanovlenie-otcovstva-i-drugoe-trebovanie"
+    "ustanovlenie-otcovstva-i-drugoe-trebovanie",
+    "isk-ob-osparivanii-otcovstva-zapisannym-roditelem",
+    "isk-ob-osparivanii-zapisi-biologicheskim-roditelem",
+    "isk-ob-osparivanii-otcovstva-rebenkom-ili-opekunom",
+    "osparivanie-otcovstva-posle-smerti"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -129,6 +141,8 @@ assert.ok(indexedContentHrefs.includes(restrictionProblemHref));
 for (const href of restrictionDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(paternityProblemHref));
 for (const href of paternityDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(paternityContestProblemHref));
+for (const href of paternityContestDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -147,6 +161,8 @@ assert.equal(
       || restrictionDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === paternityProblemHref
       || paternityDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === paternityContestProblemHref
+      || paternityContestDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );
@@ -267,6 +283,12 @@ for (const query of ["ограничить родительские права",
 for (const excludedQuery of ["лишить родительских прав", "восстановить родительские права", "отменить ограничение родительских прав", "усыновить ребёнка"]) {
   const hrefs = searchSite(excludedQuery).map(({ href }) => href);
   assert.equal(hrefs.some((href) => href === restrictionProblemHref || restrictionDocumentHrefs.includes(href)), false, excludedQuery);
+}
+
+for (const query of ["оспорить отцовство", "биологический отец оспорить запись", "оспорить отцовство после смерти"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(paternityContestProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === paternityProblemHref || paternityDocumentHrefs.includes(href)), false, query);
 }
 
 console.log("content-reset tests passed");

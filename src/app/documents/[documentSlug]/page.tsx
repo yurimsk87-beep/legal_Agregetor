@@ -10,6 +10,7 @@ import { ChildSupportDocumentHelper } from "@/components/documents/ChildSupportD
 import { ParentalRightsDeprivationDocumentHelper } from "@/components/documents/ParentalRightsDeprivationDocumentHelper";
 import { ParentalRightsRestrictionDocumentHelper } from "@/components/documents/ParentalRightsRestrictionDocumentHelper";
 import { PaternityEstablishmentDocumentHelper } from "@/components/documents/PaternityEstablishmentDocumentHelper";
+import { PaternityContestDocumentHelper } from "@/components/documents/PaternityContestDocumentHelper";
 import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
@@ -43,6 +44,9 @@ import type { ParentalRightsRestrictionScenario } from "@/data/parental-rights-r
 import { getPaternityEstablishmentRules, PATERNITY_ESTABLISHMENT_REVIEWED_AT } from "@/data/paternity-establishment-legal-review";
 import { getPaternityEstablishmentScenarioByDocumentSlug, PATERNITY_ESTABLISHMENT_ROUTE } from "@/data/paternity-establishment-route";
 import type { PaternityEstablishmentScenario } from "@/data/paternity-establishment-route";
+import { getPaternityContestRules, PATERNITY_CONTEST_REVIEWED_AT } from "@/data/paternity-contest-legal-review";
+import { getPaternityContestScenarioByDocumentSlug, PATERNITY_CONTEST_ROUTE } from "@/data/paternity-contest-route";
+import type { PaternityContestScenario } from "@/data/paternity-contest-route";
 import {
   getZagsScenario,
   ZAGS_PROBLEM_ROUTE,
@@ -109,6 +113,8 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
   if (restrictionScenario) return <ParentalRightsRestrictionDocumentPage document={document} scenario={restrictionScenario} />;
   const paternityScenario = getPaternityEstablishmentScenarioByDocumentSlug(document.slug);
   if (paternityScenario) return <PaternityEstablishmentDocumentPage document={document} scenario={paternityScenario} />;
+  const paternityContestScenario = getPaternityContestScenarioByDocumentSlug(document.slug);
+  if (paternityContestScenario) return <PaternityContestDocumentPage document={document} scenario={paternityContestScenario} />;
   if (document.slug !== ZAGS_PROBLEM_ROUTE.documentSlug) notFound();
 
   const resolvedSearchParams = searchParams ? await searchParams : {};
@@ -169,6 +175,23 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
       </article>
     </>
   );
+}
+
+function PaternityContestDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: PaternityContestScenario }) {
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }];
+  return <>
+    <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+    <Breadcrumbs items={breadcrumbs} />
+    <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить ситуацию</a></header>
+      <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
+      <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+      <div className="mt-7"><PaternityContestDocumentHelper scenarioKey={scenario.key} /></div>
+      <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getPaternityContestRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PATERNITY_CONTEST_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+      <Link href={`/problems/semya-i-deti/${PATERNITY_CONTEST_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link>
+    </article>
+  </>;
 }
 
 function PaternityEstablishmentDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: PaternityEstablishmentScenario }) {
