@@ -635,11 +635,11 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   // Точное совпадение названия — сильный прямой сигнал, домен-конфликт не применяем.
   if (result.normalizedTitle === normalizedQuery) return false;
 
+  if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
   if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
-
-  if (isUnsupportedChildRouteQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
   if (isGuardianshipRouteResult(result.href) && isExcludedGuardianshipQuery(normalizedQuery)) return true;
   if (isGuardianshipRouteResult(result.href) && isChildGuardianshipQuery(normalizedQuery)) return false;
@@ -659,6 +659,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isAdoptionRouteResult(result.href)) return true;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href)) return true;
+  if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
+  if (isChildNameRouteResult(result.href)) return true;
 
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
@@ -739,6 +741,11 @@ function isExcludedGuardianshipQuery(normalizedQuery: string) {
     "место жительства ребенка",
     "порядок общения",
     "алимент",
+    "сменить имя ребенку",
+    "сменить имя подростк",
+    "сменить фамилию ребенку",
+    "изменить отчество ребенку",
+    "перемена имени несовершеннолет",
     "эмансип",
     "совершеннолет",
     "опека над взросл"
@@ -763,13 +770,6 @@ function isChildGuardianshipQuery(normalizedQuery: string) {
     "номинальный счет опекуна",
     "орган опеки отказал",
     "орган опеки не отвечает"
-  ].some((marker) => normalizedQuery.includes(marker));
-}
-
-function isUnsupportedChildRouteQuery(normalizedQuery: string) {
-  return [
-    "сменить имя ребенку",
-    "сменить фамилию ребенку"
   ].some((marker) => normalizedQuery.includes(marker));
 }
 
@@ -993,8 +993,23 @@ function isChildTravelQuery(normalizedQuery: string) {
   return ["выезд ребенка", "ребенок едет за границу", "ребенок летит", "согласие на выезд ребенка", "несогласие на выезд ребенка", "запрет на выезд ребенка", "документы ребенку для въезда"].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isChildNameRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/imya-familiya-otchestvo-rebenka/") || [
+    "/documents/izmenenie-imeni-ili-familii-rebenka-do-14-let/",
+    "/documents/izmenenie-familii-rebenka-pri-razdelnom-prozhivanii/",
+    "/documents/peremena-imeni-rebenkom-ot-14-do-18-let/",
+    "/documents/izmenenie-otchestva-rebenka-do-14-let/"
+  ].some((path) => href.includes(path));
+}
+
+function isChildNameQuery(normalizedQuery: string) {
+  return ["сменить имя ребенку", "сменить фамилию ребенку", "сменить имя подростк", "изменить отчество ребенку", "перемена имени несовершеннолет", "имя фамилия отчество ребенка"].some((marker) => normalizedQuery.includes(marker));
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isChildNameQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/imya-familiya-otchestvo-rebenka/")) return 1340;
+  if (isChildNameQuery(normalizedQuery) && isChildNameRouteResult(href)) return 1320;
   if (isChildTravelQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/vyezd-rebenka-za-granitsu/")) return 1300;
   if (isChildTravelQuery(normalizedQuery) && isChildTravelRouteResult(href)) return 1280;
   if (isAdoptionQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/usynovlenie-rebenka/")) return 1260;

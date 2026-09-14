@@ -92,7 +92,15 @@ const childTravelDocuments = [
   "/documents/dokumenty-dlya-vyezda-rebenka-v-inostrannoe-gosudarstvo/"
 ];
 const childTravelContent = [childTravelProblem, ...childTravelDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent];
+const childNameProblem = "/problems/semya-i-deti/imya-familiya-otchestvo-rebenka/";
+const childNameDocuments = [
+  "/documents/izmenenie-imeni-ili-familii-rebenka-do-14-let/",
+  "/documents/izmenenie-familii-rebenka-pri-razdelnom-prozhivanii/",
+  "/documents/peremena-imeni-rebenkom-ot-14-do-18-let/",
+  "/documents/izmenenie-otchestva-rebenka-do-14-let/"
+];
+const childNameContent = [childNameProblem, ...childNameDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -169,6 +177,10 @@ const queries = [
   { query: "согласие на выезд ребёнка с бабушкой", expected: [childTravelProblem, childTravelDocuments[1]], forbidden: guardianshipContent },
   { query: "несогласие на выезд ребёнка", expected: [childTravelProblem, childTravelDocuments[2]], forbidden: parentsChildContent },
   { query: "документы ребёнку для въезда в иностранное государство", expected: [childTravelProblem, childTravelDocuments[3]], forbidden: adoptionContent },
+  { query: "сменить имя ребёнку до 14 лет", expected: [childNameProblem, childNameDocuments[0]], forbidden: [...guardianshipContent, allowedProblem, allowedDocument] },
+  { query: "сменить фамилию ребёнку без согласия отца", expected: [childNameProblem, childNameDocuments[1]], forbidden: [...guardianshipContent, ...parentsChildContent] },
+  { query: "сменить имя подростку в 15 лет", expected: [childNameProblem, childNameDocuments[2]], forbidden: [allowedProblem, allowedDocument] },
+  { query: "изменить отчество ребёнку", expected: [childNameProblem, childNameDocuments[3]], forbidden: [...guardianshipContent, allowedProblem, allowedDocument] },
   { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: parentsChildContent }
 ];
 
