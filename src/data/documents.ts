@@ -10,6 +10,7 @@ import { PATERNITY_CONTEST_DOCUMENTS } from "@/data/paternity-contest-documents"
 import { ADOPTION_DOCUMENTS } from "@/data/adoption-documents";
 import { CHILD_TRAVEL_DOCUMENTS } from "@/data/child-travel-documents";
 import { CHILD_NAME_DOCUMENTS } from "@/data/child-name-documents";
+import { PARENTAL_RIGHTS_RESTORATION_DOCUMENTS } from "@/data/parental-rights-restoration-documents";
 
 export type DocumentFaqItem = {
   question: string;
@@ -279,7 +280,8 @@ export const navigatorDocuments: NavigatorDocument[] = [
 ...PATERNITY_CONTEST_DOCUMENTS,
 ...ADOPTION_DOCUMENTS,
 ...CHILD_TRAVEL_DOCUMENTS,
-...CHILD_NAME_DOCUMENTS
+...CHILD_NAME_DOCUMENTS,
+...PARENTAL_RIGHTS_RESTORATION_DOCUMENTS
 ];
 
 export function getNavigatorDocument(slug: string) {

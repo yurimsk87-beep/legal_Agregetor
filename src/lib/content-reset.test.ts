@@ -85,6 +85,12 @@ const childNameDocumentHrefs = [
   "/documents/peremena-imeni-rebenkom-ot-14-do-18-let/",
   "/documents/izmenenie-otchestva-rebenka-do-14-let/"
 ];
+const restorationProblemHref = "/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/";
+const restorationDocumentHrefs = [
+  "/documents/isk-o-vosstanovlenii-v-roditelskih-pravah/",
+  "/documents/vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka/",
+  "/documents/proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav/"
+];
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -100,7 +106,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "osparivanie-otcovstva" },
     { categorySlug: "semya-i-deti", slug: "usynovlenie-rebenka" },
     { categorySlug: "semya-i-deti", slug: "vyezd-rebenka-za-granitsu" },
-    { categorySlug: "semya-i-deti", slug: "imya-familiya-otchestvo-rebenka" }
+    { categorySlug: "semya-i-deti", slug: "imya-familiya-otchestvo-rebenka" },
+    { categorySlug: "semya-i-deti", slug: "vosstanovlenie-v-roditelskih-pravah" }
   ]
 );
 assert.deepEqual(
@@ -151,7 +158,10 @@ assert.deepEqual(
     "izmenenie-imeni-ili-familii-rebenka-do-14-let",
     "izmenenie-familii-rebenka-pri-razdelnom-prozhivanii",
     "peremena-imeni-rebenkom-ot-14-do-18-let",
-    "izmenenie-otchestva-rebenka-do-14-let"
+    "izmenenie-otchestva-rebenka-do-14-let",
+    "isk-o-vosstanovlenii-v-roditelskih-pravah",
+    "vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka",
+    "proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -185,6 +195,8 @@ assert.ok(indexedContentHrefs.includes(childTravelProblemHref));
 for (const href of childTravelDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(childNameProblemHref));
 for (const href of childNameDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(restorationProblemHref));
+for (const href of restorationDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -211,6 +223,8 @@ assert.equal(
       || childTravelDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === childNameProblemHref
       || childNameDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === restorationProblemHref
+      || restorationDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );
@@ -355,6 +369,12 @@ for (const query of ["сменить имя ребёнку до 14 лет", "с�
   const hrefs = searchSite(query).map(({ href }) => href);
   assert.equal(hrefs.includes(childNameProblemHref), true, query);
   assert.equal(hrefs.some((href) => href === guardianshipProblemHref || guardianshipDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["восстановить родительские права после лишения", "восстановить права и вернуть ребёнка", "ребёнок против восстановления родительских прав", "ребёнок усыновлён можно восстановить родительские права"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(restorationProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === deprivationProblemHref || deprivationDocumentHrefs.includes(href) || href === restrictionProblemHref || restrictionDocumentHrefs.includes(href)), false, query);
 }
 
 console.log("content-reset tests passed");

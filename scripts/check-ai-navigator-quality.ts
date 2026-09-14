@@ -100,7 +100,14 @@ const childNameDocuments = [
   "/documents/izmenenie-otchestva-rebenka-do-14-let/"
 ];
 const childNameContent = [childNameProblem, ...childNameDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent];
+const restorationProblem = "/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/";
+const restorationDocuments = [
+  "/documents/isk-o-vosstanovlenii-v-roditelskih-pravah/",
+  "/documents/vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka/",
+  "/documents/proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav/"
+];
+const restorationContent = [restorationProblem, ...restorationDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -157,7 +164,10 @@ const queries = [
   { query: "ограничить родительские права из-за опасного поведения", expected: [restrictionProblem, restrictionDocuments[1], restrictionDocuments[2]], forbidden: deprivationContent },
   { query: "иск об ограничении родительских прав", expected: [restrictionProblem, restrictionDocuments[2]], forbidden: deprivationContent },
   { query: "лишить мать родительских прав", expected: [deprivationProblem, deprivationDocuments[1]], forbidden: restrictionContent },
-  { query: "восстановить родительские права после лишения", expected: [], forbidden: [...deprivationContent, ...restrictionContent] },
+  { query: "восстановить родительские права после лишения", expected: [restorationProblem, restorationDocuments[0]], forbidden: [...deprivationContent, ...restrictionContent] },
+  { query: "восстановить права и вернуть ребёнка", expected: [restorationProblem, restorationDocuments[1]], forbidden: deprivationContent },
+  { query: "ребёнок против восстановления родительских прав", expected: [restorationProblem, restorationDocuments[2]], forbidden: restrictionContent },
+  { query: "ребёнок усыновлён можно восстановить родительские права", expected: [restorationProblem, restorationDocuments[2]], forbidden: adoptionContent },
   { query: "отменить ограничение родительских прав", expected: [], forbidden: restrictionContent },
   { query: "установить отцовство через загс", expected: [paternityProblem, paternityDocuments[0]] },
   { query: "иск об установлении отцовства", expected: [paternityProblem, paternityDocuments[1]] },

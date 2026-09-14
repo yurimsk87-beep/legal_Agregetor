@@ -635,10 +635,12 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   // Точное совпадение названия — сильный прямой сигнал, домен-конфликт не применяем.
   if (result.normalizedTitle === normalizedQuery) return false;
 
+  if (isParentalRightsRestorationRouteResult(result.href) && isParentalRightsRestorationQuery(normalizedQuery)) return false;
   if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
   if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
+  if (isParentalRightsRestorationQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
   if (isGuardianshipRouteResult(result.href) && isExcludedGuardianshipQuery(normalizedQuery)) return true;
@@ -651,6 +653,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalRightsDeprivationRouteResult(result.href) && isParentalRightsDeprivationQuery(normalizedQuery)) return false;
   if (isParentalRightsRestrictionRouteResult(result.href) && isExcludedParentalRightsRestrictionQuery(normalizedQuery)) return true;
   if (isParentalRightsRestrictionRouteResult(result.href) && isParentalRightsRestrictionQuery(normalizedQuery)) return false;
+  if (isParentalRightsRestorationRouteResult(result.href) && isParentalRightsRestorationQuery(normalizedQuery)) return false;
+  if (isParentalRightsRestorationRouteResult(result.href)) return true;
   if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
   if (isPaternityEstablishmentRouteResult(result.href)) return true;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
@@ -938,6 +942,18 @@ function isParentalRightsRestrictionQuery(normalizedQuery: string) {
   return !isExcludedParentalRightsRestrictionQuery(normalizedQuery);
 }
 
+function isParentalRightsRestorationRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/") || [
+    "/documents/isk-o-vosstanovlenii-v-roditelskih-pravah/",
+    "/documents/vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka/",
+    "/documents/proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav/"
+  ].some((path) => href.includes(path));
+}
+
+function isParentalRightsRestorationQuery(normalizedQuery: string) {
+  return ["восстановить родитель", "восстановление родитель", "восстановить права и вернуть ребенка", "вернуть ребенка после лишения", "ребенок против восстановления", "ребенок усыновлен восстановление"].some((marker) => normalizedQuery.includes(marker));
+}
+
 function isPaternityEstablishmentRouteResult(href: string) {
   return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
     "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
@@ -1008,6 +1024,8 @@ function isChildNameQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isParentalRightsRestorationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/")) return 1380;
+  if (isParentalRightsRestorationQuery(normalizedQuery) && isParentalRightsRestorationRouteResult(href)) return 1360;
   if (isChildNameQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/imya-familiya-otchestvo-rebenka/")) return 1340;
   if (isChildNameQuery(normalizedQuery) && isChildNameRouteResult(href)) return 1320;
   if (isChildTravelQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/vyezd-rebenka-za-granitsu/")) return 1300;
