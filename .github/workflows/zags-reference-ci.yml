@@ -94,6 +94,8 @@ jobs:
         run: npm run test:e2e:child-name
       - name: Run parental rights restoration route acceptance
         run: npm run test:e2e:parental-rights-restoration
+      - name: Run parental rights restriction cancellation route acceptance
+        run: npm run test:e2e:parental-rights-restriction-cancellation
       - name: Confirm withdrawn review PDF was deleted
         run: test -z "$(find "$LEAD_ATTACHMENT_STORAGE_ROOT" -type f -name '*.pdf' -print -quit 2>/dev/null)"
       - name: Generate and inspect guardianship PDFs
@@ -136,6 +138,8 @@ jobs:
         run: npm run audit:child-name-pdf
       - name: Generate and inspect parental rights restoration PDF and DOCX
         run: npm run audit:parental-rights-restoration-pdf
+      - name: Generate and inspect parental rights restriction cancellation PDF and DOCX
+        run: npm run audit:parental-rights-restriction-cancellation-pdf
       - name: Upload PDF and browser acceptance artifacts
         if: always()
         uses: actions/upload-artifact@v4

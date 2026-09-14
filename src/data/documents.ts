@@ -11,6 +11,7 @@ import { ADOPTION_DOCUMENTS } from "@/data/adoption-documents";
 import { CHILD_TRAVEL_DOCUMENTS } from "@/data/child-travel-documents";
 import { CHILD_NAME_DOCUMENTS } from "@/data/child-name-documents";
 import { PARENTAL_RIGHTS_RESTORATION_DOCUMENTS } from "@/data/parental-rights-restoration-documents";
+import { PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_DOCUMENTS } from "@/data/parental-rights-restriction-cancellation-documents";
 
 export type DocumentFaqItem = {
   question: string;
@@ -281,7 +282,8 @@ export const navigatorDocuments: NavigatorDocument[] = [
 ...ADOPTION_DOCUMENTS,
 ...CHILD_TRAVEL_DOCUMENTS,
 ...CHILD_NAME_DOCUMENTS,
-...PARENTAL_RIGHTS_RESTORATION_DOCUMENTS
+...PARENTAL_RIGHTS_RESTORATION_DOCUMENTS,
+...PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_DOCUMENTS
 ];
 
 export function getNavigatorDocument(slug: string) {

@@ -91,6 +91,12 @@ const restorationDocumentHrefs = [
   "/documents/vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka/",
   "/documents/proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav/"
 ];
+const restrictionCancellationProblemHref = "/problems/semya-i-deti/otmena-ogranicheniya-roditelskih-prav/";
+const restrictionCancellationDocumentHrefs = [
+  "/documents/isk-ob-otmene-ogranicheniya-roditelskih-prav/",
+  "/documents/otmena-ogranicheniya-roditelskih-prav-i-vozvrat-rebenka/",
+  "/documents/proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav/"
+];
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -107,7 +113,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "usynovlenie-rebenka" },
     { categorySlug: "semya-i-deti", slug: "vyezd-rebenka-za-granitsu" },
     { categorySlug: "semya-i-deti", slug: "imya-familiya-otchestvo-rebenka" },
-    { categorySlug: "semya-i-deti", slug: "vosstanovlenie-v-roditelskih-pravah" }
+    { categorySlug: "semya-i-deti", slug: "vosstanovlenie-v-roditelskih-pravah" },
+    { categorySlug: "semya-i-deti", slug: "otmena-ogranicheniya-roditelskih-prav" }
   ]
 );
 assert.deepEqual(
@@ -161,7 +168,10 @@ assert.deepEqual(
     "izmenenie-otchestva-rebenka-do-14-let",
     "isk-o-vosstanovlenii-v-roditelskih-pravah",
     "vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka",
-    "proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav"
+    "proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav",
+    "isk-ob-otmene-ogranicheniya-roditelskih-prav",
+    "otmena-ogranicheniya-roditelskih-prav-i-vozvrat-rebenka",
+    "proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -197,6 +207,8 @@ assert.ok(indexedContentHrefs.includes(childNameProblemHref));
 for (const href of childNameDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(restorationProblemHref));
 for (const href of restorationDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(restrictionCancellationProblemHref));
+for (const href of restrictionCancellationDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -225,6 +237,8 @@ assert.equal(
       || childNameDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === restorationProblemHref
       || restorationDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === restrictionCancellationProblemHref
+      || restrictionCancellationDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );
@@ -375,6 +389,12 @@ for (const query of ["восстановить родительские прав
   const hrefs = searchSite(query).map(({ href }) => href);
   assert.equal(hrefs.includes(restorationProblemHref), true, query);
   assert.equal(hrefs.some((href) => href === deprivationProblemHref || deprivationDocumentHrefs.includes(href) || href === restrictionProblemHref || restrictionDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["отменить ограничение родительских прав", "отменить ограничение и вернуть ребёнка", "основания ограничения отпали", "ребёнок против отмены ограничения"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(restrictionCancellationProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === restrictionProblemHref || restrictionDocumentHrefs.includes(href) || href === restorationProblemHref || restorationDocumentHrefs.includes(href)), false, query);
 }
 
 console.log("content-reset tests passed");
