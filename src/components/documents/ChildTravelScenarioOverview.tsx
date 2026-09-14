@@ -1,0 +1,4 @@
+import Link from "next/link";
+import { CHILD_TRAVEL_SCENARIOS } from "@/data/child-travel-route";
+
+export function ChildTravelScenarioOverview({ basePath }: { basePath: string }) { return <section className="mt-9 border-t border-line pt-7"><h2 className="text-2xl font-semibold text-ink">Четыре самостоятельные ситуации</h2><div className="mt-5 grid gap-5">{Object.values(CHILD_TRAVEL_SCENARIOS).map((scenario) => <article key={scenario.key} className="border-l-4 border-line pl-4"><h3 className="text-lg font-semibold text-ink">{scenario.title}</h3><p className="mt-2 text-sm leading-6 text-zinc-700">{scenario.description.join(" ")}</p><Link href={`${basePath}?scenario=${scenario.key}`} className="mt-3 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Открыть сценарий</Link></article>)}</div></section>; }

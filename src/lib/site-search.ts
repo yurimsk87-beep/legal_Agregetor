@@ -635,6 +635,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   // Точное совпадение названия — сильный прямой сигнал, домен-конфликт не применяем.
   if (result.normalizedTitle === normalizedQuery) return false;
 
+  if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
   if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
 
@@ -656,6 +657,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isPaternityContestRouteResult(result.href)) return true;
   if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
   if (isAdoptionRouteResult(result.href)) return true;
+  if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
+  if (isChildTravelRouteResult(result.href)) return true;
 
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
@@ -729,6 +732,9 @@ function isExcludedGuardianshipQuery(normalizedQuery: string) {
     ((normalizedQuery.includes("лишен") || normalizedQuery.includes("лишит")) && normalizedQuery.includes("родитель")) || [
     "усынов",
     "удочер",
+    "за границ",
+    "согласие на выезд",
+    "несогласие на выезд",
     "ограничен родитель",
     "место жительства ребенка",
     "порядок общения",
@@ -762,7 +768,6 @@ function isChildGuardianshipQuery(normalizedQuery: string) {
 
 function isUnsupportedChildRouteQuery(normalizedQuery: string) {
   return [
-    "выезд ребенка за границу",
     "сменить имя ребенку",
     "сменить фамилию ребенку"
   ].some((marker) => normalizedQuery.includes(marker));
@@ -790,6 +795,10 @@ function isExcludedParentsChildQuery(normalizedQuery: string) {
     "удочер",
     "оформить опеку",
     "выезд ребенка за границу",
+    "за границ",
+    "согласие на выезд",
+    "несогласие на выезд",
+    "документы ребенку для въезда",
     "сменить имя ребенку",
     "сменить фамилию ребенку"
   ].some((marker) => normalizedQuery.includes(marker));
@@ -971,8 +980,23 @@ function isAdoptionQuery(normalizedQuery: string) {
   return ["усынов", "удочер", "стать усыновителем"].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isChildTravelRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/vyezd-rebenka-za-granitsu/") || [
+    "/documents/vyezd-rebenka-s-odnim-roditelem/",
+    "/documents/soglasie-na-vyezd-rebenka-bez-roditeley/",
+    "/documents/spor-o-vyezde-rebenka-za-granitsu/",
+    "/documents/dokumenty-dlya-vyezda-rebenka-v-inostrannoe-gosudarstvo/"
+  ].some((path) => href.includes(path));
+}
+
+function isChildTravelQuery(normalizedQuery: string) {
+  return ["выезд ребенка", "ребенок едет за границу", "ребенок летит", "согласие на выезд ребенка", "несогласие на выезд ребенка", "запрет на выезд ребенка", "документы ребенку для въезда"].some((marker) => normalizedQuery.includes(marker));
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isChildTravelQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/vyezd-rebenka-za-granitsu/")) return 1300;
+  if (isChildTravelQuery(normalizedQuery) && isChildTravelRouteResult(href)) return 1280;
   if (isAdoptionQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/usynovlenie-rebenka/")) return 1260;
   if (isAdoptionQuery(normalizedQuery) && isAdoptionRouteResult(href)) return 1240;
   if (isPaternityContestQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/osparivanie-otcovstva/")) return 1220;

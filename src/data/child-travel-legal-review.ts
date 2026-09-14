@@ -1,0 +1,23 @@
+import type { ChildTravelScenarioKey } from "@/data/child-travel-route";
+
+export const CHILD_TRAVEL_REVIEWED_AT = "2026-09-14";
+export type ChildTravelLegalPath = "russian-exit" | "notarial" | "court" | "foreign" | "assessment";
+export type ChildTravelRule = { id: string; statement: string; norm: string; officialSource: string; url: string; checkedAt: string; scope: string; scenarios: ChildTravelScenarioKey[]; legalPaths: ChildTravelLegalPath[]; limitations: string };
+const law20 = "https://www.consultant.ru/document/cons_doc_LAW_11376/2ad00689ff23161423ed3c302e76cdf47f08f1a5/";
+const law21 = "https://www.consultant.ru/document/cons_doc_LAW_11376/898b9f0e78f49454e56524e50fc26d272bdabed3/";
+const order651 = "https://publication.pravo.gov.ru/document/0001202110060042";
+const order160 = "https://publication.pravo.gov.ru/document/0001202405140051";
+const consular = "https://www.kdmid.ru/cons/notary/certification-of-consent-to-the-departure-of-a-minor-citizen-of-the-Russian-Federation/";
+const gpk = "https://www.consultant.ru/document/cons_doc_LAW_39570/";
+const fallback = "КонсультантПлюс, резервная действующая редакция; консолидированный текст на официальном портале не был доступен при проверке 14.09.2026";
+
+export const CHILD_TRAVEL_RULES: ChildTravelRule[] = [
+  { id: "114-fz-20-parent", statement: "Несовершеннолетний гражданин России может выехать с одним законным представителем, если другим не подано заявление о несогласии.", norm: "Часть 1 статьи 20 Федерального закона № 114-ФЗ", officialSource: fallback, url: law20, checkedAt: CHILD_TRAVEL_REVIEWED_AT, scope: "Выезд из Российской Федерации с законным представителем.", scenarios: ["with-parent"], legalPaths: ["russian-exit", "assessment"], limitations: "Не определяет правила въезда, транзита и перевозчика." },
+  { id: "114-fz-20-alone", statement: "При выезде без законных представителей ребёнку требуется документ для пересечения границы и нотариально оформленное согласие одного законного представителя.", norm: "Часть 1 статьи 20 Федерального закона № 114-ФЗ", officialSource: fallback, url: law20, checkedAt: CHILD_TRAVEL_REVIEWED_AT, scope: "Выезд российского несовершеннолетнего без законных представителей.", scenarios: ["without-parents"], legalPaths: ["notarial", "assessment"], limitations: "Лист данных ПравоПоиска не заменяет нотариальное согласие." },
+  { id: "114-fz-21", statement: "Несогласие может содержать срок и государства; заявитель может отозвать его, а сохраняющийся спор разрешается судом.", norm: "Статья 21 Федерального закона № 114-ФЗ", officialSource: fallback, url: law21, checkedAt: CHILD_TRAVEL_REVIEWED_AT, scope: "Заявление о несогласии и спор о возможности выезда.", scenarios: ["with-parent", "without-parents", "disagreement"], legalPaths: ["court", "assessment", "russian-exit", "notarial"], limitations: "Объём запрета и применимость исключения проверяются по конкретному заявлению." },
+  { id: "mvd-651", statement: "Порядок подачи, отзыва, приёма и учёта заявлений о несогласии утверждён МВД России.", norm: "Приказ МВД России от 31.08.2021 № 651 с изменениями", officialSource: "Официальный интернет-портал правовой информации", url: order651, checkedAt: CHILD_TRAVEL_REVIEWED_AT, scope: "Административный порядок работы с несогласием.", scenarios: ["disagreement"], legalPaths: ["court", "assessment"], limitations: `Изменения 2024 года проверяются отдельно: ${order160}` },
+  { id: "gpk-court", statement: "Судебное обращение должно соответствовать общим требованиям к иску и приложениям.", norm: "Статьи 131–132 ГПК РФ", officialSource: fallback, url: gpk, checkedAt: CHILD_TRAVEL_REVIEWED_AT, scope: "Только подготовка судебного спора.", scenarios: ["disagreement"], legalPaths: ["court"], limitations: "Помощник не определяет автоматически подсудность, формулировку требований и пошлину." },
+  { id: "kdmid-foreign", statement: "Иностранное государство может требовать согласие обоих родителей или иные документы; форму следует уточнять у его компетентных органов.", norm: "Официальное разъяснение Консульского департамента МИД России", officialSource: "Консульский департамент МИД России", url: consular, checkedAt: CHILD_TRAVEL_REVIEWED_AT, scope: "Проверка требований государства въезда и нотариального согласия.", scenarios: ["with-parent", "without-parents", "foreign-requirements"], legalPaths: ["foreign", "notarial", "russian-exit"], limitations: "Разъяснение не устанавливает право конкретного иностранного государства." }
+];
+
+export function getChildTravelRules(scenario: ChildTravelScenarioKey, legalPath?: ChildTravelLegalPath) { return CHILD_TRAVEL_RULES.filter((rule) => rule.scenarios.includes(scenario) && (!legalPath || rule.legalPaths.includes(legalPath))); }

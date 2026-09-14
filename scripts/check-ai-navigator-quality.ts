@@ -84,7 +84,15 @@ const adoptionDocuments = [
   "/documents/mezhdunarodnoe-usynovlenie-proverka/"
 ];
 const adoptionContent = [adoptionProblem, ...adoptionDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent];
+const childTravelProblem = "/problems/semya-i-deti/vyezd-rebenka-za-granitsu/";
+const childTravelDocuments = [
+  "/documents/vyezd-rebenka-s-odnim-roditelem/",
+  "/documents/soglasie-na-vyezd-rebenka-bez-roditeley/",
+  "/documents/spor-o-vyezde-rebenka-za-granitsu/",
+  "/documents/dokumenty-dlya-vyezda-rebenka-v-inostrannoe-gosudarstvo/"
+];
+const childTravelContent = [childTravelProblem, ...childTravelDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -157,6 +165,10 @@ const queries = [
   { query: "как усыновить ребёнка в россии", expected: [adoptionProblem, adoptionDocuments[1]], forbidden: guardianshipContent },
   { query: "усыновление без согласия отца", expected: [adoptionProblem, adoptionDocuments[2]], forbidden: guardianshipContent },
   { query: "международное усыновление", expected: [adoptionProblem, adoptionDocuments[3]], forbidden: guardianshipContent },
+  { query: "ребёнок едет за границу с одним родителем", expected: [childTravelProblem, childTravelDocuments[0]], forbidden: parentsChildContent },
+  { query: "согласие на выезд ребёнка с бабушкой", expected: [childTravelProblem, childTravelDocuments[1]], forbidden: guardianshipContent },
+  { query: "несогласие на выезд ребёнка", expected: [childTravelProblem, childTravelDocuments[2]], forbidden: parentsChildContent },
+  { query: "документы ребёнку для въезда в иностранное государство", expected: [childTravelProblem, childTravelDocuments[3]], forbidden: adoptionContent },
   { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: parentsChildContent }
 ];
 
