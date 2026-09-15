@@ -640,6 +640,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalDisagreementsRouteResult(result.href) && isParentalDisagreementsQuery(normalizedQuery)) return false;
   if (isAdditionalChildExpensesRouteResult(result.href) && isAdditionalChildExpensesQuery(normalizedQuery)) return false;
   if (isSpousalSupportRouteResult(result.href) && isSpousalSupportQuery(normalizedQuery)) return false;
+  if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
   if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
   if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
@@ -649,6 +650,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalDisagreementsQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isAdditionalChildExpensesQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isSpousalSupportQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isPrenuptialAgreementQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
   if (isGuardianshipRouteResult(result.href) && isExcludedGuardianshipQuery(normalizedQuery)) return true;
@@ -671,6 +673,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isAdditionalChildExpensesRouteResult(result.href)) return true;
   if (isSpousalSupportRouteResult(result.href) && isSpousalSupportQuery(normalizedQuery)) return false;
   if (isSpousalSupportRouteResult(result.href)) return true;
+  if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
+  if (isPrenuptialAgreementRouteResult(result.href)) return true;
   if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
   if (isPaternityEstablishmentRouteResult(result.href)) return true;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
@@ -1040,6 +1044,20 @@ function isSpousalSupportQuery(normalizedQuery: string) {
     || (normalizedQuery.includes("содержан") && normalizedQuery.includes("супруг"));
 }
 
+function isPrenuptialAgreementRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/brachnyy-dogovor/") || [
+    "/documents/brachnyy-dogovor-do-braka/",
+    "/documents/brachnyy-dogovor-v-brake/",
+    "/documents/izmenenie-brachnogo-dogovora/",
+    "/documents/rastorzhenie-brachnogo-dogovora/",
+    "/documents/spor-o-brachnom-dogovore/"
+  ].some((path) => href.includes(path));
+}
+
+function isPrenuptialAgreementQuery(normalizedQuery: string) {
+  return normalizedQuery.includes("брачн") && normalizedQuery.includes("договор");
+}
+
 function isPaternityEstablishmentRouteResult(href: string) {
   return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
     "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
@@ -1110,6 +1128,8 @@ function isChildNameQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isPrenuptialAgreementQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/brachnyy-dogovor/")) return 1580;
+  if (isPrenuptialAgreementQuery(normalizedQuery) && isPrenuptialAgreementRouteResult(href)) return 1560;
   if (isSpousalSupportQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/")) return 1540;
   if (isSpousalSupportQuery(normalizedQuery) && isSpousalSupportRouteResult(href)) return 1520;
   if (isAdditionalChildExpensesQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/")) return 1500;

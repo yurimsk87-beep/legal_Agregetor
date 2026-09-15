@@ -117,6 +117,14 @@ const spousalSupportDocumentHrefs = [
   "/documents/isk-o-soderzhanii-supruga-v-brake/",
   "/documents/isk-o-soderzhanii-byvshego-supruga/"
 ];
+const prenuptialAgreementProblemHref = "/problems/semya-i-deti/brachnyy-dogovor/";
+const prenuptialAgreementDocumentHrefs = [
+  "/documents/brachnyy-dogovor-do-braka/",
+  "/documents/brachnyy-dogovor-v-brake/",
+  "/documents/izmenenie-brachnogo-dogovora/",
+  "/documents/rastorzhenie-brachnogo-dogovora/",
+  "/documents/spor-o-brachnom-dogovore/"
+];
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -137,7 +145,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "otmena-ogranicheniya-roditelskih-prav" },
     { categorySlug: "semya-i-deti", slug: "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu" },
     { categorySlug: "semya-i-deti", slug: "dopolnitelnye-rashody-na-rebenka" },
-    { categorySlug: "semya-i-deti", slug: "soderzhanie-supruga-i-byvshego-supruga" }
+    { categorySlug: "semya-i-deti", slug: "soderzhanie-supruga-i-byvshego-supruga" },
+    { categorySlug: "semya-i-deti", slug: "brachnyy-dogovor" }
   ]
 );
 assert.deepEqual(
@@ -205,7 +214,12 @@ assert.deepEqual(
     "proverka-prava-na-soderzhanie-supruga",
     "soglashenie-o-soderzhanii-supruga",
     "isk-o-soderzhanii-supruga-v-brake",
-    "isk-o-soderzhanii-byvshego-supruga"
+    "isk-o-soderzhanii-byvshego-supruga",
+    "brachnyy-dogovor-do-braka",
+    "brachnyy-dogovor-v-brake",
+    "izmenenie-brachnogo-dogovora",
+    "rastorzhenie-brachnogo-dogovora",
+    "spor-o-brachnom-dogovore"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -249,6 +263,8 @@ assert.ok(indexedContentHrefs.includes(additionalChildExpensesProblemHref));
 for (const href of additionalChildExpensesDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(spousalSupportProblemHref));
 for (const href of spousalSupportDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(prenuptialAgreementProblemHref));
+for (const href of prenuptialAgreementDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -285,6 +301,8 @@ assert.equal(
       || additionalChildExpensesDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === spousalSupportProblemHref
       || spousalSupportDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === prenuptialAgreementProblemHref
+      || prenuptialAgreementDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );
