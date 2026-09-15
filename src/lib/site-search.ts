@@ -637,12 +637,14 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
 
   if (isParentalRightsRestorationRouteResult(result.href) && isParentalRightsRestorationQuery(normalizedQuery)) return false;
   if (isParentalRightsRestrictionCancellationRouteResult(result.href) && isParentalRightsRestrictionCancellationQuery(normalizedQuery)) return false;
+  if (isParentalDisagreementsRouteResult(result.href) && isParentalDisagreementsQuery(normalizedQuery)) return false;
   if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
   if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
   if (isParentalRightsRestorationQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isParentalDisagreementsQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
   if (isGuardianshipRouteResult(result.href) && isExcludedGuardianshipQuery(normalizedQuery)) return true;
@@ -659,6 +661,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalRightsRestorationRouteResult(result.href)) return true;
   if (isParentalRightsRestrictionCancellationRouteResult(result.href) && isParentalRightsRestrictionCancellationQuery(normalizedQuery)) return false;
   if (isParentalRightsRestrictionCancellationRouteResult(result.href)) return true;
+  if (isParentalDisagreementsRouteResult(result.href) && isParentalDisagreementsQuery(normalizedQuery)) return false;
+  if (isParentalDisagreementsRouteResult(result.href)) return true;
   if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
   if (isPaternityEstablishmentRouteResult(result.href)) return true;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
@@ -970,6 +974,27 @@ function isParentalRightsRestrictionCancellationQuery(normalizedQuery: string) {
   return ["отменить ограничение родитель", "отмена ограничения родитель", "снять ограничение родитель", "отменить ограничение и вернуть ребенка", "вернуть ребенка после ограничения", "основания ограничения отпали", "ребенок против отмены ограничения"].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isParentalDisagreementsRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/") || [
+    "/documents/sovmestnoe-reshenie-roditeley-po-vospitaniyu-i-obrazovaniyu/",
+    "/documents/obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley/",
+    "/documents/sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka/"
+  ].some((path) => href.includes(path));
+}
+
+function isParentalDisagreementsQuery(normalizedQuery: string) {
+  const excluded = ["место жительства ребенка", "порядок общения", "график общения", "не дает видеться"].some((marker) => normalizedQuery.includes(marker));
+  if (excluded) return false;
+  return [
+    "родители не согласны по школе",
+    "соглашение родителей о выборе школы",
+    "разногласия родителей по воспитанию",
+    "разногласия родителей по образованию",
+    "обратиться в опеку из за разногласия родителей",
+    "суд разрешить вопрос воспитания ребенка"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
 function isPaternityEstablishmentRouteResult(href: string) {
   return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
     "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
@@ -1040,6 +1065,8 @@ function isChildNameQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isParentalDisagreementsQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/")) return 1460;
+  if (isParentalDisagreementsQuery(normalizedQuery) && isParentalDisagreementsRouteResult(href)) return 1440;
   if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/otmena-ogranicheniya-roditelskih-prav/")) return 1420;
   if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && isParentalRightsRestrictionCancellationRouteResult(href)) return 1400;
   if (isParentalRightsRestorationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/")) return 1380;

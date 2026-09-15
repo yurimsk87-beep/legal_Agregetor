@@ -97,6 +97,12 @@ const restrictionCancellationDocumentHrefs = [
   "/documents/otmena-ogranicheniya-roditelskih-prav-i-vozvrat-rebenka/",
   "/documents/proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav/"
 ];
+const parentalDisagreementsProblemHref = "/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/";
+const parentalDisagreementsDocumentHrefs = [
+  "/documents/sovmestnoe-reshenie-roditeley-po-vospitaniyu-i-obrazovaniyu/",
+  "/documents/obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley/",
+  "/documents/sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka/"
+];
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -114,7 +120,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "vyezd-rebenka-za-granitsu" },
     { categorySlug: "semya-i-deti", slug: "imya-familiya-otchestvo-rebenka" },
     { categorySlug: "semya-i-deti", slug: "vosstanovlenie-v-roditelskih-pravah" },
-    { categorySlug: "semya-i-deti", slug: "otmena-ogranicheniya-roditelskih-prav" }
+    { categorySlug: "semya-i-deti", slug: "otmena-ogranicheniya-roditelskih-prav" },
+    { categorySlug: "semya-i-deti", slug: "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu" }
   ]
 );
 assert.deepEqual(
@@ -171,7 +178,10 @@ assert.deepEqual(
     "proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav",
     "isk-ob-otmene-ogranicheniya-roditelskih-prav",
     "otmena-ogranicheniya-roditelskih-prav-i-vozvrat-rebenka",
-    "proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav"
+    "proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav",
+    "sovmestnoe-reshenie-roditeley-po-vospitaniyu-i-obrazovaniyu",
+    "obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley",
+    "sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -209,6 +219,8 @@ assert.ok(indexedContentHrefs.includes(restorationProblemHref));
 for (const href of restorationDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(restrictionCancellationProblemHref));
 for (const href of restrictionCancellationDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(parentalDisagreementsProblemHref));
+for (const href of parentalDisagreementsDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -239,6 +251,8 @@ assert.equal(
       || restorationDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === restrictionCancellationProblemHref
       || restrictionCancellationDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === parentalDisagreementsProblemHref
+      || parentalDisagreementsDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );
@@ -395,6 +409,17 @@ for (const query of ["отменить ограничение родительс
   const hrefs = searchSite(query).map(({ href }) => href);
   assert.equal(hrefs.includes(restrictionCancellationProblemHref), true, query);
   assert.equal(hrefs.some((href) => href === restrictionProblemHref || restrictionDocumentHrefs.includes(href) || href === restorationProblemHref || restorationDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["родители не согласны по школе", "разногласия родителей по воспитанию", "обратиться в опеку из-за разногласия родителей", "суд разрешить вопрос воспитания ребёнка"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(parentalDisagreementsProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === parentsChildProblemHref || parentsChildDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["место жительства ребёнка", "порядок общения с ребёнком"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === parentalDisagreementsProblemHref || parentalDisagreementsDocumentHrefs.includes(href)), false, query);
 }
 
 console.log("content-reset tests passed");

@@ -1,0 +1,6 @@
+import assert from "node:assert/strict";
+import { createParentalDisagreementsDocxBlob } from "../src/lib/parental-disagreements-docx";
+import { buildParentalDisagreementsPdfText, createParentalDisagreementsPdfBlob } from "../src/lib/parental-disagreements-pdf";
+import { validateParentalDisagreements } from "../src/lib/parental-disagreements-validator";
+async function run() { const decision = validateParentalDisagreements("court", { subject: "education", subjectDetails: "Спор о выборе школы", parentsAgree: "no", childAge: "under-10", childOpinion: "yes", childOpinionDetails: "Мнение выяснено", immediateRisk: "no", parentOneData: "Иванов Иван", parentTwoData: "Иванова Анна", childData: "Иванов Пётр, 2018 года рождения", courtRegion: "region-moscow", courtName: "Тверской районный суд города Москвы", courtSource: "https://tverskoy.msk.sudrf.ru/", courtConfirmed: "yes" }); assert.equal(decision.filingReady, false); assert.equal(decision.resultKind, "courtDraft"); assert.match(buildParentalDisagreementsPdfText(decision), /Готово к подаче: нет/); const [pdf, docx] = await Promise.all([createParentalDisagreementsPdfBlob(decision), createParentalDisagreementsDocxBlob(decision.draftText)]); assert.equal(pdf.size > 1000, true); assert.equal(docx.size > 1000, true); console.log(`Parental disagreements audit passed: PDF ${pdf.size}, DOCX ${docx.size}.`); }
+void run();

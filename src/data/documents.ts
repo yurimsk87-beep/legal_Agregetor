@@ -12,6 +12,7 @@ import { CHILD_TRAVEL_DOCUMENTS } from "@/data/child-travel-documents";
 import { CHILD_NAME_DOCUMENTS } from "@/data/child-name-documents";
 import { PARENTAL_RIGHTS_RESTORATION_DOCUMENTS } from "@/data/parental-rights-restoration-documents";
 import { PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_DOCUMENTS } from "@/data/parental-rights-restriction-cancellation-documents";
+import { PARENTAL_DISAGREEMENTS_DOCUMENTS } from "@/data/parental-disagreements-documents";
 
 export type DocumentFaqItem = {
   question: string;
@@ -283,7 +284,8 @@ export const navigatorDocuments: NavigatorDocument[] = [
 ...CHILD_TRAVEL_DOCUMENTS,
 ...CHILD_NAME_DOCUMENTS,
 ...PARENTAL_RIGHTS_RESTORATION_DOCUMENTS,
-...PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_DOCUMENTS
+...PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_DOCUMENTS,
+...PARENTAL_DISAGREEMENTS_DOCUMENTS
 ];
 
 export function getNavigatorDocument(slug: string) {

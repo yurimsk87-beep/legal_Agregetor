@@ -114,7 +114,14 @@ const restrictionCancellationDocuments = [
   "/documents/proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav/"
 ];
 const restrictionCancellationContent = [restrictionCancellationProblem, ...restrictionCancellationDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent];
+const parentalDisagreementsProblem = "/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/";
+const parentalDisagreementsDocuments = [
+  "/documents/sovmestnoe-reshenie-roditeley-po-vospitaniyu-i-obrazovaniyu/",
+  "/documents/obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley/",
+  "/documents/sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka/"
+];
+const parentalDisagreementsContent = [parentalDisagreementsProblem, ...parentalDisagreementsDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -153,7 +160,7 @@ const queries = [
   { query: "Хотим договориться о порядке общения", expected: [parentsChildProblem, parentsChildDocuments[1]] },
   { query: "изменить график общения с ребёнком", expected: [parentsChildProblem, parentsChildDocuments[2]] },
   { query: "Есть решение суда, но ребёнка всё равно не дают видеть", expected: [parentsChildProblem, parentsChildDocuments[3]] },
-  { query: "Как определить место жительства ребёнка", expected: [parentsChildProblem, parentsChildDocuments[0]] },
+  { query: "Как определить место жительства ребёнка", expected: [parentsChildProblem, parentsChildDocuments[0]], forbidden: parentalDisagreementsContent },
   { query: "взыскать алименты на ребёнка", expected: [childSupportProblem, childSupportDocuments[1]], forbidden: parentsChildContent },
   { query: "соглашение об алиментах на ребёнка", expected: [childSupportProblem, childSupportDocuments[0]] },
   { query: "алименты в твёрдой сумме на ребёнка", expected: [childSupportProblem, childSupportDocuments[1]] },
@@ -179,6 +186,10 @@ const queries = [
   { query: "отменить ограничение и вернуть ребёнка", expected: [restrictionCancellationProblem, restrictionCancellationDocuments[1]], forbidden: restorationContent },
   { query: "основания ограничения отпали", expected: [restrictionCancellationProblem, restrictionCancellationDocuments[2]], forbidden: restrictionContent },
   { query: "ребёнок против отмены ограничения", expected: [restrictionCancellationProblem, restrictionCancellationDocuments[2]], forbidden: restorationContent },
+  { query: "соглашение родителей о выборе школы", expected: [parentalDisagreementsProblem, parentalDisagreementsDocuments[0]], forbidden: parentsChildContent },
+  { query: "родители не согласны по школе орган опеки", expected: [parentalDisagreementsProblem, parentalDisagreementsDocuments[1]], forbidden: parentsChildContent },
+  { query: "обратиться в опеку из-за разногласия родителей", expected: [parentalDisagreementsProblem, parentalDisagreementsDocuments[1]], forbidden: guardianshipContent },
+  { query: "суд разрешить вопрос воспитания ребёнка", expected: [parentalDisagreementsProblem, parentalDisagreementsDocuments[2]], forbidden: parentsChildContent },
   { query: "установить отцовство через загс", expected: [paternityProblem, paternityDocuments[0]] },
   { query: "иск об установлении отцовства", expected: [paternityProblem, paternityDocuments[1]] },
   { query: "установить отцовство после смерти отца", expected: [paternityProblem, paternityDocuments[2]] },
