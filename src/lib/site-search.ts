@@ -638,6 +638,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalRightsRestorationRouteResult(result.href) && isParentalRightsRestorationQuery(normalizedQuery)) return false;
   if (isParentalRightsRestrictionCancellationRouteResult(result.href) && isParentalRightsRestrictionCancellationQuery(normalizedQuery)) return false;
   if (isParentalDisagreementsRouteResult(result.href) && isParentalDisagreementsQuery(normalizedQuery)) return false;
+  if (isAdditionalChildExpensesRouteResult(result.href) && isAdditionalChildExpensesQuery(normalizedQuery)) return false;
   if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
   if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
@@ -645,6 +646,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalRightsRestorationQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isParentalDisagreementsQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isAdditionalChildExpensesQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
   if (isGuardianshipRouteResult(result.href) && isExcludedGuardianshipQuery(normalizedQuery)) return true;
@@ -663,6 +665,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalRightsRestrictionCancellationRouteResult(result.href)) return true;
   if (isParentalDisagreementsRouteResult(result.href) && isParentalDisagreementsQuery(normalizedQuery)) return false;
   if (isParentalDisagreementsRouteResult(result.href)) return true;
+  if (isAdditionalChildExpensesRouteResult(result.href) && isAdditionalChildExpensesQuery(normalizedQuery)) return false;
+  if (isAdditionalChildExpensesRouteResult(result.href)) return true;
   if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
   if (isPaternityEstablishmentRouteResult(result.href)) return true;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
@@ -995,6 +999,27 @@ function isParentalDisagreementsQuery(normalizedQuery: string) {
   ].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isAdditionalChildExpensesRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/") || [
+    "/documents/proverka-dopolnitelnyh-rashodov-na-rebenka/",
+    "/documents/soglashenie-o-dopolnitelnyh-rashodah-na-rebenka/",
+    "/documents/vzyskanie-ponesennyh-dopolnitelnyh-rashodov-na-rebenka/",
+    "/documents/vzyskanie-budushchih-dopolnitelnyh-rashodov-na-rebenka/"
+  ].some((path) => href.includes(path));
+}
+
+function isAdditionalChildExpensesQuery(normalizedQuery: string) {
+  return [
+    "дополнительные расходы на ребенка",
+    "расходы на лечение ребенка сверх алиментов",
+    "взыскать расходы на лечение ребенка",
+    "вернуть половину расходов на ребенка",
+    "соглашение о дополнительных расходах на ребенка",
+    "будущие расходы на лечение ребенка",
+    "расходы на реабилитацию ребенка в будущем"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
 function isPaternityEstablishmentRouteResult(href: string) {
   return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
     "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
@@ -1065,6 +1090,8 @@ function isChildNameQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isAdditionalChildExpensesQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/")) return 1500;
+  if (isAdditionalChildExpensesQuery(normalizedQuery) && isAdditionalChildExpensesRouteResult(href)) return 1480;
   if (isParentalDisagreementsQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/")) return 1460;
   if (isParentalDisagreementsQuery(normalizedQuery) && isParentalDisagreementsRouteResult(href)) return 1440;
   if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/otmena-ogranicheniya-roditelskih-prav/")) return 1420;

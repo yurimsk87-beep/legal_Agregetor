@@ -103,6 +103,13 @@ const parentalDisagreementsDocumentHrefs = [
   "/documents/obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley/",
   "/documents/sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka/"
 ];
+const additionalChildExpensesProblemHref = "/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/";
+const additionalChildExpensesDocumentHrefs = [
+  "/documents/proverka-dopolnitelnyh-rashodov-na-rebenka/",
+  "/documents/soglashenie-o-dopolnitelnyh-rashodah-na-rebenka/",
+  "/documents/vzyskanie-ponesennyh-dopolnitelnyh-rashodov-na-rebenka/",
+  "/documents/vzyskanie-budushchih-dopolnitelnyh-rashodov-na-rebenka/"
+];
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -121,7 +128,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "imya-familiya-otchestvo-rebenka" },
     { categorySlug: "semya-i-deti", slug: "vosstanovlenie-v-roditelskih-pravah" },
     { categorySlug: "semya-i-deti", slug: "otmena-ogranicheniya-roditelskih-prav" },
-    { categorySlug: "semya-i-deti", slug: "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu" }
+    { categorySlug: "semya-i-deti", slug: "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu" },
+    { categorySlug: "semya-i-deti", slug: "dopolnitelnye-rashody-na-rebenka" }
   ]
 );
 assert.deepEqual(
@@ -181,7 +189,11 @@ assert.deepEqual(
     "proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav",
     "sovmestnoe-reshenie-roditeley-po-vospitaniyu-i-obrazovaniyu",
     "obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley",
-    "sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka"
+    "sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka",
+    "proverka-dopolnitelnyh-rashodov-na-rebenka",
+    "soglashenie-o-dopolnitelnyh-rashodah-na-rebenka",
+    "vzyskanie-ponesennyh-dopolnitelnyh-rashodov-na-rebenka",
+    "vzyskanie-budushchih-dopolnitelnyh-rashodov-na-rebenka"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -221,6 +233,8 @@ assert.ok(indexedContentHrefs.includes(restrictionCancellationProblemHref));
 for (const href of restrictionCancellationDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(parentalDisagreementsProblemHref));
 for (const href of parentalDisagreementsDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(additionalChildExpensesProblemHref));
+for (const href of additionalChildExpensesDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -253,6 +267,8 @@ assert.equal(
       || restrictionCancellationDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === parentalDisagreementsProblemHref
       || parentalDisagreementsDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === additionalChildExpensesProblemHref
+      || additionalChildExpensesDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );
@@ -420,6 +436,12 @@ for (const query of ["родители не согласны по школе", "
 for (const query of ["место жительства ребёнка", "порядок общения с ребёнком"]) {
   const hrefs = searchSite(query).map(({ href }) => href);
   assert.equal(hrefs.some((href) => href === parentalDisagreementsProblemHref || parentalDisagreementsDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["дополнительные расходы на ребёнка", "взыскать расходы на лечение ребёнка", "соглашение о дополнительных расходах на ребёнка", "будущие расходы на лечение ребёнка"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(additionalChildExpensesProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === childSupportProblemHref || childSupportDocumentHrefs.includes(href)), false, query);
 }
 
 console.log("content-reset tests passed");
