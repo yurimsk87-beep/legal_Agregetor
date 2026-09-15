@@ -639,6 +639,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalRightsRestrictionCancellationRouteResult(result.href) && isParentalRightsRestrictionCancellationQuery(normalizedQuery)) return false;
   if (isParentalDisagreementsRouteResult(result.href) && isParentalDisagreementsQuery(normalizedQuery)) return false;
   if (isAdditionalChildExpensesRouteResult(result.href) && isAdditionalChildExpensesQuery(normalizedQuery)) return false;
+  if (isSpousalSupportRouteResult(result.href) && isSpousalSupportQuery(normalizedQuery)) return false;
   if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
   if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
@@ -647,6 +648,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isParentalDisagreementsQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isAdditionalChildExpensesQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isSpousalSupportQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
   if (isGuardianshipRouteResult(result.href) && isExcludedGuardianshipQuery(normalizedQuery)) return true;
@@ -667,6 +669,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalDisagreementsRouteResult(result.href)) return true;
   if (isAdditionalChildExpensesRouteResult(result.href) && isAdditionalChildExpensesQuery(normalizedQuery)) return false;
   if (isAdditionalChildExpensesRouteResult(result.href)) return true;
+  if (isSpousalSupportRouteResult(result.href) && isSpousalSupportQuery(normalizedQuery)) return false;
+  if (isSpousalSupportRouteResult(result.href)) return true;
   if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
   if (isPaternityEstablishmentRouteResult(result.href)) return true;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
@@ -1020,6 +1024,22 @@ function isAdditionalChildExpensesQuery(normalizedQuery: string) {
   ].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isSpousalSupportRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/") || [
+    "/documents/proverka-prava-na-soderzhanie-supruga/",
+    "/documents/soglashenie-o-soderzhanii-supruga/",
+    "/documents/isk-o-soderzhanii-supruga-v-brake/",
+    "/documents/isk-o-soderzhanii-byvshego-supruga/"
+  ].some((path) => href.includes(path));
+}
+
+function isSpousalSupportQuery(normalizedQuery: string) {
+  const childOnly = ["на ребенка", "на ребёнка", "на сына", "на дочь"].some((marker) => normalizedQuery.includes(marker));
+  if (childOnly) return false;
+  return ["алименты жене", "алименты супруге", "алименты супругу", "алименты бывшей жене", "алименты на себя в браке"].some((marker) => normalizedQuery.includes(marker))
+    || (normalizedQuery.includes("содержан") && normalizedQuery.includes("супруг"));
+}
+
 function isPaternityEstablishmentRouteResult(href: string) {
   return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
     "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
@@ -1090,6 +1110,8 @@ function isChildNameQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isSpousalSupportQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/")) return 1540;
+  if (isSpousalSupportQuery(normalizedQuery) && isSpousalSupportRouteResult(href)) return 1520;
   if (isAdditionalChildExpensesQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/")) return 1500;
   if (isAdditionalChildExpensesQuery(normalizedQuery) && isAdditionalChildExpensesRouteResult(href)) return 1480;
   if (isParentalDisagreementsQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/")) return 1460;

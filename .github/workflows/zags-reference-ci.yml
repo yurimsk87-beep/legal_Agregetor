@@ -100,6 +100,8 @@ jobs:
         run: npm run test:e2e:parental-disagreements
       - name: Run additional child expenses route acceptance
         run: npm run test:e2e:additional-child-expenses
+      - name: Run spousal support route acceptance
+        run: npm run test:e2e:spousal-support
       - name: Confirm withdrawn review PDF was deleted
         run: test -z "$(find "$LEAD_ATTACHMENT_STORAGE_ROOT" -type f -name '*.pdf' -print -quit 2>/dev/null)"
       - name: Generate and inspect guardianship PDFs
@@ -148,6 +150,8 @@ jobs:
         run: npm run audit:parental-disagreements-pdf
       - name: Generate and inspect additional child expenses PDF and DOCX
         run: npm run audit:additional-child-expenses-pdf
+      - name: Generate and inspect spousal support PDF and DOCX
+        run: npm run audit:spousal-support-pdf
       - name: Upload PDF and browser acceptance artifacts
         if: always()
         uses: actions/upload-artifact@v4

@@ -129,7 +129,10 @@ const additionalChildExpensesDocuments = [
   "/documents/vzyskanie-budushchih-dopolnitelnyh-rashodov-na-rebenka/"
 ];
 const additionalChildExpensesContent = [additionalChildExpensesProblem, ...additionalChildExpensesDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent];
+const spousalSupportProblem = "/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/";
+const spousalSupportDocuments = ["/documents/proverka-prava-na-soderzhanie-supruga/", "/documents/soglashenie-o-soderzhanii-supruga/", "/documents/isk-o-soderzhanii-supruga-v-brake/", "/documents/isk-o-soderzhanii-byvshego-supruga/"];
+const spousalSupportContent = [spousalSupportProblem, ...spousalSupportDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -175,7 +178,10 @@ const queries = [
   { query: "изменить размер алиментов на ребёнка", expected: [childSupportProblem, childSupportDocuments[2]] },
   { query: "задолженность по алиментам на ребёнка", expected: [childSupportProblem, childSupportDocuments[3], childSupportDocuments[4]] },
   { query: "бывший муж не платит алименты на сына", expected: [childSupportProblem, childSupportDocuments[3], childSupportDocuments[4]] },
-  { query: "алименты жене", expected: [], forbidden: [...childSupportContent, ...deprivationContent] },
+  { query: "алименты жене", expected: [spousalSupportProblem, spousalSupportDocuments[0]], forbidden: [...childSupportContent, ...deprivationContent] },
+  { query: "соглашение о содержании супруга", expected: [spousalSupportProblem, spousalSupportDocuments[1]], forbidden: childSupportContent },
+  { query: "алименты супруге в браке", expected: [spousalSupportProblem, spousalSupportDocuments[2]], forbidden: childSupportContent },
+  { query: "алименты бывшей жене", expected: [spousalSupportProblem, spousalSupportDocuments[3]], forbidden: childSupportContent },
   { query: "дополнительные расходы на ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[0]], forbidden: childSupportContent },
   { query: "соглашение о дополнительных расходах на ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[1]], forbidden: childSupportContent },
   { query: "взыскать расходы на лечение ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[2]], forbidden: childSupportContent },
