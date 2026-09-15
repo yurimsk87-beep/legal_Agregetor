@@ -635,12 +635,56 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   // Точное совпадение названия — сильный прямой сигнал, домен-конфликт не применяем.
   if (result.normalizedTitle === normalizedQuery) return false;
 
-  if (isUnsupportedChildRouteQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isParentalRightsRestorationRouteResult(result.href) && isParentalRightsRestorationQuery(normalizedQuery)) return false;
+  if (isParentalRightsRestrictionCancellationRouteResult(result.href) && isParentalRightsRestrictionCancellationQuery(normalizedQuery)) return false;
+  if (isParentalDisagreementsRouteResult(result.href) && isParentalDisagreementsQuery(normalizedQuery)) return false;
+  if (isAdditionalChildExpensesRouteResult(result.href) && isAdditionalChildExpensesQuery(normalizedQuery)) return false;
+  if (isSpousalSupportRouteResult(result.href) && isSpousalSupportQuery(normalizedQuery)) return false;
+  if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
+  if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
+  if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
+  if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
+  if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
+  if (isParentalRightsRestorationQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isParentalDisagreementsQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isAdditionalChildExpensesQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isSpousalSupportQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isPrenuptialAgreementQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
   if (isGuardianshipRouteResult(result.href) && isExcludedGuardianshipQuery(normalizedQuery)) return true;
   if (isGuardianshipRouteResult(result.href) && isChildGuardianshipQuery(normalizedQuery)) return false;
   if (isParentsChildRouteResult(result.href) && isExcludedParentsChildQuery(normalizedQuery)) return true;
   if (isParentsChildRouteResult(result.href) && isParentsChildQuery(normalizedQuery)) return false;
+  if (isChildSupportRouteResult(result.href) && isExcludedChildSupportQuery(normalizedQuery)) return true;
+  if (isChildSupportRouteResult(result.href) && isChildSupportQuery(normalizedQuery)) return false;
+  if (isParentalRightsDeprivationRouteResult(result.href) && isExcludedParentalRightsDeprivationQuery(normalizedQuery)) return true;
+  if (isParentalRightsDeprivationRouteResult(result.href) && isParentalRightsDeprivationQuery(normalizedQuery)) return false;
+  if (isParentalRightsRestrictionRouteResult(result.href) && isExcludedParentalRightsRestrictionQuery(normalizedQuery)) return true;
+  if (isParentalRightsRestrictionRouteResult(result.href) && isParentalRightsRestrictionQuery(normalizedQuery)) return false;
+  if (isParentalRightsRestorationRouteResult(result.href) && isParentalRightsRestorationQuery(normalizedQuery)) return false;
+  if (isParentalRightsRestorationRouteResult(result.href)) return true;
+  if (isParentalRightsRestrictionCancellationRouteResult(result.href) && isParentalRightsRestrictionCancellationQuery(normalizedQuery)) return false;
+  if (isParentalRightsRestrictionCancellationRouteResult(result.href)) return true;
+  if (isParentalDisagreementsRouteResult(result.href) && isParentalDisagreementsQuery(normalizedQuery)) return false;
+  if (isParentalDisagreementsRouteResult(result.href)) return true;
+  if (isAdditionalChildExpensesRouteResult(result.href) && isAdditionalChildExpensesQuery(normalizedQuery)) return false;
+  if (isAdditionalChildExpensesRouteResult(result.href)) return true;
+  if (isSpousalSupportRouteResult(result.href) && isSpousalSupportQuery(normalizedQuery)) return false;
+  if (isSpousalSupportRouteResult(result.href)) return true;
+  if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
+  if (isPrenuptialAgreementRouteResult(result.href)) return true;
+  if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
+  if (isPaternityEstablishmentRouteResult(result.href)) return true;
+  if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
+  if (isPaternityContestRouteResult(result.href)) return true;
+  if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
+  if (isAdoptionRouteResult(result.href)) return true;
+  if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
+  if (isChildTravelRouteResult(result.href)) return true;
+  if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
+  if (isChildNameRouteResult(result.href)) return true;
 
   const resultDomains = getResultDomains(result);
   // Если результат относится к тому же домену, что и запрос, конфликта нет.
@@ -714,10 +758,18 @@ function isExcludedGuardianshipQuery(normalizedQuery: string) {
     ((normalizedQuery.includes("лишен") || normalizedQuery.includes("лишит")) && normalizedQuery.includes("родитель")) || [
     "усынов",
     "удочер",
+    "за границ",
+    "согласие на выезд",
+    "несогласие на выезд",
     "ограничен родитель",
     "место жительства ребенка",
     "порядок общения",
     "алимент",
+    "сменить имя ребенку",
+    "сменить имя подростк",
+    "сменить фамилию ребенку",
+    "изменить отчество ребенку",
+    "перемена имени несовершеннолет",
     "эмансип",
     "совершеннолет",
     "опека над взросл"
@@ -745,16 +797,6 @@ function isChildGuardianshipQuery(normalizedQuery: string) {
   ].some((marker) => normalizedQuery.includes(marker));
 }
 
-function isUnsupportedChildRouteQuery(normalizedQuery: string) {
-  return ((normalizedQuery.includes("лишен") || normalizedQuery.includes("лишит")) && normalizedQuery.includes("родитель")) || [
-    "установить отцовство",
-    "оспорить отцовство",
-    "выезд ребенка за границу",
-    "сменить имя ребенку",
-    "сменить фамилию ребенку"
-  ].some((marker) => normalizedQuery.includes(marker));
-}
-
 function isParentsChildRouteResult(href: string) {
   return href.includes("/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/") || [
     "/documents/mesto-zhitelstva-rebenka-posle-razvoda/",
@@ -777,6 +819,10 @@ function isExcludedParentsChildQuery(normalizedQuery: string) {
     "удочер",
     "оформить опеку",
     "выезд ребенка за границу",
+    "за границ",
+    "согласие на выезд",
+    "несогласие на выезд",
+    "документы ребенку для въезда",
     "сменить имя ребенку",
     "сменить фамилию ребенку"
   ].some((marker) => normalizedQuery.includes(marker));
@@ -804,8 +850,312 @@ function isParentsChildQuery(normalizedQuery: string) {
   ].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isChildSupportRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/alimenty-na-rebenka/") || [
+    "/documents/soglashenie-ob-uplate-alimentov-na-rebenka/",
+    "/documents/vzyskanie-alimentov-na-rebenka/",
+    "/documents/izmenenie-razmera-alimentov-na-rebenka/",
+    "/documents/raschet-zadolzhennosti-po-alimentam/",
+    "/documents/ispolnenie-alimentov-na-rebenka/"
+  ].some((path) => href.includes(path));
+}
+
+function isExcludedChildSupportQuery(normalizedQuery: string) {
+  return [
+    "алименты жене",
+    "алименты мужу",
+    "содержание супруг",
+    "содержание бывшего супруг",
+    "дополнительные расходы на ребенка",
+    "установить отцовств",
+    "оспорить отцовств",
+    "усынов",
+    "удочер",
+    "опек",
+    "попечитель",
+    "лишить родитель",
+    "лишен родитель",
+    "ограничить родитель",
+    "место жительства ребенка",
+    "порядок общения"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isChildSupportQuery(normalizedQuery: string) {
+  if (isExcludedChildSupportQuery(normalizedQuery)) return false;
+  return normalizedQuery.includes("алимент") && [
+    "ребен",
+    "сын",
+    "доч",
+    "соглашен",
+    "судебн приказ",
+    "твердо",
+    "долг",
+    "задолж",
+    "не платит",
+    "увелич",
+    "уменьш"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentalRightsDeprivationRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/lishenie-roditelskih-prav/") || [
+    "/documents/proverka-osnovaniy-lisheniya-roditelskih-prav/",
+    "/documents/isk-o-lishenii-roditelskih-prav/",
+    "/documents/uchet-resheniy-pri-lishenii-roditelskih-prav/",
+    "/documents/lishenie-roditelskih-prav-i-alimenty/"
+  ].some((path) => href.includes(path));
+}
+
+function isExcludedParentalRightsDeprivationQuery(normalizedQuery: string) {
+  const explicitDeprivationIntent = normalizedQuery.includes("родитель") && ["лишить", "лишен", "лишит", "лишение"].some((marker) => normalizedQuery.includes(marker));
+  return !explicitDeprivationIntent || [
+    "ограничить родитель",
+    "ограничение родитель",
+    "восстановить родитель",
+    "восстановление родитель",
+    "отмена ограничения",
+    "отменить ограничение",
+    "установить отцовств",
+    "оспорить отцовств",
+    "усынов",
+    "удочер",
+    "оформить опек",
+    "порядок общения",
+    "место жительства ребенка"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentalRightsDeprivationQuery(normalizedQuery: string) {
+  if (isExcludedParentalRightsDeprivationQuery(normalizedQuery)) return false;
+  return true;
+}
+
+function isParentalRightsRestrictionRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/ogranichenie-roditelskih-prav/") || [
+    "/documents/ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam/",
+    "/documents/proverka-opasnogo-povedeniya-roditelya/",
+    "/documents/isk-ob-ogranichenii-roditelskih-prav/"
+  ].some((path) => href.includes(path));
+}
+
+function isExcludedParentalRightsRestrictionQuery(normalizedQuery: string) {
+  const explicitRestrictionIntent = normalizedQuery.includes("родитель") && ["ограничить", "ограничение", "ограничен"].some((marker) => normalizedQuery.includes(marker));
+  return !explicitRestrictionIntent || [
+    "лишить родитель",
+    "лишение родитель",
+    "восстановить родитель",
+    "восстановление родитель",
+    "отмена ограничения",
+    "отменить ограничение",
+    "установить отцовств",
+    "оспорить отцовств",
+    "усынов",
+    "удочер",
+    "оформить опек",
+    "порядок общения",
+    "место жительства ребенка"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentalRightsRestrictionQuery(normalizedQuery: string) {
+  return !isExcludedParentalRightsRestrictionQuery(normalizedQuery);
+}
+
+function isParentalRightsRestorationRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/") || [
+    "/documents/isk-o-vosstanovlenii-v-roditelskih-pravah/",
+    "/documents/vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka/",
+    "/documents/proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav/"
+  ].some((path) => href.includes(path));
+}
+
+function isParentalRightsRestorationQuery(normalizedQuery: string) {
+  return ["восстановить родитель", "восстановление родитель", "восстановить права и вернуть ребенка", "вернуть ребенка после лишения", "ребенок против восстановления", "ребенок усыновлен восстановление"].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentalRightsRestrictionCancellationRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/otmena-ogranicheniya-roditelskih-prav/") || [
+    "/documents/isk-ob-otmene-ogranicheniya-roditelskih-prav/",
+    "/documents/otmena-ogranicheniya-roditelskih-prav-i-vozvrat-rebenka/",
+    "/documents/proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav/"
+  ].some((path) => href.includes(path));
+}
+
+function isParentalRightsRestrictionCancellationQuery(normalizedQuery: string) {
+  return ["отменить ограничение родитель", "отмена ограничения родитель", "снять ограничение родитель", "отменить ограничение и вернуть ребенка", "вернуть ребенка после ограничения", "основания ограничения отпали", "ребенок против отмены ограничения"].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isParentalDisagreementsRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/") || [
+    "/documents/sovmestnoe-reshenie-roditeley-po-vospitaniyu-i-obrazovaniyu/",
+    "/documents/obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley/",
+    "/documents/sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka/"
+  ].some((path) => href.includes(path));
+}
+
+function isParentalDisagreementsQuery(normalizedQuery: string) {
+  const excluded = ["место жительства ребенка", "порядок общения", "график общения", "не дает видеться"].some((marker) => normalizedQuery.includes(marker));
+  if (excluded) return false;
+  return [
+    "родители не согласны по школе",
+    "соглашение родителей о выборе школы",
+    "разногласия родителей по воспитанию",
+    "разногласия родителей по образованию",
+    "обратиться в опеку из за разногласия родителей",
+    "суд разрешить вопрос воспитания ребенка"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isAdditionalChildExpensesRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/") || [
+    "/documents/proverka-dopolnitelnyh-rashodov-na-rebenka/",
+    "/documents/soglashenie-o-dopolnitelnyh-rashodah-na-rebenka/",
+    "/documents/vzyskanie-ponesennyh-dopolnitelnyh-rashodov-na-rebenka/",
+    "/documents/vzyskanie-budushchih-dopolnitelnyh-rashodov-na-rebenka/"
+  ].some((path) => href.includes(path));
+}
+
+function isAdditionalChildExpensesQuery(normalizedQuery: string) {
+  return [
+    "дополнительные расходы на ребенка",
+    "расходы на лечение ребенка сверх алиментов",
+    "взыскать расходы на лечение ребенка",
+    "вернуть половину расходов на ребенка",
+    "соглашение о дополнительных расходах на ребенка",
+    "будущие расходы на лечение ребенка",
+    "расходы на реабилитацию ребенка в будущем"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isSpousalSupportRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/") || [
+    "/documents/proverka-prava-na-soderzhanie-supruga/",
+    "/documents/soglashenie-o-soderzhanii-supruga/",
+    "/documents/isk-o-soderzhanii-supruga-v-brake/",
+    "/documents/isk-o-soderzhanii-byvshego-supruga/"
+  ].some((path) => href.includes(path));
+}
+
+function isSpousalSupportQuery(normalizedQuery: string) {
+  const childOnly = ["на ребенка", "на ребёнка", "на сына", "на дочь"].some((marker) => normalizedQuery.includes(marker));
+  if (childOnly) return false;
+  return ["алименты жене", "алименты супруге", "алименты супругу", "алименты бывшей жене", "алименты на себя в браке"].some((marker) => normalizedQuery.includes(marker))
+    || (normalizedQuery.includes("содержан") && normalizedQuery.includes("супруг"));
+}
+
+function isPrenuptialAgreementRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/brachnyy-dogovor/") || [
+    "/documents/brachnyy-dogovor-do-braka/",
+    "/documents/brachnyy-dogovor-v-brake/",
+    "/documents/izmenenie-brachnogo-dogovora/",
+    "/documents/rastorzhenie-brachnogo-dogovora/",
+    "/documents/spor-o-brachnom-dogovore/"
+  ].some((path) => href.includes(path));
+}
+
+function isPrenuptialAgreementQuery(normalizedQuery: string) {
+  return normalizedQuery.includes("брачн") && normalizedQuery.includes("договор");
+}
+
+function isPaternityEstablishmentRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
+    "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
+    "/documents/isk-ob-ustanovlenii-otcovstva/",
+    "/documents/ustanovlenie-otcovstva-umershego/",
+    "/documents/zapis-ob-otce-uzhe-sushchestvuet/",
+    "/documents/ustanovlenie-otcovstva-i-drugoe-trebovanie/"
+  ].some((path) => href.includes(path));
+}
+
+function isPaternityEstablishmentQuery(normalizedQuery: string) {
+  const establishment = (normalizedQuery.includes("установ") && normalizedQuery.includes("отцовств")) || ["признание отцовств", "отцовство после смерти", "записать отца", "записан другой отец", "свидетельстве записан другой отец", "отцовство и алимент"].some((marker) => normalizedQuery.includes(marker));
+  const excluded = ["оспорить отцовств", "оспаривание отцовств"].some((marker) => normalizedQuery.includes(marker));
+  return establishment && !excluded;
+}
+
+function isPaternityContestRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/osparivanie-otcovstva/") || [
+    "/documents/isk-ob-osparivanii-otcovstva-zapisannym-roditelem/",
+    "/documents/isk-ob-osparivanii-zapisi-biologicheskim-roditelem/",
+    "/documents/isk-ob-osparivanii-otcovstva-rebenkom-ili-opekunom/",
+    "/documents/osparivanie-otcovstva-posle-smerti/"
+  ].some((path) => href.includes(path));
+}
+
+function isPaternityContestQuery(normalizedQuery: string) {
+  return ["оспорить отцовств", "оспаривание отцовств", "исключить запись об отце", "записан отцом но не отец", "биологический отец оспорить", "биологический отец хочет оспорить запись", "днк экспертиза отцовств", "днк экспертиза при оспаривании"].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isAdoptionRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/usynovlenie-rebenka/") || [
+    "/documents/usynovlenie-rebenka-suprugom-roditelya/",
+    "/documents/chek-list-vnutrirossiyskogo-usynovleniya/",
+    "/documents/soglasiya-pri-usynovlenii-rebenka/",
+    "/documents/mezhdunarodnoe-usynovlenie-proverka/"
+  ].some((path) => href.includes(path));
+}
+
+function isAdoptionQuery(normalizedQuery: string) {
+  return ["усынов", "удочер", "стать усыновителем"].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isChildTravelRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/vyezd-rebenka-za-granitsu/") || [
+    "/documents/vyezd-rebenka-s-odnim-roditelem/",
+    "/documents/soglasie-na-vyezd-rebenka-bez-roditeley/",
+    "/documents/spor-o-vyezde-rebenka-za-granitsu/",
+    "/documents/dokumenty-dlya-vyezda-rebenka-v-inostrannoe-gosudarstvo/"
+  ].some((path) => href.includes(path));
+}
+
+function isChildTravelQuery(normalizedQuery: string) {
+  return ["выезд ребенка", "ребенок едет за границу", "ребенок летит", "согласие на выезд ребенка", "несогласие на выезд ребенка", "запрет на выезд ребенка", "документы ребенку для въезда"].some((marker) => normalizedQuery.includes(marker));
+}
+
+function isChildNameRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/imya-familiya-otchestvo-rebenka/") || [
+    "/documents/izmenenie-imeni-ili-familii-rebenka-do-14-let/",
+    "/documents/izmenenie-familii-rebenka-pri-razdelnom-prozhivanii/",
+    "/documents/peremena-imeni-rebenkom-ot-14-do-18-let/",
+    "/documents/izmenenie-otchestva-rebenka-do-14-let/"
+  ].some((path) => href.includes(path));
+}
+
+function isChildNameQuery(normalizedQuery: string) {
+  return ["сменить имя ребенку", "сменить фамилию ребенку", "сменить имя подростк", "изменить отчество ребенку", "перемена имени несовершеннолет", "имя фамилия отчество ребенка"].some((marker) => normalizedQuery.includes(marker));
+}
+
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isPrenuptialAgreementQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/brachnyy-dogovor/")) return 1580;
+  if (isPrenuptialAgreementQuery(normalizedQuery) && isPrenuptialAgreementRouteResult(href)) return 1560;
+  if (isSpousalSupportQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/")) return 1540;
+  if (isSpousalSupportQuery(normalizedQuery) && isSpousalSupportRouteResult(href)) return 1520;
+  if (isAdditionalChildExpensesQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/")) return 1500;
+  if (isAdditionalChildExpensesQuery(normalizedQuery) && isAdditionalChildExpensesRouteResult(href)) return 1480;
+  if (isParentalDisagreementsQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/")) return 1460;
+  if (isParentalDisagreementsQuery(normalizedQuery) && isParentalDisagreementsRouteResult(href)) return 1440;
+  if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/otmena-ogranicheniya-roditelskih-prav/")) return 1420;
+  if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && isParentalRightsRestrictionCancellationRouteResult(href)) return 1400;
+  if (isParentalRightsRestorationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/")) return 1380;
+  if (isParentalRightsRestorationQuery(normalizedQuery) && isParentalRightsRestorationRouteResult(href)) return 1360;
+  if (isChildNameQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/imya-familiya-otchestvo-rebenka/")) return 1340;
+  if (isChildNameQuery(normalizedQuery) && isChildNameRouteResult(href)) return 1320;
+  if (isChildTravelQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/vyezd-rebenka-za-granitsu/")) return 1300;
+  if (isChildTravelQuery(normalizedQuery) && isChildTravelRouteResult(href)) return 1280;
+  if (isAdoptionQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/usynovlenie-rebenka/")) return 1260;
+  if (isAdoptionQuery(normalizedQuery) && isAdoptionRouteResult(href)) return 1240;
+  if (isPaternityContestQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/osparivanie-otcovstva/")) return 1220;
+  if (isPaternityContestQuery(normalizedQuery) && isPaternityContestRouteResult(href)) return 1200;
+  if (isPaternityEstablishmentQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/")) return 1180;
+  if (isPaternityEstablishmentQuery(normalizedQuery) && isPaternityEstablishmentRouteResult(href)) return 1160;
+  if (isParentalRightsRestrictionQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/ogranichenie-roditelskih-prav/")) return 1140;
+  if (isParentalRightsRestrictionQuery(normalizedQuery) && isParentalRightsRestrictionRouteResult(href)) return 1120;
+  if (isParentalRightsDeprivationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/lishenie-roditelskih-prav/")) return 1100;
+  if (isParentalRightsDeprivationQuery(normalizedQuery) && isParentalRightsDeprivationRouteResult(href)) return 1080;
+  if (isChildSupportQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/alimenty-na-rebenka/")) return 1060;
+  if (isChildSupportQuery(normalizedQuery) && isChildSupportRouteResult(href)) return 1040;
   if (isParentsChildQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/")) return 1020;
   if (isParentsChildQuery(normalizedQuery) && isParentsChildRouteResult(href)) return 1000;
   if (isChildGuardianshipQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/")) return 1000;

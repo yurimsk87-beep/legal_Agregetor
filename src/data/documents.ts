@@ -2,6 +2,20 @@ import type { LegalReferenceKey } from "@/data/legal-references";
 import { DIVORCE_PROPERTY_DOCUMENTS } from "@/data/divorce-property-documents";
 import { GUARDIANSHIP_DOCUMENTS } from "@/data/guardianship-documents";
 import { PARENTS_CHILD_DOCUMENTS } from "@/data/parents-child-documents";
+import { CHILD_SUPPORT_DOCUMENTS } from "@/data/child-support-documents";
+import { PARENTAL_RIGHTS_DEPRIVATION_DOCUMENTS } from "@/data/parental-rights-deprivation-documents";
+import { PARENTAL_RIGHTS_RESTRICTION_DOCUMENTS } from "@/data/parental-rights-restriction-documents";
+import { PATERNITY_ESTABLISHMENT_DOCUMENTS } from "@/data/paternity-establishment-documents";
+import { PATERNITY_CONTEST_DOCUMENTS } from "@/data/paternity-contest-documents";
+import { ADOPTION_DOCUMENTS } from "@/data/adoption-documents";
+import { CHILD_TRAVEL_DOCUMENTS } from "@/data/child-travel-documents";
+import { CHILD_NAME_DOCUMENTS } from "@/data/child-name-documents";
+import { PARENTAL_RIGHTS_RESTORATION_DOCUMENTS } from "@/data/parental-rights-restoration-documents";
+import { PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_DOCUMENTS } from "@/data/parental-rights-restriction-cancellation-documents";
+import { PARENTAL_DISAGREEMENTS_DOCUMENTS } from "@/data/parental-disagreements-documents";
+import { ADDITIONAL_CHILD_EXPENSES_DOCUMENTS } from "@/data/additional-child-expenses-documents";
+import { SPOUSAL_SUPPORT_DOCUMENTS } from "@/data/spousal-support-documents";
+import { PRENUPTIAL_AGREEMENT_DOCUMENTS } from "@/data/prenuptial-agreement-documents";
 
 export type DocumentFaqItem = {
   question: string;
@@ -263,7 +277,21 @@ export const navigatorDocuments: NavigatorDocument[] = [
 },
 ...DIVORCE_PROPERTY_DOCUMENTS,
 ...GUARDIANSHIP_DOCUMENTS,
-...PARENTS_CHILD_DOCUMENTS
+...PARENTS_CHILD_DOCUMENTS,
+...CHILD_SUPPORT_DOCUMENTS,
+...PARENTAL_RIGHTS_DEPRIVATION_DOCUMENTS,
+...PARENTAL_RIGHTS_RESTRICTION_DOCUMENTS,
+...PATERNITY_ESTABLISHMENT_DOCUMENTS,
+...PATERNITY_CONTEST_DOCUMENTS,
+...ADOPTION_DOCUMENTS,
+...CHILD_TRAVEL_DOCUMENTS,
+...CHILD_NAME_DOCUMENTS,
+...PARENTAL_RIGHTS_RESTORATION_DOCUMENTS,
+...PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_DOCUMENTS,
+...PARENTAL_DISAGREEMENTS_DOCUMENTS,
+...ADDITIONAL_CHILD_EXPENSES_DOCUMENTS,
+...SPOUSAL_SUPPORT_DOCUMENTS,
+...PRENUPTIAL_AGREEMENT_DOCUMENTS
 ];
 
 export function getNavigatorDocument(slug: string) {

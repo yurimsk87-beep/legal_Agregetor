@@ -3,6 +3,20 @@ import type { LegalReferenceKey } from "@/data/legal-references";
 import { DIVORCE_PROPERTY_PROBLEM } from "@/data/divorce-property-problem";
 import { GUARDIANSHIP_PROBLEM } from "@/data/guardianship-problem";
 import { PARENTS_CHILD_PROBLEM } from "@/data/parents-child-problem";
+import { CHILD_SUPPORT_PROBLEM } from "@/data/child-support-problem";
+import { PARENTAL_RIGHTS_DEPRIVATION_PROBLEM } from "@/data/parental-rights-deprivation-problem";
+import { PARENTAL_RIGHTS_RESTRICTION_PROBLEM } from "@/data/parental-rights-restriction-problem";
+import { PATERNITY_ESTABLISHMENT_PROBLEM } from "@/data/paternity-establishment-problem";
+import { PATERNITY_CONTEST_PROBLEM } from "@/data/paternity-contest-problem";
+import { ADOPTION_PROBLEM } from "@/data/adoption-problem";
+import { CHILD_TRAVEL_PROBLEM } from "@/data/child-travel-problem";
+import { CHILD_NAME_PROBLEM } from "@/data/child-name-problem";
+import { PARENTAL_RIGHTS_RESTORATION_PROBLEM } from "@/data/parental-rights-restoration-problem";
+import { PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_PROBLEM } from "@/data/parental-rights-restriction-cancellation-problem";
+import { PARENTAL_DISAGREEMENTS_PROBLEM } from "@/data/parental-disagreements-problem";
+import { ADDITIONAL_CHILD_EXPENSES_PROBLEM } from "@/data/additional-child-expenses-problem";
+import { SPOUSAL_SUPPORT_PROBLEM } from "@/data/spousal-support-problem";
+import { PRENUPTIAL_AGREEMENT_PROBLEM } from "@/data/prenuptial-agreement-problem";
 
 export type LegalProblemFaq = {
   question: string;
@@ -174,9 +188,9 @@ const referenceProblem = {
   "relatedProblemSlugs": []
 } satisfies LegalProblem;
 
-export const legalProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM, GUARDIANSHIP_PROBLEM, PARENTS_CHILD_PROBLEM];
+export const legalProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM, GUARDIANSHIP_PROBLEM, PARENTS_CHILD_PROBLEM, CHILD_SUPPORT_PROBLEM, PARENTAL_RIGHTS_DEPRIVATION_PROBLEM, PARENTAL_RIGHTS_RESTRICTION_PROBLEM, PATERNITY_ESTABLISHMENT_PROBLEM, PATERNITY_CONTEST_PROBLEM, ADOPTION_PROBLEM, CHILD_TRAVEL_PROBLEM, CHILD_NAME_PROBLEM, PARENTAL_RIGHTS_RESTORATION_PROBLEM, PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_PROBLEM, PARENTAL_DISAGREEMENTS_PROBLEM, ADDITIONAL_CHILD_EXPENSES_PROBLEM, SPOUSAL_SUPPORT_PROBLEM, PRENUPTIAL_AGREEMENT_PROBLEM];
 
-export const popularProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM, GUARDIANSHIP_PROBLEM, PARENTS_CHILD_PROBLEM];
+export const popularProblems: LegalProblem[] = [referenceProblem, DIVORCE_PROPERTY_PROBLEM, GUARDIANSHIP_PROBLEM, PARENTS_CHILD_PROBLEM, CHILD_SUPPORT_PROBLEM, PARENTAL_RIGHTS_DEPRIVATION_PROBLEM, PARENTAL_RIGHTS_RESTRICTION_PROBLEM, PATERNITY_ESTABLISHMENT_PROBLEM, PATERNITY_CONTEST_PROBLEM, ADOPTION_PROBLEM, CHILD_TRAVEL_PROBLEM, CHILD_NAME_PROBLEM, PARENTAL_RIGHTS_RESTORATION_PROBLEM, PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_PROBLEM, PARENTAL_DISAGREEMENTS_PROBLEM, ADDITIONAL_CHILD_EXPENSES_PROBLEM, SPOUSAL_SUPPORT_PROBLEM, PRENUPTIAL_AGREEMENT_PROBLEM];
 
 export function getLegalProblem(categorySlug: string, slug: string) {
   const normalizedCategorySlug = normalizeLegalCategorySlug(categorySlug);
