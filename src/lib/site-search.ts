@@ -641,6 +641,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isAdditionalChildExpensesRouteResult(result.href) && isAdditionalChildExpensesQuery(normalizedQuery)) return false;
   if (isSpousalSupportRouteResult(result.href) && isSpousalSupportQuery(normalizedQuery)) return false;
   if (isInvalidMarriageRouteResult(result.href) && isInvalidMarriageQuery(normalizedQuery)) return false;
+  if (isComplexMaritalPropertyRouteResult(result.href) && isComplexMaritalPropertyQuery(normalizedQuery)) return false;
   if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
   if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
@@ -652,6 +653,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isAdditionalChildExpensesQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isSpousalSupportQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isInvalidMarriageQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isComplexMaritalPropertyQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isPrenuptialAgreementQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
@@ -677,6 +679,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isSpousalSupportRouteResult(result.href)) return true;
   if (isInvalidMarriageRouteResult(result.href) && isInvalidMarriageQuery(normalizedQuery)) return false;
   if (isInvalidMarriageRouteResult(result.href)) return true;
+  if (isComplexMaritalPropertyRouteResult(result.href) && isComplexMaritalPropertyQuery(normalizedQuery)) return false;
+  if (isComplexMaritalPropertyRouteResult(result.href)) return true;
   if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
   if (isPrenuptialAgreementRouteResult(result.href)) return true;
   if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
@@ -1087,6 +1091,30 @@ function isInvalidMarriageQuery(normalizedQuery: string) {
   ].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isComplexMaritalPropertyRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/slozhnye-imushchestvennye-spory-suprugov/") || [
+    "/documents/slozhnyy-spor-ob-obshchih-dolgah-suprugov/",
+    "/documents/slozhnyy-spor-ob-ipotechnom-imushchestve-suprugov/",
+    "/documents/slozhnyy-spor-o-biznes-aktivah-suprugov/",
+    "/documents/slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey/",
+    "/documents/slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery/"
+  ].some((path) => href.includes(path));
+}
+
+function isComplexMaritalPropertyQuery(normalizedQuery: string) {
+  return [
+    "разделить общие долги супругов",
+    "ипотека при разделе имущества",
+    "раздел ипотечной квартиры",
+    "раздел доли в ооо",
+    "раздел бизнеса супругов",
+    "имущество оформлено на третье лицо",
+    "компенсация за проданное имущество супругов",
+    "имущество супругов при банкротстве",
+    "арест имущества при разделе супругов"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
 function isPaternityEstablishmentRouteResult(href: string) {
   return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
     "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
@@ -1157,6 +1185,8 @@ function isChildNameQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isComplexMaritalPropertyQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/slozhnye-imushchestvennye-spory-suprugov/")) return 1660;
+  if (isComplexMaritalPropertyQuery(normalizedQuery) && isComplexMaritalPropertyRouteResult(href)) return 1640;
   if (isInvalidMarriageQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/priznanie-braka-nedeystvitelnym/")) return 1620;
   if (isInvalidMarriageQuery(normalizedQuery) && isInvalidMarriageRouteResult(href)) return 1600;
   if (isPrenuptialAgreementQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/brachnyy-dogovor/")) return 1580;

@@ -138,7 +138,10 @@ const prenuptialAgreementContent = [prenuptialAgreementProblem, ...prenuptialAgr
 const invalidMarriageProblem = "/problems/semya-i-deti/priznanie-braka-nedeystvitelnym/";
 const invalidMarriageDocuments = ["/documents/isk-o-nedeystvitelnosti-braka-bez-soglasiya/", "/documents/isk-o-nedeystvitelnosti-braka-s-nesovershennoletnim/", "/documents/isk-o-nedeystvitelnosti-braka-pri-prepyatstvii/", "/documents/isk-o-fiktivnom-brake/", "/documents/isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya/"];
 const invalidMarriageContent = [invalidMarriageProblem, ...invalidMarriageDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent, ...prenuptialAgreementContent, ...invalidMarriageContent];
+const complexMaritalPropertyProblem = "/problems/semya-i-deti/slozhnye-imushchestvennye-spory-suprugov/";
+const complexMaritalPropertyDocuments = ["/documents/slozhnyy-spor-ob-obshchih-dolgah-suprugov/", "/documents/slozhnyy-spor-ob-ipotechnom-imushchestve-suprugov/", "/documents/slozhnyy-spor-o-biznes-aktivah-suprugov/", "/documents/slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey/", "/documents/slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery/"];
+const complexMaritalPropertyContent = [complexMaritalPropertyProblem, ...complexMaritalPropertyDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent, ...prenuptialAgreementContent, ...invalidMarriageContent, ...complexMaritalPropertyContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -148,8 +151,8 @@ const queries = [
   { query: "как развестись", expected: [divorceProblem, ...divorceDocuments.slice(0, 2)] },
   { query: "развод через загс", expected: [divorceProblem, divorceDocuments[0]] },
   { query: "супруг не согласен на развод", expected: [divorceProblem, divorceDocuments[1]] },
-  { query: "раздел имущества после развода", expected: [divorceProblem, divorceDocuments[2], divorceDocuments[3]] },
-  { query: "соглашение о разделе имущества", expected: [divorceProblem, divorceDocuments[2]] },
+  { query: "раздел имущества после развода", expected: [divorceProblem, divorceDocuments[2], divorceDocuments[3]], forbidden: complexMaritalPropertyContent },
+  { query: "соглашение о разделе имущества", expected: [divorceProblem, divorceDocuments[2]], forbidden: complexMaritalPropertyContent },
   { query: "ипотека при разводе", expected: [divorceProblem, divorceDocuments[2], divorceDocuments[3]] },
   { query: "супруг продал имущество перед разводом", expected: [divorceProblem, divorceDocuments[3]] },
   { query: "срок раздела имущества", expected: [divorceProblem, divorceDocuments[3]] },
@@ -199,6 +202,14 @@ const queries = [
   { query: "второй брак не расторгнув первый", expected: [invalidMarriageProblem, invalidMarriageDocuments[2]], forbidden: divorceDocuments },
   { query: "фиктивный брак без намерения создать семью", expected: [invalidMarriageProblem, invalidMarriageDocuments[3]], forbidden: divorceDocuments },
   { query: "скрыл ВИЧ при заключении брака", expected: [invalidMarriageProblem, invalidMarriageDocuments[4]], forbidden: divorceDocuments },
+  { query: "разделить общие долги супругов", expected: [complexMaritalPropertyProblem, complexMaritalPropertyDocuments[0]], forbidden: divorceDocuments },
+  { query: "ипотека при разделе имущества", expected: [complexMaritalPropertyProblem, complexMaritalPropertyDocuments[1]], forbidden: divorceDocuments },
+  { query: "раздел доли в ооо", expected: [complexMaritalPropertyProblem, complexMaritalPropertyDocuments[2]], forbidden: divorceDocuments },
+  { query: "раздел бизнеса супругов", expected: [complexMaritalPropertyProblem, complexMaritalPropertyDocuments[2]], forbidden: divorceDocuments },
+  { query: "имущество оформлено на третье лицо", expected: [complexMaritalPropertyProblem, complexMaritalPropertyDocuments[3]], forbidden: divorceDocuments },
+  { query: "компенсация за проданное имущество супругов", expected: [complexMaritalPropertyProblem, complexMaritalPropertyDocuments[3]], forbidden: divorceDocuments },
+  { query: "имущество супругов при банкротстве", expected: [complexMaritalPropertyProblem, complexMaritalPropertyDocuments[4]], forbidden: divorceDocuments },
+  { query: "арест имущества при разделе супругов", expected: [complexMaritalPropertyProblem, complexMaritalPropertyDocuments[4]], forbidden: divorceDocuments },
   { query: "дополнительные расходы на ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[0]], forbidden: childSupportContent },
   { query: "соглашение о дополнительных расходах на ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[1]], forbidden: childSupportContent },
   { query: "взыскать расходы на лечение ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[2]], forbidden: childSupportContent },

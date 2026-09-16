@@ -133,6 +133,14 @@ const invalidMarriageDocumentHrefs = [
   "/documents/isk-o-fiktivnom-brake/",
   "/documents/isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya/"
 ];
+const complexMaritalPropertyProblemHref = "/problems/semya-i-deti/slozhnye-imushchestvennye-spory-suprugov/";
+const complexMaritalPropertyDocumentHrefs = [
+  "/documents/slozhnyy-spor-ob-obshchih-dolgah-suprugov/",
+  "/documents/slozhnyy-spor-ob-ipotechnom-imushchestve-suprugov/",
+  "/documents/slozhnyy-spor-o-biznes-aktivah-suprugov/",
+  "/documents/slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey/",
+  "/documents/slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery/"
+];
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -155,7 +163,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "dopolnitelnye-rashody-na-rebenka" },
     { categorySlug: "semya-i-deti", slug: "soderzhanie-supruga-i-byvshego-supruga" },
     { categorySlug: "semya-i-deti", slug: "brachnyy-dogovor" },
-    { categorySlug: "semya-i-deti", slug: "priznanie-braka-nedeystvitelnym" }
+    { categorySlug: "semya-i-deti", slug: "priznanie-braka-nedeystvitelnym" },
+    { categorySlug: "semya-i-deti", slug: "slozhnye-imushchestvennye-spory-suprugov" }
   ]
 );
 assert.deepEqual(
@@ -233,7 +242,12 @@ assert.deepEqual(
     "isk-o-nedeystvitelnosti-braka-s-nesovershennoletnim",
     "isk-o-nedeystvitelnosti-braka-pri-prepyatstvii",
     "isk-o-fiktivnom-brake",
-    "isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya"
+    "isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya",
+    "slozhnyy-spor-ob-obshchih-dolgah-suprugov",
+    "slozhnyy-spor-ob-ipotechnom-imushchestve-suprugov",
+    "slozhnyy-spor-o-biznes-aktivah-suprugov",
+    "slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey",
+    "slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -281,6 +295,8 @@ assert.ok(indexedContentHrefs.includes(prenuptialAgreementProblemHref));
 for (const href of prenuptialAgreementDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(invalidMarriageProblemHref));
 for (const href of invalidMarriageDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(complexMaritalPropertyProblemHref));
+for (const href of complexMaritalPropertyDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -321,6 +337,8 @@ assert.equal(
       || prenuptialAgreementDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === invalidMarriageProblemHref
       || invalidMarriageDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === complexMaritalPropertyProblemHref
+      || complexMaritalPropertyDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );
@@ -511,6 +529,16 @@ for (const query of ["признать брак недействительным
 for (const query of ["как развестись", "заключить брачный договор"]) {
   const hrefs = searchSite(query).map(({ href }) => href);
   assert.equal(hrefs.some((href) => href === invalidMarriageProblemHref || invalidMarriageDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["разделить общие долги супругов", "ипотека при разделе имущества", "раздел доли в ооо", "раздел бизнеса супругов", "имущество оформлено на третье лицо", "компенсация за проданное имущество супругов", "имущество супругов при банкротстве", "арест имущества при разделе супругов"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(complexMaritalPropertyProblemHref), true, query);
+}
+
+for (const query of ["раздел имущества после развода", "соглашение о разделе имущества"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === complexMaritalPropertyProblemHref || complexMaritalPropertyDocumentHrefs.includes(href)), false, query);
 }
 
 console.log("content-reset tests passed");

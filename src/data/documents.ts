@@ -17,6 +17,7 @@ import { ADDITIONAL_CHILD_EXPENSES_DOCUMENTS } from "@/data/additional-child-exp
 import { SPOUSAL_SUPPORT_DOCUMENTS } from "@/data/spousal-support-documents";
 import { PRENUPTIAL_AGREEMENT_DOCUMENTS } from "@/data/prenuptial-agreement-documents";
 import { INVALID_MARRIAGE_DOCUMENTS } from "@/data/invalid-marriage-documents";
+import { COMPLEX_MARITAL_PROPERTY_DOCUMENTS } from "@/data/complex-marital-property-documents";
 
 export type DocumentFaqItem = {
   question: string;
@@ -293,7 +294,8 @@ export const navigatorDocuments: NavigatorDocument[] = [
 ...ADDITIONAL_CHILD_EXPENSES_DOCUMENTS,
 ...SPOUSAL_SUPPORT_DOCUMENTS,
 ...PRENUPTIAL_AGREEMENT_DOCUMENTS,
-...INVALID_MARRIAGE_DOCUMENTS
+...INVALID_MARRIAGE_DOCUMENTS,
+...COMPLEX_MARITAL_PROPERTY_DOCUMENTS
 ];
 
 export function getNavigatorDocument(slug: string) {
