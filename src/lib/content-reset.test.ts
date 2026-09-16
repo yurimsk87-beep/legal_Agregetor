@@ -125,6 +125,14 @@ const prenuptialAgreementDocumentHrefs = [
   "/documents/rastorzhenie-brachnogo-dogovora/",
   "/documents/spor-o-brachnom-dogovore/"
 ];
+const invalidMarriageProblemHref = "/problems/semya-i-deti/priznanie-braka-nedeystvitelnym/";
+const invalidMarriageDocumentHrefs = [
+  "/documents/isk-o-nedeystvitelnosti-braka-bez-soglasiya/",
+  "/documents/isk-o-nedeystvitelnosti-braka-s-nesovershennoletnim/",
+  "/documents/isk-o-nedeystvitelnosti-braka-pri-prepyatstvii/",
+  "/documents/isk-o-fiktivnom-brake/",
+  "/documents/isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya/"
+];
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -146,7 +154,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu" },
     { categorySlug: "semya-i-deti", slug: "dopolnitelnye-rashody-na-rebenka" },
     { categorySlug: "semya-i-deti", slug: "soderzhanie-supruga-i-byvshego-supruga" },
-    { categorySlug: "semya-i-deti", slug: "brachnyy-dogovor" }
+    { categorySlug: "semya-i-deti", slug: "brachnyy-dogovor" },
+    { categorySlug: "semya-i-deti", slug: "priznanie-braka-nedeystvitelnym" }
   ]
 );
 assert.deepEqual(
@@ -219,7 +228,12 @@ assert.deepEqual(
     "brachnyy-dogovor-v-brake",
     "izmenenie-brachnogo-dogovora",
     "rastorzhenie-brachnogo-dogovora",
-    "spor-o-brachnom-dogovore"
+    "spor-o-brachnom-dogovore",
+    "isk-o-nedeystvitelnosti-braka-bez-soglasiya",
+    "isk-o-nedeystvitelnosti-braka-s-nesovershennoletnim",
+    "isk-o-nedeystvitelnosti-braka-pri-prepyatstvii",
+    "isk-o-fiktivnom-brake",
+    "isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -265,6 +279,8 @@ assert.ok(indexedContentHrefs.includes(spousalSupportProblemHref));
 for (const href of spousalSupportDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(prenuptialAgreementProblemHref));
 for (const href of prenuptialAgreementDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(invalidMarriageProblemHref));
+for (const href of invalidMarriageDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -303,6 +319,8 @@ assert.equal(
       || spousalSupportDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === prenuptialAgreementProblemHref
       || prenuptialAgreementDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === invalidMarriageProblemHref
+      || invalidMarriageDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );
@@ -482,6 +500,17 @@ for (const query of ["алименты жене", "алименты супруг
   const hrefs = searchSite(query).map(({ href }) => href);
   assert.equal(hrefs.includes(spousalSupportProblemHref), true, query);
   assert.equal(hrefs.some((href) => href === childSupportProblemHref || childSupportDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["признать брак недействительным", "фиктивный брак", "брак заключен под принуждением", "брак с несовершеннолетним без разрешения", "второй брак не расторгнув первый", "скрыл ВИЧ при заключении брака"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(invalidMarriageProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === divorceProblemHref || divorceDocumentHrefs.includes(href) || href === prenuptialAgreementProblemHref || prenuptialAgreementDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["как развестись", "заключить брачный договор"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === invalidMarriageProblemHref || invalidMarriageDocumentHrefs.includes(href)), false, query);
 }
 
 console.log("content-reset tests passed");

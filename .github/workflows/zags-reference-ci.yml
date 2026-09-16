@@ -104,6 +104,8 @@ jobs:
         run: npm run test:e2e:spousal-support
       - name: Run prenuptial agreement route acceptance
         run: npm run test:e2e:prenuptial-agreement
+      - name: Run invalid marriage route acceptance
+        run: npm run test:e2e:invalid-marriage
       - name: Confirm withdrawn review PDF was deleted
         run: test -z "$(find "$LEAD_ATTACHMENT_STORAGE_ROOT" -type f -name '*.pdf' -print -quit 2>/dev/null)"
       - name: Generate and inspect guardianship PDFs
@@ -156,6 +158,8 @@ jobs:
         run: npm run audit:spousal-support-pdf
       - name: Generate and inspect prenuptial agreement PDF and DOCX
         run: npm run audit:prenuptial-agreement-pdf
+      - name: Generate and inspect invalid marriage PDF and DOCX
+        run: npm run audit:invalid-marriage-pdf
       - name: Upload PDF and browser acceptance artifacts
         if: always()
         uses: actions/upload-artifact@v4

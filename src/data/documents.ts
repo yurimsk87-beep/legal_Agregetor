@@ -16,6 +16,7 @@ import { PARENTAL_DISAGREEMENTS_DOCUMENTS } from "@/data/parental-disagreements-
 import { ADDITIONAL_CHILD_EXPENSES_DOCUMENTS } from "@/data/additional-child-expenses-documents";
 import { SPOUSAL_SUPPORT_DOCUMENTS } from "@/data/spousal-support-documents";
 import { PRENUPTIAL_AGREEMENT_DOCUMENTS } from "@/data/prenuptial-agreement-documents";
+import { INVALID_MARRIAGE_DOCUMENTS } from "@/data/invalid-marriage-documents";
 
 export type DocumentFaqItem = {
   question: string;
@@ -291,7 +292,8 @@ export const navigatorDocuments: NavigatorDocument[] = [
 ...PARENTAL_DISAGREEMENTS_DOCUMENTS,
 ...ADDITIONAL_CHILD_EXPENSES_DOCUMENTS,
 ...SPOUSAL_SUPPORT_DOCUMENTS,
-...PRENUPTIAL_AGREEMENT_DOCUMENTS
+...PRENUPTIAL_AGREEMENT_DOCUMENTS,
+...INVALID_MARRIAGE_DOCUMENTS
 ];
 
 export function getNavigatorDocument(slug: string) {

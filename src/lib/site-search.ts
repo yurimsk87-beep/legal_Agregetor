@@ -640,6 +640,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalDisagreementsRouteResult(result.href) && isParentalDisagreementsQuery(normalizedQuery)) return false;
   if (isAdditionalChildExpensesRouteResult(result.href) && isAdditionalChildExpensesQuery(normalizedQuery)) return false;
   if (isSpousalSupportRouteResult(result.href) && isSpousalSupportQuery(normalizedQuery)) return false;
+  if (isInvalidMarriageRouteResult(result.href) && isInvalidMarriageQuery(normalizedQuery)) return false;
   if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
   if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
@@ -650,6 +651,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isParentalDisagreementsQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isAdditionalChildExpensesQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isSpousalSupportQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isInvalidMarriageQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isPrenuptialAgreementQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
@@ -673,6 +675,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isAdditionalChildExpensesRouteResult(result.href)) return true;
   if (isSpousalSupportRouteResult(result.href) && isSpousalSupportQuery(normalizedQuery)) return false;
   if (isSpousalSupportRouteResult(result.href)) return true;
+  if (isInvalidMarriageRouteResult(result.href) && isInvalidMarriageQuery(normalizedQuery)) return false;
+  if (isInvalidMarriageRouteResult(result.href)) return true;
   if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
   if (isPrenuptialAgreementRouteResult(result.href)) return true;
   if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
@@ -1058,6 +1062,31 @@ function isPrenuptialAgreementQuery(normalizedQuery: string) {
   return normalizedQuery.includes("брачн") && normalizedQuery.includes("договор");
 }
 
+function isInvalidMarriageRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/priznanie-braka-nedeystvitelnym/") || [
+    "/documents/isk-o-nedeystvitelnosti-braka-bez-soglasiya/",
+    "/documents/isk-o-nedeystvitelnosti-braka-s-nesovershennoletnim/",
+    "/documents/isk-o-nedeystvitelnosti-braka-pri-prepyatstvii/",
+    "/documents/isk-o-fiktivnom-brake/",
+    "/documents/isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya/"
+  ].some((path) => href.includes(path));
+}
+
+function isInvalidMarriageQuery(normalizedQuery: string) {
+  if (isPrenuptialAgreementQuery(normalizedQuery)) return false;
+  return [
+    "признать брак недействительным",
+    "признание брака недействительным",
+    "недействительность брака",
+    "фиктивный брак",
+    "брак заключен под принуждением",
+    "брак с несовершеннолетним без разрешения",
+    "второй брак не расторгнув первый",
+    "скрыл вич при заключении брака",
+    "скрыл венерическую болезнь"
+  ].some((marker) => normalizedQuery.includes(marker));
+}
+
 function isPaternityEstablishmentRouteResult(href: string) {
   return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
     "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
@@ -1128,6 +1157,8 @@ function isChildNameQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isInvalidMarriageQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/priznanie-braka-nedeystvitelnym/")) return 1620;
+  if (isInvalidMarriageQuery(normalizedQuery) && isInvalidMarriageRouteResult(href)) return 1600;
   if (isPrenuptialAgreementQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/brachnyy-dogovor/")) return 1580;
   if (isPrenuptialAgreementQuery(normalizedQuery) && isPrenuptialAgreementRouteResult(href)) return 1560;
   if (isSpousalSupportQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/")) return 1540;

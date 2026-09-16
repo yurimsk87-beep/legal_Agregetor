@@ -135,7 +135,10 @@ const spousalSupportContent = [spousalSupportProblem, ...spousalSupportDocuments
 const prenuptialAgreementProblem = "/problems/semya-i-deti/brachnyy-dogovor/";
 const prenuptialAgreementDocuments = ["/documents/brachnyy-dogovor-do-braka/", "/documents/brachnyy-dogovor-v-brake/", "/documents/izmenenie-brachnogo-dogovora/", "/documents/rastorzhenie-brachnogo-dogovora/", "/documents/spor-o-brachnom-dogovore/"];
 const prenuptialAgreementContent = [prenuptialAgreementProblem, ...prenuptialAgreementDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent, ...prenuptialAgreementContent];
+const invalidMarriageProblem = "/problems/semya-i-deti/priznanie-braka-nedeystvitelnym/";
+const invalidMarriageDocuments = ["/documents/isk-o-nedeystvitelnosti-braka-bez-soglasiya/", "/documents/isk-o-nedeystvitelnosti-braka-s-nesovershennoletnim/", "/documents/isk-o-nedeystvitelnosti-braka-pri-prepyatstvii/", "/documents/isk-o-fiktivnom-brake/", "/documents/isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya/"];
+const invalidMarriageContent = [invalidMarriageProblem, ...invalidMarriageDocuments];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent, ...prenuptialAgreementContent, ...invalidMarriageContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -190,6 +193,12 @@ const queries = [
   { query: "изменить брачный договор", expected: [prenuptialAgreementProblem, prenuptialAgreementDocuments[2]], forbidden: divorceDocuments },
   { query: "расторгнуть брачный договор", expected: [prenuptialAgreementProblem, prenuptialAgreementDocuments[3]], forbidden: divorceDocuments },
   { query: "оспорить брачный договор", expected: [prenuptialAgreementProblem, prenuptialAgreementDocuments[4]], forbidden: [divorceProblem] },
+  { query: "признать брак недействительным", expected: [invalidMarriageProblem], forbidden: [divorceProblem, prenuptialAgreementProblem] },
+  { query: "брак заключен под принуждением", expected: [invalidMarriageProblem, invalidMarriageDocuments[0]], forbidden: divorceDocuments },
+  { query: "брак с несовершеннолетним без разрешения", expected: [invalidMarriageProblem, invalidMarriageDocuments[1]], forbidden: divorceDocuments },
+  { query: "второй брак не расторгнув первый", expected: [invalidMarriageProblem, invalidMarriageDocuments[2]], forbidden: divorceDocuments },
+  { query: "фиктивный брак без намерения создать семью", expected: [invalidMarriageProblem, invalidMarriageDocuments[3]], forbidden: divorceDocuments },
+  { query: "скрыл ВИЧ при заключении брака", expected: [invalidMarriageProblem, invalidMarriageDocuments[4]], forbidden: divorceDocuments },
   { query: "дополнительные расходы на ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[0]], forbidden: childSupportContent },
   { query: "соглашение о дополнительных расходах на ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[1]], forbidden: childSupportContent },
   { query: "взыскать расходы на лечение ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[2]], forbidden: childSupportContent },
@@ -237,7 +246,7 @@ const queries = [
   { query: "сменить фамилию ребёнку без согласия отца", expected: [childNameProblem, childNameDocuments[1]], forbidden: [...guardianshipContent, ...parentsChildContent] },
   { query: "сменить имя подростку в 15 лет", expected: [childNameProblem, childNameDocuments[2]], forbidden: [allowedProblem, allowedDocument] },
   { query: "изменить отчество ребёнку", expected: [childNameProblem, childNameDocuments[3]], forbidden: [...guardianshipContent, allowedProblem, allowedDocument] },
-  { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: parentsChildContent }
+  { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: [...parentsChildContent, ...invalidMarriageContent] }
 ];
 
 async function main() {
