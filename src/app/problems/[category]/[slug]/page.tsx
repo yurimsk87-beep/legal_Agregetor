@@ -28,6 +28,8 @@ import { INTERNATIONAL_FAMILY_DISPUTES_REVIEWED_AT, getInternationalFamilyDisput
 import { INTERNATIONAL_FAMILY_DISPUTES_ROUTE, INTERNATIONAL_FAMILY_DISPUTES_KEYS, INTERNATIONAL_FAMILY_DISPUTES_SCENARIOS, getInternationalFamilyDisputesScenario } from "@/data/international-family-disputes-route";
 import { RELATIVE_CHILD_CONTACT_REVIEWED_AT, getRelativeChildContactRules } from "@/data/relative-child-contact-legal-review";
 import { RELATIVE_CHILD_CONTACT_ROUTE, RELATIVE_CHILD_CONTACT_KEYS, RELATIVE_CHILD_CONTACT_SCENARIOS, getRelativeChildContactScenario } from "@/data/relative-child-contact-route";
+import { EMANCIPATION_REVIEWED_AT, getEmancipationRules } from "@/data/emancipation-legal-review";
+import { EMANCIPATION_ROUTE, EMANCIPATION_KEYS, EMANCIPATION_SCENARIOS, getEmancipationScenario } from "@/data/emancipation-route";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
 import {
   DIVORCE_PROPERTY_GOALS,
@@ -232,6 +234,9 @@ export default async function ProblemPage({ params, searchParams }: PageProps) {
   if (problem.slug === RELATIVE_CHILD_CONTACT_ROUTE.problemSlug) {
     return <RelativeChildContactProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
+  if (problem.slug === EMANCIPATION_ROUTE.problemSlug) {
+    return <EmancipationProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  }
   if (problem.slug !== ZAGS_PROBLEM_ROUTE.problemSlug) notFound();
   const scenario = getZagsScenario(resolvedSearchParams.scenario);
   const problemPath = `/problems/${category.slug}/${problem.slug}/`;
@@ -357,6 +362,17 @@ function RelativeChildContactProblemPage({ categoryTitle, problem, searchParams 
       <section className="mt-7 grid gap-4 md:grid-cols-2" aria-label="Стадии общения родственников с ребёнком">{RELATIVE_CHILD_CONTACT_KEYS.map((key) => <Link key={key} href={`${path}?scenario=${key}`} className="min-h-11 rounded-md border border-line bg-white p-5 outline-none hover:border-trust focus:ring-2 focus:ring-trust/20"><span className="text-lg font-semibold text-ink">{RELATIVE_CHILD_CONTACT_SCENARIOS[key].title}</span><span className="mt-2 block text-sm leading-6 text-zinc-600">{RELATIVE_CHILD_CONTACT_SCENARIOS[key].summary}</span></Link>)}</section>
       {selected ? <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">{selected.title}</h2><p className="mt-3 text-zinc-700">{selected.summary}</p><h3 className="mt-5 text-lg font-semibold text-ink">Что собрать</h3><ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-700">{selected.evidence.map((item) => <li key={item}>- {item}</li>)}</ul><Link href={`/documents/${RELATIVE_CHILD_CONTACT_ROUTE.documentSlug}/?variant=${selected.key}#fill-online`} className="mt-5 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white">Подготовить материал</Link><h3 className="mt-7 text-lg font-semibold text-ink">Правовые основания</h3><ul className="mt-3 grid gap-3 text-sm leading-6">{getRelativeChildContactRules(selected.key).map((rule) => <li key={rule.id}><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center text-trust underline">{rule.norm}</a><span className="block text-zinc-600">{rule.scope} {rule.limitations}</span></li>)}</ul></section> : null}
       <p className="mt-7 text-xs leading-5 text-zinc-500">Последняя документированная правовая сверка: {formatReviewDate(RELATIVE_CHILD_CONTACT_REVIEWED_AT)}.</p>
+    </article></>;
+}
+
+function EmancipationProblemPage({ categoryTitle, problem, searchParams }: { categoryTitle: string; problem: LegalProblem; searchParams: { scenario?: string } }) {
+  const path = `/problems/${problem.categorySlug}/${problem.slug}/`; const selected = getEmancipationScenario(searchParams.scenario);
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Правовой навигатор", path: "/problems/" }, { name: categoryTitle, path: `/problems/${problem.categorySlug}/` }, { name: problem.title, path }];
+  return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), legalServiceJsonLd({ path, name: problem.title, description: problem.shortAnswer, lawyers: [] }), articleJsonLd(problem, categoryTitle)]} /><Breadcrumbs items={breadcrumbs} />
+    <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{categoryTitle}</p><h1 className="mt-3 max-w-4xl [overflow-wrap:anywhere] text-3xl font-semibold leading-tight text-ink sm:text-5xl">{problem.h1}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">Проверьте условия и выберите административный или судебный путь. Возраст 16 лет сам по себе не означает полную дееспособность.</p></header>
+      <section className="mt-7 grid gap-4 md:grid-cols-2" aria-label="Стадии эмансипации">{EMANCIPATION_KEYS.map((key) => <Link key={key} href={`${path}?scenario=${key}`} className="min-h-11 rounded-md border border-line bg-white p-5 outline-none hover:border-trust focus:ring-2 focus:ring-trust/20"><span className="text-lg font-semibold text-ink">{EMANCIPATION_SCENARIOS[key].title}</span><span className="mt-2 block text-sm leading-6 text-zinc-600">{EMANCIPATION_SCENARIOS[key].summary}</span></Link>)}</section>
+      {selected ? <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">{selected.title}</h2><p className="mt-3 text-zinc-700">{selected.summary}</p><h3 className="mt-5 text-lg font-semibold text-ink">Что собрать</h3><ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-700">{selected.evidence.map((item) => <li key={item}>- {item}</li>)}</ul><Link href={`/documents/${EMANCIPATION_ROUTE.documentSlug}/?variant=${selected.key}#fill-online`} className="mt-5 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white">Подготовить материал</Link><h3 className="mt-7 text-lg font-semibold text-ink">Правовые основания</h3><ul className="mt-3 grid gap-3 text-sm leading-6">{getEmancipationRules(selected.key).map((rule) => <li key={rule.id}><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center text-trust underline">{rule.norm}</a><span className="block text-zinc-600">{rule.scope} {rule.limitations}</span></li>)}</ul></section> : null}
+      <p className="mt-7 text-xs leading-5 text-zinc-500">Последняя документированная правовая сверка: {formatReviewDate(EMANCIPATION_REVIEWED_AT)}.</p>
     </article></>;
 }
 

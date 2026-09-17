@@ -114,6 +114,8 @@ jobs:
         run: npm run test:e2e:international-family-disputes
       - name: Run relative child contact route acceptance
         run: npm run test:e2e:relative-child-contact
+      - name: Run emancipation route acceptance
+        run: npm run test:e2e:emancipation
       - name: Confirm withdrawn review PDF was deleted
         run: test -z "$(find "$LEAD_ATTACHMENT_STORAGE_ROOT" -type f -name '*.pdf' -print -quit 2>/dev/null)"
       - name: Generate and inspect guardianship PDFs
@@ -176,6 +178,8 @@ jobs:
         run: npm run audit:international-family-disputes-pdf
       - name: Generate and inspect relative child contact PDFs
         run: npm run audit:relative-child-contact-pdf
+      - name: Generate and inspect emancipation PDFs
+        run: npm run audit:emancipation-pdf
       - name: Upload PDF and browser acceptance artifacts
         if: always()
         uses: actions/upload-artifact@v4

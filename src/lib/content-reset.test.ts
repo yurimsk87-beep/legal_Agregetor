@@ -147,6 +147,8 @@ const internationalFamilyDisputesProblemHref = "/problems/semya-i-deti/mezhdunar
 const internationalFamilyDisputesDocumentHref = "/documents/mezhdunarodnyy-semeynyy-spor-list-dannyh/";
 const relativeChildContactProblemHref = "/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/";
 const relativeChildContactDocumentHref = "/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/";
+const emancipationProblemHref = "/problems/semya-i-deti/emansipatsiya-nesovershennoletnego/";
+const emancipationDocumentHref = "/documents/emansipatsiya-nesovershennoletnego-materialy/";
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -173,7 +175,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "slozhnye-imushchestvennye-spory-suprugov" },
     { categorySlug: "semya-i-deti", slug: "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka" },
     { categorySlug: "semya-i-deti", slug: "mezhdunarodnye-semeynye-spory" },
-    { categorySlug: "semya-i-deti", slug: "obshchenie-rodstvennikov-s-rebenkom" }
+    { categorySlug: "semya-i-deti", slug: "obshchenie-rodstvennikov-s-rebenkom" },
+    { categorySlug: "semya-i-deti", slug: "emansipatsiya-nesovershennoletnego" }
   ]
 );
 assert.deepEqual(
@@ -259,7 +262,8 @@ assert.deepEqual(
     "slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery",
     "surrogatnoe-materinstvo-list-dannyh",
     "mezhdunarodnyy-semeynyy-spor-list-dannyh",
-    "obshchenie-rodstvennikov-s-rebenkom-materialy"
+    "obshchenie-rodstvennikov-s-rebenkom-materialy",
+    "emansipatsiya-nesovershennoletnego-materialy"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -315,6 +319,8 @@ assert.ok(indexedContentHrefs.includes(internationalFamilyDisputesProblemHref));
 assert.ok(indexedContentHrefs.includes(internationalFamilyDisputesDocumentHref));
 assert.ok(indexedContentHrefs.includes(relativeChildContactProblemHref));
 assert.ok(indexedContentHrefs.includes(relativeChildContactDocumentHref));
+assert.ok(indexedContentHrefs.includes(emancipationProblemHref));
+assert.ok(indexedContentHrefs.includes(emancipationDocumentHref));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -363,6 +369,8 @@ assert.equal(
       || href.startsWith(internationalFamilyDisputesDocumentHref)
       || href === relativeChildContactProblemHref
       || href.startsWith(relativeChildContactDocumentHref)
+      || href === emancipationProblemHref
+      || href.startsWith(emancipationDocumentHref)
   ),
   true
 );
@@ -580,6 +588,11 @@ for (const query of ["бабушка не видит внука", "не дают
   const hrefs = searchSite(query).map(({ href }) => href);
   assert.equal(hrefs.includes(relativeChildContactProblemHref), true, query);
   assert.equal(hrefs.includes(parentsChildProblemHref), false, query);
+}
+
+for (const query of ["как получить эмансипацию", "стать дееспособным в 16 лет"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(emancipationProblemHref), true, query);
 }
 
 console.log("content-reset tests passed");

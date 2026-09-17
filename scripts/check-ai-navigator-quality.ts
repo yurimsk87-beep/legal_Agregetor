@@ -144,7 +144,8 @@ const complexMaritalPropertyContent = [complexMaritalPropertyProblem, ...complex
 const surrogacyOriginContent = ["/problems/semya-i-deti/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/", "/documents/surrogatnoe-materinstvo-list-dannyh/"];
 const internationalFamilyDisputesContent = ["/problems/semya-i-deti/mezhdunarodnye-semeynye-spory/", "/documents/mezhdunarodnyy-semeynyy-spor-list-dannyh/"];
 const relativeChildContactContent = ["/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/", "/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/"];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent, ...prenuptialAgreementContent, ...invalidMarriageContent, ...complexMaritalPropertyContent, ...surrogacyOriginContent, ...internationalFamilyDisputesContent, ...relativeChildContactContent];
+const emancipationContent = ["/problems/semya-i-deti/emansipatsiya-nesovershennoletnego/", "/documents/emansipatsiya-nesovershennoletnego-materialy/"];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent, ...prenuptialAgreementContent, ...invalidMarriageContent, ...complexMaritalPropertyContent, ...surrogacyOriginContent, ...internationalFamilyDisputesContent, ...relativeChildContactContent, ...emancipationContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -268,7 +269,9 @@ const queries = [
   { query: "сменить фамилию ребёнку без согласия отца", expected: [childNameProblem, childNameDocuments[1]], forbidden: [...guardianshipContent, ...parentsChildContent] },
   { query: "сменить имя подростку в 15 лет", expected: [childNameProblem, childNameDocuments[2]], forbidden: [allowedProblem, allowedDocument] },
   { query: "изменить отчество ребёнку", expected: [childNameProblem, childNameDocuments[3]], forbidden: [...guardianshipContent, allowedProblem, allowedDocument] },
-  { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: [...parentsChildContent, ...invalidMarriageContent] }
+  { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: [...parentsChildContent, ...invalidMarriageContent] },
+  { query: "как получить эмансипацию", expected: emancipationContent },
+  { query: "стать дееспособным в 16 лет", expected: emancipationContent }
 ];
 
 async function main() {

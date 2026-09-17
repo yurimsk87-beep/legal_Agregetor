@@ -645,6 +645,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isSurrogacyOriginRouteResult(result.href) && isSurrogacyOriginQuery(normalizedQuery)) return false;
   if (isInternationalFamilyDisputesRouteResult(result.href) && isInternationalFamilyDisputesQuery(normalizedQuery)) return false;
   if (isRelativeChildContactRouteResult(result.href) && isRelativeChildContactQuery(normalizedQuery)) return false;
+  if (isEmancipationRouteResult(result.href) && isEmancipationQuery(normalizedQuery)) return false;
   if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
   if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
@@ -660,6 +661,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isSurrogacyOriginQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isInternationalFamilyDisputesQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isRelativeChildContactQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isEmancipationQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isPrenuptialAgreementQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
@@ -693,6 +695,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isInternationalFamilyDisputesRouteResult(result.href)) return true;
   if (isRelativeChildContactRouteResult(result.href) && isRelativeChildContactQuery(normalizedQuery)) return false;
   if (isRelativeChildContactRouteResult(result.href)) return true;
+  if (isEmancipationRouteResult(result.href) && isEmancipationQuery(normalizedQuery)) return false;
+  if (isEmancipationRouteResult(result.href)) return true;
   if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
   if (isPrenuptialAgreementRouteResult(result.href)) return true;
   if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
@@ -1152,6 +1156,14 @@ function isRelativeChildContactQuery(normalizedQuery: string) {
   return ["бабушка не видит внука", "дедушке общаться с ребенком", "родственников с ребенком", "родственникам препятствуют общаться", "брату общаться с ребенком", "сестре общаться с ребенком"].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isEmancipationRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/emansipatsiya-nesovershennoletnego/") || href.includes("/documents/emansipatsiya-nesovershennoletnego-materialy/");
+}
+
+function isEmancipationQuery(normalizedQuery: string) {
+  return ["эмансипаци", "дееспособным в 16", "дееспособность с 16", "полная дееспособность несовершеннолетнего"].some((marker) => normalizedQuery.includes(marker));
+}
+
 function isPaternityEstablishmentRouteResult(href: string) {
   return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
     "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
@@ -1222,6 +1234,8 @@ function isChildNameQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isEmancipationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/emansipatsiya-nesovershennoletnego/")) return 1820;
+  if (isEmancipationQuery(normalizedQuery) && isEmancipationRouteResult(href)) return 1800;
   if (isRelativeChildContactQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/")) return 1780;
   if (isRelativeChildContactQuery(normalizedQuery) && isRelativeChildContactRouteResult(href)) return 1760;
   if (isInternationalFamilyDisputesQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/mezhdunarodnye-semeynye-spory/")) return 1740;
