@@ -108,6 +108,8 @@ jobs:
         run: npm run test:e2e:invalid-marriage
       - name: Run complex marital property route acceptance
         run: npm run test:e2e:complex-marital-property
+      - name: Run surrogacy origin route acceptance
+        run: npm run test:e2e:surrogacy-origin
       - name: Confirm withdrawn review PDF was deleted
         run: test -z "$(find "$LEAD_ATTACHMENT_STORAGE_ROOT" -type f -name '*.pdf' -print -quit 2>/dev/null)"
       - name: Generate and inspect guardianship PDFs
@@ -164,6 +166,8 @@ jobs:
         run: npm run audit:invalid-marriage-pdf
       - name: Generate and inspect complex marital property PDF and DOCX
         run: npm run audit:complex-marital-property-pdf
+      - name: Generate and inspect surrogacy origin PDFs
+        run: npm run audit:surrogacy-origin-pdf
       - name: Upload PDF and browser acceptance artifacts
         if: always()
         uses: actions/upload-artifact@v4

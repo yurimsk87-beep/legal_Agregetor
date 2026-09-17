@@ -141,7 +141,8 @@ const invalidMarriageContent = [invalidMarriageProblem, ...invalidMarriageDocume
 const complexMaritalPropertyProblem = "/problems/semya-i-deti/slozhnye-imushchestvennye-spory-suprugov/";
 const complexMaritalPropertyDocuments = ["/documents/slozhnyy-spor-ob-obshchih-dolgah-suprugov/", "/documents/slozhnyy-spor-ob-ipotechnom-imushchestve-suprugov/", "/documents/slozhnyy-spor-o-biznes-aktivah-suprugov/", "/documents/slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey/", "/documents/slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery/"];
 const complexMaritalPropertyContent = [complexMaritalPropertyProblem, ...complexMaritalPropertyDocuments];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent, ...prenuptialAgreementContent, ...invalidMarriageContent, ...complexMaritalPropertyContent];
+const surrogacyOriginContent = ["/problems/semya-i-deti/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/", "/documents/surrogatnoe-materinstvo-list-dannyh/"];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent, ...prenuptialAgreementContent, ...invalidMarriageContent, ...complexMaritalPropertyContent, ...surrogacyOriginContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -210,6 +211,9 @@ const queries = [
   { query: "компенсация за проданное имущество супругов", expected: [complexMaritalPropertyProblem, complexMaritalPropertyDocuments[3]], forbidden: divorceDocuments },
   { query: "имущество супругов при банкротстве", expected: [complexMaritalPropertyProblem, complexMaritalPropertyDocuments[4]], forbidden: divorceDocuments },
   { query: "арест имущества при разделе супругов", expected: [complexMaritalPropertyProblem, complexMaritalPropertyDocuments[4]], forbidden: divorceDocuments },
+  { query: "как записать родителей после суррогатного материнства", expected: surrogacyOriginContent, forbidden: [...paternityContent, ...adoptionContent] },
+  { query: "согласие суррогатной матери на запись", expected: surrogacyOriginContent, forbidden: [...paternityContestContent, ...adoptionContent] },
+  { query: "спор с суррогатной матерью о ребенке", expected: surrogacyOriginContent, forbidden: [...parentsChildContent, ...paternityContent] },
   { query: "дополнительные расходы на ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[0]], forbidden: childSupportContent },
   { query: "соглашение о дополнительных расходах на ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[1]], forbidden: childSupportContent },
   { query: "взыскать расходы на лечение ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[2]], forbidden: childSupportContent },

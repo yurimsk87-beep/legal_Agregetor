@@ -141,6 +141,8 @@ const complexMaritalPropertyDocumentHrefs = [
   "/documents/slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey/",
   "/documents/slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery/"
 ];
+const surrogacyOriginProblemHref = "/problems/semya-i-deti/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/";
+const surrogacyOriginDocumentHref = "/documents/surrogatnoe-materinstvo-list-dannyh/";
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -164,7 +166,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "soderzhanie-supruga-i-byvshego-supruga" },
     { categorySlug: "semya-i-deti", slug: "brachnyy-dogovor" },
     { categorySlug: "semya-i-deti", slug: "priznanie-braka-nedeystvitelnym" },
-    { categorySlug: "semya-i-deti", slug: "slozhnye-imushchestvennye-spory-suprugov" }
+    { categorySlug: "semya-i-deti", slug: "slozhnye-imushchestvennye-spory-suprugov" },
+    { categorySlug: "semya-i-deti", slug: "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka" }
   ]
 );
 assert.deepEqual(
@@ -247,7 +250,8 @@ assert.deepEqual(
     "slozhnyy-spor-ob-ipotechnom-imushchestve-suprugov",
     "slozhnyy-spor-o-biznes-aktivah-suprugov",
     "slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey",
-    "slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery"
+    "slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery",
+    "surrogatnoe-materinstvo-list-dannyh"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -297,6 +301,8 @@ assert.ok(indexedContentHrefs.includes(invalidMarriageProblemHref));
 for (const href of invalidMarriageDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(complexMaritalPropertyProblemHref));
 for (const href of complexMaritalPropertyDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(surrogacyOriginProblemHref));
+assert.ok(indexedContentHrefs.includes(surrogacyOriginDocumentHref));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -339,6 +345,8 @@ assert.equal(
       || invalidMarriageDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === complexMaritalPropertyProblemHref
       || complexMaritalPropertyDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === surrogacyOriginProblemHref
+      || href.startsWith(surrogacyOriginDocumentHref)
   ),
   true
 );
@@ -539,6 +547,12 @@ for (const query of ["разделить общие долги супругов"
 for (const query of ["раздел имущества после развода", "соглашение о разделе имущества"]) {
   const hrefs = searchSite(query).map(({ href }) => href);
   assert.equal(hrefs.some((href) => href === complexMaritalPropertyProblemHref || complexMaritalPropertyDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["как записать родителей после суррогатного материнства", "согласие суррогатной матери на запись", "спор с суррогатной матерью о ребенке"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(surrogacyOriginProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === adoptionProblemHref || adoptionDocumentHrefs.includes(href) || href === paternityProblemHref || paternityDocumentHrefs.includes(href)), false, query);
 }
 
 console.log("content-reset tests passed");
