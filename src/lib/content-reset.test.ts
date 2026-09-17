@@ -145,6 +145,8 @@ const surrogacyOriginProblemHref = "/problems/semya-i-deti/surrogatnoe-materinst
 const surrogacyOriginDocumentHref = "/documents/surrogatnoe-materinstvo-list-dannyh/";
 const internationalFamilyDisputesProblemHref = "/problems/semya-i-deti/mezhdunarodnye-semeynye-spory/";
 const internationalFamilyDisputesDocumentHref = "/documents/mezhdunarodnyy-semeynyy-spor-list-dannyh/";
+const relativeChildContactProblemHref = "/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/";
+const relativeChildContactDocumentHref = "/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/";
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -170,7 +172,8 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "priznanie-braka-nedeystvitelnym" },
     { categorySlug: "semya-i-deti", slug: "slozhnye-imushchestvennye-spory-suprugov" },
     { categorySlug: "semya-i-deti", slug: "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka" },
-    { categorySlug: "semya-i-deti", slug: "mezhdunarodnye-semeynye-spory" }
+    { categorySlug: "semya-i-deti", slug: "mezhdunarodnye-semeynye-spory" },
+    { categorySlug: "semya-i-deti", slug: "obshchenie-rodstvennikov-s-rebenkom" }
   ]
 );
 assert.deepEqual(
@@ -255,7 +258,8 @@ assert.deepEqual(
     "slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey",
     "slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery",
     "surrogatnoe-materinstvo-list-dannyh",
-    "mezhdunarodnyy-semeynyy-spor-list-dannyh"
+    "mezhdunarodnyy-semeynyy-spor-list-dannyh",
+    "obshchenie-rodstvennikov-s-rebenkom-materialy"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -309,6 +313,8 @@ assert.ok(indexedContentHrefs.includes(surrogacyOriginProblemHref));
 assert.ok(indexedContentHrefs.includes(surrogacyOriginDocumentHref));
 assert.ok(indexedContentHrefs.includes(internationalFamilyDisputesProblemHref));
 assert.ok(indexedContentHrefs.includes(internationalFamilyDisputesDocumentHref));
+assert.ok(indexedContentHrefs.includes(relativeChildContactProblemHref));
+assert.ok(indexedContentHrefs.includes(relativeChildContactDocumentHref));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -355,6 +361,8 @@ assert.equal(
       || href.startsWith(surrogacyOriginDocumentHref)
       || href === internationalFamilyDisputesProblemHref
       || href.startsWith(internationalFamilyDisputesDocumentHref)
+      || href === relativeChildContactProblemHref
+      || href.startsWith(relativeChildContactDocumentHref)
   ),
   true
 );
@@ -566,6 +574,12 @@ for (const query of ["как записать родителей после су
 for (const query of ["ребенка увезли в другую страну", "признать иностранное решение о ребенке", "алименты если отец за границей", "международный семейный спор"]) {
   const hrefs = searchSite(query).map(({ href }) => href);
   assert.equal(hrefs.includes(internationalFamilyDisputesProblemHref), true, query);
+}
+
+for (const query of ["бабушка не видит внука", "не дают дедушке общаться с ребенком", "общение родственников с ребёнком"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(relativeChildContactProblemHref), true, query);
+  assert.equal(hrefs.includes(parentsChildProblemHref), false, query);
 }
 
 console.log("content-reset tests passed");

@@ -143,7 +143,8 @@ const complexMaritalPropertyDocuments = ["/documents/slozhnyy-spor-ob-obshchih-d
 const complexMaritalPropertyContent = [complexMaritalPropertyProblem, ...complexMaritalPropertyDocuments];
 const surrogacyOriginContent = ["/problems/semya-i-deti/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/", "/documents/surrogatnoe-materinstvo-list-dannyh/"];
 const internationalFamilyDisputesContent = ["/problems/semya-i-deti/mezhdunarodnye-semeynye-spory/", "/documents/mezhdunarodnyy-semeynyy-spor-list-dannyh/"];
-const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent, ...prenuptialAgreementContent, ...invalidMarriageContent, ...complexMaritalPropertyContent, ...surrogacyOriginContent, ...internationalFamilyDisputesContent];
+const relativeChildContactContent = ["/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/", "/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/"];
+const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent, ...prenuptialAgreementContent, ...invalidMarriageContent, ...complexMaritalPropertyContent, ...surrogacyOriginContent, ...internationalFamilyDisputesContent, ...relativeChildContactContent];
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
@@ -218,6 +219,8 @@ const queries = [
   { query: "ребенка увезли в другую страну", expected: internationalFamilyDisputesContent, forbidden: childTravelContent },
   { query: "признать иностранное решение о ребенке", expected: internationalFamilyDisputesContent, forbidden: parentsChildContent },
   { query: "алименты если отец за границей", expected: internationalFamilyDisputesContent, forbidden: childSupportContent },
+  { query: "бабушка не видит внука", expected: relativeChildContactContent, forbidden: parentsChildContent },
+  { query: "не дают дедушке общаться с ребенком", expected: relativeChildContactContent, forbidden: parentsChildContent },
   { query: "дополнительные расходы на ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[0]], forbidden: childSupportContent },
   { query: "соглашение о дополнительных расходах на ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[1]], forbidden: childSupportContent },
   { query: "взыскать расходы на лечение ребёнка", expected: [additionalChildExpensesProblem, additionalChildExpensesDocuments[2]], forbidden: childSupportContent },

@@ -644,6 +644,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isComplexMaritalPropertyRouteResult(result.href) && isComplexMaritalPropertyQuery(normalizedQuery)) return false;
   if (isSurrogacyOriginRouteResult(result.href) && isSurrogacyOriginQuery(normalizedQuery)) return false;
   if (isInternationalFamilyDisputesRouteResult(result.href) && isInternationalFamilyDisputesQuery(normalizedQuery)) return false;
+  if (isRelativeChildContactRouteResult(result.href) && isRelativeChildContactQuery(normalizedQuery)) return false;
   if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
   if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
@@ -658,6 +659,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isComplexMaritalPropertyQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isSurrogacyOriginQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isInternationalFamilyDisputesQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
+  if (isRelativeChildContactQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isPrenuptialAgreementQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
 
@@ -689,6 +691,8 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isSurrogacyOriginRouteResult(result.href)) return true;
   if (isInternationalFamilyDisputesRouteResult(result.href) && isInternationalFamilyDisputesQuery(normalizedQuery)) return false;
   if (isInternationalFamilyDisputesRouteResult(result.href)) return true;
+  if (isRelativeChildContactRouteResult(result.href) && isRelativeChildContactQuery(normalizedQuery)) return false;
+  if (isRelativeChildContactRouteResult(result.href)) return true;
   if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
   if (isPrenuptialAgreementRouteResult(result.href)) return true;
   if (isPaternityEstablishmentRouteResult(result.href) && isPaternityEstablishmentQuery(normalizedQuery)) return false;
@@ -1140,6 +1144,14 @@ function isInternationalFamilyDisputesQuery(normalizedQuery: string) {
   return ["международный семейный", "международные семейные", "ребенка увезли в другую страну", "ребенок находится в другой стране", "иностранное решение о ребенке", "алименты если отец за границей", "алименты за границей", "признать иностранное решение"].some((marker) => normalizedQuery.includes(marker));
 }
 
+function isRelativeChildContactRouteResult(href: string) {
+  return href.includes("/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/") || href.includes("/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/");
+}
+
+function isRelativeChildContactQuery(normalizedQuery: string) {
+  return ["бабушка не видит внука", "дедушке общаться с ребенком", "родственников с ребенком", "родственникам препятствуют общаться", "брату общаться с ребенком", "сестре общаться с ребенком"].some((marker) => normalizedQuery.includes(marker));
+}
+
 function isPaternityEstablishmentRouteResult(href: string) {
   return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
     "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
@@ -1210,6 +1222,8 @@ function isChildNameQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  if (isRelativeChildContactQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/")) return 1780;
+  if (isRelativeChildContactQuery(normalizedQuery) && isRelativeChildContactRouteResult(href)) return 1760;
   if (isInternationalFamilyDisputesQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/mezhdunarodnye-semeynye-spory/")) return 1740;
   if (isInternationalFamilyDisputesQuery(normalizedQuery) && isInternationalFamilyDisputesRouteResult(href)) return 1720;
   if (isSurrogacyOriginQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/")) return 1700;
