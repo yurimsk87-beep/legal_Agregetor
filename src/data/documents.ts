@@ -19,6 +19,7 @@ import { PRENUPTIAL_AGREEMENT_DOCUMENTS } from "@/data/prenuptial-agreement-docu
 import { INVALID_MARRIAGE_DOCUMENTS } from "@/data/invalid-marriage-documents";
 import { COMPLEX_MARITAL_PROPERTY_DOCUMENTS } from "@/data/complex-marital-property-documents";
 import { SURROGACY_ORIGIN_DOCUMENT } from "@/data/surrogacy-origin-document";
+import { INTERNATIONAL_FAMILY_DISPUTES_DOCUMENT } from "@/data/international-family-disputes-document";
 
 export type DocumentFaqItem = {
   question: string;
@@ -297,7 +298,8 @@ export const navigatorDocuments: NavigatorDocument[] = [
 ...PRENUPTIAL_AGREEMENT_DOCUMENTS,
 ...INVALID_MARRIAGE_DOCUMENTS,
 ...COMPLEX_MARITAL_PROPERTY_DOCUMENTS,
-SURROGACY_ORIGIN_DOCUMENT
+SURROGACY_ORIGIN_DOCUMENT,
+INTERNATIONAL_FAMILY_DISPUTES_DOCUMENT
 ];
 
 export function getNavigatorDocument(slug: string) {
