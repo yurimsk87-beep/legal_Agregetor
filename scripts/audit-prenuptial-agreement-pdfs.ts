@@ -1,0 +1,5 @@
+import assert from "node:assert/strict";
+import { createPrenuptialAgreementDocxBlob } from "../src/lib/prenuptial-agreement-docx";
+import { buildPrenuptialAgreementPdfText, createPrenuptialAgreementPdfBlob } from "../src/lib/prenuptial-agreement-pdf";
+import { validatePrenuptialAgreement } from "../src/lib/prenuptial-agreement-validator";
+async function run() { const d = validatePrenuptialAgreement("before", { marriagePlanned: "yes", bothAgree: "yes", partyOne: "Иванова Анна", partyTwo: "Иванов Иван", assets: "Квартира", propertyTerms: "Раздельный режим", personalTerms: "no", childTerms: "no", capacityRestriction: "no", courtRestriction: "no", supportRestriction: "no", extremeDisadvantage: "no", thirdPartyRisk: "no", international: "no" }); assert.equal(d.filingReady, false); assert.match(buildPrenuptialAgreementPdfText(d), /Готово к подаче: нет/); const [pdf, docx] = await Promise.all([createPrenuptialAgreementPdfBlob(d), createPrenuptialAgreementDocxBlob(d.draftText)]); assert.ok(pdf.size > 1000); assert.ok(docx.size > 1000); console.log(`Prenuptial-agreement audit passed: PDF ${pdf.size}, DOCX ${docx.size}.`); } void run();

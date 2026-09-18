@@ -1,0 +1,13 @@
+import assert from "node:assert/strict";
+import { validatePrenuptialAgreement } from "@/lib/prenuptial-agreement-validator";
+const safe = { bothAgree: "yes", partyOne: "Иванова Анна", partyTwo: "Иванов Иван", assets: "Квартира и автомобиль", propertyTerms: "Раздельный режим", personalTerms: "no", childTerms: "no", capacityRestriction: "no", courtRestriction: "no", supportRestriction: "no", extremeDisadvantage: "no", thirdPartyRisk: "no", international: "no" };
+assert.equal(validatePrenuptialAgreement("before", { ...safe, marriagePlanned: "yes" }).resultKind, "agreementDraft");
+assert.equal(validatePrenuptialAgreement("during", { ...safe, marriageRegistered: "yes" }).resultKind, "agreementDraft");
+assert.equal(validatePrenuptialAgreement("change", { ...safe, agreementExists: "yes" }).resultKind, "agreementDraft");
+assert.equal(validatePrenuptialAgreement("terminate", { ...safe, agreementExists: "yes" }).resultKind, "agreementDraft");
+assert.equal(validatePrenuptialAgreement("before", { ...safe, marriagePlanned: "yes", childTerms: "yes" }).outcomeKey, "prohibited-or-unclear-term");
+assert.equal(validatePrenuptialAgreement("during", { ...safe, marriageRegistered: "yes", extremeDisadvantage: "unsure" }).resultKind, "legalReviewOnly");
+const dispute = validatePrenuptialAgreement("dispute", { ...safe, agreementExists: "yes", disputeGround: "prohibited-term", personalTerms: "yes", disputeFacts: "Условия договора", courtName: "Тверской районный суд", courtSource: "https://tverskoy.msk.sudrf.ru/", courtConfirmed: "yes" }); assert.equal(dispute.resultKind, "courtDraft"); assert.equal(dispute.filingReady, false);
+const extremeDispute = validatePrenuptialAgreement("dispute", { ...safe, agreementExists: "yes", disputeGround: "extreme-disadvantage", extremeDisadvantage: "yes", disputeFacts: "Условия договора", courtName: "Тверской районный суд", courtSource: "https://tverskoy.msk.sudrf.ru/", courtConfirmed: "yes" }); assert.equal(extremeDispute.resultKind, "courtDraft"); assert.equal(extremeDispute.requiresLegalReview, true);
+assert.equal(validatePrenuptialAgreement("dispute", {}).allowed, false);
+console.log("Prenuptial-agreement validation passed: 9 material outcomes checked.");

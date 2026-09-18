@@ -26,6 +26,12 @@ a {
   text-decoration: none;
 }
 
+@media (max-width: 359px) {
+  article {
+    overflow-wrap: anywhere;
+  }
+}
+
 ::selection {
   background: #ccfbf1;
   color: #19211f;

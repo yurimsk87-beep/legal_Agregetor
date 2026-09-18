@@ -28,6 +28,127 @@ const parentsChildDocumentHrefs = [
   "/documents/izmenenie-poryadka-po-rebenku/",
   "/documents/ispolnenie-resheniya-o-rebenke/"
 ];
+const childSupportProblemHref = "/problems/semya-i-deti/alimenty-na-rebenka/";
+const childSupportDocumentHrefs = [
+  "/documents/soglashenie-ob-uplate-alimentov-na-rebenka/",
+  "/documents/vzyskanie-alimentov-na-rebenka/",
+  "/documents/izmenenie-razmera-alimentov-na-rebenka/",
+  "/documents/raschet-zadolzhennosti-po-alimentam/",
+  "/documents/ispolnenie-alimentov-na-rebenka/"
+];
+const deprivationProblemHref = "/problems/semya-i-deti/lishenie-roditelskih-prav/";
+const deprivationDocumentHrefs = [
+  "/documents/proverka-osnovaniy-lisheniya-roditelskih-prav/",
+  "/documents/isk-o-lishenii-roditelskih-prav/",
+  "/documents/uchet-resheniy-pri-lishenii-roditelskih-prav/",
+  "/documents/lishenie-roditelskih-prav-i-alimenty/"
+];
+const restrictionProblemHref = "/problems/semya-i-deti/ogranichenie-roditelskih-prav/";
+const restrictionDocumentHrefs = [
+  "/documents/ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam/",
+  "/documents/proverka-opasnogo-povedeniya-roditelya/",
+  "/documents/isk-ob-ogranichenii-roditelskih-prav/"
+];
+const paternityProblemHref = "/problems/semya-i-deti/ustanovlenie-otcovstva/";
+const paternityDocumentHrefs = [
+  "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
+  "/documents/isk-ob-ustanovlenii-otcovstva/",
+  "/documents/ustanovlenie-otcovstva-umershego/",
+  "/documents/zapis-ob-otce-uzhe-sushchestvuet/",
+  "/documents/ustanovlenie-otcovstva-i-drugoe-trebovanie/"
+];
+const paternityContestProblemHref = "/problems/semya-i-deti/osparivanie-otcovstva/";
+const paternityContestDocumentHrefs = [
+  "/documents/isk-ob-osparivanii-otcovstva-zapisannym-roditelem/",
+  "/documents/isk-ob-osparivanii-zapisi-biologicheskim-roditelem/",
+  "/documents/isk-ob-osparivanii-otcovstva-rebenkom-ili-opekunom/",
+  "/documents/osparivanie-otcovstva-posle-smerti/"
+];
+const adoptionProblemHref = "/problems/semya-i-deti/usynovlenie-rebenka/";
+const adoptionDocumentHrefs = [
+  "/documents/usynovlenie-rebenka-suprugom-roditelya/",
+  "/documents/chek-list-vnutrirossiyskogo-usynovleniya/",
+  "/documents/soglasiya-pri-usynovlenii-rebenka/",
+  "/documents/mezhdunarodnoe-usynovlenie-proverka/"
+];
+const childTravelProblemHref = "/problems/semya-i-deti/vyezd-rebenka-za-granitsu/";
+const childTravelDocumentHrefs = [
+  "/documents/vyezd-rebenka-s-odnim-roditelem/",
+  "/documents/soglasie-na-vyezd-rebenka-bez-roditeley/",
+  "/documents/spor-o-vyezde-rebenka-za-granitsu/",
+  "/documents/dokumenty-dlya-vyezda-rebenka-v-inostrannoe-gosudarstvo/"
+];
+const childNameProblemHref = "/problems/semya-i-deti/imya-familiya-otchestvo-rebenka/";
+const childNameDocumentHrefs = [
+  "/documents/izmenenie-imeni-ili-familii-rebenka-do-14-let/",
+  "/documents/izmenenie-familii-rebenka-pri-razdelnom-prozhivanii/",
+  "/documents/peremena-imeni-rebenkom-ot-14-do-18-let/",
+  "/documents/izmenenie-otchestva-rebenka-do-14-let/"
+];
+const restorationProblemHref = "/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/";
+const restorationDocumentHrefs = [
+  "/documents/isk-o-vosstanovlenii-v-roditelskih-pravah/",
+  "/documents/vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka/",
+  "/documents/proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav/"
+];
+const restrictionCancellationProblemHref = "/problems/semya-i-deti/otmena-ogranicheniya-roditelskih-prav/";
+const restrictionCancellationDocumentHrefs = [
+  "/documents/isk-ob-otmene-ogranicheniya-roditelskih-prav/",
+  "/documents/otmena-ogranicheniya-roditelskih-prav-i-vozvrat-rebenka/",
+  "/documents/proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav/"
+];
+const parentalDisagreementsProblemHref = "/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/";
+const parentalDisagreementsDocumentHrefs = [
+  "/documents/sovmestnoe-reshenie-roditeley-po-vospitaniyu-i-obrazovaniyu/",
+  "/documents/obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley/",
+  "/documents/sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka/"
+];
+const additionalChildExpensesProblemHref = "/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/";
+const additionalChildExpensesDocumentHrefs = [
+  "/documents/proverka-dopolnitelnyh-rashodov-na-rebenka/",
+  "/documents/soglashenie-o-dopolnitelnyh-rashodah-na-rebenka/",
+  "/documents/vzyskanie-ponesennyh-dopolnitelnyh-rashodov-na-rebenka/",
+  "/documents/vzyskanie-budushchih-dopolnitelnyh-rashodov-na-rebenka/"
+];
+const spousalSupportProblemHref = "/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/";
+const spousalSupportDocumentHrefs = [
+  "/documents/proverka-prava-na-soderzhanie-supruga/",
+  "/documents/soglashenie-o-soderzhanii-supruga/",
+  "/documents/isk-o-soderzhanii-supruga-v-brake/",
+  "/documents/isk-o-soderzhanii-byvshego-supruga/"
+];
+const prenuptialAgreementProblemHref = "/problems/semya-i-deti/brachnyy-dogovor/";
+const prenuptialAgreementDocumentHrefs = [
+  "/documents/brachnyy-dogovor-do-braka/",
+  "/documents/brachnyy-dogovor-v-brake/",
+  "/documents/izmenenie-brachnogo-dogovora/",
+  "/documents/rastorzhenie-brachnogo-dogovora/",
+  "/documents/spor-o-brachnom-dogovore/"
+];
+const invalidMarriageProblemHref = "/problems/semya-i-deti/priznanie-braka-nedeystvitelnym/";
+const invalidMarriageDocumentHrefs = [
+  "/documents/isk-o-nedeystvitelnosti-braka-bez-soglasiya/",
+  "/documents/isk-o-nedeystvitelnosti-braka-s-nesovershennoletnim/",
+  "/documents/isk-o-nedeystvitelnosti-braka-pri-prepyatstvii/",
+  "/documents/isk-o-fiktivnom-brake/",
+  "/documents/isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya/"
+];
+const complexMaritalPropertyProblemHref = "/problems/semya-i-deti/slozhnye-imushchestvennye-spory-suprugov/";
+const complexMaritalPropertyDocumentHrefs = [
+  "/documents/slozhnyy-spor-ob-obshchih-dolgah-suprugov/",
+  "/documents/slozhnyy-spor-ob-ipotechnom-imushchestve-suprugov/",
+  "/documents/slozhnyy-spor-o-biznes-aktivah-suprugov/",
+  "/documents/slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey/",
+  "/documents/slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery/"
+];
+const surrogacyOriginProblemHref = "/problems/semya-i-deti/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/";
+const surrogacyOriginDocumentHref = "/documents/surrogatnoe-materinstvo-list-dannyh/";
+const internationalFamilyDisputesProblemHref = "/problems/semya-i-deti/mezhdunarodnye-semeynye-spory/";
+const internationalFamilyDisputesDocumentHref = "/documents/mezhdunarodnyy-semeynyy-spor-list-dannyh/";
+const relativeChildContactProblemHref = "/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/";
+const relativeChildContactDocumentHref = "/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/";
+const emancipationProblemHref = "/problems/semya-i-deti/emansipatsiya-nesovershennoletnego/";
+const emancipationDocumentHref = "/documents/emansipatsiya-nesovershennoletnego-materialy/";
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
@@ -35,7 +156,27 @@ assert.deepEqual(
     { categorySlug: "semya-i-deti", slug: "brak-zags-i-smena-familii" },
     { categorySlug: "semya-i-deti", slug: "razvod-i-razdel-imushchestva" },
     { categorySlug: "semya-i-deti", slug: "opeka-i-popechitelstvo-nad-rebenkom" },
-    { categorySlug: "semya-i-deti", slug: "roditeli-i-rebenok-posle-razvoda" }
+    { categorySlug: "semya-i-deti", slug: "roditeli-i-rebenok-posle-razvoda" },
+    { categorySlug: "semya-i-deti", slug: "alimenty-na-rebenka" },
+    { categorySlug: "semya-i-deti", slug: "lishenie-roditelskih-prav" },
+    { categorySlug: "semya-i-deti", slug: "ogranichenie-roditelskih-prav" },
+    { categorySlug: "semya-i-deti", slug: "ustanovlenie-otcovstva" },
+    { categorySlug: "semya-i-deti", slug: "osparivanie-otcovstva" },
+    { categorySlug: "semya-i-deti", slug: "usynovlenie-rebenka" },
+    { categorySlug: "semya-i-deti", slug: "vyezd-rebenka-za-granitsu" },
+    { categorySlug: "semya-i-deti", slug: "imya-familiya-otchestvo-rebenka" },
+    { categorySlug: "semya-i-deti", slug: "vosstanovlenie-v-roditelskih-pravah" },
+    { categorySlug: "semya-i-deti", slug: "otmena-ogranicheniya-roditelskih-prav" },
+    { categorySlug: "semya-i-deti", slug: "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu" },
+    { categorySlug: "semya-i-deti", slug: "dopolnitelnye-rashody-na-rebenka" },
+    { categorySlug: "semya-i-deti", slug: "soderzhanie-supruga-i-byvshego-supruga" },
+    { categorySlug: "semya-i-deti", slug: "brachnyy-dogovor" },
+    { categorySlug: "semya-i-deti", slug: "priznanie-braka-nedeystvitelnym" },
+    { categorySlug: "semya-i-deti", slug: "slozhnye-imushchestvennye-spory-suprugov" },
+    { categorySlug: "semya-i-deti", slug: "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka" },
+    { categorySlug: "semya-i-deti", slug: "mezhdunarodnye-semeynye-spory" },
+    { categorySlug: "semya-i-deti", slug: "obshchenie-rodstvennikov-s-rebenkom" },
+    { categorySlug: "semya-i-deti", slug: "emansipatsiya-nesovershennoletnego" }
   ]
 );
 assert.deepEqual(
@@ -53,7 +194,76 @@ assert.deepEqual(
     "mesto-zhitelstva-rebenka-posle-razvoda",
     "poryadok-obshcheniya-s-rebenkom",
     "izmenenie-poryadka-po-rebenku",
-    "ispolnenie-resheniya-o-rebenke"
+    "ispolnenie-resheniya-o-rebenke",
+    "soglashenie-ob-uplate-alimentov-na-rebenka",
+    "vzyskanie-alimentov-na-rebenka",
+    "izmenenie-razmera-alimentov-na-rebenka",
+    "raschet-zadolzhennosti-po-alimentam",
+    "ispolnenie-alimentov-na-rebenka",
+    "proverka-osnovaniy-lisheniya-roditelskih-prav",
+    "isk-o-lishenii-roditelskih-prav",
+    "uchet-resheniy-pri-lishenii-roditelskih-prav",
+    "lishenie-roditelskih-prav-i-alimenty",
+    "ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam",
+    "proverka-opasnogo-povedeniya-roditelya",
+    "isk-ob-ogranichenii-roditelskih-prav",
+    "zayavlenie-ob-ustanovlenii-otcovstva",
+    "isk-ob-ustanovlenii-otcovstva",
+    "ustanovlenie-otcovstva-umershego",
+    "zapis-ob-otce-uzhe-sushchestvuet",
+    "ustanovlenie-otcovstva-i-drugoe-trebovanie",
+    "isk-ob-osparivanii-otcovstva-zapisannym-roditelem",
+    "isk-ob-osparivanii-zapisi-biologicheskim-roditelem",
+    "isk-ob-osparivanii-otcovstva-rebenkom-ili-opekunom",
+    "osparivanie-otcovstva-posle-smerti",
+    "usynovlenie-rebenka-suprugom-roditelya",
+    "chek-list-vnutrirossiyskogo-usynovleniya",
+    "soglasiya-pri-usynovlenii-rebenka",
+    "mezhdunarodnoe-usynovlenie-proverka",
+    "vyezd-rebenka-s-odnim-roditelem",
+    "soglasie-na-vyezd-rebenka-bez-roditeley",
+    "spor-o-vyezde-rebenka-za-granitsu",
+    "dokumenty-dlya-vyezda-rebenka-v-inostrannoe-gosudarstvo",
+    "izmenenie-imeni-ili-familii-rebenka-do-14-let",
+    "izmenenie-familii-rebenka-pri-razdelnom-prozhivanii",
+    "peremena-imeni-rebenkom-ot-14-do-18-let",
+    "izmenenie-otchestva-rebenka-do-14-let",
+    "isk-o-vosstanovlenii-v-roditelskih-pravah",
+    "vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka",
+    "proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav",
+    "isk-ob-otmene-ogranicheniya-roditelskih-prav",
+    "otmena-ogranicheniya-roditelskih-prav-i-vozvrat-rebenka",
+    "proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav",
+    "sovmestnoe-reshenie-roditeley-po-vospitaniyu-i-obrazovaniyu",
+    "obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley",
+    "sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka",
+    "proverka-dopolnitelnyh-rashodov-na-rebenka",
+    "soglashenie-o-dopolnitelnyh-rashodah-na-rebenka",
+    "vzyskanie-ponesennyh-dopolnitelnyh-rashodov-na-rebenka",
+    "vzyskanie-budushchih-dopolnitelnyh-rashodov-na-rebenka",
+    "proverka-prava-na-soderzhanie-supruga",
+    "soglashenie-o-soderzhanii-supruga",
+    "isk-o-soderzhanii-supruga-v-brake",
+    "isk-o-soderzhanii-byvshego-supruga",
+    "brachnyy-dogovor-do-braka",
+    "brachnyy-dogovor-v-brake",
+    "izmenenie-brachnogo-dogovora",
+    "rastorzhenie-brachnogo-dogovora",
+    "spor-o-brachnom-dogovore",
+    "isk-o-nedeystvitelnosti-braka-bez-soglasiya",
+    "isk-o-nedeystvitelnosti-braka-s-nesovershennoletnim",
+    "isk-o-nedeystvitelnosti-braka-pri-prepyatstvii",
+    "isk-o-fiktivnom-brake",
+    "isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya",
+    "slozhnyy-spor-ob-obshchih-dolgah-suprugov",
+    "slozhnyy-spor-ob-ipotechnom-imushchestve-suprugov",
+    "slozhnyy-spor-o-biznes-aktivah-suprugov",
+    "slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey",
+    "slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery",
+    "surrogatnoe-materinstvo-list-dannyh",
+    "mezhdunarodnyy-semeynyy-spor-list-dannyh",
+    "obshchenie-rodstvennikov-s-rebenkom-materialy",
+    "emansipatsiya-nesovershennoletnego-materialy"
   ]
 );
 assert.equal(ZAGS_SCENARIO_KEYS.length, 4);
@@ -71,6 +281,46 @@ assert.ok(indexedContentHrefs.includes(guardianshipProblemHref));
 for (const href of guardianshipDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.ok(indexedContentHrefs.includes(parentsChildProblemHref));
 for (const href of parentsChildDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(childSupportProblemHref));
+for (const href of childSupportDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(deprivationProblemHref));
+for (const href of deprivationDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(restrictionProblemHref));
+for (const href of restrictionDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(paternityProblemHref));
+for (const href of paternityDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(paternityContestProblemHref));
+for (const href of paternityContestDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(adoptionProblemHref));
+for (const href of adoptionDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(childTravelProblemHref));
+for (const href of childTravelDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(childNameProblemHref));
+for (const href of childNameDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(restorationProblemHref));
+for (const href of restorationDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(restrictionCancellationProblemHref));
+for (const href of restrictionCancellationDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(parentalDisagreementsProblemHref));
+for (const href of parentalDisagreementsDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(additionalChildExpensesProblemHref));
+for (const href of additionalChildExpensesDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(spousalSupportProblemHref));
+for (const href of spousalSupportDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(prenuptialAgreementProblemHref));
+for (const href of prenuptialAgreementDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(invalidMarriageProblemHref));
+for (const href of invalidMarriageDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(complexMaritalPropertyProblemHref));
+for (const href of complexMaritalPropertyDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
+assert.ok(indexedContentHrefs.includes(surrogacyOriginProblemHref));
+assert.ok(indexedContentHrefs.includes(surrogacyOriginDocumentHref));
+assert.ok(indexedContentHrefs.includes(internationalFamilyDisputesProblemHref));
+assert.ok(indexedContentHrefs.includes(internationalFamilyDisputesDocumentHref));
+assert.ok(indexedContentHrefs.includes(relativeChildContactProblemHref));
+assert.ok(indexedContentHrefs.includes(relativeChildContactDocumentHref));
+assert.ok(indexedContentHrefs.includes(emancipationProblemHref));
+assert.ok(indexedContentHrefs.includes(emancipationDocumentHref));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -81,6 +331,46 @@ assert.equal(
       || guardianshipDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
       || href === parentsChildProblemHref
       || parentsChildDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === childSupportProblemHref
+      || childSupportDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === deprivationProblemHref
+      || deprivationDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === restrictionProblemHref
+      || restrictionDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === paternityProblemHref
+      || paternityDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === paternityContestProblemHref
+      || paternityContestDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === adoptionProblemHref
+      || adoptionDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === childTravelProblemHref
+      || childTravelDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === childNameProblemHref
+      || childNameDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === restorationProblemHref
+      || restorationDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === restrictionCancellationProblemHref
+      || restrictionCancellationDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === parentalDisagreementsProblemHref
+      || parentalDisagreementsDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === additionalChildExpensesProblemHref
+      || additionalChildExpensesDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === spousalSupportProblemHref
+      || spousalSupportDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === prenuptialAgreementProblemHref
+      || prenuptialAgreementDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === invalidMarriageProblemHref
+      || invalidMarriageDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === complexMaritalPropertyProblemHref
+      || complexMaritalPropertyDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
+      || href === surrogacyOriginProblemHref
+      || href.startsWith(surrogacyOriginDocumentHref)
+      || href === internationalFamilyDisputesProblemHref
+      || href.startsWith(internationalFamilyDisputesDocumentHref)
+      || href === relativeChildContactProblemHref
+      || href.startsWith(relativeChildContactDocumentHref)
+      || href === emancipationProblemHref
+      || href.startsWith(emancipationDocumentHref)
   ),
   true
 );
@@ -126,6 +416,36 @@ const parentsChildQueryMetadata = buildMetadata({
 assert.equal(parentsChildQueryMetadata.robots && typeof parentsChildQueryMetadata.robots === "object" ? parentsChildQueryMetadata.robots.index : true, false);
 assert.equal(String(parentsChildQueryMetadata.alternates?.canonical).endsWith(parentsChildProblemHref), true);
 
+const childSupportQueryMetadata = buildMetadata({
+  title: "Алименты на ребёнка",
+  description: "Проверка query-страницы",
+  path: childSupportProblemHref,
+  isIndexable: true,
+  searchParams: { scenario: "first" }
+});
+assert.equal(childSupportQueryMetadata.robots && typeof childSupportQueryMetadata.robots === "object" ? childSupportQueryMetadata.robots.index : true, false);
+assert.equal(String(childSupportQueryMetadata.alternates?.canonical).endsWith(childSupportProblemHref), true);
+
+const deprivationQueryMetadata = buildMetadata({
+  title: "Лишение родительских прав",
+  description: "Проверка query-страницы",
+  path: deprivationProblemHref,
+  isIndexable: true,
+  searchParams: { scenario: "court" }
+});
+assert.equal(deprivationQueryMetadata.robots && typeof deprivationQueryMetadata.robots === "object" ? deprivationQueryMetadata.robots.index : true, false);
+assert.equal(String(deprivationQueryMetadata.alternates?.canonical).endsWith(deprivationProblemHref), true);
+
+const restrictionQueryMetadata = buildMetadata({
+  title: "Ограничение родительских прав",
+  description: "Проверка query-страницы",
+  path: restrictionProblemHref,
+  isIndexable: true,
+  searchParams: { scenario: "court" }
+});
+assert.equal(restrictionQueryMetadata.robots && typeof restrictionQueryMetadata.robots === "object" ? restrictionQueryMetadata.robots.index : true, false);
+assert.equal(String(restrictionQueryMetadata.alternates?.canonical).endsWith(restrictionProblemHref), true);
+
 for (const excludedQuery of ["алименты", "место жительства ребёнка", "порядок общения с ребёнком", "лишение родительских прав", "установление отцовства"]) {
   const hrefs = searchSite(excludedQuery).map(({ href }) => href);
   assert.equal(hrefs.some((href) => href === divorceProblemHref || divorceDocumentHrefs.includes(href)), false, excludedQuery);
@@ -144,6 +464,135 @@ for (const query of ["с кем будет жить ребёнок после р
 for (const excludedQuery of ["взыскать алименты", "лишить родительских прав", "установить отцовство", "оформить опеку над ребёнком", "выезд ребёнка за границу"]) {
   const hrefs = searchSite(excludedQuery).map(({ href }) => href);
   assert.equal(hrefs.some((href) => href === parentsChildProblemHref || parentsChildDocumentHrefs.includes(href)), false, excludedQuery);
+}
+
+for (const query of ["взыскать алименты на ребёнка", "задолженность по алиментам на ребёнка", "соглашение об алиментах на ребёнка"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(childSupportProblemHref), true, query);
+}
+for (const excludedQuery of ["алименты жене", "содержание бывшего супруга", "установить отцовство", "усыновить ребёнка", "оформить опеку над ребёнком"]) {
+  const hrefs = searchSite(excludedQuery).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === childSupportProblemHref || childSupportDocumentHrefs.includes(href)), false, excludedQuery);
+}
+
+for (const query of ["лишить отца родительских прав", "основания лишения родительских прав", "лишить родительских прав и взыскать алименты"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(deprivationProblemHref), true, query);
+}
+for (const excludedQuery of ["ограничить родительские права", "восстановить родительские права", "оспорить отцовство", "усыновить ребёнка"]) {
+  const hrefs = searchSite(excludedQuery).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === deprivationProblemHref || deprivationDocumentHrefs.includes(href)), false, excludedQuery);
+}
+
+for (const query of ["ограничить родительские права", "ограничение родительских прав из-за болезни", "иск об ограничении родительских прав"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(restrictionProblemHref), true, query);
+}
+for (const excludedQuery of ["лишить родительских прав", "восстановить родительские права", "отменить ограничение родительских прав", "усыновить ребёнка"]) {
+  const hrefs = searchSite(excludedQuery).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === restrictionProblemHref || restrictionDocumentHrefs.includes(href)), false, excludedQuery);
+}
+
+for (const query of ["оспорить отцовство", "биологический отец оспорить запись", "оспорить отцовство после смерти"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(paternityContestProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === paternityProblemHref || paternityDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["усыновить ребёнка жены", "как усыновить ребёнка в россии", "усыновление без согласия отца", "международное усыновление"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(adoptionProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === guardianshipProblemHref || guardianshipDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["ребёнок едет за границу с одним родителем", "согласие на выезд ребёнка с бабушкой", "несогласие на выезд ребёнка", "документы ребёнку для въезда"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(childTravelProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === parentsChildProblemHref || parentsChildDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["сменить имя ребёнку до 14 лет", "сменить фамилию ребёнку без согласия отца", "сменить имя подростку в 15 лет", "изменить отчество ребёнку"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(childNameProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === guardianshipProblemHref || guardianshipDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["восстановить родительские права после лишения", "восстановить права и вернуть ребёнка", "ребёнок против восстановления родительских прав", "ребёнок усыновлён можно восстановить родительские права"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(restorationProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === deprivationProblemHref || deprivationDocumentHrefs.includes(href) || href === restrictionProblemHref || restrictionDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["отменить ограничение родительских прав", "отменить ограничение и вернуть ребёнка", "основания ограничения отпали", "ребёнок против отмены ограничения"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(restrictionCancellationProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === restrictionProblemHref || restrictionDocumentHrefs.includes(href) || href === restorationProblemHref || restorationDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["родители не согласны по школе", "разногласия родителей по воспитанию", "обратиться в опеку из-за разногласия родителей", "суд разрешить вопрос воспитания ребёнка"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(parentalDisagreementsProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === parentsChildProblemHref || parentsChildDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["место жительства ребёнка", "порядок общения с ребёнком"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === parentalDisagreementsProblemHref || parentalDisagreementsDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["дополнительные расходы на ребёнка", "взыскать расходы на лечение ребёнка", "соглашение о дополнительных расходах на ребёнка", "будущие расходы на лечение ребёнка"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(additionalChildExpensesProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === childSupportProblemHref || childSupportDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["алименты жене", "алименты супруге в браке", "содержание бывшего супруга", "соглашение о содержании супруга"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(spousalSupportProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === childSupportProblemHref || childSupportDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["признать брак недействительным", "фиктивный брак", "брак заключен под принуждением", "брак с несовершеннолетним без разрешения", "второй брак не расторгнув первый", "скрыл ВИЧ при заключении брака"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(invalidMarriageProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === divorceProblemHref || divorceDocumentHrefs.includes(href) || href === prenuptialAgreementProblemHref || prenuptialAgreementDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["как развестись", "заключить брачный договор"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === invalidMarriageProblemHref || invalidMarriageDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["разделить общие долги супругов", "ипотека при разделе имущества", "раздел доли в ооо", "раздел бизнеса супругов", "имущество оформлено на третье лицо", "компенсация за проданное имущество супругов", "имущество супругов при банкротстве", "арест имущества при разделе супругов"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(complexMaritalPropertyProblemHref), true, query);
+}
+
+for (const query of ["раздел имущества после развода", "соглашение о разделе имущества"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.some((href) => href === complexMaritalPropertyProblemHref || complexMaritalPropertyDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["как записать родителей после суррогатного материнства", "согласие суррогатной матери на запись", "спор с суррогатной матерью о ребенке"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(surrogacyOriginProblemHref), true, query);
+  assert.equal(hrefs.some((href) => href === adoptionProblemHref || adoptionDocumentHrefs.includes(href) || href === paternityProblemHref || paternityDocumentHrefs.includes(href)), false, query);
+}
+
+for (const query of ["ребенка увезли в другую страну", "признать иностранное решение о ребенке", "алименты если отец за границей", "международный семейный спор"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(internationalFamilyDisputesProblemHref), true, query);
+}
+
+for (const query of ["бабушка не видит внука", "не дают дедушке общаться с ребенком", "общение родственников с ребёнком"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(relativeChildContactProblemHref), true, query);
+  assert.equal(hrefs.includes(parentsChildProblemHref), false, query);
+}
+
+for (const query of ["как получить эмансипацию", "стать дееспособным в 16 лет"]) {
+  const hrefs = searchSite(query).map(({ href }) => href);
+  assert.equal(hrefs.includes(emancipationProblemHref), true, query);
 }
 
 console.log("content-reset tests passed");

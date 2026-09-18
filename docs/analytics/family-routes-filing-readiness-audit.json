@@ -1,0 +1,1438 @@
+[
+  {
+    "route": "alimenty-na-rebenka",
+    "scenario": "agreement",
+    "resultKind": [
+      "agreement",
+      "courtDraft",
+      "applicationDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-80",
+      "sk-100",
+      "sk-103",
+      "sk-117"
+    ]
+  },
+  {
+    "route": "alimenty-na-rebenka",
+    "scenario": "first",
+    "resultKind": [
+      "agreement",
+      "courtDraft",
+      "applicationDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-80",
+      "sk-81",
+      "sk-83",
+      "sk-107",
+      "sk-117",
+      "gpk-122",
+      "gpk-131-132",
+      "nk-333-36"
+    ]
+  },
+  {
+    "route": "alimenty-na-rebenka",
+    "scenario": "change",
+    "resultKind": [
+      "agreement",
+      "courtDraft",
+      "applicationDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-81",
+      "sk-83",
+      "sk-100",
+      "sk-101",
+      "sk-103",
+      "sk-117",
+      "sk-119",
+      "gpk-131-132"
+    ]
+  },
+  {
+    "route": "alimenty-na-rebenka",
+    "scenario": "debt",
+    "resultKind": [
+      "agreement",
+      "courtDraft",
+      "applicationDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-113",
+      "sk-117",
+      "gpk-131-132",
+      "fz-229"
+    ]
+  },
+  {
+    "route": "alimenty-na-rebenka",
+    "scenario": "enforcement",
+    "resultKind": [
+      "agreement",
+      "courtDraft",
+      "applicationDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-100",
+      "sk-113",
+      "fz-229"
+    ]
+  },
+  {
+    "route": "lishenie-roditelskih-prav",
+    "scenario": "grounds",
+    "resultKind": [
+      "checklist",
+      "courtDraft",
+      "legalReviewOnly",
+      "emergency"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-69",
+      "plenum-44-extreme",
+      "ks-49-2026",
+      "sk-77-emergency",
+      "mchs-112"
+    ]
+  },
+  {
+    "route": "lishenie-roditelskih-prav",
+    "scenario": "court",
+    "resultKind": [
+      "checklist",
+      "courtDraft",
+      "legalReviewOnly",
+      "emergency"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-69",
+      "plenum-44-extreme",
+      "sk-70",
+      "plenum-44-jurisdiction",
+      "gpk-131-132",
+      "ks-49-2026",
+      "sk-77-emergency",
+      "mchs-112"
+    ]
+  },
+  {
+    "route": "lishenie-roditelskih-prav",
+    "scenario": "existing",
+    "resultKind": [
+      "checklist",
+      "courtDraft",
+      "legalReviewOnly",
+      "emergency"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-69",
+      "plenum-44-extreme",
+      "sk-70",
+      "plenum-44-jurisdiction",
+      "gpk-131-132",
+      "ks-49-2026",
+      "sk-77-emergency",
+      "mchs-112"
+    ]
+  },
+  {
+    "route": "lishenie-roditelskih-prav",
+    "scenario": "support",
+    "resultKind": [
+      "checklist",
+      "courtDraft",
+      "legalReviewOnly",
+      "emergency"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-69",
+      "plenum-44-extreme",
+      "sk-70",
+      "plenum-44-jurisdiction",
+      "gpk-131-132",
+      "ks-49-2026",
+      "sk-77-emergency",
+      "mchs-112"
+    ]
+  },
+  {
+    "route": "ogranichenie-roditelskih-prav",
+    "scenario": "objective",
+    "resultKind": [
+      "checklist",
+      "courtDraft",
+      "legalReviewOnly",
+      "emergency"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-73-grounds",
+      "sk-73-procedure",
+      "plenum-44-8-9",
+      "sk-74",
+      "sk-77",
+      "mchs-112"
+    ]
+  },
+  {
+    "route": "ogranichenie-roditelskih-prav",
+    "scenario": "behavior",
+    "resultKind": [
+      "checklist",
+      "courtDraft",
+      "legalReviewOnly",
+      "emergency"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-73-grounds",
+      "sk-73-procedure",
+      "sk-73-six-months",
+      "plenum-44-8-9",
+      "sk-74",
+      "sk-77",
+      "mchs-112"
+    ]
+  },
+  {
+    "route": "ogranichenie-roditelskih-prav",
+    "scenario": "court",
+    "resultKind": [
+      "checklist",
+      "courtDraft",
+      "legalReviewOnly",
+      "emergency"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-73-grounds",
+      "sk-73-procedure",
+      "sk-73-six-months",
+      "plenum-44-8-9",
+      "sk-74",
+      "gpk-court",
+      "sk-77",
+      "mchs-112"
+    ]
+  },
+  {
+    "route": "ustanovlenie-otcovstva",
+    "scenario": "voluntary",
+    "resultKind": [
+      "dataSheet",
+      "courtDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-48-voluntary",
+      "acts-50-52",
+      "minjust-forms-15-19",
+      "tax-333-26"
+    ]
+  },
+  {
+    "route": "ustanovlenie-otcovstva",
+    "scenario": "court",
+    "resultKind": [
+      "dataSheet",
+      "courtDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "minjust-forms-15-19",
+      "sk-49-court",
+      "plenum-16-evidence",
+      "plenum-16-court",
+      "existing-record",
+      "acts-54",
+      "tax-333-26"
+    ]
+  },
+  {
+    "route": "ustanovlenie-otcovstva",
+    "scenario": "deceased",
+    "resultKind": [
+      "dataSheet",
+      "courtDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-50-deceased",
+      "gpk-special",
+      "acts-54"
+    ]
+  },
+  {
+    "route": "ustanovlenie-otcovstva",
+    "scenario": "existing-record",
+    "resultKind": [
+      "dataSheet",
+      "courtDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "existing-record"
+    ]
+  },
+  {
+    "route": "ustanovlenie-otcovstva",
+    "scenario": "combined",
+    "resultKind": [
+      "dataSheet",
+      "courtDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-49-court",
+      "plenum-16-evidence",
+      "plenum-16-court",
+      "existing-record",
+      "acts-54",
+      "support-combination"
+    ]
+  },
+  {
+    "route": "osparivanie-otcovstva",
+    "scenario": "recorded-parent",
+    "resultKind": [
+      "courtDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-52-standing",
+      "sk-52-knowledge",
+      "sk-52-art",
+      "plenum-28-29",
+      "plenum-evidence",
+      "court-jurisdiction",
+      "acts-change"
+    ]
+  },
+  {
+    "route": "osparivanie-otcovstva",
+    "scenario": "biological-parent",
+    "resultKind": [
+      "courtDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-52-standing",
+      "sk-52-art",
+      "plenum-28-29",
+      "plenum-evidence",
+      "court-jurisdiction",
+      "acts-change"
+    ]
+  },
+  {
+    "route": "osparivanie-otcovstva",
+    "scenario": "child-representative",
+    "resultKind": [
+      "courtDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-52-standing",
+      "plenum-25-26",
+      "sk-52-art",
+      "plenum-28-29",
+      "plenum-evidence",
+      "court-jurisdiction",
+      "acts-change"
+    ]
+  },
+  {
+    "route": "osparivanie-otcovstva",
+    "scenario": "after-death",
+    "resultKind": [
+      "courtDraft",
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-52-standing",
+      "plenum-25-26",
+      "sk-52-art",
+      "plenum-28-29",
+      "plenum-evidence",
+      "court-jurisdiction",
+      "acts-change"
+    ]
+  },
+  {
+    "route": "usynovlenie-rebenka",
+    "scenario": "step-parent",
+    "resultKind": [
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-124-125",
+      "sk-127",
+      "sk-129-133",
+      "plenum-8",
+      "gpk-269-274"
+    ]
+  },
+  {
+    "route": "usynovlenie-rebenka",
+    "scenario": "domestic",
+    "resultKind": [
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-124-125",
+      "sk-127",
+      "sk-129-133",
+      "plenum-8",
+      "gpk-269-274"
+    ]
+  },
+  {
+    "route": "usynovlenie-rebenka",
+    "scenario": "consent-review",
+    "resultKind": [
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-124-125",
+      "sk-129-133",
+      "plenum-8"
+    ]
+  },
+  {
+    "route": "usynovlenie-rebenka",
+    "scenario": "international",
+    "resultKind": [
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "plenum-8",
+      "gpk-269-274",
+      "sk-165"
+    ]
+  },
+  {
+    "route": "vyezd-rebenka-za-granitsu",
+    "scenario": "with-parent",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "114-fz-20-parent",
+      "114-fz-21",
+      "kdmid-foreign"
+    ]
+  },
+  {
+    "route": "vyezd-rebenka-za-granitsu",
+    "scenario": "without-parents",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "114-fz-20-alone",
+      "114-fz-21",
+      "kdmid-foreign"
+    ]
+  },
+  {
+    "route": "vyezd-rebenka-za-granitsu",
+    "scenario": "disagreement",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "114-fz-21",
+      "mvd-651",
+      "gpk-court"
+    ]
+  },
+  {
+    "route": "vyezd-rebenka-za-granitsu",
+    "scenario": "foreign-requirements",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "kdmid-foreign"
+    ]
+  },
+  {
+    "route": "imya-familiya-otchestvo-rebenka",
+    "scenario": "under-fourteen-agreement",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-59-joint",
+      "sk-59-consent"
+    ]
+  },
+  {
+    "route": "imya-familiya-otchestvo-rebenka",
+    "scenario": "under-fourteen-dispute",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-59-separate",
+      "sk-59-consent"
+    ]
+  },
+  {
+    "route": "imya-familiya-otchestvo-rebenka",
+    "scenario": "fourteen-to-seventeen",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "143-fz-58",
+      "143-fz-60",
+      "form-20"
+    ]
+  },
+  {
+    "route": "imya-familiya-otchestvo-rebenka",
+    "scenario": "patronymic-special",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "patronymic"
+    ]
+  },
+  {
+    "route": "vosstanovlenie-v-roditelskih-pravah",
+    "scenario": "restoration",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-72-basis",
+      "sk-72-child",
+      "sk-72-adoption",
+      "plenum-44-parties",
+      "gpk-draft"
+    ]
+  },
+  {
+    "route": "vosstanovlenie-v-roditelskih-pravah",
+    "scenario": "restoration-return",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-72-basis",
+      "sk-72-child",
+      "sk-72-adoption",
+      "sk-72-return",
+      "plenum-44-parties",
+      "gpk-draft"
+    ]
+  },
+  {
+    "route": "vosstanovlenie-v-roditelskih-pravah",
+    "scenario": "barrier-review",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-72-basis",
+      "sk-72-child",
+      "sk-72-adoption"
+    ]
+  },
+  {
+    "route": "otmena-ogranicheniya-roditelskih-prav",
+    "scenario": "cancellation",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-76-basis",
+      "sk-76-interests",
+      "plenum-44-parties",
+      "gpk-draft"
+    ]
+  },
+  {
+    "route": "otmena-ogranicheniya-roditelskih-prav",
+    "scenario": "cancellation-return",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-76-basis",
+      "sk-76-interests",
+      "plenum-44-parties",
+      "plenum-44-return",
+      "gpk-draft"
+    ]
+  },
+  {
+    "route": "otmena-ogranicheniya-roditelskih-prav",
+    "scenario": "readiness-review",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-76-basis",
+      "sk-76-interests"
+    ]
+  },
+  {
+    "route": "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu",
+    "scenario": "agreement",
+    "resultKind": [
+      "agreementDraft",
+      "applicationDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-65-agreement",
+      "sk-57-opinion",
+      "education-choice"
+    ]
+  },
+  {
+    "route": "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu",
+    "scenario": "guardianship",
+    "resultKind": [
+      "agreementDraft",
+      "applicationDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-65-agreement",
+      "sk-65-dispute",
+      "sk-57-opinion",
+      "education-choice"
+    ]
+  },
+  {
+    "route": "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu",
+    "scenario": "court",
+    "resultKind": [
+      "agreementDraft",
+      "applicationDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-65-agreement",
+      "sk-65-dispute",
+      "sk-57-opinion",
+      "education-choice",
+      "plenum-10-court"
+    ]
+  },
+  {
+    "route": "dopolnitelnye-rashody-na-rebenka",
+    "scenario": "assessment",
+    "resultKind": [
+      "checklist",
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-86",
+      "vs-56-40-41"
+    ]
+  },
+  {
+    "route": "dopolnitelnye-rashody-na-rebenka",
+    "scenario": "agreement",
+    "resultKind": [
+      "checklist",
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-86",
+      "sk-99-100"
+    ]
+  },
+  {
+    "route": "dopolnitelnye-rashody-na-rebenka",
+    "scenario": "incurred",
+    "resultKind": [
+      "checklist",
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-86",
+      "vs-56-40-41",
+      "gpk-131-132",
+      "nk-333-36"
+    ]
+  },
+  {
+    "route": "dopolnitelnye-rashody-na-rebenka",
+    "scenario": "future",
+    "resultKind": [
+      "checklist",
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-86",
+      "vs-56-40-41",
+      "gpk-131-132",
+      "nk-333-36"
+    ]
+  },
+  {
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "scenario": "assessment",
+    "resultKind": [
+      "checklist",
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-89",
+      "sk-90",
+      "sk-92",
+      "vs-56-43-47"
+    ]
+  },
+  {
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "scenario": "agreement",
+    "resultKind": [
+      "checklist",
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-99-100"
+    ]
+  },
+  {
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "scenario": "current",
+    "resultKind": [
+      "checklist",
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-89",
+      "sk-91",
+      "sk-92",
+      "vs-56-43-47",
+      "gpk-131-132",
+      "nk-333-36"
+    ]
+  },
+  {
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "scenario": "former",
+    "resultKind": [
+      "checklist",
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-90",
+      "sk-91",
+      "sk-92",
+      "vs-56-43-47",
+      "gpk-131-132",
+      "nk-333-36"
+    ]
+  },
+  {
+    "route": "brachnyy-dogovor",
+    "scenario": "before",
+    "resultKind": [
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-40",
+      "sk-41",
+      "sk-42",
+      "notary"
+    ]
+  },
+  {
+    "route": "brachnyy-dogovor",
+    "scenario": "during",
+    "resultKind": [
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-40",
+      "sk-41",
+      "sk-42",
+      "notary"
+    ]
+  },
+  {
+    "route": "brachnyy-dogovor",
+    "scenario": "change",
+    "resultKind": [
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-42",
+      "sk-43",
+      "notary"
+    ]
+  },
+  {
+    "route": "brachnyy-dogovor",
+    "scenario": "terminate",
+    "resultKind": [
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-42",
+      "sk-43",
+      "notary"
+    ]
+  },
+  {
+    "route": "brachnyy-dogovor",
+    "scenario": "dispute",
+    "resultKind": [
+      "agreementDraft",
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-42",
+      "sk-43",
+      "sk-44",
+      "vs-15-15",
+      "gpk-131-132"
+    ]
+  },
+  {
+    "route": "priznanie-braka-nedeystvitelnym",
+    "scenario": "consent",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-27",
+      "sk-28",
+      "sk-29",
+      "sk-30",
+      "sk-12",
+      "vs-plenum-15",
+      "vs-review-2022",
+      "gpk-24-131"
+    ]
+  },
+  {
+    "route": "priznanie-braka-nedeystvitelnym",
+    "scenario": "underage",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-27",
+      "sk-28",
+      "sk-29",
+      "sk-30",
+      "sk-13",
+      "vs-plenum-15",
+      "vs-review-2022",
+      "gpk-24-131"
+    ]
+  },
+  {
+    "route": "priznanie-braka-nedeystvitelnym",
+    "scenario": "obstacle",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-27",
+      "sk-28",
+      "sk-29",
+      "sk-30",
+      "sk-14",
+      "vs-plenum-15",
+      "vs-review-2022",
+      "gpk-24-131"
+    ]
+  },
+  {
+    "route": "priznanie-braka-nedeystvitelnym",
+    "scenario": "fictitious",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-27",
+      "sk-28",
+      "sk-29",
+      "sk-30",
+      "vs-plenum-15",
+      "vs-review-2022",
+      "gpk-24-131"
+    ]
+  },
+  {
+    "route": "priznanie-braka-nedeystvitelnym",
+    "scenario": "concealed-health",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-27",
+      "sk-28",
+      "sk-29",
+      "sk-30",
+      "sk-15",
+      "vs-plenum-15",
+      "vs-review-2022",
+      "gpk-24-131"
+    ]
+  },
+  {
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "scenario": "debts",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-34-39",
+      "sk-45-46",
+      "vs-plenum-15"
+    ]
+  },
+  {
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "scenario": "mortgage",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-34-39",
+      "sk-45-46",
+      "mortgage-law",
+      "vs-plenum-15"
+    ]
+  },
+  {
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "scenario": "business",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-34-39",
+      "llc-21",
+      "vs-corporate-2026",
+      "vs-plenum-15"
+    ]
+  },
+  {
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "scenario": "third-party",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-34-39",
+      "gpk-security",
+      "vs-plenum-15"
+    ]
+  },
+  {
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "scenario": "bankruptcy-security",
+    "resultKind": [
+      "courtDraft",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-34-39",
+      "sk-45-46",
+      "bankruptcy-213-26",
+      "vs-bankruptcy-2025",
+      "gpk-security",
+      "vs-plenum-15"
+    ]
+  },
+  {
+    "route": "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
+    "scenario": "registration",
+    "resultKind": [
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-51",
+      "health-55",
+      "zags-16"
+    ]
+  },
+  {
+    "route": "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
+    "scenario": "consents",
+    "resultKind": [
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-51",
+      "health-55",
+      "zags-16"
+    ]
+  },
+  {
+    "route": "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
+    "scenario": "origin",
+    "resultKind": [
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-51",
+      "vs-plenum-16"
+    ]
+  },
+  {
+    "route": "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
+    "scenario": "dispute",
+    "resultKind": [
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-51",
+      "vs-plenum-16",
+      "vs-foreign-2026"
+    ]
+  },
+  {
+    "route": "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
+    "scenario": "foreign",
+    "resultKind": [
+      "checklist",
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-51",
+      "health-55",
+      "vs-foreign-2026"
+    ]
+  },
+  {
+    "route": "mezhdunarodnye-semeynye-spory",
+    "scenario": "child",
+    "resultKind": [
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "gpk-402",
+      "hcch-1980",
+      "vs-plenum-24"
+    ]
+  },
+  {
+    "route": "mezhdunarodnye-semeynye-spory",
+    "scenario": "parental",
+    "resultKind": [
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-160-164",
+      "gpk-402",
+      "vs-plenum-24"
+    ]
+  },
+  {
+    "route": "mezhdunarodnye-semeynye-spory",
+    "scenario": "recognition",
+    "resultKind": [
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "gpk-408-409",
+      "vs-plenum-24"
+    ]
+  },
+  {
+    "route": "mezhdunarodnye-semeynye-spory",
+    "scenario": "maintenance",
+    "resultKind": [
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-160-164",
+      "gpk-402",
+      "gpk-408-409",
+      "vs-plenum-24"
+    ]
+  },
+  {
+    "route": "mezhdunarodnye-semeynye-spory",
+    "scenario": "documents",
+    "resultKind": [
+      "legalReviewOnly"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "always",
+    "legalRulesUsed": [
+      "sk-160-164",
+      "gpk-402",
+      "gpk-408-409",
+      "vs-plenum-24"
+    ]
+  },
+  {
+    "route": "obshchenie-rodstvennikov-s-rebenkom",
+    "scenario": "agreement",
+    "resultKind": [
+      "agreement",
+      "applicationDraft",
+      "courtDraft",
+      "checklist"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-55",
+      "sk-57"
+    ]
+  },
+  {
+    "route": "obshchenie-rodstvennikov-s-rebenkom",
+    "scenario": "guardianship",
+    "resultKind": [
+      "agreement",
+      "applicationDraft",
+      "courtDraft",
+      "checklist"
+    ],
+    "filingReady": "conditional",
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-55",
+      "sk-67",
+      "sk-57"
+    ]
+  },
+  {
+    "route": "obshchenie-rodstvennikov-s-rebenkom",
+    "scenario": "court",
+    "resultKind": [
+      "agreement",
+      "applicationDraft",
+      "courtDraft",
+      "checklist"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-55",
+      "sk-67",
+      "sk-57",
+      "vs-review-2011"
+    ]
+  },
+  {
+    "route": "obshchenie-rodstvennikov-s-rebenkom",
+    "scenario": "enforcement",
+    "resultKind": [
+      "agreement",
+      "applicationDraft",
+      "courtDraft",
+      "checklist"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "sk-55"
+    ]
+  },
+  {
+    "route": "emansipatsiya-nesovershennoletnego",
+    "scenario": "eligibility",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "courtDraft"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "gk-27"
+    ]
+  },
+  {
+    "route": "emansipatsiya-nesovershennoletnego",
+    "scenario": "guardianship",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "courtDraft"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "gk-27"
+    ]
+  },
+  {
+    "route": "emansipatsiya-nesovershennoletnego",
+    "scenario": "court",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "courtDraft"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "gk-27",
+      "gpk-287",
+      "gpk-288",
+      "gpk-289"
+    ]
+  },
+  {
+    "route": "emansipatsiya-nesovershennoletnego",
+    "scenario": "consequences",
+    "resultKind": [
+      "checklist",
+      "dataSheet",
+      "courtDraft"
+    ],
+    "filingReady": false,
+    "requiresLegalReview": "conditional",
+    "legalRulesUsed": [
+      "gk-27",
+      "gpk-289"
+    ]
+  }
+]

@@ -1,0 +1,1874 @@
+[
+  {
+    "ruleId": "sk-80",
+    "route": "alimenty-na-rebenka",
+    "statement": "Родители обязаны содержать несовершеннолетних детей и вправе определить порядок и форму содержания соглашением.",
+    "norm": "статья 80 СК РФ",
+    "primarySource": {
+      "name": "Официальный текст Семейного кодекса РФ",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-81",
+    "route": "alimenty-na-rebenka",
+    "statement": "При отсутствии соглашения алименты на несовершеннолетних детей по общему правилу взыскиваются ежемесячно в долях дохода; суд может изменить доли с учётом обстоятельств.",
+    "norm": "статья 81 СК РФ",
+    "primarySource": {
+      "name": "Официальный текст Семейного кодекса РФ и Постановление Пленума ВС РФ № 56",
+      "url": "https://www.vsrf.ru/documents/own/26297/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-83",
+    "route": "alimenty-na-rebenka",
+    "statement": "Твёрдая денежная сумма или сочетание долей и твёрдой суммы допускаются при предусмотренных законом обстоятельствах и определяются судом.",
+    "norm": "статья 83 СК РФ",
+    "primarySource": {
+      "name": "Постановление Пленума ВС РФ от 26.12.2017 № 56",
+      "url": "https://www.vsrf.ru/documents/own/26297/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-100",
+    "route": "alimenty-na-rebenka",
+    "statement": "Соглашение об уплате алиментов заключается письменно, нотариально удостоверяется и имеет силу исполнительного листа.",
+    "norm": "статья 100 СК РФ",
+    "primarySource": {
+      "name": "Официальный текст Семейного кодекса РФ",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-101",
+    "route": "alimenty-na-rebenka",
+    "statement": "Изменение или расторжение соглашения об уплате алиментов совершается по взаимному согласию сторон в той же форме, что и само соглашение.",
+    "norm": "статья 101 СК РФ",
+    "primarySource": {
+      "name": "Официальный текст Семейного кодекса РФ",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-103",
+    "route": "alimenty-na-rebenka",
+    "statement": "Размер алиментов на несовершеннолетнего ребёнка по соглашению не может быть ниже размера, который мог бы быть взыскан судом.",
+    "norm": "пункт 2 статьи 103 СК РФ",
+    "primarySource": {
+      "name": "Официальный текст Семейного кодекса РФ",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-107",
+    "route": "alimenty-na-rebenka",
+    "statement": "По общему правилу алименты присуждаются с момента обращения в суд; за прошлый период возможны требования в пределах трёх лет при доказанных мерах к получению содержания и уклонении плательщика.",
+    "norm": "статья 107 СК РФ; пункт 11 Постановления Пленума ВС РФ № 56",
+    "primarySource": {
+      "name": "Верховный Суд РФ",
+      "url": "https://www.vsrf.ru/documents/own/26297/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-113",
+    "route": "alimenty-na-rebenka",
+    "statement": "Размер задолженности определяется исходя из установленного способа взыскания и данных о доходах и фактической уплате.",
+    "norm": "статья 113 СК РФ",
+    "primarySource": {
+      "name": "Официальный текст Семейного кодекса РФ",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-117",
+    "route": "alimenty-na-rebenka",
+    "statement": "Индексация алиментов в твёрдой сумме производится по правилам статьи 117 СК РФ с привязкой к соответствующему прожиточному минимуму.",
+    "norm": "статья 117 СК РФ; пункт 13 Постановления Пленума ВС РФ № 56",
+    "primarySource": {
+      "name": "Верховный Суд РФ",
+      "url": "https://www.vsrf.ru/documents/own/26297/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-119",
+    "route": "alimenty-na-rebenka",
+    "statement": "Суд может изменить установленный им размер алиментов при изменении материального или семейного положения с учётом иных заслуживающих внимания интересов сторон.",
+    "norm": "статья 119 СК РФ",
+    "primarySource": {
+      "name": "Официальный текст Семейного кодекса РФ и Постановление Пленума ВС РФ № 56",
+      "url": "https://www.vsrf.ru/documents/own/26297/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-122",
+    "route": "alimenty-na-rebenka",
+    "statement": "Судебный приказ возможен для алиментов на несовершеннолетнего ребёнка, если требование не связано с установлением или оспариванием происхождения ребёнка и привлечением других заинтересованных лиц.",
+    "norm": "статья 122 ГПК РФ; пункты 3–5 Постановления Пленума ВС РФ № 56",
+    "primarySource": {
+      "name": "Верховный Суд РФ",
+      "url": "https://www.vsrf.ru/documents/own/26297/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-131-132",
+    "route": "alimenty-na-rebenka",
+    "statement": "Иск должен содержать предусмотренные законом сведения и подтверждающие обстоятельства; приложения формируются по установленному перечню.",
+    "norm": "статьи 131 и 132 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный текст ГПК РФ",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "nk-333-36",
+    "route": "alimenty-na-rebenka",
+    "statement": "Истцы по требованиям о взыскании алиментов освобождаются от уплаты государственной пошлины.",
+    "norm": "подпункт 2 пункта 1 статьи 333.36 НК РФ",
+    "primarySource": {
+      "name": "ФНС России, Налоговый кодекс РФ",
+      "url": "https://www.nalog.gov.ru/html/nk.htm"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "fz-229",
+    "route": "alimenty-na-rebenka",
+    "statement": "Исполнительный документ предъявляется и исполняется по правилам законодательства об исполнительном производстве.",
+    "norm": "Федеральный закон от 02.10.2007 № 229-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102115222"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-69",
+    "route": "lishenie-roditelskih-prav",
+    "statement": "Основания лишения родительских прав перечислены законом исчерпывающе.",
+    "norm": "Статья 69 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-44-extreme",
+    "route": "lishenie-roditelskih-prav",
+    "statement": "Лишение прав является крайней мерой и допускается, когда защитить ребёнка иначе невозможно.",
+    "norm": "Пункты 13–18 Постановления Пленума ВС РФ от 14.11.2017 № 44",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/files/24385/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-70",
+    "route": "lishenie-roditelskih-prav",
+    "statement": "Лишение производится судом; участвуют прокурор и орган опеки, а суд решает вопрос содержания ребёнка.",
+    "norm": "Статья 70 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-44-jurisdiction",
+    "route": "lishenie-roditelskih-prav",
+    "statement": "Дело рассматривает районный суд; общее правило — по месту жительства ответчика.",
+    "norm": "Пункт 2 Постановления Пленума ВС РФ от 14.11.2017 № 44; статьи 24, 28 и 29 ГПК РФ",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/files/24385/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-131-132",
+    "route": "lishenie-roditelskih-prav",
+    "statement": "Судебный документ и приложения должны отвечать требованиям процессуального закона.",
+    "norm": "Статьи 131 и 132 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "ks-49-2026",
+    "route": "lishenie-roditelskih-prav",
+    "statement": "Совершеннолетний может требовать лишения прав в специальном случае преступления родителя, совершённого против него до 18 лет и являющегося основанием статьи 69 СК РФ.",
+    "norm": "Постановление КС РФ от 16.07.2026 № 49-П",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://publication.pravo.gov.ru/document/0001202607170001"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-77-emergency",
+    "route": "lishenie-roditelskih-prav",
+    "statement": "Непосредственная угроза жизни или здоровью ребёнка требует срочного защитного порядка, а не ожидания подготовки иска.",
+    "norm": "Статья 77 СК РФ; пункты 28–33 Постановления Пленума ВС РФ № 44",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/files/24385/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "mchs-112",
+    "route": "lishenie-roditelskih-prav",
+    "statement": "Единый номер 112 используется для вызова экстренных оперативных служб.",
+    "norm": "Система-112",
+    "primarySource": {
+      "name": "МЧС России",
+      "url": "https://csoor.organizations.mchs.gov.ru/deyatelnost/poleznaya-informaciya/poleznye-sovety/sistema112"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-73-grounds",
+    "route": "ogranichenie-roditelskih-prav",
+    "statement": "Ограничение допускается, когда оставление ребёнка с родителем опасно по не зависящим от родителя обстоятельствам либо из-за опасного поведения при недостаточности оснований для лишения прав.",
+    "norm": "Пункты 1–2 статьи 73 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-73-procedure",
+    "route": "ogranichenie-roditelskih-prav",
+    "statement": "Иск вправе предъявить установленный законом круг лиц и органов; дело рассматривается с участием прокурора и органа опеки, а суд решает вопрос об алиментах.",
+    "norm": "Пункты 3–5 статьи 73 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-73-six-months",
+    "route": "ogranichenie-roditelskih-prav",
+    "statement": "При опасном поведении родителя орган опеки обязан предъявить иск о лишении прав по истечении шести месяцев после решения об ограничении, если поведение не изменилось; в интересах ребёнка он вправе обратиться раньше.",
+    "norm": "Абзац второй пункта 2 статьи 73 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-44-8-9",
+    "route": "ogranichenie-roditelskih-prav",
+    "statement": "Ограничение и лишение прав — разные меры; диагноз или конфликт не заменяют оценку опасности для ребёнка.",
+    "norm": "Пункты 8–9, 17–18 Постановления Пленума ВС РФ от 14.11.2017 № 44",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/files/24385/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-74",
+    "route": "ogranichenie-roditelskih-prav",
+    "statement": "Ограниченный родитель утрачивает право на личное воспитание и отдельные льготы, но сохраняет обязанность содержать ребёнка; имущественные права ребёнка сохраняются.",
+    "norm": "Статья 74 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-court",
+    "route": "ogranichenie-roditelskih-prav",
+    "statement": "Иск составляется по требованиям ГПК РФ; родовая и территориальная подсудность проверяются до подачи.",
+    "norm": "Статьи 24, 28, 131–132 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-77",
+    "route": "ogranichenie-roditelskih-prav",
+    "statement": "Непосредственная угроза жизни или здоровью ребёнка требует срочного защитного порядка, а не ожидания подготовки иска.",
+    "norm": "Статья 77 СК РФ; пункты 28–33 Постановления Пленума ВС РФ № 44",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/files/24385/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "mchs-112",
+    "route": "ogranichenie-roditelskih-prav",
+    "statement": "Единый номер 112 используется для вызова экстренных оперативных служб.",
+    "norm": "Система-112",
+    "primarySource": {
+      "name": "МЧС России",
+      "url": "https://csoor.organizations.mchs.gov.ru/deyatelnost/poleznaya-informaciya/poleznye-sovety/sistema112"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-48-voluntary",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "Для родителей, не состоявших в браке при рождении ребёнка, отцовство обычно устанавливается совместным заявлением; единоличное заявление отца допускается только в перечисленных законом случаях и требует согласия органа опеки либо решения суда.",
+    "norm": "Пункт 3 статьи 48 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "acts-50-52",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "Закон определяет содержание совместного заявления, отдельное волеизъявление отсутствующего родителя и обязательное согласие совершеннолетнего лица.",
+    "norm": "Статьи 50 и 52 Закона № 143-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102050119"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "minjust-forms-15-19",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "Для разных оснований установления отцовства применяются формы № 15–19 и правила их заполнения.",
+    "norm": "Приказ Минюста России от 01.10.2018 № 201, формы № 15–19",
+    "primarySource": {
+      "name": "Официальное опубликование правовых актов",
+      "url": "https://publication.pravo.gov.ru/Document/View/0001201810030017"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-49-court",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "При отсутствии предусмотренного заявления отцовство устанавливает суд, учитывая любые достоверные доказательства происхождения ребёнка.",
+    "norm": "Статья 49 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-16-evidence",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "Заключение генетической экспертизы является одним из доказательств и оценивается вместе с другими материалами дела.",
+    "norm": "Пункты 19–21 Постановления Пленума ВС РФ от 16.05.2017 № 16",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/Show_pdf.php?Id=11399"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-16-court",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "Дела об установлении происхождения ребёнка рассматривает районный суд; иск об установлении отцовства может быть предъявлен по месту жительства ответчика или истца.",
+    "norm": "Пункты 3–4 Постановления Пленума ВС РФ от 16.05.2017 № 16; статьи 24, 28 и часть 3 статьи 29 ГПК РФ",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/Show_pdf.php?Id=11399"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-50-deceased",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "После смерти лица, признававшего себя отцом, суд может установить факт признания отцовства.",
+    "norm": "Статья 50 СК РФ; пункт 24 Постановления Пленума ВС РФ № 16",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/Show_pdf.php?Id=11399"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-special",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "Факт признания отцовства или факт отцовства рассматривается в особом производстве только при отсутствии спора о праве; при споре заявление оставляется без рассмотрения с разъяснением искового порядка.",
+    "norm": "Глава 28, часть 3 статьи 263 ГПК РФ; пункт 24 Постановления Пленума ВС РФ № 16",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "existing-record",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "Если отцом уже записано конкретное лицо, требования об исключении прежних сведений и установлении отцовства другого лица рассматриваются в исковом порядке с участием записанного отца.",
+    "norm": "Статьи 51–52 СК РФ; пункты 16–17 Постановления Пленума ВС РФ № 16",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/Show_pdf.php?Id=11399"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "acts-54",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "Вступившее в силу решение суда об установлении отцовства или факта признания отцовства является основанием для государственной регистрации в ЗАГС.",
+    "norm": "Статья 54 Закона № 143-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102050119"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "support-combination",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "Требование о взыскании алиментов может быть заявлено одновременно с требованием об установлении отцовства; алименты при удовлетворении требования присуждаются со дня обращения в суд.",
+    "norm": "Пункт 4 Постановления Пленума ВС РФ от 16.05.2017 № 16; пункт 2 статьи 107 СК РФ",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/Show_pdf.php?Id=11399"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "tax-333-26",
+    "route": "ustanovlenie-otcovstva",
+    "statement": "За государственную регистрацию установления отцовства, включая выдачу свидетельства, установлена пошлина 350 рублей.",
+    "norm": "Подпункт 3 пункта 1 статьи 333.26 НК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102067058"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-52-standing",
+    "route": "osparivanie-otcovstva",
+    "statement": "Запись об отце или матери оспаривается только в суде и только лицами, прямо перечисленными законом.",
+    "norm": "Пункт 1 статьи 52 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-25-26",
+    "route": "osparivanie-otcovstva",
+    "statement": "Перечень заявителей является специальным; запись может оспариваться и после смерти записанного родителя.",
+    "norm": "Пункты 25–26 Постановления Пленума ВС РФ от 16.05.2017 № 16",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/documents/own/15888/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-52-knowledge",
+    "route": "osparivanie-otcovstva",
+    "statement": "Записанный отец, который при добровольной записи знал, что не является отцом, не может основывать требование только на этом обстоятельстве.",
+    "norm": "Пункт 2 статьи 52 СК РФ; пункт 27 Постановления Пленума ВС РФ № 16",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/documents/own/15888/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-52-art",
+    "route": "osparivanie-otcovstva",
+    "statement": "Согласие на применение вспомогательных репродуктивных методов и суррогатное материнство создают специальные ограничения на основания оспаривания.",
+    "norm": "Пункт 3 статьи 52 и пункт 4 статьи 51 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-28-29",
+    "route": "osparivanie-otcovstva",
+    "statement": "Признание иска другим родителем само по себе недостаточно; мировое соглашение по такому спору недопустимо, а суд учитывает права и интересы ребёнка.",
+    "norm": "Пункты 28–29 Постановления Пленума ВС РФ от 16.05.2017 № 16",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/documents/own/15888/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-evidence",
+    "route": "osparivanie-otcovstva",
+    "statement": "Генетическая экспертиза является одним из доказательств и не имеет заранее установленной силы.",
+    "norm": "Пункты 19–21 Постановления Пленума ВС РФ от 16.05.2017 № 16",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/documents/own/15888/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "court-jurisdiction",
+    "route": "osparivanie-otcovstva",
+    "statement": "Спор рассматривается районным судом по общему правилу по месту жительства ответчика.",
+    "norm": "Статьи 24 и 28 ГПК РФ; пункт 3 Постановления Пленума ВС РФ № 16",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "acts-change",
+    "route": "osparivanie-otcovstva",
+    "statement": "Вступившее в законную силу решение об исключении сведений является основанием для исправления или изменения записи акта гражданского состояния.",
+    "norm": "Статьи 69 и 75 Закона № 143-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102050119"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-124-125",
+    "route": "usynovlenie-rebenka",
+    "statement": "Усыновление допускается в интересах ребёнка и производится судом с участием органа опеки и прокурора.",
+    "norm": "Статьи 124–125 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-127",
+    "route": "usynovlenie-rebenka",
+    "statement": "Кандидат должен соответствовать требованиям к усыновителям; закон содержит перечень препятствий.",
+    "norm": "Статья 127 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-129-133",
+    "route": "usynovlenie-rebenka",
+    "statement": "Согласия родителей, ребёнка, опекуна или организации и супруга кандидата регулируются отдельными нормами; исключения применяет суд.",
+    "norm": "Статьи 129–133 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-8",
+    "route": "usynovlenie-rebenka",
+    "statement": "Суд проверяет препятствия для кандидата, действительность согласий и обстоятельства, позволяющие рассматривать дело без согласия родителя.",
+    "norm": "Постановление Пленума ВС РФ от 20.04.2006 № 8",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/documents/own/8369/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-269-274",
+    "route": "usynovlenie-rebenka",
+    "statement": "Глава 29 ГПК РФ устанавливает суд, содержание заявления, приложения, подготовку дела и решение.",
+    "norm": "Статьи 269–274 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-165",
+    "route": "usynovlenie-rebenka",
+    "statement": "При иностранном элементе применяются специальные правила статьи 165 СК РФ и нормы процессуальной подсудности.",
+    "norm": "Статья 165 СК РФ; часть 2 статьи 269 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "114-fz-20-parent",
+    "route": "vyezd-rebenka-za-granitsu",
+    "statement": "Несовершеннолетний гражданин России может выехать с одним законным представителем, если другим не подано заявление о несогласии.",
+    "norm": "Часть 1 статьи 20 Федерального закона № 114-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078147"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "114-fz-20-alone",
+    "route": "vyezd-rebenka-za-granitsu",
+    "statement": "При выезде без законных представителей ребёнку требуется документ для пересечения границы и нотариально оформленное согласие одного законного представителя.",
+    "norm": "Часть 1 статьи 20 Федерального закона № 114-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078147"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "114-fz-21",
+    "route": "vyezd-rebenka-za-granitsu",
+    "statement": "Несогласие может содержать срок и государства; заявитель может отозвать его, а сохраняющийся спор разрешается судом.",
+    "norm": "Статья 21 Федерального закона № 114-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078147"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "mvd-651",
+    "route": "vyezd-rebenka-za-granitsu",
+    "statement": "Порядок подачи, отзыва, приёма и учёта заявлений о несогласии утверждён МВД России.",
+    "norm": "Приказ МВД России от 31.08.2021 № 651 с изменениями",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://publication.pravo.gov.ru/document/0001202110060042"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-court",
+    "route": "vyezd-rebenka-za-granitsu",
+    "statement": "Судебное обращение должно соответствовать общим требованиям к иску и приложениям.",
+    "norm": "Статьи 131–132 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "kdmid-foreign",
+    "route": "vyezd-rebenka-za-granitsu",
+    "statement": "Иностранное государство может требовать согласие обоих родителей или иные документы; форму следует уточнять у его компетентных органов.",
+    "norm": "Официальное разъяснение Консульского департамента МИД России",
+    "primarySource": {
+      "name": "Консульский департамент МИД России",
+      "url": "https://www.kdmid.ru/cons/notary/certification-of-consent-to-the-departure-of-a-minor-citizen-of-the-Russian-Federation/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-59-joint",
+    "route": "imya-familiya-otchestvo-rebenka",
+    "statement": "До 14 лет орган опеки вправе разрешить по совместной просьбе родителей изменить имя или фамилию ребёнка исходя из его интересов.",
+    "norm": "Пункт 1 статьи 59 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-59-separate",
+    "route": "imya-familiya-otchestvo-rebenka",
+    "statement": "При раздельном проживании вопрос о фамилии решается органом опеки по интересам ребёнка и с учётом мнения другого родителя, кроме закрытых исключений.",
+    "norm": "Пункты 2–3 статьи 59 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-59-consent",
+    "route": "imya-familiya-otchestvo-rebenka",
+    "statement": "Изменение имени или фамилии ребёнка с 10 лет производится только с его согласия.",
+    "norm": "Пункт 4 статьи 59 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "143-fz-58",
+    "route": "imya-familiya-otchestvo-rebenka",
+    "statement": "С 14 лет лицо вправе переменить фамилию, имя и/или отчество; до 18 лет нужны предусмотренные законом согласия или решение суда, кроме полной дееспособности.",
+    "norm": "Статья 58 Федерального закона №143-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102050119"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "143-fz-60",
+    "route": "imya-familiya-otchestvo-rebenka",
+    "statement": "Государственная регистрация перемены имени производится на основании заявления в ЗАГС.",
+    "norm": "Статья 60 Федерального закона №143-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102050119"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "form-20",
+    "route": "imya-familiya-otchestvo-rebenka",
+    "statement": "Для заявления о перемене имени установлена форма №20.",
+    "norm": "Приказ Минюста России от 01.10.2018 №201, форма №20",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://publication.pravo.gov.ru/document/0001201810030017"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "patronymic",
+    "route": "imya-familiya-otchestvo-rebenka",
+    "statement": "Отчество ребёнка определяется по правилам статьи 58 СК РФ, а изменения актовой записи могут зависеть от специального основания.",
+    "norm": "Статья 58 СК РФ; статья 63 Федерального закона №143-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-72-basis",
+    "route": "vosstanovlenie-v-roditelskih-pravah",
+    "statement": "Родитель может быть восстановлен в правах, если изменил поведение, образ жизни и/или отношение к воспитанию ребёнка.",
+    "norm": "Пункты 1–2 статьи 72 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-72-child",
+    "route": "vosstanovlenie-v-roditelskih-pravah",
+    "statement": "Суд учитывает интересы и мнение ребёнка; с 10 лет восстановление возможно только с его согласием.",
+    "norm": "Пункт 4 статьи 72 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-72-adoption",
+    "route": "vosstanovlenie-v-roditelskih-pravah",
+    "statement": "Восстановление не допускается, если ребёнок усыновлён и усыновление не отменено.",
+    "norm": "Абзац третий пункта 4 статьи 72 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-72-return",
+    "route": "vosstanovlenie-v-roditelskih-pravah",
+    "statement": "Одновременно может быть заявлено требование о возврате ребёнка, но оно оценивается судом отдельно с учётом интересов ребёнка.",
+    "norm": "Пункты 3–4 статьи 72 СК РФ; пункт 25 Постановления Пленума ВС РФ №44",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/files/24385/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-44-parties",
+    "route": "vosstanovlenie-v-roditelskih-pravah",
+    "statement": "Иск предъявляется к лицу или организации, на попечении которых находится ребёнок; в деле участвуют орган опеки и прокурор.",
+    "norm": "Пункт 23 Постановления Пленума ВС РФ №44; пункт 2 статьи 72 СК РФ",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/files/24385/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-draft",
+    "route": "vosstanovlenie-v-roditelskih-pravah",
+    "statement": "Иск и приложения должны соответствовать общим требованиям ГПК РФ.",
+    "norm": "Статьи 131–132 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-76-basis",
+    "route": "otmena-ogranicheniya-roditelskih-prav",
+    "statement": "Суд может отменить ограничение по иску ограниченного родителя, если основания ограничения отпали.",
+    "norm": "Пункт 1 статьи 76 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-76-interests",
+    "route": "otmena-ogranicheniya-roditelskih-prav",
+    "statement": "Суд учитывает мнение ребёнка и может отказать в возвращении, если оно противоречит его интересам.",
+    "norm": "Пункт 2 статьи 76 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-44-parties",
+    "route": "otmena-ogranicheniya-roditelskih-prav",
+    "statement": "Иск подаёт ограниченный родитель к лицу или организации, на попечении которых находится ребёнок; дело относится к районному суду.",
+    "norm": "Пункты 2 и 23 Постановления Пленума ВС РФ №44",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/files/24385/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-44-return",
+    "route": "otmena-ogranicheniya-roditelskih-prav",
+    "statement": "Отмена ограничения и возвращение ребёнка возможны, когда основания отпали и возвращение отвечает интересам ребёнка.",
+    "norm": "Пункт 24 Постановления Пленума ВС РФ №44",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/files/24385/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-draft",
+    "route": "otmena-ogranicheniya-roditelskih-prav",
+    "statement": "Иск и приложения должны соответствовать общим требованиям ГПК РФ.",
+    "norm": "Статьи 131–132 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-65-agreement",
+    "route": "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu",
+    "statement": "Вопросы воспитания и образования решаются родителями по взаимному согласию исходя из интересов и с учётом мнения детей.",
+    "norm": "Пункт 2 статьи 65 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-65-dispute",
+    "route": "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu",
+    "statement": "При разногласиях родитель вправе обратиться в орган опеки и попечительства или в суд.",
+    "norm": "Пункт 2 статьи 65 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-57-opinion",
+    "route": "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu",
+    "statement": "Ребёнок вправе выражать мнение по затрагивающим его вопросам; с 10 лет его учёт обязателен, кроме противоречия интересам ребёнка.",
+    "norm": "Статья 57 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "education-choice",
+    "route": "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu",
+    "statement": "Родители обеспечивают общее образование и выбирают организацию и форму обучения с учётом мнения ребёнка.",
+    "norm": "Пункт 2 статьи 63 СК РФ; статья 44 Закона №273-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102162745"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "plenum-10-court",
+    "route": "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu",
+    "statement": "Судебные споры о воспитании разрешаются с учётом интересов ребёнка и обстоятельств конкретного дела.",
+    "norm": "Постановление Пленума ВС РФ от 27.05.1998 №10",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/files/11628/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-86",
+    "route": "dopolnitelnye-rashody-na-rebenka",
+    "statement": "При отсутствии соглашения суд может привлечь родителя к дополнительным расходам только при исключительных обстоятельствах; учитываются материальное и семейное положение и иные заслуживающие внимания интересы.",
+    "norm": "статья 86 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-56-40-41",
+    "route": "dopolnitelnye-rashody-na-rebenka",
+    "statement": "Необходимость расходов и исключительный характер обстоятельств подтверждаются доказательствами; понесённые расходы могут взыскиваться однократно, а будущие по общему правилу определяются в твёрдой сумме.",
+    "norm": "пункты 40–41 Постановления Пленума ВС РФ от 26.12.2017 № 56",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/documents/own/26297/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-99-100",
+    "route": "dopolnitelnye-rashody-na-rebenka",
+    "statement": "Соглашение об уплате алиментов определяет размер, условия и порядок выплат, заключается письменно и удостоверяется нотариально.",
+    "norm": "статьи 99–100 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-131-132",
+    "route": "dopolnitelnye-rashody-na-rebenka",
+    "statement": "Иск должен содержать установленные сведения, обстоятельства, требования и перечень приложений.",
+    "norm": "статьи 131–132 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "nk-333-36",
+    "route": "dopolnitelnye-rashody-na-rebenka",
+    "statement": "Истцы по искам о взыскании алиментов освобождаются от уплаты государственной пошлины.",
+    "norm": "подпункт 2 пункта 1 статьи 333.36 НК РФ",
+    "primarySource": {
+      "name": "ФНС России, Налоговый кодекс РФ",
+      "url": "https://www.nalog.gov.ru/html/nk.htm"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-89",
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "statement": "При отказе от поддержки и отсутствии соглашения статья 89 СК РФ предоставляет перечисленным категориям супругов право требовать содержание от супруга, обладающего необходимыми средствами.",
+    "norm": "статья 89 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-90",
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "statement": "После развода требовать алименты могут только категории бывших супругов, перечисленные статьёй 90 СК РФ, при соблюдении условий соответствующего основания.",
+    "norm": "статья 90 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-91",
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "statement": "При отсутствии соглашения суд определяет алименты на супруга или бывшего супруга в твёрдой денежной сумме, уплачиваемой ежемесячно, с учётом положения и интересов сторон.",
+    "norm": "статья 91 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-92",
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "statement": "В предусмотренных статьёй 92 СК РФ случаях суд может освободить от содержания нетрудоспособного нуждающегося супруга либо ограничить обязанность сроком.",
+    "norm": "статья 92 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-99-100",
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "statement": "Соглашение об уплате алиментов заключается письменно, удостоверяется нотариально и после удостоверения имеет силу исполнительного листа.",
+    "norm": "статьи 99–100 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-56-43-47",
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "statement": "Верховный Суд разъясняет оценку необходимых средств, беременности, ухода за ребёнком, нетрудоспособности, пенсионного основания и статьи 92 СК РФ.",
+    "norm": "пункты 43–47 Постановления Пленума ВС РФ от 26.12.2017 № 56",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/documents/own/26297/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-131-132",
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "statement": "Иск должен содержать установленные сведения, обстоятельства, требования и перечень приложений.",
+    "norm": "статьи 131–132 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "nk-333-36",
+    "route": "soderzhanie-supruga-i-byvshego-supruga",
+    "statement": "Истцы по искам о взыскании алиментов освобождаются от уплаты государственной пошлины.",
+    "norm": "подпункт 2 пункта 1 статьи 333.36 НК РФ",
+    "primarySource": {
+      "name": "ФНС России, Налоговый кодекс РФ",
+      "url": "https://www.nalog.gov.ru/html/nk.htm"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-40",
+    "route": "brachnyy-dogovor",
+    "statement": "Брачный договор определяет имущественные права и обязанности лиц, вступающих в брак, или супругов в браке и (или) при его расторжении.",
+    "norm": "статья 40 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-41",
+    "route": "brachnyy-dogovor",
+    "statement": "Брачный договор можно заключить до регистрации брака или в браке; он совершается письменно и удостоверяется нотариально, а заключённый до брака действует со дня регистрации брака.",
+    "norm": "статья 41 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-42",
+    "route": "brachnyy-dogovor",
+    "statement": "Договор может устанавливать режим имущества и иные имущественные условия, но не может регулировать личные отношения и права детей, ограничивать правоспособность, обращение в суд или законное право нуждающегося супруга на содержание.",
+    "norm": "статья 42 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-43",
+    "route": "brachnyy-dogovor",
+    "statement": "Изменение и расторжение по соглашению совершаются в той же форме; односторонний отказ не допускается, а спорное изменение или расторжение возможно судом по основаниям ГК РФ.",
+    "norm": "статья 43 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-44",
+    "route": "brachnyy-dogovor",
+    "statement": "Суд может признать договор недействительным полностью или частично по основаниям ГК РФ и при крайне неблагоприятном положении супруга; отдельные запрещённые условия ничтожны.",
+    "norm": "статья 44 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-15-15",
+    "route": "brachnyy-dogovor",
+    "statement": "Верховный Суд разъясняет, что условия режима имущества, ставящие супруга в крайне неблагоприятное положение, могут быть признаны недействительными по его требованию.",
+    "norm": "пункт 15 Постановления Пленума ВС РФ от 05.11.1998 № 15",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/files/11293/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-131-132",
+    "route": "brachnyy-dogovor",
+    "statement": "Судебное требование должно отвечать требованиям к содержанию искового заявления и приложениям к нему.",
+    "norm": "статьи 131–132 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "notary",
+    "route": "brachnyy-dogovor",
+    "statement": "Федеральная нотариальная палата публикует федеральные нотариальные тарифы; окончательная стоимость включает применимый региональный тариф и уточняется у выбранного нотариуса.",
+    "norm": "нотариальные тарифы",
+    "primarySource": {
+      "name": "Федеральная нотариальная палата",
+      "url": "https://notariat.ru/ru-ru/actions-and-tariffs/tarify-ukazannye-v-nk-rf-osnovah-zakonodatelstva-rf-o-notariate/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-27",
+    "route": "priznanie-braka-nedeystvitelnym",
+    "statement": "Основания недействительности брака перечислены законом исчерпывающе; признание производится судом, а брак считается недействительным со дня его заключения.",
+    "norm": "статья 27 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-28",
+    "route": "priznanie-braka-nedeystvitelnym",
+    "statement": "Круг лиц, вправе требовать признания брака недействительным, зависит от конкретного основания и не является одинаковым для всех споров.",
+    "norm": "статья 28 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-29",
+    "route": "priznanie-braka-nedeystvitelnym",
+    "statement": "Суд учитывает обстоятельства, устраняющие недействительность: отпадение препятствия, интересы несовершеннолетнего, фактическое создание семьи при заявленной фиктивности и факт прежнего расторжения брака.",
+    "norm": "статья 29 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-30",
+    "route": "priznanie-braka-nedeystvitelnym",
+    "statement": "Закон отдельно регулирует имущественные последствия, права добросовестного супруга, брачный договор, фамилию и сохраняет права детей.",
+    "norm": "статья 30 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-12",
+    "route": "priznanie-braka-nedeystvitelnym",
+    "statement": "Для заключения брака необходимы взаимное добровольное согласие и достижение брачного возраста.",
+    "norm": "статья 12 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-13",
+    "route": "priznanie-braka-nedeystvitelnym",
+    "statement": "Общий брачный возраст составляет восемнадцать лет; возможность снижения возраста зависит от предусмотренного законом разрешения и региональных правил.",
+    "norm": "статья 13 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-14",
+    "route": "priznanie-braka-nedeystvitelnym",
+    "statement": "Брак не допускается при другом зарегистрированном браке, установленном законом близком родстве, отношениях усыновителя и усыновлённого либо признанной судом недееспособности вследствие психического расстройства.",
+    "norm": "статья 14 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-15",
+    "route": "priznanie-braka-nedeystvitelnym",
+    "statement": "Право требовать признания брака недействительным возникает у супруга, от которого при заключении брака скрыли венерическую болезнь или ВИЧ-инфекцию.",
+    "norm": "пункт 3 статьи 15 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-plenum-15",
+    "route": "priznanie-braka-nedeystvitelnym",
+    "statement": "Верховный Суд требует установить точное основание и право конкретного истца; перечень оснований не подлежит расширительному толкованию.",
+    "norm": "пункты 22–23 Постановления Пленума ВС РФ от 05.11.1998 № 15",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://vsrf.ru/files/11293/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-review-2022",
+    "route": "priznanie-braka-nedeystvitelnym",
+    "statement": "Обзор Верховного Суда систематизирует подходы к фиктивности, подсудности, надлежащему заявителю и последствиям недействительности брака.",
+    "norm": "Обзор судебной практики, утверждённый Президиумом ВС РФ 14.12.2022",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/documents/all/31905/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-24-131",
+    "route": "priznanie-braka-nedeystvitelnym",
+    "statement": "Требование рассматривается районным судом; иск и приложения должны соответствовать процессуальным требованиям, а территориальная подсудность проверяется отдельно.",
+    "norm": "статьи 24, 28–29, 131–132 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-34-39",
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "statement": "Состав общего и личного имущества, его возможное преобразование, раздел, доли, компенсации и общие долги определяются с учётом статей 34–39 СК РФ.",
+    "norm": "статьи 34–39 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-45-46",
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "statement": "Ответственность по обязательствам и права кредиторов требуют отдельной проверки; внутреннее распределение между супругами само по себе не заменяет должника перед кредитором.",
+    "norm": "статьи 45–46 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "mortgage-law",
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "statement": "Раздел заложенного имущества не прекращает ипотеку; распоряжение и изменение обязательств оцениваются с учётом прав залогодержателя и условий договора.",
+    "norm": "Федеральный закон № 102-ФЗ об ипотеке, включая статью 37",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102054365"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "llc-21",
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "statement": "Переход доли ООО и корпоративные последствия зависят от закона и устава; семейный спор не позволяет игнорировать права общества и участников.",
+    "norm": "статья 21 Федерального закона № 14-ФЗ об ООО",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102051516"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-corporate-2026",
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "statement": "Для отнесения корпоративного актива к общему или личному имуществу существенны период и основание возникновения права, а не только изменение сведений об организации.",
+    "norm": "позиция Судебной коллегии ВС РФ, опубликована 20.04.2026",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/news/35752/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "bankruptcy-213-26",
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "statement": "При банкротстве общее имущество супругов может реализовываться в порядке пункта 7 статьи 213.26, а права второго супруга и кредиторов учитываются в деле о банкротстве.",
+    "norm": "пункт 7 статьи 213.26 Федерального закона № 127-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078527"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-bankruptcy-2025",
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "statement": "Верховный Суд разъяснил, что определение долей без раздела имущества в натуре не всегда исключает реализацию общего объекта целиком в банкротстве.",
+    "norm": "Обзор судебной практики по делам о банкротстве граждан от 18.06.2025",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/documents/all/34516/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-security",
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "statement": "Обеспечение иска допускается, если непринятие мер может затруднить или сделать невозможным исполнение решения; мера должна быть связана с требованием и соразмерна ему.",
+    "norm": "статьи 139–146 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-plenum-15",
+    "route": "slozhnye-imushchestvennye-spory-suprugov",
+    "statement": "При разделе суд устанавливает состав имущества, момент его приобретения, источники средств, стоимость, доли, долги и права третьих лиц.",
+    "norm": "пункты 15–19 Постановления Пленума ВС РФ № 15",
+    "primarySource": {
+      "name": "Верховный Суд Российской Федерации",
+      "url": "https://www.vsrf.ru/documents/own/7783/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-51",
+    "route": "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
+    "statement": "Запись предполагаемых родителей при суррогатном материнстве связана с предусмотренным статьёй 51 согласием женщины, родившей ребёнка.",
+    "norm": "пункты 4–6 статьи 51 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "health-55",
+    "route": "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
+    "statement": "Закон различает договор о суррогатном материнстве и письменные медицинские согласия; требования к участникам и гражданству требуют проверки по дате договора.",
+    "norm": "части 9–11 статьи 55 Федерального закона № 323-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102152259"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "zags-16",
+    "route": "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
+    "statement": "Для регистрации рождения в описанном законом случае супругов требуется медицинский документ о рождении и документ медицинской организации о согласии суррогатной матери на их запись родителями.",
+    "norm": "пункт 5 статьи 16 Федерального закона № 143-ФЗ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102050119"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-plenum-16",
+    "route": "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
+    "statement": "В споре об отказе суррогатной матери дать согласие суд исследует фактические обстоятельства, а не ограничивается одним фактом отказа.",
+    "norm": "пункт 31 Постановления Пленума ВС РФ от 16.05.2017 № 16",
+    "primarySource": {
+      "name": "Верховный Суд РФ, опубликованный текст постановления",
+      "url": "https://vsrf.ru/Show_pdf.php?Id=11399"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-foreign-2026",
+    "route": "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
+    "statement": "Верховный Суд подчёркивает необходимость оценивать интересы ребёнка и все обстоятельства при трансграничном споре о суррогатном материнстве.",
+    "norm": "сообщение ВС РФ от 30.03.2026 о конкретном деле",
+    "primarySource": {
+      "name": "Верховный Суд РФ",
+      "url": "https://www.vsrf.ru/news/35669"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-160-164",
+    "route": "mezhdunarodnye-semeynye-spory",
+    "statement": "Российские коллизионные нормы связывают разные семейные вопросы с разными обстоятельствами, включая гражданство и совместное место жительства участников.",
+    "norm": "статьи 160, 163 и 164 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-402",
+    "route": "mezhdunarodnye-semeynye-spory",
+    "statement": "Компетенция российских судов по делам с иностранными лицами устанавливается процессуальными нормами и международными договорами, а не одним гражданством участника.",
+    "norm": "статья 402 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-408-409",
+    "route": "mezhdunarodnye-semeynye-spory",
+    "statement": "Иностранные документы и решения имеют разные режимы принятия, признания и исполнения; перевод, легализация и международный договор проверяются отдельно.",
+    "norm": "статьи 408 и 409, глава 45 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "hcch-1980",
+    "route": "mezhdunarodnye-semeynye-spory",
+    "statement": "Для возврата ребёнка по Конвенции 1980 года необходимо проверить участие государств и принятие присоединения между конкретной парой государств.",
+    "norm": "Конвенция от 25.10.1980 о гражданско-правовых аспектах международного похищения детей",
+    "primarySource": {
+      "name": "Гаагская конференция по международному частному праву, статусный реестр",
+      "url": "https://www.hcch.net/en/instruments/conventions/status-table?cid=24"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-plenum-24",
+    "route": "mezhdunarodnye-semeynye-spory",
+    "statement": "При отношениях с иностранным элементом суд квалифицирует отношения и устанавливает содержание применимого иностранного права по специальным правилам.",
+    "norm": "Постановление Пленума ВС РФ от 09.07.2019 № 24",
+    "primarySource": {
+      "name": "Верховный Суд РФ",
+      "url": "https://www.vsrf.ru/files/28073/"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-55",
+    "route": "obshchenie-rodstvennikov-s-rebenkom",
+    "statement": "Ребёнок имеет право общаться с дедушкой, бабушкой, братьями, сёстрами и другими родственниками.",
+    "norm": "статья 55 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-67",
+    "route": "obshchenie-rodstvennikov-s-rebenkom",
+    "statement": "При препятствиях орган опеки может обязать не мешать общению; при неподчинении его решению близкий родственник или орган опеки вправе обратиться в суд.",
+    "norm": "статья 67 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "sk-57",
+    "route": "obshchenie-rodstvennikov-s-rebenkom",
+    "statement": "Ребёнок вправе выражать мнение по затрагивающему его вопросу; с десяти лет его учёт обязателен, кроме противоречия интересам ребёнка.",
+    "norm": "статья 57 СК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102038925"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "vs-review-2011",
+    "route": "obshchenie-rodstvennikov-s-rebenkom",
+    "statement": "Верховный Суд относит устранение препятствий к общению близких родственников к спорам о воспитании и отмечает значение досудебной работы органа опеки.",
+    "norm": "Обзор практики разрешения судами споров, связанных с воспитанием детей",
+    "primarySource": {
+      "name": "Верховный Суд РФ",
+      "url": "https://www.vsrf.ru/documents/all/15101"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gk-27",
+    "route": "emansipatsiya-nesovershennoletnego",
+    "statement": "С 16 лет работающий по трудовому договору либо занимающийся предпринимательством с требуемым согласием несовершеннолетний может быть объявлен полностью дееспособным.",
+    "norm": "статья 27 ГК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102033239"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-287",
+    "route": "emansipatsiya-nesovershennoletnego",
+    "statement": "При отсутствии необходимого согласия несовершеннолетний с 16 лет вправе обратиться в суд по месту своего жительства.",
+    "norm": "статья 287 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-288",
+    "route": "emansipatsiya-nesovershennoletnego",
+    "statement": "Дело рассматривается с участием заявителя, законных представителей, органа опеки и прокурора.",
+    "norm": "статья 288 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  },
+  {
+    "ruleId": "gpk-289",
+    "route": "emansipatsiya-nesovershennoletnego",
+    "statement": "При судебном порядке полная дееспособность возникает со дня вступления решения суда в законную силу.",
+    "norm": "статья 289 ГПК РФ",
+    "primarySource": {
+      "name": "Официальный интернет-портал правовой информации",
+      "url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828"
+    },
+    "actualVersionDate": "2026-09-18",
+    "verified": true,
+    "action": "verified-primary-source"
+  }
+]
