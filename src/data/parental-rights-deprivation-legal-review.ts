@@ -1,6 +1,6 @@
 import type { ParentalRightsDeprivationScenarioKey } from "@/data/parental-rights-deprivation-route";
 
-export const PARENTAL_RIGHTS_DEPRIVATION_REVIEWED_AT = "2026-09-12";
+export const PARENTAL_RIGHTS_DEPRIVATION_REVIEWED_AT = "2026-09-18";
 
 export type ParentalRightsDeprivationLegalPath = "assessment" | "court" | "existing" | "support" | "emergency" | "adult-special";
 

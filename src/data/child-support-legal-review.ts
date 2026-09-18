@@ -1,6 +1,6 @@
 import type { ChildSupportScenarioKey } from "@/data/child-support-route";
 
-export const CHILD_SUPPORT_REVIEWED_AT = "2026-09-11";
+export const CHILD_SUPPORT_REVIEWED_AT = "2026-09-18";
 export type ChildSupportLegalPath = "agreement" | "order" | "claim" | "enforcement";
 
 export type ChildSupportLegalRule = {

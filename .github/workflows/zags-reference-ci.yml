@@ -48,6 +48,7 @@ jobs:
       - run: npm ci
       - run: npm run prisma:generate
       - run: npx prisma db push --skip-generate
+      - run: npm run quality:legal-sources
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test

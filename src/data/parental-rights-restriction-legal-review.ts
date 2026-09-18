@@ -1,6 +1,6 @@
 import type { ParentalRightsRestrictionScenarioKey } from "@/data/parental-rights-restriction-route";
 
-export const PARENTAL_RIGHTS_RESTRICTION_REVIEWED_AT = "2026-09-12";
+export const PARENTAL_RIGHTS_RESTRICTION_REVIEWED_AT = "2026-09-18";
 export type ParentalRightsRestrictionLegalPath = "objective" | "behavior" | "court" | "assessment" | "emergency";
 export type ParentalRightsRestrictionRule = { id: string; statement: string; norm: string; officialSource: string; url: string; checkedAt: string; scope: string; scenarios: ParentalRightsRestrictionScenarioKey[]; legalPaths: ParentalRightsRestrictionLegalPath[]; limitations: string };
 

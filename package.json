@@ -54,6 +54,7 @@
     "test:e2e:emancipation": "playwright test tests/e2e/emancipation-route.spec.ts",
     "audit:emancipation-pdf": "tsx scripts/audit-emancipation-pdfs.ts",
     "quality:ai-navigator": "tsx scripts/check-ai-navigator-quality.ts",
+    "quality:legal-sources": "tsx scripts/audit-family-route-legal-sources.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
