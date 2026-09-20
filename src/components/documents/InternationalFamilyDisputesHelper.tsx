@@ -1,8 +1,8 @@
 "use client";
+import { LegalReviewLawyers } from "@/components/lawyers/LegalReviewLawyers";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Download, ShieldCheck } from "lucide-react";
+import { Download } from "lucide-react";
 import { INTERNATIONAL_FAMILY_DISPUTES_KEYS, INTERNATIONAL_FAMILY_DISPUTES_SCENARIOS, type InternationalFamilyDisputesKey } from "@/data/international-family-disputes-route";
 import { createInternationalFamilyDisputesPdfBlob } from "@/lib/international-family-disputes-pdf";
 import { validateInternationalFamilyDisputes, type InternationalFamilyDisputesDecision, type InternationalFamilyDisputesValues } from "@/lib/international-family-disputes-validator";
@@ -44,7 +44,7 @@ export function InternationalFamilyDisputesHelper({ initialKey }: { initialKey?:
       {decision.pdfAvailable ? <><h4 className="mt-5 font-semibold text-ink">Что собрать</h4><ul className="mt-2 grid gap-2 text-sm leading-6 text-zinc-700">{decision.evidence.map((item) => <li key={item}>- {item}</li>)}</ul>
         <h4 className="mt-5 font-semibold text-ink">Что делать дальше</h4><ol className="mt-2 grid gap-2 text-sm leading-6 text-zinc-700">{decision.nextSteps.map((item, index) => <li key={item}>{index + 1}. {item}</li>)}</ol>
         <div className="mt-6 flex flex-wrap gap-3"><button type="button" onClick={download} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:ring-2 focus:ring-trust/30"><Download className="h-4 w-4" aria-hidden="true" /> Скачать PDF</button>
-          <Link href="/questions/#question" className="inline-flex min-h-11 items-center gap-2 rounded-md border border-trust px-5 py-3 text-sm font-semibold text-trust focus:ring-2 focus:ring-trust/30"><ShieldCheck className="h-4 w-4" aria-hidden="true" /> Проверить у юриста</Link></div></> : null}
+          <LegalReviewLawyers context={{ route: "/documents/", scenario: String(key), documentTitle: decision.documentTitle }} /></div></> : null}
       {message ? <p role="status" className="mt-3 text-sm text-zinc-700">{message}</p> : null}
     </div> : null}
   </section>;

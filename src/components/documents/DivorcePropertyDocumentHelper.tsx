@@ -2,11 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import Link from "next/link";
+import { FamilyDocumentEnhancements } from "@/components/documents/FamilyDocumentEnhancements";
+import { OfficialCourtHelp } from "@/components/forms/OfficialCourtHelp";
+import { StructuredPartyField, isStructuredPartyField } from "@/components/forms/StructuredPartyField";
+import { SearchableSelect } from "@/components/forms/SearchableSelect";
 import {
   DIVORCE_PROPERTY_SCENARIOS
 } from "@/data/divorce-property-route";
-import { COURT_DIRECTORY, COURT_REGIONS, getCourtRegionalStatus } from "@/data/court-directory";
+import { COURT_DIRECTORY, getCourtRegionalStatus } from "@/data/court-directory";
+import { RUSSIAN_REGIONS } from "@/data/guardianship-territories";
+import { DIVORCE_PROPERTY_LEGAL_RULES } from "@/data/divorce-property-legal-review";
 import type {
   DivorcePropertyHelperField,
   DivorcePropertyScenarioKey
@@ -128,12 +133,12 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
       .map((field) => ({ label: field.label, value: fieldValueLabel(field, formValues[field.name] ?? "") }))
       .filter((item) => item.value);
     setReview({ decision, missing, values: preparedValues });
-    setDraftPreview(decision.allowed && !decision.officialFormOnly ? decision.draftText : "");
+    setDraftPreview("");
     setSupplementalDrafts(decision.allowed ? decision.supplementalDrafts : []);
   }
 
   const hasErrors = Boolean(review && (review.missing.length || !review.decision.allowed));
-  const hasDraft = Boolean(review?.decision.allowed && !review.decision.officialFormOnly && review.decision.draftText);
+  const hasDraft = Boolean(review?.decision.allowed && !review.decision.officialFormOnly && draftPreview);
   const officialFormDataReady = Boolean(review?.decision.allowed && review.decision.officialFormOnly);
 
   async function copyDraft() {
@@ -178,7 +183,7 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
       <p className="text-sm font-semibold uppercase tracking-wide text-trust">Подготовка документа</p>
       <h2 className="mt-2 text-2xl font-semibold text-ink">{scenario.mainDocument}</h2>
       <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-700">
-        Ответы обрабатываются в браузере и не отправляются на сервер. Помощник применяет только заранее заданные правила и не использует свободную генерацию правовых требований.
+        Правовой путь и ограничения определяются в браузере по заранее заданным правилам. Связный текст допустимого черновика формируется только по отдельной команде; тогда подготовленные сведения передаются на сервер ПравоПоиск и в DeepSeek API.
       </p>
 
       {scenarioKey === "registry-divorce" ? (
@@ -259,6 +264,22 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
         ) : null}
       </div>
 
+      {review?.decision.allowed && review.missing.length === 0 && !review.decision.officialFormOnly ? <FamilyDocumentEnhancements
+        route={`/documents/${scenario.documentSlug}/`}
+        scenario={scenarioKey}
+        decision={{
+          resultKind: scenarioKey === "property-agreement" ? "agreementDraft" : "courtDraft",
+          documentTitle: review.decision.documentTitle,
+          filingReady: review.decision.filingReady,
+          requiresLegalReview: review.decision.requiresLegalReview,
+          preparedData: review.values,
+          issues: review.decision.issues,
+          notices: review.decision.notices
+        }}
+        rules={DIVORCE_PROPERTY_LEGAL_RULES.filter((rule) => rule.scenarios.includes(scenarioKey)).map((rule) => ({ id: rule.id, norm: rule.norm, url: rule.officialUrl, statement: rule.statement, limitations: rule.fallbackBehavior }))}
+        onDraftGenerated={setDraftPreview}
+      /> : null}
+
       {review?.decision.allowed && review.missing.length === 0 && scenarioKey === "registry-divorce" ? (
         <div className="mt-5 grid gap-4 rounded-lg border border-line bg-zinc-50 p-4">
           <h3 className="font-semibold text-ink">Сведения для переноса в официальный бланк</h3>
@@ -319,13 +340,6 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
         </section>
       ) : null}
 
-      {hasDraft ? (
-        <div className="mt-6 border-t border-line pt-5">
-          <Link href="/questions/#question" className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
-            Проверить документ у юриста
-          </Link>
-        </div>
-      ) : null}
     </section>
   );
 }
@@ -343,19 +357,16 @@ function HelperField({ courtLevel, field, onChange, value }: {
       : "Официальное наименование районного или городского суда"
     : field.label;
 
+  if (isStructuredPartyField(field.name)) {
+    return <StructuredPartyField id={fieldId} label={label} fieldName={field.name} value={value} onChange={(nextValue) => onChange(field.name, nextValue)} required={field.required} />;
+  }
+
   return (
     <div className="grid gap-2 text-sm font-semibold text-ink">
+      {field.name === "courtWebsite" || field.name === "courtSource" ? <OfficialCourtHelp /> : null}
       <label htmlFor={fieldId}>{label}{field.required ? <span className="text-rose-600"> *</span> : null}</label>
       {field.type === "court-region" ? (
-        <>
-          <input id={fieldId} name={field.name} list={COURT_REGIONS.length ? "court-regions" : undefined} required={field.required} value={value} placeholder="Введите субъект Российской Федерации" onChange={(event) => onChange(field.name, event.target.value)} className="min-h-11 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-normal text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" />
-          {COURT_REGIONS.length ? (
-            <datalist id="court-regions">
-              {COURT_REGIONS.map((region) => <option key={region} value={region} />)}
-            </datalist>
-          ) : null}
-          <span className="text-xs font-normal leading-5 text-zinc-600">Регион вводится вручную и используется только для поиска на официальном судебном ресурсе.</span>
-        </>
+        <><SearchableSelect id={fieldId} label={label} required={field.required} value={value} onChange={(nextValue) => onChange(field.name, nextValue)} options={RUSSIAN_REGIONS.map((region) => ({ id: region.label, label: region.label }))} placeholder="Выберите субъект Российской Федерации" searchPlaceholder="Начните вводить название региона" /><span className="text-xs font-normal leading-5 text-zinc-600">Перечень субъектов используется только как параметр официального поиска и сам по себе не подтверждает подсудность.</span></>
       ) : field.type === "textarea" ? (
         <textarea id={fieldId} name={field.name} required={field.required} rows={3} value={value} placeholder={field.placeholder} onChange={(event) => onChange(field.name, event.target.value)} className="min-h-24 w-full rounded-md border border-line bg-white px-3 py-3 text-base font-normal text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" />
       ) : field.type === "select" ? (

@@ -29,7 +29,10 @@ test("surrogacy helper never declares filing readiness", async ({ page }) => {
   await expect(page.getByText("Готово к подаче: нет. Юридическая проверка обязательна.")).toBeVisible();
   await expect(page.getByText(/Согласие суррогатной матери на запись родителей не подтверждено/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Скачать PDF" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Проверить у юриста" })).toBeVisible();
+  const reviewButton = page.getByRole("button", { name: "Спросить юриста" });
+  await expect(reviewButton).toBeVisible();
+  await reviewButton.click();
+  await expect(page.locator('[role="dialog"][aria-modal="true"]')).toBeVisible();
 });
 
 test("immediate danger stops PDF flow", async ({ page }) => {

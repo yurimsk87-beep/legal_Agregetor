@@ -10,9 +10,18 @@ type QuestionModalProps = {
   sourcePage: string;
   defaultCityId?: string;
   defaultServiceId?: string;
+  defaultServiceSlug?: string;
   lawyerId?: string;
+  context?: QuestionContext;
   label?: string;
   variant?: "primary" | "secondary" | "link";
+};
+
+export type QuestionContext = {
+  route: string;
+  scenario?: string;
+  documentTitle?: string;
+  summary?: string;
 };
 
 type OptionsState = {
@@ -24,7 +33,9 @@ export function QuestionModal({
   sourcePage,
   defaultCityId,
   defaultServiceId,
+  defaultServiceSlug,
   lawyerId,
+  context,
   label = "Задать вопрос",
   variant = "primary"
 }: QuestionModalProps) {
@@ -89,7 +100,11 @@ export function QuestionModal({
                 sourcePage={sourcePage}
                 defaultCityId={defaultCityId}
                 defaultServiceId={defaultServiceId}
+                defaultServiceSlug={defaultServiceSlug}
                 lawyerId={lawyerId}
+                initialTitle={context?.documentTitle ? `Проверка документа: ${context.documentTitle}` : "Вопрос по семейной ситуации"}
+                initialText={questionText(context)}
+                questionContext={context}
                 compact
               />
             ) : null}
@@ -98,6 +113,15 @@ export function QuestionModal({
       ) : null}
     </>
   );
+}
+
+function questionText(context?: QuestionContext) {
+  const parts = [
+    context?.summary,
+    context?.scenario ? `Сценарий: ${context.scenario}.` : "",
+    context?.documentTitle ? `Документ: ${context.documentTitle}.` : ""
+  ].filter(Boolean);
+  return `${parts.join(" ")} Опишите, что именно нужно проверить и какой результат вы хотите получить.`.trim();
 }
 
 function linkClassName(variant: QuestionModalProps["variant"]) {

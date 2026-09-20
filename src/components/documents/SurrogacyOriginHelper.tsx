@@ -1,8 +1,8 @@
 "use client";
+import { LegalReviewLawyers } from "@/components/lawyers/LegalReviewLawyers";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Download, ShieldCheck } from "lucide-react";
+import { Download } from "lucide-react";
 import { SURROGACY_ORIGIN_KEYS, SURROGACY_ORIGIN_SCENARIOS, type SurrogacyOriginKey } from "@/data/surrogacy-origin-route";
 import { createSurrogacyOriginPdfBlob } from "@/lib/surrogacy-origin-pdf";
 import { validateSurrogacyOrigin, type SurrogacyOriginDecision, type SurrogacyOriginValues } from "@/lib/surrogacy-origin-validator";
@@ -71,7 +71,7 @@ export function SurrogacyOriginHelper({ initialKey }: { initialKey?: SurrogacyOr
         <ol className="mt-2 grid gap-2 text-sm leading-6 text-zinc-700">{decision.nextSteps.map((item, index) => <li key={item}>{index + 1}. {item}</li>)}</ol>
         <div className="mt-6 flex flex-wrap gap-3">
           <button type="button" onClick={download} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:ring-2 focus:ring-trust/30"><Download className="h-4 w-4" aria-hidden="true" /> Скачать PDF</button>
-          <Link href="/questions/#question" className="inline-flex min-h-11 items-center gap-2 rounded-md border border-trust px-5 py-3 text-sm font-semibold text-trust focus:ring-2 focus:ring-trust/30"><ShieldCheck className="h-4 w-4" aria-hidden="true" /> Проверить у юриста</Link>
+          <LegalReviewLawyers context={{ route: "/documents/", scenario: String(key), documentTitle: decision.documentTitle }} />
         </div>
       </> : null}
       {message ? <p role="status" className="mt-3 text-sm text-zinc-700">{message}</p> : null}
