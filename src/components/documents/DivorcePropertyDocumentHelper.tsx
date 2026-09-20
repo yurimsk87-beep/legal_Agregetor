@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { FamilyDocumentEnhancements } from "@/components/documents/FamilyDocumentEnhancements";
-import { OfficialCourtHelp } from "@/components/forms/OfficialCourtHelp";
+import { OfficialFieldHelp } from "@/components/forms/OfficialServiceHelp";
 import { StructuredPartyField, isStructuredPartyField } from "@/components/forms/StructuredPartyField";
 import { SearchableSelect } from "@/components/forms/SearchableSelect";
 import {
@@ -363,7 +363,7 @@ function HelperField({ courtLevel, field, onChange, value }: {
 
   return (
     <div className="grid gap-2 text-sm font-semibold text-ink">
-      {field.name === "courtWebsite" || field.name === "courtSource" ? <OfficialCourtHelp /> : null}
+      <OfficialFieldHelp fieldName={field.name} />
       <label htmlFor={fieldId}>{label}{field.required ? <span className="text-rose-600"> *</span> : null}</label>
       {field.type === "court-region" ? (
         <><SearchableSelect id={fieldId} label={label} required={field.required} value={value} onChange={(nextValue) => onChange(field.name, nextValue)} options={RUSSIAN_REGIONS.map((region) => ({ id: region.label, label: region.label }))} placeholder="Выберите субъект Российской Федерации" searchPlaceholder="Начните вводить название региона" /><span className="text-xs font-normal leading-5 text-zinc-600">Перечень субъектов используется только как параметр официального поиска и сам по себе не подтверждает подсудность.</span></>

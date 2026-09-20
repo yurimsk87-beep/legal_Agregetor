@@ -19,6 +19,10 @@ test("surrogacy query state is not indexed", async ({ page }) => {
 });
 
 test("surrogacy helper never declares filing readiness", async ({ page }) => {
+  await page.route("**/api/legal-review-lawyers/**", async (route) => route.fulfill({
+    contentType: "application/json",
+    body: JSON.stringify({ ok: true, service: "semeynye-spory", items: [{ id: "lawyer-1", slug: "lawyer-1", fullName: "Иванова Анна", specialization: "Семейное право", cityId: "city-1" }], message: null })
+  }));
   await page.goto(`${documentPath}?variant=registration`);
   await page.getByLabel("Ребёнок уже родился?").selectOption("yes");
   await page.getByLabel("Кто предполагает обратиться: супруги, одинокая женщина или другое лицо?").selectOption("spouses");
@@ -29,6 +33,11 @@ test("surrogacy helper never declares filing readiness", async ({ page }) => {
   await expect(page.getByText("Готово к подаче: нет. Юридическая проверка обязательна.")).toBeVisible();
   await expect(page.getByText(/Согласие суррогатной матери на запись родителей не подтверждено/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Скачать PDF" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Профильные юристы" })).toBeVisible();
+  await expect(page.getByText("Онлайн", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Задать вопрос" }).click();
+  await expect(page.locator('[role="dialog"][aria-modal="true"]')).toBeVisible();
+  await page.getByRole("button", { name: "Закрыть" }).click();
   const reviewButton = page.getByRole("button", { name: "Спросить юриста" });
   await expect(reviewButton).toBeVisible();
   await reviewButton.click();

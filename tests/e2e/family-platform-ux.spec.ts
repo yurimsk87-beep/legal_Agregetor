@@ -37,11 +37,20 @@ test("document preparation keeps scenario and opens a new tab", async ({ page })
 test("family tools expose deterministic calculations and official court search", async ({ page }) => {
   await page.goto("/tools/family-state-duty/");
   await page.getByLabel("Вид требования").selectOption("property");
-  await page.getByLabel("Цена иска, руб.").fill("100000");
-  await expect(page.getByText("Предварительная госпошлина")).toBeVisible();
+  await page.getByLabel("Цена имущественного требования, руб.").fill("750000");
+  await expect(page.getByText(/Итого к оплате: 20\s*000/)).toBeVisible();
+  await expect(page.getByText("15 000 ₽ + 2% суммы свыше 500 000 ₽", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Тип: secondary/).first()).toBeVisible();
+
+  await page.getByLabel("Вид требования").selectOption("alimony");
+  await expect(page.getByText(/Итого к оплате: 0.*применяется льгота/)).toBeVisible();
 
   await page.goto("/tools/court-finder/");
-  await expect(page.getByRole("link", { name: /Открыть официальный поиск суда/ })).toHaveAttribute("href", "https://sudrf.ru/index.php?id=300");
+  await expect(page.getByRole("link", { name: /Найти суд и проверить подсудность/ })).toHaveAttribute("href", "https://sudrf.ru/index.php?id=300");
+
+  await page.goto("/tools/where-to-file/");
+  await page.getByLabel("Что требуется").selectOption("fssp");
+  await expect(page.getByRole("link", { name: /Открыть официальный сервис ФССП/ })).toHaveAttribute("href", "https://fssp.gov.ru/iss/ip");
 });
 
 test("new catalog and tools fit supported mobile widths", async ({ page }) => {

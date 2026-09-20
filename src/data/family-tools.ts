@@ -9,13 +9,7 @@ export type FamilyToolSlug =
   | "family-document-check"
   | "where-to-file";
 
-export type FamilyToolSource = {
-  title: string;
-  norm: string;
-  url: string;
-  checkedAt: string;
-  limitation: string;
-};
+export type FamilyToolSource = FamilyLegalSource;
 
 export type FamilyToolDefinition = {
   slug: FamilyToolSlug;
@@ -24,29 +18,25 @@ export type FamilyToolDefinition = {
   sources: FamilyToolSource[];
 };
 
-const checkedAt = "2026-09-19";
+const checkedAt = FAMILY_TOOLS_CHECKED_AT;
 
-const nk33319: FamilyToolSource = {
-  title: "Налоговый кодекс РФ",
-  norm: "статья 333.19",
-  url: "https://www.consultant.ru/document/cons_doc_LAW_28165/5f32d7850f7f21fcd36f7e20f6160e99b257ade9/",
-  checkedAt,
-  limitation: "Федеральные размеры пошлины. Льготы и особенности конкретного требования проверяются отдельно."
-};
+const stateDutySources = [NK_FNS_SOURCE, COURT_FEE_AMENDMENT_SOURCE, NK_CONSULTANT_SOURCE];
 
 const sk81: FamilyToolSource = {
   title: "Семейный кодекс РФ",
   norm: "статья 81",
-  url: "https://www.consultant.ru/document/cons_doc_LAW_8982/73d58c51a5e2f45aa447f01754320272901772ae/",
+  url: FAMILY_CODE_OFFICIAL_SOURCE.url,
   checkedAt,
+  sourceType: "primary",
   limitation: "Долевой расчёт применим к алиментам на несовершеннолетних детей при отсутствии соглашения; суд может изменить доли."
 };
 
 const sk113: FamilyToolSource = {
   title: "Семейный кодекс РФ",
   norm: "статья 113",
-  url: "https://www.consultant.ru/document/cons_doc_LAW_8982/fcc960557d1910655be3fdd176d6d6bec466afb7/",
+  url: FAMILY_CODE_OFFICIAL_SOURCE.url,
   checkedAt,
+  sourceType: "primary",
   limitation: "Инструмент даёт предварительную арифметику и не заменяет постановление судебного пристава о расчёте задолженности."
 };
 
@@ -55,6 +45,7 @@ const courtSearch: FamilyToolSource = {
   norm: "официальный поиск территориальной подсудности",
   url: "https://sudrf.ru/index.php?id=300",
   checkedAt,
+  sourceType: "primary",
   limitation: "Суд определяется по полному адресу и предмету требования. Сервис не выбирает суд автоматически."
 };
 
@@ -63,12 +54,13 @@ const notaryTariffs: FamilyToolSource = {
   norm: "региональные тарифы",
   url: "https://notariat.ru/ru-ru/actions-and-tariffs/regional-rates/",
   checkedAt,
+  sourceType: "primary",
   limitation: "Региональная часть тарифа зависит от субъекта РФ и нотариального действия; окончательную сумму сообщает нотариус."
 };
 
 export const familyTools: FamilyToolDefinition[] = [
-  { slug: "family-state-duty", title: "Госпошлина по семейному спору", description: "Предварительно рассчитает федеральную госпошлину по выбранному виду обращения.", sources: [nk33319] },
-  { slug: "claim-price", title: "Цена иска", description: "Сложит стоимость требований и компенсаций для предварительной проверки цены иска.", sources: [nk33319] },
+  { slug: "family-state-duty", title: "Госпошлина по семейному спору", description: "Рассчитает федеральную госпошлину по выбранному требованию и отдельно покажет льготу, формулу и ограничения.", sources: stateDutySources },
+  { slug: "claim-price", title: "Цена иска", description: "Сложит стоимость требований и компенсаций для предварительной проверки цены иска.", sources: stateDutySources },
   { slug: "alimony-shares", title: "Доли алиментов", description: "Покажет ориентир долевого взыскания на одного, двух или трёх и более детей.", sources: [sk81] },
   { slug: "alimony-debt-estimate", title: "Предварительная задолженность по алиментам", description: "Сопоставит начисленные и уплаченные суммы без подмены расчёта ФССП.", sources: [sk113] },
   { slug: "notary-costs", title: "Расходы у нотариуса", description: "Объяснит состав единого нотариального тарифа и откроет официальный региональный справочник.", sources: [notaryTariffs] },
@@ -81,3 +73,4 @@ export const familyTools: FamilyToolDefinition[] = [
 export function getFamilyTool(slug: string) {
   return familyTools.find((tool) => tool.slug === slug) ?? null;
 }
+import { COURT_FEE_AMENDMENT_SOURCE, FAMILY_CODE_OFFICIAL_SOURCE, FAMILY_TOOLS_CHECKED_AT, NK_CONSULTANT_SOURCE, NK_FNS_SOURCE, type FamilyLegalSource } from "@/data/family-legal-sources";

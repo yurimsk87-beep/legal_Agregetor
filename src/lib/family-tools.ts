@@ -1,17 +1,7 @@
+import { calculatePropertyStateDutyAmount } from "@/lib/family-state-duty";
+
 export function calculatePropertyStateDuty(price: number) {
-  if (!Number.isFinite(price) || price <= 0) return null;
-  let duty: number;
-  if (price <= 100_000) duty = 4_000;
-  else if (price <= 300_000) duty = 4_000 + (price - 100_000) * 0.03;
-  else if (price <= 500_000) duty = 10_000 + (price - 300_000) * 0.025;
-  else if (price <= 1_000_000) duty = 15_000 + (price - 500_000) * 0.02;
-  else if (price <= 3_000_000) duty = 25_000 + (price - 1_000_000) * 0.01;
-  else if (price <= 8_000_000) duty = 45_000 + (price - 3_000_000) * 0.007;
-  else if (price <= 24_000_000) duty = 80_000 + (price - 8_000_000) * 0.0035;
-  else if (price <= 50_000_000) duty = 136_000 + (price - 24_000_000) * 0.003;
-  else if (price <= 100_000_000) duty = 214_000 + (price - 50_000_000) * 0.002;
-  else duty = Math.min(900_000, 314_000 + (price - 100_000_000) * 0.0015);
-  return Math.round(duty * 100) / 100;
+  return calculatePropertyStateDutyAmount(price);
 }
 
 export function calculateClaimPrice(items: number[]) {

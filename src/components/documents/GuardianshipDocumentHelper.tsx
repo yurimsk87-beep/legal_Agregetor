@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import Link from "next/link";
 import { Download, ShieldCheck } from "lucide-react";
 import { SearchableSelect } from "@/components/forms/SearchableSelect";
+import { OfficialFieldHelp } from "@/components/forms/OfficialServiceHelp";
 import { DOCUMENT_REVIEW_RETENTION_DAYS } from "@/data/document-review-policy";
 import {
   findGuardianshipTerritory,
@@ -403,6 +404,7 @@ function HelperField({ field, onChange, value, values, cities }: { field: Guardi
     : undefined;
   return (
     <div className="grid gap-2 text-sm font-semibold text-ink">
+      <OfficialFieldHelp fieldName={field.name} />
       <label htmlFor={id}>{field.label}{field.required ? <span className="sr-only"> (обязательно)</span> : null}</label>
       {isTerritorialField ? (
         <SearchableSelect

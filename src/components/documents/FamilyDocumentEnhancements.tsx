@@ -3,6 +3,7 @@
 import { LegalDraftGenerator } from "@/components/documents/LegalDraftGenerator";
 import { LegalReviewLawyers } from "@/components/lawyers/LegalReviewLawyers";
 import { isGenerativeResultType } from "@/lib/legal-draft-contract";
+import { getFamilyReviewService } from "@/lib/legal-review-lawyers";
 
 type Decision = {
   resultKind: string;
@@ -32,6 +33,7 @@ export function FamilyDocumentEnhancements({
   const allowedResultType = isGenerativeResultType(decision.resultKind) ? decision.resultKind : null;
   const canGenerate = decision.issues.length === 0 && allowedResultType !== null;
   const verifiedFacts = Object.fromEntries(decision.preparedData.map((item, index) => [`${index + 1}. ${item.label}`, item.value]));
+  const serviceSlug = getFamilyReviewService(route, scenario);
 
   return <>
     {canGenerate && allowedResultType ? <LegalDraftGenerator input={{
@@ -47,6 +49,6 @@ export function FamilyDocumentEnhancements({
       safetyFlags: decision.notices,
       allowedResultType
     }} onGenerated={onDraftGenerated} /> : null}
-    {decision.requiresLegalReview ? <LegalReviewLawyers context={{ route, scenario, documentTitle: decision.documentTitle }} /> : null}
+    {decision.requiresLegalReview ? <LegalReviewLawyers context={{ route, scenario, documentTitle: decision.documentTitle }} serviceSlug={serviceSlug} /> : null}
   </>;
 }
