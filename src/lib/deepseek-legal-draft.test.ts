@@ -28,14 +28,36 @@ async function main() {
   assert.match(generated.draftText, /^ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ/);
   assert.equal(generated.filingReady, false);
   assert.equal(generated.requiresLegalReview, true);
+  assert.match(generated.draftText, /статья 66 СК РФ/);
+  assert.match(generated.draftText, /https:\/\/pravo\.gov\.ru\/family/);
 
   await assert.rejects(
-    () => generateLegalDraft(input, { apiKey: "test-key", fetchImpl: () => response({ documentTitle: input.documentTitle, draftText: "Недостаточно длинный текст", usedRuleIds: ["unknown"], placeholders: [] }) }),
+    () => generateLegalDraft(input, { apiKey: "test-key", fetchImpl: () => response({ documentTitle: input.documentTitle, draftText: "Обстоятельства подробно изложены на основании подтверждённых данных. Просьба сформулирована пользователем. Приложения перечислены. Дата и подпись предусмотрены.", usedRuleIds: ["unknown"], placeholders: [] }) }),
     LegalDraftGenerationError
   );
 
   await assert.rejects(
     () => generateLegalDraft(input, { apiKey: "test-key", fetchImpl: () => response({ documentTitle: "Другой документ", draftText: "Достаточно длинный связный текст документа с обстоятельствами, просьбой, приложениями и местом для подписи пользователя.", usedRuleIds: ["sk-66"], placeholders: [] }) }),
+    LegalDraftGenerationError
+  );
+
+  await assert.rejects(
+    () => generateLegalDraft(input, { apiKey: "test-key", fetchImpl: () => response({ documentTitle: input.documentTitle, draftText: "На основании статьи 999 СК РФ обстоятельства подробно изложены. Просьба сформулирована пользователем. Приложения перечислены, дата и подпись предусмотрены.", usedRuleIds: ["sk-66"], placeholders: [] }) }),
+    LegalDraftGenerationError
+  );
+
+  await assert.rejects(
+    () => generateLegalDraft(input, { apiKey: "test-key", fetchImpl: () => response({ documentTitle: input.documentTitle, draftText: "Согласно Федеральному закону № 999-ФЗ обстоятельства подробно изложены. Просьба сформулирована пользователем. Приложения перечислены, дата и подпись предусмотрены.", usedRuleIds: ["sk-66"], placeholders: [] }) }),
+    LegalDraftGenerationError
+  );
+
+  await assert.rejects(
+    () => generateLegalDraft(input, { apiKey: "test-key", fetchImpl: () => response({ documentTitle: input.documentTitle, draftText: "Обстоятельства подробно изложены на основании подтверждённых данных. Источник https://example.com/law не разрешён. Просьба и приложения перечислены, дата и подпись предусмотрены.", usedRuleIds: ["sk-66"], placeholders: [] }) }),
+    LegalDraftGenerationError
+  );
+
+  await assert.rejects(
+    () => generateLegalDraft(input, { apiKey: "test-key", fetchImpl: () => response({ documentTitle: input.documentTitle, draftText: "Обстоятельства подробно изложены на основании подтверждённых данных. Просьба сформулирована пользователем. Приложения перечислены, дата и подпись предусмотрены.", usedRuleIds: ["sk-66"], placeholders: [], filingReady: true }) }),
     LegalDraftGenerationError
   );
 

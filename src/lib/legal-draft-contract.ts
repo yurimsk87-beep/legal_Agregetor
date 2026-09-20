@@ -39,7 +39,7 @@ export const legalDraftModelResponseSchema = z.object({
   draftText: z.string().trim().min(120).max(30000),
   usedRuleIds: z.array(z.string().trim().min(1).max(120)).max(30),
   placeholders: z.array(z.string().trim().min(1).max(300)).max(40)
-});
+}).strict();
 
 export type LegalDraftRequest = z.infer<typeof legalDraftRequestSchema>;
 export type LegalDraftModelResponse = z.infer<typeof legalDraftModelResponseSchema>;

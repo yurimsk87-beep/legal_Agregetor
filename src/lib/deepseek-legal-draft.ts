@@ -64,7 +64,11 @@ export async function generateLegalDraft(
         : "";
       return {
         ...parsed.data,
-        draftText: marker + stripDuplicateSafetyMarker(parsed.data.draftText),
+        draftText: marker + appendCanonicalLegalReferences(
+          stripDuplicateSafetyMarker(parsed.data.draftText),
+          input,
+          parsed.data.usedRuleIds
+        ),
         filingReady: input.filingReady,
         requiresLegalReview: input.requiresLegalReview,
         model
@@ -92,6 +96,8 @@ function buildSystemPrompt() {
     "Используй исключительно verifiedFacts и allowedLegalRules из входа.",
     "Не меняй route, scenario, documentType, filingReady или requiresLegalReview.",
     "Не выбирай суд, подсудность, участников, доказательства, факты или нормы самостоятельно.",
+    "Не пиши в draftText номера или названия статей, кодексов, законов, постановлений, приказов и URL.",
+    "Правовые ссылки сервер добавит сам только по usedRuleIds; в тексте излагай лишь факты, просьбы и структуру документа.",
     "Если обязательного факта нет, используй квадратный placeholder и перечисли его в placeholders.",
     "usedRuleIds может содержать только id из allowedLegalRules.",
     "Не прогнозируй решение суда и не называй документ готовым к подаче.",
@@ -113,9 +119,40 @@ function validateModelOutput(input: LegalDraftRequest, output: { documentTitle: 
   if (urls.some((url) => !allowedUrls.has(url.replace(/[.,;:]$/, "")))) {
     throw new LegalDraftGenerationError("The model added an unapproved source", "unsafe-output");
   }
+  if (containsModelLegalReference(output.draftText)) {
+    throw new LegalDraftGenerationError("The model added a legal reference instead of using an allowlisted rule id", "unsafe-output");
+  }
   if (/(?:гарантированно|суд\s+обязательно\s+удовлетворит|точно\s+выигра)/i.test(output.draftText)) {
     throw new LegalDraftGenerationError("The model added a prohibited prediction", "unsafe-output");
   }
+}
+
+const modelLegalReferencePatterns = [
+  /(?:статья|статьи|статье|статью|статьёй|статьей)\s+\d+(?:\.\d+)*/iu,
+  /(?:^|[\s(])ст\.\s*\d+(?:\.\d+)*/iu,
+  /(?:часть|части|пункт|пункта|подпункт|подпункта)\s+\d+(?:\.\d+)*(?:\s+(?:статьи|статье)\s+\d+(?:\.\d+)*)?/iu,
+  /(?:федеральный|федерального|федеральному|федеральным|федеральном|конституционный|конституционного)\s+закон[а-яё]*(?:\s+от\s+\d{1,2}\.\d{1,2}\.\d{4})?\s*(?:№|N)\s*[\d-]+/iu,
+  /\b\d+-(?:ФЗ|ФКЗ)\b/iu,
+  /\b(?:СК|ГПК|НК|ГК|КАС|АПК|КоАП|УК)\s+РФ\b/u,
+  /(?:постановление|постановления|определение|определения|приказ|приказа)\s+(?:Пленума|Правительства|Верховного|Конституционного|Минюста)/iu
+];
+
+function containsModelLegalReference(value: string) {
+  return modelLegalReferencePatterns.some((pattern) => pattern.test(value));
+}
+
+function appendCanonicalLegalReferences(draftText: string, input: LegalDraftRequest, usedRuleIds: string[]) {
+  const rulesById = new Map(input.allowedLegalRules.map((rule) => [rule.id, rule]));
+  const rules = [...new Set(usedRuleIds)].map((id) => rulesById.get(id)).filter((rule) => rule !== undefined);
+  if (!rules.length) return draftText;
+
+  const references = rules.map((rule, index) => [
+    `${index + 1}. ${rule.norm}.`,
+    rule.statement ? rule.statement : null,
+    `Источник: ${rule.url}`
+  ].filter(Boolean).join("\n")).join("\n\n");
+
+  return `${draftText}\n\nПРАВОВЫЕ ОСНОВАНИЯ\n${references}`;
 }
 
 function parseJson(raw: string) {
