@@ -1,5 +1,7 @@
 import type { Lawyer } from "@/lib/types";
 
+export type ReviewLawyerFetcher = (filters: { serviceSlug: FamilyReviewServiceSlug; take: number }) => Promise<Lawyer[]>;
+
 export const FAMILY_REVIEW_SERVICE_SLUGS = [
   "semeynye-spory",
   "alimenty",
@@ -46,4 +48,20 @@ export function selectReviewLawyers(candidates: Lawyer[], limit = 4) {
       || b.experienceYears - a.experienceYears
       || a.id.localeCompare(b.id))
     .slice(0, Math.min(4, Math.max(0, limit)));
+}
+
+export async function getFamilyReviewLawyers(
+  service: FamilyReviewServiceSlug,
+  fetchCandidates: ReviewLawyerFetcher
+) {
+  const specific = selectReviewLawyers(await fetchCandidates({ serviceSlug: service, take: 20 }));
+  if (specific.length || service === "semeynye-spory") {
+    return { service, lawyers: specific };
+  }
+
+  const fallbackService = "semeynye-spory" as const;
+  return {
+    service: fallbackService,
+    lawyers: selectReviewLawyers(await fetchCandidates({ serviceSlug: fallbackService, take: 20 }))
+  };
 }

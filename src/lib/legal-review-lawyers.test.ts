@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { getFamilyReviewService, normalizeFamilyReviewService, selectReviewLawyers } from "@/lib/legal-review-lawyers";
+import { FAMILY_REVIEW_SERVICE_SLUGS, getFamilyReviewService, getFamilyReviewLawyers, normalizeFamilyReviewService, selectReviewLawyers } from "@/lib/legal-review-lawyers";
 import type { Lawyer } from "@/lib/types";
 
 assert.equal(getFamilyReviewService("/documents/vzyskanie-alimentov-na-rebenka/", "claim"), "alimenty");
@@ -49,5 +49,36 @@ assert.equal(selected[1].id, "verified");
 assert.ok(!selected.some((item) => item.id === "blocked"));
 assert.deepEqual(selectReviewLawyers([]), []);
 
-console.log("legal review lawyer matching tests passed");
+async function runFallbackTests() {
+  const narrowLawyer = lawyer("narrow", { serviceSlugs: ["razvod"] });
+  const genericLawyer = lawyer("generic");
+  const calls: string[] = [];
+  const fetcher = async ({ serviceSlug }: { serviceSlug: typeof FAMILY_REVIEW_SERVICE_SLUGS[number]; take: number }) => {
+    calls.push(serviceSlug);
+    return serviceSlug === "razvod" ? [narrowLawyer] : [genericLawyer];
+  };
+  const specificResult = await getFamilyReviewLawyers("razvod", fetcher);
+  assert.equal(specificResult.service, "razvod");
+  assert.deepEqual(calls, ["razvod"]);
+  assert.deepEqual(specificResult.lawyers.map((item) => item.id), ["narrow"]);
 
+  calls.length = 0;
+  const fallbackResult = await getFamilyReviewLawyers("razvod", async ({ serviceSlug }) => {
+    calls.push(serviceSlug);
+    return serviceSlug === "semeynye-spory" ? [genericLawyer] : [];
+  });
+  assert.equal(fallbackResult.service, "semeynye-spory");
+  assert.deepEqual(calls, ["razvod", "semeynye-spory"]);
+  assert.deepEqual(fallbackResult.lawyers.map((item) => item.id), ["generic"]);
+
+  calls.length = 0;
+  const emptyResult = await getFamilyReviewLawyers("razvod", async ({ serviceSlug }) => {
+    calls.push(serviceSlug);
+    return [];
+  });
+  assert.equal(emptyResult.service, "semeynye-spory");
+  assert.deepEqual(calls, ["razvod", "semeynye-spory"]);
+  assert.deepEqual(emptyResult.lawyers, []);
+}
+
+runFallbackTests().then(() => console.log("legal review lawyer matching tests passed"));

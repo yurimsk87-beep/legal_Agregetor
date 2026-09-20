@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import "./legal-review-lawyers.test";
+import "./family-legal-sources.test";
 import "./official-service-links.test";
 import { calculateAlimonyShare, calculateClaimPrice, calculatePreliminaryAlimonyDebt, calculatePropertyStateDuty, determineAlimonyProcedure } from "./family-tools";
 import { calculateFamilyStateDuty } from "./family-state-duty";

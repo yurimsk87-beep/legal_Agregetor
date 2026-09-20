@@ -22,11 +22,11 @@ export const NK_FNS_SOURCE: FamilyLegalSource = {
 
 export const COURT_FEE_AMENDMENT_SOURCE: FamilyLegalSource = {
   title: "Официальное опубликование правовых актов",
-  norm: "Федеральный закон от 12.07.2024 № 176-ФЗ",
-  url: "https://publication.pravo.gov.ru/document/0001202407120009",
+  norm: "Федеральный закон от 08.08.2024 № 259-ФЗ",
+  url: "https://publication.pravo.gov.ru/document/0001202408080089",
   checkedAt: FAMILY_TOOLS_CHECKED_AT,
   sourceType: "primary",
-  limitation: "Первичный источник изменений ставок. Для текущей консолидированной редакции НК РФ выполнена дополнительная сверка."
+  limitation: "Первичный источник изменений ставок судебной госпошлины. Для текущей консолидированной редакции НК РФ выполнена дополнительная сверка."
 };
 
 export const NK_CONSULTANT_SOURCE: FamilyLegalSource = {
@@ -46,4 +46,3 @@ export const FAMILY_CODE_OFFICIAL_SOURCE: FamilyLegalSource = {
   sourceType: "primary",
   limitation: "Применимость нормы зависит от фактов конкретной семейной ситуации."
 };
-

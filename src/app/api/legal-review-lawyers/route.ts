@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { getLawyers } from "@/lib/repositories";
-import { normalizeFamilyReviewService, selectReviewLawyers } from "@/lib/legal-review-lawyers";
+import { getFamilyReviewLawyers, normalizeFamilyReviewService } from "@/lib/legal-review-lawyers";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const service = normalizeFamilyReviewService(url.searchParams.get("service")?.trim());
-  const candidates = await getLawyers({ serviceSlug: service, take: 20 });
-  const lawyers = selectReviewLawyers(candidates);
+  const result = await getFamilyReviewLawyers(service, (filters) => getLawyers(filters));
+  const lawyers = result.lawyers;
 
   return NextResponse.json({
     ok: true,
-    service,
+    service: result.service,
     items: lawyers.map((lawyer) => ({
       id: lawyer.id,
       slug: lawyer.slug,
