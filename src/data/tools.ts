@@ -7,6 +7,15 @@ export type NavigatorTool = {
 };
 
 export const navigatorTools: NavigatorTool[] = [
+  { slug: "family-state-duty", title: "Госпошлина по семейному спору", description: "Предварительный расчёт федеральной госпошлины.", status: "available", relatedProblemSlugs: ["razvod-i-razdel-imushchestva"] },
+  { slug: "claim-price", title: "Цена иска", description: "Предварительная сумма оцениваемых требований.", status: "available", relatedProblemSlugs: ["razvod-i-razdel-imushchestva"] },
+  { slug: "alimony-shares", title: "Доли алиментов", description: "Ориентир долевого взыскания на детей.", status: "available", relatedProblemSlugs: ["alimenty-na-detey"] },
+  { slug: "alimony-debt-estimate", title: "Задолженность по алиментам", description: "Предварительная арифметика начислений и выплат.", status: "available", relatedProblemSlugs: ["dolg-po-alimentam"] },
+  { slug: "notary-costs", title: "Расходы у нотариуса", description: "Официальная проверка федерального и регионального тарифа.", status: "available", relatedProblemSlugs: ["brachnyy-dogovor"] },
+  { slug: "court-finder", title: "Найти суд", description: "Официальный поиск территориальной подсудности.", status: "available", relatedProblemSlugs: [] },
+  { slug: "order-or-claim", title: "Судебный приказ или иск", description: "Проверка процессуального пути по алиментам.", status: "available", relatedProblemSlugs: ["alimenty-na-detey"] },
+  { slug: "family-document-check", title: "Проверка комплекта документов", description: "Общий чек-лист перед подачей.", status: "available", relatedProblemSlugs: [] },
+  { slug: "where-to-file", title: "Куда обращаться", description: "ЗАГС, нотариус или суд без угадывания органа.", status: "available", relatedProblemSlugs: [] },
   {
     slug: "sudebnyy-prikaz-deadline",
     title: "Калькулятор срока отмены судебного приказа",

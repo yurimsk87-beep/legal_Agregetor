@@ -307,12 +307,24 @@ async function readMultipartQuestion(request: Request) {
       cityId: String(formData.get("cityId") ?? ""),
       serviceId: String(formData.get("serviceId") ?? ""),
       sourcePage: String(formData.get("sourcePage") ?? ""),
+      scenarioId: String(formData.get("scenarioId") ?? "") || undefined,
+      clarificationAnswers: parseClarificationAnswers(formData.get("clarificationAnswers")),
       isAnonymous: formData.get("isAnonymous") === "on",
       notificationsEnabled: String(formData.get("notificationsEnabled") ?? "true") !== "false",
       personalDataConsent: formData.get("personalDataConsent") === "on"
     },
     attachment: isUploadFile(attachment) ? attachment : null
   };
+}
+
+function parseClarificationAnswers(value: FormDataEntryValue | null) {
+  if (typeof value !== "string" || !value) return undefined;
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function isUploadFile(value: FormDataEntryValue | null): value is File {

@@ -4,7 +4,6 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd } from "@/lib/jsonld";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
-import { legalProblems } from "@/data/legal-problems";
 
 export const metadata: Metadata = buildMetadata({
   title: "Юридические ситуации — семейные споры",
@@ -46,20 +45,6 @@ export default function ProblemsPage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-semibold text-ink">Доступные ситуации</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {legalProblems.map((problem) => (
-              <article key={problem.slug} className="rounded-lg border border-line bg-white p-5 shadow-sm">
-                <h3 className="text-lg font-semibold text-ink">{problem.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-zinc-600">{problem.shortAnswer}</p>
-                <Link href={`/problems/${problem.categorySlug}/${problem.slug}/`} className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-trust hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
-                  Открыть разбор
-                </Link>
-              </article>
-            ))}
-          </div>
-        </section>
       </main>
     </>
   );
@@ -73,13 +58,13 @@ function collectionJsonLd() {
     url: absoluteUrl("/problems/"),
     mainEntity: {
       "@type": "ItemList",
-      numberOfItems: legalProblems.length,
-      itemListElement: legalProblems.map((problem, index) => ({
+      numberOfItems: 1,
+      itemListElement: [{
           "@type": "ListItem",
-          position: index + 1,
-          name: problem.title,
-          url: absoluteUrl(`/problems/${problem.categorySlug}/${problem.slug}/`)
-        }))
+          position: 1,
+          name: "Семейные споры",
+          url: absoluteUrl("/problems/semya-i-deti/")
+        }]
     }
   };
 }

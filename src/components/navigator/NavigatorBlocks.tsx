@@ -113,7 +113,7 @@ export function ProblemCard({ problem }: { problem: LegalProblem }) {
       description={problem.shortAnswer}
       href={href}
       trustLabels={getProblemTrustLabels(problem)}
-      actions={[{ href, label: "Понять, что делать", variant: "secondary" }]}
+      actions={[{ href, label: "Инструкция", variant: "secondary" }]}
     />
   );
 }

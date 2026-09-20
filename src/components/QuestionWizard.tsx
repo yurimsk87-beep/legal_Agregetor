@@ -11,8 +11,12 @@ type QuestionWizardProps = {
   sourcePage: string;
   defaultCityId?: string;
   defaultServiceId?: string;
+  defaultServiceSlug?: string;
   compact?: boolean;
   lawyerId?: string;
+  initialTitle?: string;
+  initialText?: string;
+  questionContext?: { route: string; scenario?: string; documentTitle?: string; summary?: string };
   onSuccess?: () => void;
 };
 
@@ -24,15 +28,20 @@ export function QuestionWizard({
   sourcePage,
   defaultCityId,
   defaultServiceId,
+  defaultServiceSlug,
   compact = false,
+  lawyerId,
+  initialTitle = "",
+  initialText = "",
+  questionContext,
   onSuccess
 }: QuestionWizardProps) {
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [message, setMessage] = useState("");
-  const [title, setTitle] = useState("");
-  const [text, setText] = useState("");
+  const [title, setTitle] = useState(initialTitle);
+  const [text, setText] = useState(initialText);
   const [cityId, setCityId] = useState(defaultCityId ?? "");
-  const [serviceId, setServiceId] = useState(defaultServiceId ?? "");
+  const [serviceId, setServiceId] = useState(defaultServiceId ?? services.find((service) => service.slug === defaultServiceSlug)?.id ?? "");
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [personalDataConsent, setPersonalDataConsent] = useState(false);
@@ -97,6 +106,8 @@ export function QuestionWizard({
       formData.set("serviceId", selectedService.id);
       formData.set("sourcePage", sourcePage);
       formData.set("personalDataConsent", personalDataConsent ? "on" : "off");
+      formData.set("scenarioId", questionContext?.scenario ?? "");
+      formData.set("clarificationAnswers", JSON.stringify(compactQuestionContext(questionContext, lawyerId)));
       formData.set("attachment", attachment);
       response = await fetch("/api/questions/", { method: "POST", body: formData });
     } else {
@@ -112,7 +123,9 @@ export function QuestionWizard({
           cityId: selectedCity.id,
           serviceId: selectedService.id,
           sourcePage,
-          personalDataConsent
+          personalDataConsent,
+          scenarioId: questionContext?.scenario,
+          clarificationAnswers: compactQuestionContext(questionContext, lawyerId)
         })
       });
     }
@@ -212,6 +225,15 @@ export function QuestionWizard({
       {message ? <p className={status === "success" ? "break-words text-sm font-medium text-leaf" : "break-words text-sm font-medium text-red-700"}>{message}</p> : null}
     </form>
   );
+}
+
+function compactQuestionContext(context: QuestionWizardProps["questionContext"], lawyerId?: string) {
+  return {
+    ...(context?.route ? { route: context.route.slice(0, 200) } : {}),
+    ...(context?.scenario ? { scenario: context.scenario.slice(0, 200) } : {}),
+    ...(context?.documentTitle ? { documentTitle: context.documentTitle.slice(0, 300) } : {}),
+    ...(lawyerId ? { selectedLawyerId: lawyerId.slice(0, 120) } : {})
+  };
 }
 
 function Checkbox({

@@ -1,4 +1,5 @@
 import type { DivorcePropertyScenarioKey } from "@/data/divorce-property-route";
+import { isOfficialCourtSource } from "@/lib/court-source";
 
 export type DivorcePropertyValues = Record<string, string | undefined>;
 
@@ -265,8 +266,8 @@ function resolveCourtSelection(scenarioKey: DivorcePropertyScenarioKey, values: 
   } else {
     if (!values.courtName?.trim()) issues.push({ field: "courtName", message: "Укажите официальное наименование найденного суда или мирового участка." });
     if (!values.courtAddress?.trim()) issues.push({ field: "courtAddress", message: "Укажите официальный адрес найденного суда или мирового участка." });
-    if (!isHttpsUrl(values.courtWebsite)) {
-      issues.push({ field: "courtWebsite", message: "Укажите ссылку, с которой перенесены реквизиты суда, начинающуюся с https://." });
+    if (!isOfficialCourtSource(values.courtWebsite)) {
+      issues.push({ field: "courtWebsite", message: "Укажите официальную страницу суда в домене судебной системы РФ." });
     } else if (isPlaceholderCourtUrl(values.courtWebsite)) {
       issues.push({ field: "courtWebsite", message: "Пример или тестовый адрес страницы суда использовать нельзя." });
     }
@@ -303,15 +304,6 @@ function resolveCourtSelection(scenarioKey: DivorcePropertyScenarioKey, values: 
     reviewReasons,
     requiresLegalReview: true
   };
-}
-
-function isHttpsUrl(rawValue: string | undefined) {
-  if (!rawValue?.trim()) return false;
-  try {
-    return new URL(rawValue.trim()).protocol === "https:";
-  } catch {
-    return false;
-  }
 }
 
 function isPlaceholderCourtUrl(rawValue: string | undefined) {

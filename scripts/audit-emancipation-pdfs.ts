@@ -1,0 +1,6 @@
+import assert from "node:assert/strict";
+import { EMANCIPATION_KEYS, EMANCIPATION_SCENARIOS } from "../src/data/emancipation-route";
+import { buildEmancipationPdfText, createEmancipationPdfBlob } from "../src/lib/emancipation-pdf";
+import { validateEmancipation } from "../src/lib/emancipation-validator";
+async function main() { for (const key of EMANCIPATION_KEYS) { const values = Object.fromEntries(EMANCIPATION_SCENARIOS[key].questions.map((field) => [field.name, field.options?.[0]?.value ?? `Проверочное значение: ${field.label}`])); if (key !== "consequences") values.age = "16"; if (key === "guardianship") { values.region = "region-saint-petersburg"; values.municipality = "spb-gagarinskoe"; values.authorityName = "spb-gagarinskoe-guardianship"; } if (key === "court") values.consent = "missing"; const result = validateEmancipation(key, values); assert.equal(result.pdfAvailable, true, key); assert.match(buildEmancipationPdfText(result), /Подготовленные сведения/); const blob = await createEmancipationPdfBlob(result); assert.ok(blob.size > 1000); console.log(`PASS ${key}: ${blob.size} bytes`); } console.log("emancipation PDF audit passed"); }
+main().catch((error) => { console.error(error); process.exit(1); });

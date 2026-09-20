@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import Link from "next/link";
 import { Download, ShieldCheck } from "lucide-react";
 import { SearchableSelect } from "@/components/forms/SearchableSelect";
+import { OfficialFieldHelp } from "@/components/forms/OfficialServiceHelp";
 import { DOCUMENT_REVIEW_RETENTION_DAYS } from "@/data/document-review-policy";
 import {
   findGuardianshipTerritory,
@@ -227,7 +228,7 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
       <p className="text-sm font-semibold uppercase tracking-wide text-trust">Подготовка документа</p>
       <h2 className="mt-2 text-2xl font-semibold text-ink">{scenario.mainDocument}</h2>
       <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-700">
-        Ответы обрабатываются в браузере. Помощник применяет только заранее заданные правила и не дописывает факты или правовые основания.
+        Правовой путь определяется в браузере по заранее заданным правилам. Если для допустимого черновика доступна серверная подготовка текста, она запускается только отдельной кнопкой и не может добавлять новые факты или правовые основания.
       </p>
 
       {!decision && field ? (
@@ -403,6 +404,7 @@ function HelperField({ field, onChange, value, values, cities }: { field: Guardi
     : undefined;
   return (
     <div className="grid gap-2 text-sm font-semibold text-ink">
+      <OfficialFieldHelp fieldName={field.name} />
       <label htmlFor={id}>{field.label}{field.required ? <span className="sr-only"> (обязательно)</span> : null}</label>
       {isTerritorialField ? (
         <SearchableSelect

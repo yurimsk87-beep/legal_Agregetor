@@ -9,6 +9,7 @@ on:
       - agent/divorce-property-route-hardening
       - agent/child-guardianship-reference-route
       - agent/parents-child-after-divorce-reference-route
+      - agent/family-law-reference-routes-expansion
 
 permissions:
   contents: read
@@ -47,6 +48,7 @@ jobs:
       - run: npm ci
       - run: npm run prisma:generate
       - run: npx prisma db push --skip-generate
+      - run: npm run quality:legal-sources
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
@@ -75,6 +77,46 @@ jobs:
         run: npm run test:e2e:guardianship
       - name: Run parents and child route acceptance
         run: npm run test:e2e:parents-child
+      - name: Run child support route acceptance
+        run: npm run test:e2e:child-support
+      - name: Run parental rights deprivation route acceptance
+        run: npm run test:e2e:parental-rights-deprivation
+      - name: Run parental rights restriction route acceptance
+        run: npm run test:e2e:parental-rights-restriction
+      - name: Run paternity establishment route acceptance
+        run: npm run test:e2e:paternity-establishment
+      - name: Run paternity contest route acceptance
+        run: npm run test:e2e:paternity-contest
+      - name: Run adoption route acceptance
+        run: npm run test:e2e:adoption
+      - name: Run child travel route acceptance
+        run: npm run test:e2e:child-travel
+      - name: Run child name route acceptance
+        run: npm run test:e2e:child-name
+      - name: Run parental rights restoration route acceptance
+        run: npm run test:e2e:parental-rights-restoration
+      - name: Run parental rights restriction cancellation route acceptance
+        run: npm run test:e2e:parental-rights-restriction-cancellation
+      - name: Run parental disagreements route acceptance
+        run: npm run test:e2e:parental-disagreements
+      - name: Run additional child expenses route acceptance
+        run: npm run test:e2e:additional-child-expenses
+      - name: Run spousal support route acceptance
+        run: npm run test:e2e:spousal-support
+      - name: Run prenuptial agreement route acceptance
+        run: npm run test:e2e:prenuptial-agreement
+      - name: Run invalid marriage route acceptance
+        run: npm run test:e2e:invalid-marriage
+      - name: Run complex marital property route acceptance
+        run: npm run test:e2e:complex-marital-property
+      - name: Run surrogacy origin route acceptance
+        run: npm run test:e2e:surrogacy-origin
+      - name: Run international family disputes route acceptance
+        run: npm run test:e2e:international-family-disputes
+      - name: Run relative child contact route acceptance
+        run: npm run test:e2e:relative-child-contact
+      - name: Run emancipation route acceptance
+        run: npm run test:e2e:emancipation
       - name: Confirm withdrawn review PDF was deleted
         run: test -z "$(find "$LEAD_ATTACHMENT_STORAGE_ROOT" -type f -name '*.pdf' -print -quit 2>/dev/null)"
       - name: Generate and inspect guardianship PDFs
@@ -99,6 +141,46 @@ jobs:
           done
       - name: Generate and inspect parents and child PDF
         run: npm run audit:parents-child-pdf
+      - name: Generate and inspect child support PDF and DOCX
+        run: npm run audit:child-support-pdf
+      - name: Generate and inspect parental rights deprivation PDF and DOCX
+        run: npm run audit:parental-rights-deprivation-pdf
+      - name: Generate and inspect parental rights restriction PDF and DOCX
+        run: npm run audit:parental-rights-restriction-pdf
+      - name: Generate and inspect paternity establishment PDF and DOCX
+        run: npm run audit:paternity-establishment-pdf
+      - name: Generate and inspect paternity contest PDF and DOCX
+        run: npm run audit:paternity-contest-pdf
+      - name: Generate and inspect adoption PDF
+        run: npm run audit:adoption-pdf
+      - name: Generate and inspect child travel PDF
+        run: npm run audit:child-travel-pdf
+      - name: Generate and inspect child name PDF
+        run: npm run audit:child-name-pdf
+      - name: Generate and inspect parental rights restoration PDF and DOCX
+        run: npm run audit:parental-rights-restoration-pdf
+      - name: Generate and inspect parental rights restriction cancellation PDF and DOCX
+        run: npm run audit:parental-rights-restriction-cancellation-pdf
+      - name: Generate and inspect parental disagreements PDF and DOCX
+        run: npm run audit:parental-disagreements-pdf
+      - name: Generate and inspect additional child expenses PDF and DOCX
+        run: npm run audit:additional-child-expenses-pdf
+      - name: Generate and inspect spousal support PDF and DOCX
+        run: npm run audit:spousal-support-pdf
+      - name: Generate and inspect prenuptial agreement PDF and DOCX
+        run: npm run audit:prenuptial-agreement-pdf
+      - name: Generate and inspect invalid marriage PDF and DOCX
+        run: npm run audit:invalid-marriage-pdf
+      - name: Generate and inspect complex marital property PDF and DOCX
+        run: npm run audit:complex-marital-property-pdf
+      - name: Generate and inspect surrogacy origin PDFs
+        run: npm run audit:surrogacy-origin-pdf
+      - name: Generate and inspect international family disputes PDFs
+        run: npm run audit:international-family-disputes-pdf
+      - name: Generate and inspect relative child contact PDFs
+        run: npm run audit:relative-child-contact-pdf
+      - name: Generate and inspect emancipation PDFs
+        run: npm run audit:emancipation-pdf
       - name: Upload PDF and browser acceptance artifacts
         if: always()
         uses: actions/upload-artifact@v4
