@@ -26,7 +26,8 @@
     "sync:harant:specializations": "tsx scripts/sync-harant-category-specializations.ts",
     "content:cleanup": "tsx scripts/cleanup-public-copy.ts",
     "content:reset:zags": "tsx scripts/cleanup-problems-documents.ts",
-    "content:import": "tsx scripts/import-content.ts"
+    "content:import": "tsx scripts/import-content.ts",
+    "export:qna": "tsx scripts/export-qna.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",
@@ -56,4 +57,3 @@
     "typescript": "^5.8.3"
   }
 }
-
