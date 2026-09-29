@@ -85,6 +85,8 @@
 
 Если надёжно подтвердить юридически значимый факт нельзя — не угадывай; сохрани безопасный fallback (`CHERNOVIK`, `requiresLegalReview`, `filingReady=false` или иной уже используемый механизм проекта).
 
+Для любых задач, меняющих публичную индексацию, sitemap, robots, canonical, structured data, SEO-gates, programmatic pages или SEO-аудит, обязательно следовать `SEO_ACCEPTANCE_RULES.md`. Для Q&A одновременно обязательны `QNA_CONTENT_RULES.md` и `SEO_ACCEPTANCE_RULES.md`.
+
 ## Когда нужно остановиться и уточнить
 
 Не задавай вопрос, если разумное минимальное предположение позволяет безопасно выполнить задачу.
