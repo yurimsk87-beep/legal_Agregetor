@@ -155,6 +155,8 @@ Legacy redirect smoke:
 
 ## SEO и индексация
 
+Канонические правила: `SEO_ACCEPTANCE_RULES.md`. Для Q&A дополнительно обязательны `QNA_CONTENT_RULES.md`.
+
 - Canonical формируется через `buildMetadata`.
 - Sitemap index: `/sitemap.xml`.
 - Дочерние sitemap: pages, problems, documents, tools, lawyers, questions.
