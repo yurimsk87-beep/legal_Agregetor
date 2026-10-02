@@ -59,12 +59,12 @@ const problemContext: RelatedQuestionsContext = {
   assert.deepEqual(result.map((r) => r.id), ["s2", "s1"], "more primary matches should rank first");
 }
 
-// 6. Fewer than 2 relevant → block hidden (empty array).
+// 6. A single relevant question is preferable to filling the block with noise.
 {
   const relevant = q({ id: "h1", title: "Как взыскать алименты" });
   const noise = q({ id: "h2", title: "Как оформить наследство", category: "Семья и дети" });
   const result = getRelatedQuestions(problemContext, [relevant, noise]);
-  assert.deepEqual(result, [], "single relevant question must hide the block");
+  assert.deepEqual(result.map((item) => item.id), ["h1"], "single relevant question must remain visible");
 }
 
 // 7. excludeQuestionIds are never shown.
@@ -104,6 +104,20 @@ const problemContext: RelatedQuestionsContext = {
   const propertyNoise = q({ id: "d3", title: "Как разделить имущество и поделить квартиру при разводе" });
   const filtered = getRelatedQuestions(docContext, [good, better, propertyNoise]);
   assert.ok(!filtered.some((r) => r.id === "d3"), "property question must be excluded on the divorce-claim document");
+}
+
+// 11. Candidate-only phrases may widen the DB query but cannot establish relevance.
+{
+  const context: RelatedQuestionsContext = {
+    contextType: "problem",
+    primaryTags: ["сменить школу без согласия отца"],
+    candidatePhrases: ["сменить школу"],
+    requiredTopicGroups: [["без согласия отца", "несогласие родителей"]]
+  };
+  const noise = q({ id: "c1", title: "Можно ли сменить школу по программе земского учителя?" });
+  const relevant = q({ id: "c2", title: "Может ли мать сменить школу ребёнку без согласия отца?" });
+  assert.equal(scoreQuestion(noise, context).score, -999, "candidate-only phrase must not make a question relevant");
+  assert.ok(scoreQuestion(relevant, context).score >= 35, "required family context must allow the relevant question");
 }
 
 console.log("related-questions.test.ts: all assertions passed");

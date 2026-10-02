@@ -6,8 +6,8 @@ import { breadcrumbJsonLd } from "@/lib/jsonld";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Юридические ситуации — семейные споры",
-  description: "Маршруты по браку, ЗАГС, разводу и разделу имущества с документами, пошлинами и порядком действий.",
+  title: "Юридические ситуации — семейное право",
+  description: "Семейные ситуации по браку, разводу, алиментам, детям, имуществу супругов, отцовству, усыновлению и опеке.",
   path: "/problems/",
   isIndexable: true
 });
@@ -27,18 +27,18 @@ export default function ProblemsPage() {
           <p className="text-sm font-semibold uppercase tracking-wide text-trust">Правовой навигатор</p>
           <h1 className="mt-2 text-4xl font-semibold text-ink">Юридические ситуации</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-700">
-            Доступны эталонные маршруты по регистрации брака, обращениям в ЗАГС, разводу и разделу имущества.
+            Выберите правовую тему и получите порядок действий, перечень документов, проверенные источники и подходящий результат.
           </p>
         </section>
 
         <section className="bg-white">
           <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-semibold text-ink">Семейные споры</h2>
+            <h2 className="text-2xl font-semibold text-ink">Семейное право</h2>
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <Link href="/problems/semya-i-deti/" className="rounded-lg border border-line bg-white p-5 shadow-sm hover:border-trust">
-                <h3 className="text-lg font-semibold text-ink">Семейные споры</h3>
+              <Link href="/problems/semeynoe-pravo/" className="rounded-lg border border-line bg-white p-5 shadow-sm hover:border-trust">
+                <h3 className="text-lg font-semibold text-ink">Семейное право</h3>
                 <p className="mt-2 text-sm leading-6 text-zinc-600">
-                  Брак и ЗАГС, развод через ЗАГС или суд, нотариальный и судебный раздел имущества.
+                  Брак и ЗАГС, развод, алименты, дети, имущество супругов, отцовство, родительские права, усыновление и опека.
                 </p>
               </Link>
             </div>
@@ -62,8 +62,8 @@ function collectionJsonLd() {
       itemListElement: [{
           "@type": "ListItem",
           position: 1,
-          name: "Семейные споры",
-          url: absoluteUrl("/problems/semya-i-deti/")
+          name: "Семейное право",
+          url: absoluteUrl("/problems/semeynoe-pravo/")
         }]
     }
   };

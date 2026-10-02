@@ -1,6 +1,6 @@
 import { RUSSIAN_REGIONS } from "@/data/guardianship-territories";
 
-export const CHILD_TRAVEL_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "vyezd-rebenka-za-granitsu" } as const;
+export const CHILD_TRAVEL_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "vyezd-rebenka-za-granitsu" } as const;
 export const CHILD_TRAVEL_SCENARIO_KEYS = ["with-parent", "without-parents", "disagreement", "foreign-requirements"] as const;
 export type ChildTravelScenarioKey = (typeof CHILD_TRAVEL_SCENARIO_KEYS)[number];
 export type ChildTravelField = { name: string; label: string; type?: "text" | "textarea" | "select" | "searchable"; required?: boolean; options?: Array<{ label: string; value: string }>; hint?: string };

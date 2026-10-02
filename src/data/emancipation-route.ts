@@ -1,4 +1,4 @@
-export const EMANCIPATION_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "emansipatsiya-nesovershennoletnego", documentSlug: "emansipatsiya-nesovershennoletnego-materialy" } as const;
+export const EMANCIPATION_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "emansipatsiya-nesovershennoletnego", documentSlug: "emansipatsiya-nesovershennoletnego-materialy" } as const;
 export const EMANCIPATION_KEYS = ["eligibility", "guardianship", "court", "consequences"] as const;
 export type EmancipationKey = (typeof EMANCIPATION_KEYS)[number];
 export type EmancipationField = { name: string; label: string; type: "select" | "textarea" | "territory-region" | "territory-municipality" | "guardianship-authority"; options?: { value: string; label: string }[] };

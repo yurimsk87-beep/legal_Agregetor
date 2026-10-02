@@ -103,7 +103,7 @@ function isZagsNavigatorIntent(query: string, primary: NavigatorResult | null) {
   const normalized = query.toLowerCase().replace(/ё/g, "е");
   const href = primary?.href ?? "";
   return (
-    href.includes("/problems/semya-i-deti/brak-zags-i-smena-familii/") ||
+    href.includes("/problems/semeynoe-pravo/brak-zags-i-smena-familii/") ||
     href.includes("/documents/zayavlenie-v-zags/") ||
     /(загс|заключить брак|зарегистрировать брак|переменить имя|сменить фамилию|повторное свидетельство|исправить запись)/.test(normalized)
   );

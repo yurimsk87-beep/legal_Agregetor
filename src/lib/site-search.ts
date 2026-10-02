@@ -2,6 +2,7 @@ import { legalCategories } from "@/data/legal-categories";
 import { navigatorDocuments } from "@/data/documents";
 import { legalPages } from "@/data/legal-pages";
 import { legalProblems } from "@/data/legal-problems";
+import { PROBLEM_QNA_CONTEXTS } from "@/data/related-questions-context";
 import type { LegalProblemRiskLevel, LegalProblemUrgency } from "@/data/legal-problems";
 import { navigatorTools } from "@/data/tools";
 import { getGeneratorMetaDescription, getGeneratorPageTitle } from "@/lib/document-seo";
@@ -295,6 +296,7 @@ export function getSiteSearchIndex(extraResults: SiteSearchResult[] = []): SiteS
         problem.seoDescription,
         ...problem.documents,
         ...problem.relatedQuestionTopics,
+        ...(PROBLEM_QNA_CONTEXTS[problem.slug]?.aliases ?? []),
         ...problem.relatedLawyerSpecializations
       ]
       },
@@ -318,7 +320,8 @@ export function getSiteSearchIndex(extraResults: SiteSearchResult[] = []): SiteS
           problem.shortAnswer,
           ...problem.steps,
           ...problem.documents,
-          ...problem.relatedQuestionTopics
+           ...problem.relatedQuestionTopics,
+           ...(PROBLEM_QNA_CONTEXTS[problem.slug]?.aliases ?? [])
         ]
       }
     ]),
@@ -588,12 +591,12 @@ function getQueryDomains(normalizedQuery: string): SearchDomain[] {
 
 function getResultDomain(result: SearchableResult): SearchDomain {
   const href = result.href;
-  if (href.includes("/semya-i-deti/")) return "family";
+  if (href.includes("/semeynoe-pravo/")) return "family";
   return "other";
 }
 
 function categorySlugToDomain(categorySlug: string): SearchDomain {
-  if (categorySlug === "semya-i-deti") return "family";
+  if (categorySlug === "semeynoe-pravo") return "family";
   return "other";
 }
 
@@ -634,6 +637,7 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
 
   // Точное совпадение названия — сильный прямой сигнал, домен-конфликт не применяем.
   if (result.normalizedTitle === normalizedQuery) return false;
+  if (isProblemAliasMatch(result, normalizedQuery)) return false;
 
   if (isParentalRightsRestorationRouteResult(result.href) && isParentalRightsRestorationQuery(normalizedQuery)) return false;
   if (isParentalRightsRestrictionCancellationRouteResult(result.href) && isParentalRightsRestrictionCancellationQuery(normalizedQuery)) return false;
@@ -769,7 +773,7 @@ function isZagsProcedureQuery(normalizedQuery: string) {
 }
 
 function isGuardianshipRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/") || [
+  return href.includes("/problems/semeynoe-pravo/opeka-i-popechitelstvo-nad-rebenkom/") || [
     "/documents/zayavlenie-o-naznachenii-opekuna-rebenku/",
     "/documents/zayavlenie-roditelya-o-naznachenii-opekuna/",
     "/documents/dokumenty-po-imushchestvu-podopechnogo/",
@@ -822,7 +826,7 @@ function isChildGuardianshipQuery(normalizedQuery: string) {
 }
 
 function isParentsChildRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/") || [
+  return href.includes("/problems/semeynoe-pravo/roditeli-i-rebenok-posle-razvoda/") || [
     "/documents/mesto-zhitelstva-rebenka-posle-razvoda/",
     "/documents/poryadok-obshcheniya-s-rebenkom/",
     "/documents/izmenenie-poryadka-po-rebenku/",
@@ -875,7 +879,7 @@ function isParentsChildQuery(normalizedQuery: string) {
 }
 
 function isChildSupportRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/alimenty-na-rebenka/") || [
+  return href.includes("/problems/semeynoe-pravo/alimenty-na-rebenka/") || [
     "/documents/soglashenie-ob-uplate-alimentov-na-rebenka/",
     "/documents/vzyskanie-alimentov-na-rebenka/",
     "/documents/izmenenie-razmera-alimentov-na-rebenka/",
@@ -923,7 +927,7 @@ function isChildSupportQuery(normalizedQuery: string) {
 }
 
 function isParentalRightsDeprivationRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/lishenie-roditelskih-prav/") || [
+  return href.includes("/problems/semeynoe-pravo/lishenie-roditelskih-prav/") || [
     "/documents/proverka-osnovaniy-lisheniya-roditelskih-prav/",
     "/documents/isk-o-lishenii-roditelskih-prav/",
     "/documents/uchet-resheniy-pri-lishenii-roditelskih-prav/",
@@ -956,7 +960,7 @@ function isParentalRightsDeprivationQuery(normalizedQuery: string) {
 }
 
 function isParentalRightsRestrictionRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/ogranichenie-roditelskih-prav/") || [
+  return href.includes("/problems/semeynoe-pravo/ogranichenie-roditelskih-prav/") || [
     "/documents/ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam/",
     "/documents/proverka-opasnogo-povedeniya-roditelya/",
     "/documents/isk-ob-ogranichenii-roditelskih-prav/"
@@ -987,7 +991,7 @@ function isParentalRightsRestrictionQuery(normalizedQuery: string) {
 }
 
 function isParentalRightsRestorationRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/") || [
+  return href.includes("/problems/semeynoe-pravo/vosstanovlenie-v-roditelskih-pravah/") || [
     "/documents/isk-o-vosstanovlenii-v-roditelskih-pravah/",
     "/documents/vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka/",
     "/documents/proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav/"
@@ -999,7 +1003,7 @@ function isParentalRightsRestorationQuery(normalizedQuery: string) {
 }
 
 function isParentalRightsRestrictionCancellationRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/otmena-ogranicheniya-roditelskih-prav/") || [
+  return href.includes("/problems/semeynoe-pravo/otmena-ogranicheniya-roditelskih-prav/") || [
     "/documents/isk-ob-otmene-ogranicheniya-roditelskih-prav/",
     "/documents/otmena-ogranicheniya-roditelskih-prav-i-vozvrat-rebenka/",
     "/documents/proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav/"
@@ -1011,7 +1015,7 @@ function isParentalRightsRestrictionCancellationQuery(normalizedQuery: string) {
 }
 
 function isParentalDisagreementsRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/") || [
+  return href.includes("/problems/semeynoe-pravo/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/") || [
     "/documents/sovmestnoe-reshenie-roditeley-po-vospitaniyu-i-obrazovaniyu/",
     "/documents/obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley/",
     "/documents/sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka/"
@@ -1032,7 +1036,7 @@ function isParentalDisagreementsQuery(normalizedQuery: string) {
 }
 
 function isAdditionalChildExpensesRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/") || [
+  return href.includes("/problems/semeynoe-pravo/dopolnitelnye-rashody-na-rebenka/") || [
     "/documents/proverka-dopolnitelnyh-rashodov-na-rebenka/",
     "/documents/soglashenie-o-dopolnitelnyh-rashodah-na-rebenka/",
     "/documents/vzyskanie-ponesennyh-dopolnitelnyh-rashodov-na-rebenka/",
@@ -1053,7 +1057,7 @@ function isAdditionalChildExpensesQuery(normalizedQuery: string) {
 }
 
 function isSpousalSupportRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/") || [
+  return href.includes("/problems/semeynoe-pravo/soderzhanie-supruga-i-byvshego-supruga/") || [
     "/documents/proverka-prava-na-soderzhanie-supruga/",
     "/documents/soglashenie-o-soderzhanii-supruga/",
     "/documents/isk-o-soderzhanii-supruga-v-brake/",
@@ -1069,7 +1073,7 @@ function isSpousalSupportQuery(normalizedQuery: string) {
 }
 
 function isPrenuptialAgreementRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/brachnyy-dogovor/") || [
+  return href.includes("/problems/semeynoe-pravo/brachnyy-dogovor/") || [
     "/documents/brachnyy-dogovor-do-braka/",
     "/documents/brachnyy-dogovor-v-brake/",
     "/documents/izmenenie-brachnogo-dogovora/",
@@ -1083,7 +1087,7 @@ function isPrenuptialAgreementQuery(normalizedQuery: string) {
 }
 
 function isInvalidMarriageRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/priznanie-braka-nedeystvitelnym/") || [
+  return href.includes("/problems/semeynoe-pravo/priznanie-braka-nedeystvitelnym/") || [
     "/documents/isk-o-nedeystvitelnosti-braka-bez-soglasiya/",
     "/documents/isk-o-nedeystvitelnosti-braka-s-nesovershennoletnim/",
     "/documents/isk-o-nedeystvitelnosti-braka-pri-prepyatstvii/",
@@ -1108,7 +1112,7 @@ function isInvalidMarriageQuery(normalizedQuery: string) {
 }
 
 function isComplexMaritalPropertyRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/slozhnye-imushchestvennye-spory-suprugov/") || [
+  return href.includes("/problems/semeynoe-pravo/slozhnye-imushchestvennye-spory-suprugov/") || [
     "/documents/slozhnyy-spor-ob-obshchih-dolgah-suprugov/",
     "/documents/slozhnyy-spor-ob-ipotechnom-imushchestve-suprugov/",
     "/documents/slozhnyy-spor-o-biznes-aktivah-suprugov/",
@@ -1132,7 +1136,7 @@ function isComplexMaritalPropertyQuery(normalizedQuery: string) {
 }
 
 function isSurrogacyOriginRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/") ||
+  return href.includes("/problems/semeynoe-pravo/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/") ||
     href.includes("/documents/surrogatnoe-materinstvo-list-dannyh/");
 }
 
@@ -1141,7 +1145,7 @@ function isSurrogacyOriginQuery(normalizedQuery: string) {
 }
 
 function isInternationalFamilyDisputesRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/mezhdunarodnye-semeynye-spory/") || href.includes("/documents/mezhdunarodnyy-semeynyy-spor-list-dannyh/");
+  return href.includes("/problems/semeynoe-pravo/mezhdunarodnye-semeynye-spory/") || href.includes("/documents/mezhdunarodnyy-semeynyy-spor-list-dannyh/");
 }
 
 function isInternationalFamilyDisputesQuery(normalizedQuery: string) {
@@ -1149,7 +1153,7 @@ function isInternationalFamilyDisputesQuery(normalizedQuery: string) {
 }
 
 function isRelativeChildContactRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/") || href.includes("/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/");
+  return href.includes("/problems/semeynoe-pravo/obshchenie-rodstvennikov-s-rebenkom/") || href.includes("/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/");
 }
 
 function isRelativeChildContactQuery(normalizedQuery: string) {
@@ -1157,7 +1161,7 @@ function isRelativeChildContactQuery(normalizedQuery: string) {
 }
 
 function isEmancipationRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/emansipatsiya-nesovershennoletnego/") || href.includes("/documents/emansipatsiya-nesovershennoletnego-materialy/");
+  return href.includes("/problems/semeynoe-pravo/emansipatsiya-nesovershennoletnego/") || href.includes("/documents/emansipatsiya-nesovershennoletnego-materialy/");
 }
 
 function isEmancipationQuery(normalizedQuery: string) {
@@ -1165,7 +1169,7 @@ function isEmancipationQuery(normalizedQuery: string) {
 }
 
 function isPaternityEstablishmentRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/") || [
+  return href.includes("/problems/semeynoe-pravo/ustanovlenie-otcovstva/") || [
     "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
     "/documents/isk-ob-ustanovlenii-otcovstva/",
     "/documents/ustanovlenie-otcovstva-umershego/",
@@ -1181,7 +1185,7 @@ function isPaternityEstablishmentQuery(normalizedQuery: string) {
 }
 
 function isPaternityContestRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/osparivanie-otcovstva/") || [
+  return href.includes("/problems/semeynoe-pravo/osparivanie-otcovstva/") || [
     "/documents/isk-ob-osparivanii-otcovstva-zapisannym-roditelem/",
     "/documents/isk-ob-osparivanii-zapisi-biologicheskim-roditelem/",
     "/documents/isk-ob-osparivanii-otcovstva-rebenkom-ili-opekunom/",
@@ -1194,7 +1198,7 @@ function isPaternityContestQuery(normalizedQuery: string) {
 }
 
 function isAdoptionRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/usynovlenie-rebenka/") || [
+  return href.includes("/problems/semeynoe-pravo/usynovlenie-rebenka/") || [
     "/documents/usynovlenie-rebenka-suprugom-roditelya/",
     "/documents/chek-list-vnutrirossiyskogo-usynovleniya/",
     "/documents/soglasiya-pri-usynovlenii-rebenka/",
@@ -1207,7 +1211,7 @@ function isAdoptionQuery(normalizedQuery: string) {
 }
 
 function isChildTravelRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/vyezd-rebenka-za-granitsu/") || [
+  return href.includes("/problems/semeynoe-pravo/vyezd-rebenka-za-granitsu/") || [
     "/documents/vyezd-rebenka-s-odnim-roditelem/",
     "/documents/soglasie-na-vyezd-rebenka-bez-roditeley/",
     "/documents/spor-o-vyezde-rebenka-za-granitsu/",
@@ -1220,7 +1224,7 @@ function isChildTravelQuery(normalizedQuery: string) {
 }
 
 function isChildNameRouteResult(href: string) {
-  return href.includes("/problems/semya-i-deti/imya-familiya-otchestvo-rebenka/") || [
+  return href.includes("/problems/semeynoe-pravo/imya-familiya-otchestvo-rebenka/") || [
     "/documents/izmenenie-imeni-ili-familii-rebenka-do-14-let/",
     "/documents/izmenenie-familii-rebenka-pri-razdelnom-prozhivanii/",
     "/documents/peremena-imeni-rebenkom-ot-14-do-18-let/",
@@ -1234,53 +1238,63 @@ function isChildNameQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
-  if (isEmancipationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/emansipatsiya-nesovershennoletnego/")) return 1820;
+  if (isProblemAliasMatch(result, normalizedQuery)) return result.type === "situation" ? 2000 : 1980;
+  if (isEmancipationQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/emansipatsiya-nesovershennoletnego/")) return 1820;
   if (isEmancipationQuery(normalizedQuery) && isEmancipationRouteResult(href)) return 1800;
-  if (isRelativeChildContactQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/")) return 1780;
+  if (isRelativeChildContactQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/obshchenie-rodstvennikov-s-rebenkom/")) return 1780;
   if (isRelativeChildContactQuery(normalizedQuery) && isRelativeChildContactRouteResult(href)) return 1760;
-  if (isInternationalFamilyDisputesQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/mezhdunarodnye-semeynye-spory/")) return 1740;
+  if (isInternationalFamilyDisputesQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/mezhdunarodnye-semeynye-spory/")) return 1740;
   if (isInternationalFamilyDisputesQuery(normalizedQuery) && isInternationalFamilyDisputesRouteResult(href)) return 1720;
-  if (isSurrogacyOriginQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/")) return 1700;
+  if (isSurrogacyOriginQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/")) return 1700;
   if (isSurrogacyOriginQuery(normalizedQuery) && isSurrogacyOriginRouteResult(href)) return 1680;
-  if (isComplexMaritalPropertyQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/slozhnye-imushchestvennye-spory-suprugov/")) return 1660;
+  if (isComplexMaritalPropertyQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/slozhnye-imushchestvennye-spory-suprugov/")) return 1660;
   if (isComplexMaritalPropertyQuery(normalizedQuery) && isComplexMaritalPropertyRouteResult(href)) return 1640;
-  if (isInvalidMarriageQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/priznanie-braka-nedeystvitelnym/")) return 1620;
+  if (isInvalidMarriageQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/priznanie-braka-nedeystvitelnym/")) return 1620;
   if (isInvalidMarriageQuery(normalizedQuery) && isInvalidMarriageRouteResult(href)) return 1600;
-  if (isPrenuptialAgreementQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/brachnyy-dogovor/")) return 1580;
+  if (isPrenuptialAgreementQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/brachnyy-dogovor/")) return 1580;
   if (isPrenuptialAgreementQuery(normalizedQuery) && isPrenuptialAgreementRouteResult(href)) return 1560;
-  if (isSpousalSupportQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/")) return 1540;
+  if (isSpousalSupportQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/soderzhanie-supruga-i-byvshego-supruga/")) return 1540;
   if (isSpousalSupportQuery(normalizedQuery) && isSpousalSupportRouteResult(href)) return 1520;
-  if (isAdditionalChildExpensesQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/")) return 1500;
+  if (isAdditionalChildExpensesQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/dopolnitelnye-rashody-na-rebenka/")) return 1500;
   if (isAdditionalChildExpensesQuery(normalizedQuery) && isAdditionalChildExpensesRouteResult(href)) return 1480;
-  if (isParentalDisagreementsQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/")) return 1460;
+  if (isParentalDisagreementsQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/")) return 1460;
   if (isParentalDisagreementsQuery(normalizedQuery) && isParentalDisagreementsRouteResult(href)) return 1440;
-  if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/otmena-ogranicheniya-roditelskih-prav/")) return 1420;
+  if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/otmena-ogranicheniya-roditelskih-prav/")) return 1420;
   if (isParentalRightsRestrictionCancellationQuery(normalizedQuery) && isParentalRightsRestrictionCancellationRouteResult(href)) return 1400;
-  if (isParentalRightsRestorationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/")) return 1380;
+  if (isParentalRightsRestorationQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/vosstanovlenie-v-roditelskih-pravah/")) return 1380;
   if (isParentalRightsRestorationQuery(normalizedQuery) && isParentalRightsRestorationRouteResult(href)) return 1360;
-  if (isChildNameQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/imya-familiya-otchestvo-rebenka/")) return 1340;
+  if (isChildNameQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/imya-familiya-otchestvo-rebenka/")) return 1340;
   if (isChildNameQuery(normalizedQuery) && isChildNameRouteResult(href)) return 1320;
-  if (isChildTravelQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/vyezd-rebenka-za-granitsu/")) return 1300;
+  if (isChildTravelQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/vyezd-rebenka-za-granitsu/")) return 1300;
   if (isChildTravelQuery(normalizedQuery) && isChildTravelRouteResult(href)) return 1280;
-  if (isAdoptionQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/usynovlenie-rebenka/")) return 1260;
+  if (isAdoptionQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/usynovlenie-rebenka/")) return 1260;
   if (isAdoptionQuery(normalizedQuery) && isAdoptionRouteResult(href)) return 1240;
-  if (isPaternityContestQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/osparivanie-otcovstva/")) return 1220;
+  if (isPaternityContestQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/osparivanie-otcovstva/")) return 1220;
   if (isPaternityContestQuery(normalizedQuery) && isPaternityContestRouteResult(href)) return 1200;
-  if (isPaternityEstablishmentQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/ustanovlenie-otcovstva/")) return 1180;
+  if (isPaternityEstablishmentQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/ustanovlenie-otcovstva/")) return 1180;
   if (isPaternityEstablishmentQuery(normalizedQuery) && isPaternityEstablishmentRouteResult(href)) return 1160;
-  if (isParentalRightsRestrictionQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/ogranichenie-roditelskih-prav/")) return 1140;
+  if (isParentalRightsRestrictionQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/ogranichenie-roditelskih-prav/")) return 1140;
   if (isParentalRightsRestrictionQuery(normalizedQuery) && isParentalRightsRestrictionRouteResult(href)) return 1120;
-  if (isParentalRightsDeprivationQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/lishenie-roditelskih-prav/")) return 1100;
+  if (isParentalRightsDeprivationQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/lishenie-roditelskih-prav/")) return 1100;
   if (isParentalRightsDeprivationQuery(normalizedQuery) && isParentalRightsDeprivationRouteResult(href)) return 1080;
-  if (isChildSupportQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/alimenty-na-rebenka/")) return 1060;
+  if (isChildSupportQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/alimenty-na-rebenka/")) return 1060;
   if (isChildSupportQuery(normalizedQuery) && isChildSupportRouteResult(href)) return 1040;
-  if (isParentsChildQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/")) return 1020;
+  if (isParentsChildQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/roditeli-i-rebenok-posle-razvoda/")) return 1020;
   if (isParentsChildQuery(normalizedQuery) && isParentsChildRouteResult(href)) return 1000;
-  if (isChildGuardianshipQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/")) return 1000;
+  if (isChildGuardianshipQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/opeka-i-popechitelstvo-nad-rebenkom/")) return 1000;
   if (isChildGuardianshipQuery(normalizedQuery) && isGuardianshipRouteResult(href)) return 980;
-  if (isZagsProcedureQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/brak-zags-i-smena-familii/")) return 990;
+  if (isZagsProcedureQuery(normalizedQuery) && href.includes("/problems/semeynoe-pravo/brak-zags-i-smena-familii/")) return 990;
   if (isZagsProcedureQuery(normalizedQuery) && href.includes("/documents/zayavlenie-v-zags/")) return 970;
   return 0;
+}
+
+function isProblemAliasMatch(result: SearchableResult, normalizedQuery: string) {
+  if (result.type !== "situation" && result.type !== "instruction") return false;
+  const problem = legalProblems.find((item) => result.href === `/problems/${item.categorySlug}/${item.slug}/`);
+  if (!problem) return false;
+  return (PROBLEM_QNA_CONTEXTS[problem.slug]?.aliases ?? [])
+    .map(normalizeSearchText)
+    .some((alias) => alias === normalizedQuery || normalizedQuery.includes(alias));
 }
 
 function stripSearchMeta(result: SearchableResult): SiteSearchResult {

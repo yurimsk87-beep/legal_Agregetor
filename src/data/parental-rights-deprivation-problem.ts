@@ -3,7 +3,7 @@ import { PARENTAL_RIGHTS_DEPRIVATION_REVIEWED_AT } from "@/data/parental-rights-
 
 export const PARENTAL_RIGHTS_DEPRIVATION_PROBLEM = {
   slug: "lishenie-roditelskih-prav",
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   title: "Лишение родительских прав",
   h1: "Лишение родительских прав",
   shortTitle: "Лишение родительских прав",

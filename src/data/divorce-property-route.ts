@@ -5,7 +5,7 @@ import {
 import { DIVORCE_PROPERTY_LEGAL_REVIEW } from "@/data/divorce-property-legal-review";
 
 export const DIVORCE_PROPERTY_ROUTE = {
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   problemSlug: "razvod-i-razdel-imushchestva"
 } as const;
 

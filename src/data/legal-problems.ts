@@ -65,7 +65,7 @@ export type LegalProblem = {
 
 const referenceProblem = {
   "slug": "brak-zags-i-smena-familii",
-  "categorySlug": "semya-i-deti",
+  "categorySlug": "semeynoe-pravo",
   "title": "Брак и ЗАГС",
   "h1": "Брак и ЗАГС",
   "shortTitle": "Брак и ЗАГС",

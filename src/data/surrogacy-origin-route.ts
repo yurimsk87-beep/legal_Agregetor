@@ -1,5 +1,5 @@
 export const SURROGACY_ORIGIN_ROUTE = {
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   problemSlug: "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
   documentSlug: "surrogatnoe-materinstvo-list-dannyh"
 } as const;

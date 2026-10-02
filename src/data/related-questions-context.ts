@@ -19,19 +19,175 @@ const ZAGS_EXCLUDED_TOPICS = [
   "место жительства ребенка",
   "лишение родительских прав",
   "расторжение брака",
-  "развод через суд"
+  "развод через суд",
+  "ребен"
 ];
 
-export const PROBLEM_EXCLUDED_TOPICS: Record<string, string[]> = {
-  "brak-zags-i-smena-familii": ZAGS_EXCLUDED_TOPICS
+export type ProblemQnaContext = {
+  aliases: string[];
+  excludedTopics: string[];
+  candidatePhrases?: string[];
+  requiredTopicGroups?: string[][];
 };
 
-export const PROBLEM_PRIMARY_TAGS: Record<string, string[]> = {
-  "brak-zags-i-smena-familii": ZAGS_PRIMARY_TAGS
+export const PROBLEM_QNA_CONTEXTS: Record<string, ProblemQnaContext> = {
+  "brak-zags-i-smena-familii": {
+    aliases: ZAGS_PRIMARY_TAGS,
+    excludedTopics: ZAGS_EXCLUDED_TOPICS
+  },
+  "razvod-i-razdel-imushchestva": {
+    aliases: ["хочу развестись", "как подать на развод", "поделить имущество после развода", "разделить ипотеку при разводе"],
+    excludedTopics: ["алименты на ребёнка", "лишение родительских прав", "установление отцовства", "опека над ребёнком"]
+  },
+  "opeka-i-popechitelstvo-nad-rebenkom": {
+    aliases: ["оформить опеку над ребёнком", "временная опека у родственника", "разрешение опеки на сделку", "жалоба на орган опеки"],
+    excludedTopics: ["опека над совершеннолетним", "недееспособность взрослого", "усыновление ребёнка"]
+  },
+  "roditeli-i-rebenok-posle-razvoda": {
+    aliases: ["с кем останется ребёнок", "отец не даёт видеть ребёнка", "мать не даёт общаться с ребёнком", "изменить порядок общения"],
+    excludedTopics: ["общение бабушки с внуком", "лишение родительских прав", "алименты на ребёнка"]
+  },
+  "alimenty-na-rebenka": {
+    aliases: ["подать на алименты", "бывший муж не платит алименты", "увеличить алименты", "уменьшить алименты", "взыскать долг по алиментам"],
+    excludedTopics: ["алименты супругу", "содержание родителей", "алименты после 18 лет"]
+  },
+  "lishenie-roditelskih-prav": {
+    aliases: ["лишить отца родительских прав", "лишить мать родительских прав", "родитель не участвует в жизни ребёнка"],
+    excludedTopics: ["ограничение родительских прав", "восстановление родительских прав", "оспорить отцовство"]
+  },
+  "ogranichenie-roditelskih-prav": {
+    aliases: ["ограничить отца в родительских правах", "ограничить мать в родительских правах", "опасно оставлять ребёнка с родителем"],
+    excludedTopics: ["лишение родительских прав", "отменить ограничение родительских прав"]
+  },
+  "ustanovlenie-otcovstva": {
+    aliases: ["признать отцовство", "установить отцовство через суд", "отец ребёнка умер"],
+    excludedTopics: ["оспорить отцовство", "исключить запись об отце"]
+  },
+  "osparivanie-otcovstva": {
+    aliases: ["оспорить запись об отце", "я не отец ребёнка", "исключить отца из свидетельства"],
+    excludedTopics: ["установить отцовство", "признать отцовство"]
+  },
+  "usynovlenie-rebenka": {
+    aliases: ["усыновить ребёнка жены", "усыновить ребёнка мужа", "какие документы нужны для усыновления"],
+    excludedTopics: ["оформить опеку", "приёмная семья", "эмансипация"]
+  },
+  "vyezd-rebenka-za-granitsu": {
+    aliases: ["вывезти ребёнка за границу", "нужно ли согласие второго родителя", "запрет на выезд ребёнка"],
+    excludedTopics: ["определить место жительства ребёнка", "переезд ребёнка к другому родителю"]
+  },
+  "imya-familiya-otchestvo-rebenka": {
+    aliases: ["поменять фамилию ребёнку без согласия отца", "изменить имя ребёнка", "сменить отчество ребёнку"],
+    excludedTopics: ["сменить фамилию после свадьбы", "перемена имени взрослого"]
+  },
+  "vosstanovlenie-v-roditelskih-pravah": {
+    aliases: ["вернуть родительские права", "восстановиться в родительских правах", "вернуть ребёнка после лишения прав"],
+    excludedTopics: ["лишение родительских прав", "отмена ограничения родительских прав"]
+  },
+  "otmena-ogranicheniya-roditelskih-prav": {
+    aliases: [
+      "снять ограничение родительских прав",
+      "отменить ограничение прав",
+      "отмене ограничения в родительских правах",
+      "вернуть ребёнка после ограничения"
+    ],
+    excludedTopics: ["восстановление родительских прав", "лишение родительских прав"]
+  },
+  "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu": {
+    aliases: [
+      "родители спорят о школе",
+      "разногласия родителей по лечению",
+      "спор родителей о воспитании",
+      "менять школу без согласия отца",
+      "выбрать школу без согласия",
+      "сменить школу без согласия родителей"
+    ],
+    excludedTopics: ["порядок общения с ребёнком", "место жительства ребёнка"],
+    candidatePhrases: ["менять школу", "сменить школу", "выбрать школу"],
+    requiredTopicGroups: [
+      ["школ", "образован", "лечен", "воспитан"],
+      ["без согласия отца", "без согласия матери", "несогласие родителей", "разногласия родителей", "родители спорят"]
+    ]
+  },
+  "dopolnitelnye-rashody-na-rebenka": {
+    aliases: [
+      "взыскать расходы на лечение ребёнка",
+      "дополнительные расходы сверх алиментов",
+      "дополнительные расходы на ребёнка",
+      "оплатить реабилитацию ребёнка"
+    ],
+    excludedTopics: ["обычные алименты", "задолженность по алиментам"],
+    candidatePhrases: ["расходы на лечение", "расходы на ребёнка", "дополнительные расходы", "расходы на обучение"],
+    requiredTopicGroups: [
+      ["ребен"],
+      ["отец", "мать", "родител", "алимент"],
+      ["расход"],
+      ["взыск", "дополнительн"]
+    ]
+  },
+  "soderzhanie-supruga-i-byvshego-supruga": {
+    aliases: ["алименты на жену", "алименты на бывшую жену", "содержание нетрудоспособного супруга"],
+    excludedTopics: ["алименты на ребёнка", "содержание родителей"]
+  },
+  "brachnyy-dogovor": {
+    aliases: ["составить брачный договор", "изменить брачный договор", "расторгнуть брачный договор", "признать брачный договор недействительным"],
+    excludedTopics: ["соглашение о разделе имущества", "раздел имущества без брачного договора"]
+  },
+  "priznanie-braka-nedeystvitelnym": {
+    aliases: ["аннулировать брак", "фиктивный брак", "брак без добровольного согласия"],
+    excludedTopics: ["расторгнуть брак", "развод через суд", "развод через загс"]
+  },
+  "slozhnye-imushchestvennye-spory-suprugov": {
+    aliases: ["разделить общие долги супругов", "разделить ипотеку", "разделить бизнес супругов", "имущество супругов при банкротстве"],
+    excludedTopics: ["обычный развод", "алименты", "брачный договор"]
+  },
+  "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka": {
+    aliases: [
+      "оформить ребёнка после суррогатного материнства",
+      "суррогатного материнства",
+      "суррогатной матерью",
+      "согласие суррогатной матери",
+      "запись родителей ребёнка"
+    ],
+    excludedTopics: ["усыновление ребёнка", "оспаривание отцовства"]
+  },
+  "mezhdunarodnye-semeynye-spory": {
+    aliases: [
+      "ребёнок находится за границей",
+      "отец ребёнка живёт за границей",
+      "ребёнок родился в другой стране",
+      "иностранный гражданин в свидетельстве о рождении ребёнка",
+      "признать иностранное решение по семейному делу",
+      "взыскать алименты за границей"
+    ],
+    excludedTopics: ["обычный выезд ребёнка в отпуск", "туристическая поездка ребёнка"]
+  },
+  "obshchenie-rodstvennikov-s-rebenkom": {
+    aliases: [
+      "бабушке не дают видеть внука",
+      "дедушке не дают общаться с ребёнком",
+      "порядок общения внука с бабушкой",
+      "общение ребёнка с бабушкой",
+      "общение с внуком",
+      "общение родственников с ребёнком"
+    ],
+    excludedTopics: ["общение отца с ребёнком", "общение матери с ребёнком"]
+  },
+  "emansipatsiya-nesovershennoletnego": {
+    aliases: ["эмансипация", "получить полную дееспособность в 16 лет", "эмансипация через опеку", "эмансипация через суд"],
+    excludedTopics: ["вступление в брак до 18 лет", "опека над ребёнком"]
+  }
 };
+
+export const PROBLEM_EXCLUDED_TOPICS: Record<string, string[]> = Object.fromEntries(
+  Object.entries(PROBLEM_QNA_CONTEXTS).map(([slug, context]) => [slug, context.excludedTopics])
+);
+
+export const PROBLEM_PRIMARY_TAGS: Record<string, string[]> = Object.fromEntries(
+  Object.entries(PROBLEM_QNA_CONTEXTS).map(([slug, context]) => [slug, context.aliases])
+);
 
 export const CATEGORY_QUESTION_PHRASES: Record<string, string[]> = {
-  "semya-i-deti": ZAGS_PRIMARY_TAGS
+  "semeynoe-pravo": [...new Set(Object.values(PROBLEM_QNA_CONTEXTS).flatMap((context) => context.aliases))]
 };
 
 export function categoryQuestionPhrases(slug: string, fallback: string[]): string[] {
@@ -45,11 +201,16 @@ export function buildProblemQuestionContext(args: {
 }): RelatedQuestionsContext {
   const excludedTopics = PROBLEM_EXCLUDED_TOPICS[args.slug] ?? [];
   const excludedLower = new Set(excludedTopics.map((topic) => topic.toLowerCase()));
-  const basePrimary = PROBLEM_PRIMARY_TAGS[args.slug] ?? args.primaryTags;
+  const aliases = PROBLEM_PRIMARY_TAGS[args.slug] ?? [];
+  const explicitContext = PROBLEM_QNA_CONTEXTS[args.slug];
+  const basePrimary = [...new Set([...args.primaryTags, ...aliases])];
   return {
     contextType: "problem",
     categoryName: args.categoryTitle,
     primaryTags: basePrimary.filter((tag) => !excludedLower.has(tag.toLowerCase())),
+    searchPhrases: basePrimary,
+    candidatePhrases: explicitContext?.candidatePhrases,
+    requiredTopicGroups: explicitContext?.requiredTopicGroups,
     excludedTopics
   };
 }

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const problemPath = "/problems/semya-i-deti/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/";
+const problemPath = "/problems/semeynoe-pravo/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/";
 const documentPath = "/documents/surrogatnoe-materinstvo-list-dannyh/";
 
 test("surrogacy landing has one H1 and five paths", async ({ page }) => {

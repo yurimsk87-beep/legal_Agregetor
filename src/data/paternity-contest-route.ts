@@ -1,6 +1,6 @@
 import { RUSSIAN_REGIONS } from "@/data/guardianship-territories";
 
-export const PATERNITY_CONTEST_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "osparivanie-otcovstva" } as const;
+export const PATERNITY_CONTEST_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "osparivanie-otcovstva" } as const;
 export const PATERNITY_CONTEST_SCENARIO_KEYS = ["recorded-parent", "biological-parent", "child-representative", "after-death"] as const;
 export type PaternityContestScenarioKey = (typeof PATERNITY_CONTEST_SCENARIO_KEYS)[number];
 export type PaternityContestField = { name: string; label: string; type?: "text" | "textarea" | "select" | "searchable"; required?: boolean; options?: Array<{ label: string; value: string }>; hint?: string };

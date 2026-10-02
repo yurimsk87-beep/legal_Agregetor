@@ -1,4 +1,4 @@
-export const CHILD_NAME_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "imya-familiya-otchestvo-rebenka" } as const;
+export const CHILD_NAME_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "imya-familiya-otchestvo-rebenka" } as const;
 export const CHILD_NAME_SCENARIO_KEYS = ["under-fourteen-agreement", "under-fourteen-dispute", "fourteen-to-seventeen", "patronymic-special"] as const;
 export type ChildNameScenarioKey = (typeof CHILD_NAME_SCENARIO_KEYS)[number];
 export type ChildNameField = { name: string; label: string; type?: "text" | "textarea" | "select"; required?: boolean; options?: Array<{ label: string; value: string }> };

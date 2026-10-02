@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const route = "/problems/semya-i-deti/ogranichenie-roditelskih-prav/";
+const route = "/problems/semeynoe-pravo/ogranichenie-roditelskih-prav/";
 
 test("parental rights restriction landing and canonical scenario", async ({ page }) => {
   await page.goto(route);

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const route = "/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/";
+const route = "/problems/semeynoe-pravo/roditeli-i-rebenok-posle-razvoda/";
 
 test("canonical route is usable on mobile", async ({ page }) => {
   for (const width of [320, 375, 768, 1440]) {
@@ -64,7 +64,7 @@ test("sitemap and unknown route have correct HTTP behavior", async ({ request })
   const sitemap = await request.get("/sitemap-problems.xml");
   expect(sitemap.status()).toBe(200);
   expect(await sitemap.text()).toContain(route);
-  const missing = await request.get("/problems/semya-i-deti/neizvestnyy-marshrut/");
+  const missing = await request.get("/problems/semeynoe-pravo/neizvestnyy-marshrut/");
   expect(missing.status()).toBe(404);
   expect(await missing.text()).toContain("noindex");
 });

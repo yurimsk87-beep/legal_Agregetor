@@ -3,7 +3,7 @@ import { INVALID_MARRIAGE_REVIEWED_AT } from "@/data/invalid-marriage-legal-revi
 
 export const INVALID_MARRIAGE_PROBLEM = {
   slug: "priznanie-braka-nedeystvitelnym",
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   title: "Признание брака недействительным",
   h1: "Признание брака недействительным",
   shortTitle: "Недействительность брака",

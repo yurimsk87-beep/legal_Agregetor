@@ -1,4 +1,4 @@
-export const ADDITIONAL_CHILD_EXPENSES_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "dopolnitelnye-rashody-na-rebenka" } as const;
+export const ADDITIONAL_CHILD_EXPENSES_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "dopolnitelnye-rashody-na-rebenka" } as const;
 export const ADDITIONAL_CHILD_EXPENSES_SCENARIO_KEYS = ["assessment", "agreement", "incurred", "future"] as const;
 export type AdditionalChildExpensesScenarioKey = (typeof ADDITIONAL_CHILD_EXPENSES_SCENARIO_KEYS)[number];
 export type AdditionalChildExpensesField = { name: string; label: string; type?: "text" | "number" | "textarea" | "select"; required?: boolean; options?: Array<{ label: string; value: string }>; hint?: string };

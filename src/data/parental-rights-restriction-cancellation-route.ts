@@ -1,7 +1,7 @@
 import { RUSSIAN_REGIONS } from "@/data/guardianship-territories";
 
 export const PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_ROUTE = {
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   problemSlug: "otmena-ogranicheniya-roditelskih-prav"
 } as const;
 

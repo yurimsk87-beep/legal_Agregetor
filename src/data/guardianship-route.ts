@@ -1,7 +1,7 @@
 import { GUARDIANSHIP_LEGAL_REVIEW } from "@/data/guardianship-legal-review";
 
 export const GUARDIANSHIP_ROUTE = {
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   problemSlug: "opeka-i-popechitelstvo-nad-rebenkom"
 } as const;
 

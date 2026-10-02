@@ -3,7 +3,7 @@ import { CHILD_SUPPORT_REVIEWED_AT } from "@/data/child-support-legal-review";
 
 export const CHILD_SUPPORT_PROBLEM = {
   slug: "alimenty-na-rebenka",
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   title: "Алименты на ребёнка",
   h1: "Алименты на ребёнка",
   shortTitle: "Алименты на ребёнка",

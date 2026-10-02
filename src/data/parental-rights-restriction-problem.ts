@@ -2,7 +2,7 @@ import type { LegalProblem } from "@/data/legal-problems";
 import { PARENTAL_RIGHTS_RESTRICTION_REVIEWED_AT } from "@/data/parental-rights-restriction-legal-review";
 
 export const PARENTAL_RIGHTS_RESTRICTION_PROBLEM = {
-  slug: "ogranichenie-roditelskih-prav", categorySlug: "semya-i-deti", title: "Ограничение родительских прав", h1: "Ограничение родительских прав", shortTitle: "Ограничение родительских прав",
+  slug: "ogranichenie-roditelskih-prav", categorySlug: "semeynoe-pravo", title: "Ограничение родительских прав", h1: "Ограничение родительских прав", shortTitle: "Ограничение родительских прав",
   shortAnswer: "Определите источник опасности для ребёнка и получите безопасный чек-лист либо маркированный судебный черновик.",
   description: "Маршрут разграничивает опасность по независящим обстоятельствам, опасное поведение при недостаточности оснований для лишения и непосредственную угрозу ребёнку.",
   seoTitle: "Ограничение родительских прав: основания и судебный порядок", seoDescription: "Как проверить основания ограничения родительских прав, отличить их от лишения и подготовиться к обращению в суд.",

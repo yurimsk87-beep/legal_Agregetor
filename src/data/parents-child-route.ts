@@ -1,5 +1,5 @@
 export const PARENTS_CHILD_ROUTE = {
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   problemSlug: "roditeli-i-rebenok-posle-razvoda"
 } as const;
 

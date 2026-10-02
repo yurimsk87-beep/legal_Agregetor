@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const problemPath = "/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/";
+const problemPath = "/problems/semeynoe-pravo/opeka-i-popechitelstvo-nad-rebenkom/";
 const appointmentPath = "/documents/zayavlenie-o-naznachenii-opekuna-rebenku/";
 
 for (const viewport of [
@@ -172,7 +172,7 @@ test("unknown navigator URLs return real 404 and noindex", async ({ request }) =
   for (const path of [
     "/documents/ne-sushchestvuet/",
     "/problems/ne-sushchestvuet/",
-    "/problems/semya-i-deti/ne-sushchestvuet/"
+    "/problems/semeynoe-pravo/ne-sushchestvuet/"
   ]) {
     const response = await request.get(path);
     expect(response.status(), path).toBe(404);
