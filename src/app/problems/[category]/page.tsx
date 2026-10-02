@@ -30,9 +30,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return buildMetadata({
-    title: "Семейные споры: брак, развод и раздел имущества",
-    description: "Маршруты по браку и ЗАГС, разводу через ЗАГС или суд и разделу имущества по соглашению или иску.",
-    path: "/problems/semya-i-deti/",
+    title: "Семейное право: развод, алименты, дети и имущество",
+    description: "Порядок действий при разводе, взыскании алиментов, разделе имущества, спорах о детях, отцовстве, усыновлении и опеке.",
+    path: "/problems/semeynoe-pravo/",
     isIndexable: true
   });
 }
@@ -58,9 +58,9 @@ export default async function ProblemCategoryPage({ params }: PageProps) {
       <main>
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <p className="text-sm font-semibold uppercase tracking-wide text-trust">Правовой навигатор</p>
-          <h1 className="mt-2 text-4xl font-semibold text-ink">Семейные споры</h1>
+          <h1 className="mt-2 text-4xl font-semibold text-ink">{category.title}</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-700">
-            Выберите жизненную ситуацию. Покажем применимый порядок, основной документ, приложения и обязательные платежи.
+            Развод, алименты, имущество супругов, вопросы о детях, отцовство, родительские права, усыновление и опека. Выберите свою ситуацию, чтобы узнать, что делать, какие документы понадобятся и куда обращаться.
           </p>
         </section>
 

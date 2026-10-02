@@ -3,7 +3,7 @@ import { DIVORCE_PROPERTY_LEGAL_REVIEW } from "@/data/divorce-property-legal-rev
 
 export const DIVORCE_PROPERTY_PROBLEM = {
   slug: "razvod-i-razdel-imushchestva",
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   title: "Развод и раздел имущества",
   h1: "Развод и раздел имущества",
   shortTitle: "Развод и раздел имущества",

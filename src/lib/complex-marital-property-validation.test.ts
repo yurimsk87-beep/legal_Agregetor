@@ -1,0 +1,21 @@
+import assert from "node:assert/strict";
+import { getVisibleComplexMaritalPropertyFields, validateComplexMaritalProperty, type ComplexMaritalPropertyValues } from "@/lib/complex-marital-property-validator";
+const common: ComplexMaritalPropertyValues = { ordinaryOnly: "no", applicant: "Иванова Анна, адрес", otherSpouse: "Иванов Иван, адрес", marriagePeriod: "2015–2025", propertyList: "Квартира, доля и обязательства", acquisitionSources: "Договоры и банковские выписки", valuation: "Отчёт оценщика", agreement: "no", existingCases: "no", international: "no", courtName: "Тверской районный суд", courtSource: "https://tverskoy.msk.sudrf.ru/", courtConfirmed: "yes" };
+function check(key: Parameters<typeof validateComplexMaritalProperty>[0], values: ComplexMaritalPropertyValues) { const result = validateComplexMaritalProperty(key, values); assert.equal(result.resultKind, "courtDraft"); assert.equal(result.filingReady, false); assert.equal(result.requiresLegalReview, true); assert.match(result.draftText, /^ЧЕРНОВИК/); }
+check("debts", { ...common, debtDetails: "Кредит на ремонт", familyUse: "yes", creditorPosition: "yes", requestedDebtResult: "Учесть расходы" });
+check("mortgage", { ...common, mortgageDetails: "Квартира и кредит", borrowers: "Оба супруга", lenderPosition: "yes", matCapital: "no" });
+check("business", { ...common, businessAsset: "Доля 50% ООО", businessAcquired: "yes", charterRestrictions: "yes", businessValuation: "Отчёт оценщика" });
+check("third-party", { ...common, thirdParties: "Общество и приобретатель", mixedSource: "Общие и подаренные средства", disposedAssets: "yes", compensationCalculation: "Расчёт по оценке" });
+check("bankruptcy-security", { ...common, bankruptcyStatus: "yes", bankruptcyCase: "А40-1/2026, управляющий", saleRisk: "yes", securityMeasure: "Запрет отчуждения", urgencyEvidence: "Извещение о торгах" });
+assert.equal(validateComplexMaritalProperty("debts", { ...common, debtDetails: "Кредит", familyUse: "unsure", creditorPosition: "no", requestedDebtResult: "Разделить" }).outcomeKey, "common-debt-not-confirmed");
+assert.equal(validateComplexMaritalProperty("business", { ...common, businessAsset: "ООО", businessAcquired: "unsure", charterRestrictions: "yes", businessValuation: "Нет" }).outcomeKey, "business-origin-unclear");
+assert.equal(validateComplexMaritalProperty("bankruptcy-security", { ...common, bankruptcyStatus: "unsure", bankruptcyCase: "Не знаю", saleRisk: "unsure", securityMeasure: "Арест", urgencyEvidence: "Нет" }).outcomeKey, "security-ground-unclear");
+assert.equal(validateComplexMaritalProperty("mortgage", { ordinaryOnly: "yes" }).outcomeKey, "ordinary-division");
+assert.equal(validateComplexMaritalProperty("mortgage", { ordinaryOnly: "unsure" }).outcomeKey, "complexity-unclear");
+assert.equal(validateComplexMaritalProperty("mortgage", { ordinaryOnly: "no", international: "yes" }).outcomeKey, "international-route");
+assert.equal(validateComplexMaritalProperty("mortgage", { ordinaryOnly: "no", international: "unsure" }).outcomeKey, "international-unclear");
+assert.equal(getVisibleComplexMaritalPropertyFields("mortgage", {}).length, 1);
+assert.equal(getVisibleComplexMaritalPropertyFields("mortgage", { ordinaryOnly: "no" }).length, 2);
+assert.ok(getVisibleComplexMaritalPropertyFields("mortgage", { ordinaryOnly: "no", international: "no" }).length > 2);
+assert.equal(validateComplexMaritalProperty("debts", {}).allowed, false);
+console.log("Complex-marital-property validation passed: five draft paths and eight safety transitions checked.");

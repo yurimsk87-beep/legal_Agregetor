@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { DocumentsCatalog } from "@/components/documents/DocumentsCatalog";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd } from "@/lib/jsonld";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
@@ -28,23 +28,12 @@ export default function DocumentsPage() {
           <p className="text-sm font-semibold uppercase tracking-wide text-trust">Документы</p>
           <h1 className="mt-2 text-4xl font-semibold text-ink">Юридические документы</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-700">
-            Выберите документ. Для официальных форм ЗАГС подготовим сведения, для исков и проекта соглашения — редактируемый документ и DOCX.
+            Найдите нужный документ по названию или жизненной ситуации. ПравоПоиск поможет заполнить данные и подготовить заявление, иск, соглашение или другой документ. Если требуется официальная форма — покажем, где её получить и как заполнить.
           </p>
         </section>
 
         <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
-          <div className="grid gap-4 md:grid-cols-2">
-            {navigatorDocuments.map((document) => (
-              <article key={document.slug} className="rounded-lg border border-line bg-white p-5 shadow-sm">
-                <p className="text-sm font-semibold text-trust">{document.category}</p>
-                <h2 className="mt-2 text-xl font-semibold text-ink">{document.title}</h2>
-                <p className="mt-3 text-sm leading-6 text-zinc-600">{document.shortDescription}</p>
-                <Link href={`/documents/${document.slug}/`} className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
-                  Открыть документ
-                </Link>
-              </article>
-            ))}
-          </div>
+          <DocumentsCatalog documents={navigatorDocuments} />
         </section>
       </main>
     </>
