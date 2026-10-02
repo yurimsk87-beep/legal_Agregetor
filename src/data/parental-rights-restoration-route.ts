@@ -1,7 +1,7 @@
 import { RUSSIAN_REGIONS } from "@/data/guardianship-territories";
 
 export const PARENTAL_RIGHTS_RESTORATION_ROUTE = {
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   problemSlug: "vosstanovlenie-v-roditelskih-pravah"
 } as const;
 

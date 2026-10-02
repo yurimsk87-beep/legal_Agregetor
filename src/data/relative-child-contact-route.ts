@@ -1,4 +1,4 @@
-export const RELATIVE_CHILD_CONTACT_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "obshchenie-rodstvennikov-s-rebenkom", documentSlug: "obshchenie-rodstvennikov-s-rebenkom-materialy" } as const;
+export const RELATIVE_CHILD_CONTACT_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "obshchenie-rodstvennikov-s-rebenkom", documentSlug: "obshchenie-rodstvennikov-s-rebenkom-materialy" } as const;
 export const RELATIVE_CHILD_CONTACT_KEYS = ["agreement", "guardianship", "court", "enforcement"] as const;
 export type RelativeChildContactKey = (typeof RELATIVE_CHILD_CONTACT_KEYS)[number];
 export type RelativeChildContactField = { name: string; label: string; type: "select" | "textarea" | "territory-region" | "territory-municipality" | "guardianship-authority"; options?: { value: string; label: string }[] };

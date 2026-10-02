@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const problemPath = "/problems/semya-i-deti/mezhdunarodnye-semeynye-spory/";
+const problemPath = "/problems/semeynoe-pravo/mezhdunarodnye-semeynye-spory/";
 const documentPath = "/documents/mezhdunarodnyy-semeynyy-spor-list-dannyh/";
 
 test("international family disputes landing has one H1 and five paths", async ({ page }) => {

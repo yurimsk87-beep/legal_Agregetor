@@ -5,30 +5,30 @@ import { ZAGS_SCENARIO_KEYS } from "@/data/zags-route";
 import { buildMetadata } from "@/lib/seo";
 import { getSiteSearchIndex, searchSite } from "@/lib/site-search";
 
-const targetProblemHref = "/problems/semya-i-deti/brak-zags-i-smena-familii/";
+const targetProblemHref = "/problems/semeynoe-pravo/brak-zags-i-smena-familii/";
 const targetDocumentHref = "/documents/zayavlenie-v-zags/";
-const divorceProblemHref = "/problems/semya-i-deti/razvod-i-razdel-imushchestva/";
+const divorceProblemHref = "/problems/semeynoe-pravo/razvod-i-razdel-imushchestva/";
 const divorceDocumentHrefs = [
   "/documents/zayavlenie-o-rastorzhenii-braka-v-zags/",
   "/documents/isk-o-rastorzhenii-braka/",
   "/documents/soglashenie-o-razdele-imushchestva/",
   "/documents/isk-o-razdele-imushchestva-suprugov/"
 ];
-const guardianshipProblemHref = "/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/";
+const guardianshipProblemHref = "/problems/semeynoe-pravo/opeka-i-popechitelstvo-nad-rebenkom/";
 const guardianshipDocumentHrefs = [
   "/documents/zayavlenie-o-naznachenii-opekuna-rebenku/",
   "/documents/zayavlenie-roditelya-o-naznachenii-opekuna/",
   "/documents/dokumenty-po-imushchestvu-podopechnogo/",
   "/documents/zhaloba-na-organ-opeki/"
 ];
-const parentsChildProblemHref = "/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/";
+const parentsChildProblemHref = "/problems/semeynoe-pravo/roditeli-i-rebenok-posle-razvoda/";
 const parentsChildDocumentHrefs = [
   "/documents/mesto-zhitelstva-rebenka-posle-razvoda/",
   "/documents/poryadok-obshcheniya-s-rebenkom/",
   "/documents/izmenenie-poryadka-po-rebenku/",
   "/documents/ispolnenie-resheniya-o-rebenke/"
 ];
-const childSupportProblemHref = "/problems/semya-i-deti/alimenty-na-rebenka/";
+const childSupportProblemHref = "/problems/semeynoe-pravo/alimenty-na-rebenka/";
 const childSupportDocumentHrefs = [
   "/documents/soglashenie-ob-uplate-alimentov-na-rebenka/",
   "/documents/vzyskanie-alimentov-na-rebenka/",
@@ -36,20 +36,20 @@ const childSupportDocumentHrefs = [
   "/documents/raschet-zadolzhennosti-po-alimentam/",
   "/documents/ispolnenie-alimentov-na-rebenka/"
 ];
-const deprivationProblemHref = "/problems/semya-i-deti/lishenie-roditelskih-prav/";
+const deprivationProblemHref = "/problems/semeynoe-pravo/lishenie-roditelskih-prav/";
 const deprivationDocumentHrefs = [
   "/documents/proverka-osnovaniy-lisheniya-roditelskih-prav/",
   "/documents/isk-o-lishenii-roditelskih-prav/",
   "/documents/uchet-resheniy-pri-lishenii-roditelskih-prav/",
   "/documents/lishenie-roditelskih-prav-i-alimenty/"
 ];
-const restrictionProblemHref = "/problems/semya-i-deti/ogranichenie-roditelskih-prav/";
+const restrictionProblemHref = "/problems/semeynoe-pravo/ogranichenie-roditelskih-prav/";
 const restrictionDocumentHrefs = [
   "/documents/ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam/",
   "/documents/proverka-opasnogo-povedeniya-roditelya/",
   "/documents/isk-ob-ogranichenii-roditelskih-prav/"
 ];
-const paternityProblemHref = "/problems/semya-i-deti/ustanovlenie-otcovstva/";
+const paternityProblemHref = "/problems/semeynoe-pravo/ustanovlenie-otcovstva/";
 const paternityDocumentHrefs = [
   "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
   "/documents/isk-ob-ustanovlenii-otcovstva/",
@@ -57,67 +57,67 @@ const paternityDocumentHrefs = [
   "/documents/zapis-ob-otce-uzhe-sushchestvuet/",
   "/documents/ustanovlenie-otcovstva-i-drugoe-trebovanie/"
 ];
-const paternityContestProblemHref = "/problems/semya-i-deti/osparivanie-otcovstva/";
+const paternityContestProblemHref = "/problems/semeynoe-pravo/osparivanie-otcovstva/";
 const paternityContestDocumentHrefs = [
   "/documents/isk-ob-osparivanii-otcovstva-zapisannym-roditelem/",
   "/documents/isk-ob-osparivanii-zapisi-biologicheskim-roditelem/",
   "/documents/isk-ob-osparivanii-otcovstva-rebenkom-ili-opekunom/",
   "/documents/osparivanie-otcovstva-posle-smerti/"
 ];
-const adoptionProblemHref = "/problems/semya-i-deti/usynovlenie-rebenka/";
+const adoptionProblemHref = "/problems/semeynoe-pravo/usynovlenie-rebenka/";
 const adoptionDocumentHrefs = [
   "/documents/usynovlenie-rebenka-suprugom-roditelya/",
   "/documents/chek-list-vnutrirossiyskogo-usynovleniya/",
   "/documents/soglasiya-pri-usynovlenii-rebenka/",
   "/documents/mezhdunarodnoe-usynovlenie-proverka/"
 ];
-const childTravelProblemHref = "/problems/semya-i-deti/vyezd-rebenka-za-granitsu/";
+const childTravelProblemHref = "/problems/semeynoe-pravo/vyezd-rebenka-za-granitsu/";
 const childTravelDocumentHrefs = [
   "/documents/vyezd-rebenka-s-odnim-roditelem/",
   "/documents/soglasie-na-vyezd-rebenka-bez-roditeley/",
   "/documents/spor-o-vyezde-rebenka-za-granitsu/",
   "/documents/dokumenty-dlya-vyezda-rebenka-v-inostrannoe-gosudarstvo/"
 ];
-const childNameProblemHref = "/problems/semya-i-deti/imya-familiya-otchestvo-rebenka/";
+const childNameProblemHref = "/problems/semeynoe-pravo/imya-familiya-otchestvo-rebenka/";
 const childNameDocumentHrefs = [
   "/documents/izmenenie-imeni-ili-familii-rebenka-do-14-let/",
   "/documents/izmenenie-familii-rebenka-pri-razdelnom-prozhivanii/",
   "/documents/peremena-imeni-rebenkom-ot-14-do-18-let/",
   "/documents/izmenenie-otchestva-rebenka-do-14-let/"
 ];
-const restorationProblemHref = "/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/";
+const restorationProblemHref = "/problems/semeynoe-pravo/vosstanovlenie-v-roditelskih-pravah/";
 const restorationDocumentHrefs = [
   "/documents/isk-o-vosstanovlenii-v-roditelskih-pravah/",
   "/documents/vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka/",
   "/documents/proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav/"
 ];
-const restrictionCancellationProblemHref = "/problems/semya-i-deti/otmena-ogranicheniya-roditelskih-prav/";
+const restrictionCancellationProblemHref = "/problems/semeynoe-pravo/otmena-ogranicheniya-roditelskih-prav/";
 const restrictionCancellationDocumentHrefs = [
   "/documents/isk-ob-otmene-ogranicheniya-roditelskih-prav/",
   "/documents/otmena-ogranicheniya-roditelskih-prav-i-vozvrat-rebenka/",
   "/documents/proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav/"
 ];
-const parentalDisagreementsProblemHref = "/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/";
+const parentalDisagreementsProblemHref = "/problems/semeynoe-pravo/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/";
 const parentalDisagreementsDocumentHrefs = [
   "/documents/sovmestnoe-reshenie-roditeley-po-vospitaniyu-i-obrazovaniyu/",
   "/documents/obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley/",
   "/documents/sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka/"
 ];
-const additionalChildExpensesProblemHref = "/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/";
+const additionalChildExpensesProblemHref = "/problems/semeynoe-pravo/dopolnitelnye-rashody-na-rebenka/";
 const additionalChildExpensesDocumentHrefs = [
   "/documents/proverka-dopolnitelnyh-rashodov-na-rebenka/",
   "/documents/soglashenie-o-dopolnitelnyh-rashodah-na-rebenka/",
   "/documents/vzyskanie-ponesennyh-dopolnitelnyh-rashodov-na-rebenka/",
   "/documents/vzyskanie-budushchih-dopolnitelnyh-rashodov-na-rebenka/"
 ];
-const spousalSupportProblemHref = "/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/";
+const spousalSupportProblemHref = "/problems/semeynoe-pravo/soderzhanie-supruga-i-byvshego-supruga/";
 const spousalSupportDocumentHrefs = [
   "/documents/proverka-prava-na-soderzhanie-supruga/",
   "/documents/soglashenie-o-soderzhanii-supruga/",
   "/documents/isk-o-soderzhanii-supruga-v-brake/",
   "/documents/isk-o-soderzhanii-byvshego-supruga/"
 ];
-const prenuptialAgreementProblemHref = "/problems/semya-i-deti/brachnyy-dogovor/";
+const prenuptialAgreementProblemHref = "/problems/semeynoe-pravo/brachnyy-dogovor/";
 const prenuptialAgreementDocumentHrefs = [
   "/documents/brachnyy-dogovor-do-braka/",
   "/documents/brachnyy-dogovor-v-brake/",
@@ -125,7 +125,7 @@ const prenuptialAgreementDocumentHrefs = [
   "/documents/rastorzhenie-brachnogo-dogovora/",
   "/documents/spor-o-brachnom-dogovore/"
 ];
-const invalidMarriageProblemHref = "/problems/semya-i-deti/priznanie-braka-nedeystvitelnym/";
+const invalidMarriageProblemHref = "/problems/semeynoe-pravo/priznanie-braka-nedeystvitelnym/";
 const invalidMarriageDocumentHrefs = [
   "/documents/isk-o-nedeystvitelnosti-braka-bez-soglasiya/",
   "/documents/isk-o-nedeystvitelnosti-braka-s-nesovershennoletnim/",
@@ -133,7 +133,7 @@ const invalidMarriageDocumentHrefs = [
   "/documents/isk-o-fiktivnom-brake/",
   "/documents/isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya/"
 ];
-const complexMaritalPropertyProblemHref = "/problems/semya-i-deti/slozhnye-imushchestvennye-spory-suprugov/";
+const complexMaritalPropertyProblemHref = "/problems/semeynoe-pravo/slozhnye-imushchestvennye-spory-suprugov/";
 const complexMaritalPropertyDocumentHrefs = [
   "/documents/slozhnyy-spor-ob-obshchih-dolgah-suprugov/",
   "/documents/slozhnyy-spor-ob-ipotechnom-imushchestve-suprugov/",
@@ -141,42 +141,42 @@ const complexMaritalPropertyDocumentHrefs = [
   "/documents/slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey/",
   "/documents/slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery/"
 ];
-const surrogacyOriginProblemHref = "/problems/semya-i-deti/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/";
+const surrogacyOriginProblemHref = "/problems/semeynoe-pravo/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/";
 const surrogacyOriginDocumentHref = "/documents/surrogatnoe-materinstvo-list-dannyh/";
-const internationalFamilyDisputesProblemHref = "/problems/semya-i-deti/mezhdunarodnye-semeynye-spory/";
+const internationalFamilyDisputesProblemHref = "/problems/semeynoe-pravo/mezhdunarodnye-semeynye-spory/";
 const internationalFamilyDisputesDocumentHref = "/documents/mezhdunarodnyy-semeynyy-spor-list-dannyh/";
-const relativeChildContactProblemHref = "/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/";
+const relativeChildContactProblemHref = "/problems/semeynoe-pravo/obshchenie-rodstvennikov-s-rebenkom/";
 const relativeChildContactDocumentHref = "/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/";
-const emancipationProblemHref = "/problems/semya-i-deti/emansipatsiya-nesovershennoletnego/";
+const emancipationProblemHref = "/problems/semeynoe-pravo/emansipatsiya-nesovershennoletnego/";
 const emancipationDocumentHref = "/documents/emansipatsiya-nesovershennoletnego-materialy/";
 
 assert.deepEqual(
   legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
   [
-    { categorySlug: "semya-i-deti", slug: "brak-zags-i-smena-familii" },
-    { categorySlug: "semya-i-deti", slug: "razvod-i-razdel-imushchestva" },
-    { categorySlug: "semya-i-deti", slug: "opeka-i-popechitelstvo-nad-rebenkom" },
-    { categorySlug: "semya-i-deti", slug: "roditeli-i-rebenok-posle-razvoda" },
-    { categorySlug: "semya-i-deti", slug: "alimenty-na-rebenka" },
-    { categorySlug: "semya-i-deti", slug: "lishenie-roditelskih-prav" },
-    { categorySlug: "semya-i-deti", slug: "ogranichenie-roditelskih-prav" },
-    { categorySlug: "semya-i-deti", slug: "ustanovlenie-otcovstva" },
-    { categorySlug: "semya-i-deti", slug: "osparivanie-otcovstva" },
-    { categorySlug: "semya-i-deti", slug: "usynovlenie-rebenka" },
-    { categorySlug: "semya-i-deti", slug: "vyezd-rebenka-za-granitsu" },
-    { categorySlug: "semya-i-deti", slug: "imya-familiya-otchestvo-rebenka" },
-    { categorySlug: "semya-i-deti", slug: "vosstanovlenie-v-roditelskih-pravah" },
-    { categorySlug: "semya-i-deti", slug: "otmena-ogranicheniya-roditelskih-prav" },
-    { categorySlug: "semya-i-deti", slug: "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu" },
-    { categorySlug: "semya-i-deti", slug: "dopolnitelnye-rashody-na-rebenka" },
-    { categorySlug: "semya-i-deti", slug: "soderzhanie-supruga-i-byvshego-supruga" },
-    { categorySlug: "semya-i-deti", slug: "brachnyy-dogovor" },
-    { categorySlug: "semya-i-deti", slug: "priznanie-braka-nedeystvitelnym" },
-    { categorySlug: "semya-i-deti", slug: "slozhnye-imushchestvennye-spory-suprugov" },
-    { categorySlug: "semya-i-deti", slug: "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka" },
-    { categorySlug: "semya-i-deti", slug: "mezhdunarodnye-semeynye-spory" },
-    { categorySlug: "semya-i-deti", slug: "obshchenie-rodstvennikov-s-rebenkom" },
-    { categorySlug: "semya-i-deti", slug: "emansipatsiya-nesovershennoletnego" }
+    { categorySlug: "semeynoe-pravo", slug: "brak-zags-i-smena-familii" },
+    { categorySlug: "semeynoe-pravo", slug: "razvod-i-razdel-imushchestva" },
+    { categorySlug: "semeynoe-pravo", slug: "opeka-i-popechitelstvo-nad-rebenkom" },
+    { categorySlug: "semeynoe-pravo", slug: "roditeli-i-rebenok-posle-razvoda" },
+    { categorySlug: "semeynoe-pravo", slug: "alimenty-na-rebenka" },
+    { categorySlug: "semeynoe-pravo", slug: "lishenie-roditelskih-prav" },
+    { categorySlug: "semeynoe-pravo", slug: "ogranichenie-roditelskih-prav" },
+    { categorySlug: "semeynoe-pravo", slug: "ustanovlenie-otcovstva" },
+    { categorySlug: "semeynoe-pravo", slug: "osparivanie-otcovstva" },
+    { categorySlug: "semeynoe-pravo", slug: "usynovlenie-rebenka" },
+    { categorySlug: "semeynoe-pravo", slug: "vyezd-rebenka-za-granitsu" },
+    { categorySlug: "semeynoe-pravo", slug: "imya-familiya-otchestvo-rebenka" },
+    { categorySlug: "semeynoe-pravo", slug: "vosstanovlenie-v-roditelskih-pravah" },
+    { categorySlug: "semeynoe-pravo", slug: "otmena-ogranicheniya-roditelskih-prav" },
+    { categorySlug: "semeynoe-pravo", slug: "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu" },
+    { categorySlug: "semeynoe-pravo", slug: "dopolnitelnye-rashody-na-rebenka" },
+    { categorySlug: "semeynoe-pravo", slug: "soderzhanie-supruga-i-byvshego-supruga" },
+    { categorySlug: "semeynoe-pravo", slug: "brachnyy-dogovor" },
+    { categorySlug: "semeynoe-pravo", slug: "priznanie-braka-nedeystvitelnym" },
+    { categorySlug: "semeynoe-pravo", slug: "slozhnye-imushchestvennye-spory-suprugov" },
+    { categorySlug: "semeynoe-pravo", slug: "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka" },
+    { categorySlug: "semeynoe-pravo", slug: "mezhdunarodnye-semeynye-spory" },
+    { categorySlug: "semeynoe-pravo", slug: "obshchenie-rodstvennikov-s-rebenkom" },
+    { categorySlug: "semeynoe-pravo", slug: "emansipatsiya-nesovershennoletnego" }
   ]
 );
 assert.deepEqual(

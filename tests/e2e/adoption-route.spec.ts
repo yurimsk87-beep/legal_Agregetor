@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const route = "/problems/semya-i-deti/usynovlenie-rebenka/";
+const route = "/problems/semeynoe-pravo/usynovlenie-rebenka/";
 
 test("adoption landing and canonical scenario", async ({ page }) => {
   await page.goto(route);

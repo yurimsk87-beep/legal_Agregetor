@@ -3,7 +3,7 @@ import { GUARDIANSHIP_LEGAL_REVIEW } from "@/data/guardianship-legal-review";
 
 export const GUARDIANSHIP_PROBLEM = {
   slug: "opeka-i-popechitelstvo-nad-rebenkom",
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   title: "Опека и попечительство над ребёнком",
   h1: "Опека и попечительство над ребёнком",
   shortTitle: "Опека над ребёнком",

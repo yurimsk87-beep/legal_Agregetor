@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const route = "/problems/semya-i-deti/osparivanie-otcovstva/";
+const route = "/problems/semeynoe-pravo/osparivanie-otcovstva/";
 test("paternity contest landing and canonical scenario", async ({ page }) => {
   await page.goto(route);
   await expect(page.getByRole("heading", { level: 1, name: "Оспаривание отцовства" })).toHaveCount(1);

@@ -22,12 +22,12 @@ test("problems page is concise and family cards use instruction CTA", async ({ p
   await expect(page.getByRole("heading", { level: 1, name: "Юридические ситуации" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Доступные ситуации" })).toHaveCount(0);
 
-  await page.goto("/problems/semya-i-deti/");
+  await page.goto("/problems/semeynoe-pravo/");
   await expect(page.getByRole("link", { name: "Инструкция" }).first()).toBeVisible();
 });
 
 test("document preparation keeps scenario and opens a new tab", async ({ page }) => {
-  await page.goto("/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/?scenario=court");
+  await page.goto("/problems/semeynoe-pravo/obshchenie-rodstvennikov-s-rebenkom/?scenario=court");
   const link = page.getByRole("link", { name: "Подготовить материал" });
   await expect(link).toHaveAttribute("target", "_blank");
   await expect(link).toHaveAttribute("rel", /noopener/);

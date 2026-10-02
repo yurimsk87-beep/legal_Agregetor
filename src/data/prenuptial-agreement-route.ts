@@ -1,4 +1,4 @@
-export const PRENUPTIAL_AGREEMENT_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "brachnyy-dogovor" } as const;
+export const PRENUPTIAL_AGREEMENT_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "brachnyy-dogovor" } as const;
 export const PRENUPTIAL_AGREEMENT_SCENARIO_KEYS = ["before", "during", "change", "terminate", "dispute"] as const;
 export type PrenuptialAgreementScenarioKey = (typeof PRENUPTIAL_AGREEMENT_SCENARIO_KEYS)[number];
 export type PrenuptialAgreementField = { name: string; label: string; type?: "text" | "textarea" | "select"; required?: boolean; options?: Array<{ label: string; value: string }>; hint?: string };

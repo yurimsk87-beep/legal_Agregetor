@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { RelatedQuestionsBlock } from "@/components/navigator/NavigatorBlocks";
 import { DivorcePropertyScenarioOverview } from "@/components/documents/DivorcePropertyScenarioOverview";
 import { GuardianshipScenarioOverview } from "@/components/documents/GuardianshipScenarioOverview";
 import { ParentsChildScenarioOverview } from "@/components/documents/ParentsChildScenarioOverview";
@@ -119,6 +121,7 @@ import {
 import { getLegalCategory } from "@/data/legal-categories";
 import { getLegalProblem, legalProblems } from "@/data/legal-problems";
 import type { LegalProblem } from "@/data/legal-problems";
+import { buildProblemQuestionContext } from "@/data/related-questions-context";
 import {
   getZagsScenario,
   ZAGS_PROBLEM_ROUTE,
@@ -126,7 +129,9 @@ import {
 } from "@/data/zags-route";
 import type { ZagsScenario } from "@/data/zags-route";
 import { breadcrumbJsonLd, legalServiceJsonLd } from "@/lib/jsonld";
+import { getRelatedQuestionsForContext } from "@/lib/navigator-relations";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
+import type { Question } from "@/lib/types";
 
 type PageProps = {
   params: Promise<{ category: string; slug: string }>;
@@ -168,75 +173,86 @@ export default async function ProblemPage({ params, searchParams }: PageProps) {
   if (!category || !problem) notFound();
 
   const resolvedSearchParams = searchParams ? await searchParams : {};
+  const relatedQuestions = await getRelatedQuestionsForContext(
+    buildProblemQuestionContext({
+      slug: problem.slug,
+      categoryTitle: category.title,
+      primaryTags: problem.relatedQuestionTopics
+    }),
+    { limit: 6 }
+  );
+
+  let specializedPage: ReactNode | null = null;
   if (problem.slug === DIVORCE_PROPERTY_ROUTE.problemSlug) {
-    return <DivorcePropertyProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+    specializedPage = <DivorcePropertyProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === GUARDIANSHIP_ROUTE.problemSlug) {
-    return <GuardianshipProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === GUARDIANSHIP_ROUTE.problemSlug) {
+    specializedPage = <GuardianshipProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === PARENTS_CHILD_ROUTE.problemSlug) {
-    return <ParentsChildProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === PARENTS_CHILD_ROUTE.problemSlug) {
+    specializedPage = <ParentsChildProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === CHILD_SUPPORT_ROUTE.problemSlug) {
-    return <ChildSupportProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === CHILD_SUPPORT_ROUTE.problemSlug) {
+    specializedPage = <ChildSupportProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === PARENTAL_RIGHTS_DEPRIVATION_ROUTE.problemSlug) {
-    return <ParentalRightsDeprivationProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === PARENTAL_RIGHTS_DEPRIVATION_ROUTE.problemSlug) {
+    specializedPage = <ParentalRightsDeprivationProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === PARENTAL_RIGHTS_RESTRICTION_ROUTE.problemSlug) {
-    return <ParentalRightsRestrictionProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === PARENTAL_RIGHTS_RESTRICTION_ROUTE.problemSlug) {
+    specializedPage = <ParentalRightsRestrictionProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === PATERNITY_ESTABLISHMENT_ROUTE.problemSlug) {
-    return <PaternityEstablishmentProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === PATERNITY_ESTABLISHMENT_ROUTE.problemSlug) {
+    specializedPage = <PaternityEstablishmentProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === PATERNITY_CONTEST_ROUTE.problemSlug) {
-    return <PaternityContestProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === PATERNITY_CONTEST_ROUTE.problemSlug) {
+    specializedPage = <PaternityContestProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === ADOPTION_ROUTE.problemSlug) {
-    return <AdoptionProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === ADOPTION_ROUTE.problemSlug) {
+    specializedPage = <AdoptionProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === CHILD_TRAVEL_ROUTE.problemSlug) {
-    return <ChildTravelProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === CHILD_TRAVEL_ROUTE.problemSlug) {
+    specializedPage = <ChildTravelProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === CHILD_NAME_ROUTE.problemSlug) {
-    return <ChildNameProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === CHILD_NAME_ROUTE.problemSlug) {
+    specializedPage = <ChildNameProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === PARENTAL_RIGHTS_RESTORATION_ROUTE.problemSlug) {
-    return <ParentalRightsRestorationProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === PARENTAL_RIGHTS_RESTORATION_ROUTE.problemSlug) {
+    specializedPage = <ParentalRightsRestorationProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_ROUTE.problemSlug) {
-    return <ParentalRightsRestrictionCancellationProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_ROUTE.problemSlug) {
+    specializedPage = <ParentalRightsRestrictionCancellationProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === PARENTAL_DISAGREEMENTS_ROUTE.problemSlug) {
-    return <ParentalDisagreementsProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === PARENTAL_DISAGREEMENTS_ROUTE.problemSlug) {
+    specializedPage = <ParentalDisagreementsProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === ADDITIONAL_CHILD_EXPENSES_ROUTE.problemSlug) {
-    return <AdditionalChildExpensesProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === ADDITIONAL_CHILD_EXPENSES_ROUTE.problemSlug) {
+    specializedPage = <AdditionalChildExpensesProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === SPOUSAL_SUPPORT_ROUTE.problemSlug) {
-    return <SpousalSupportProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === SPOUSAL_SUPPORT_ROUTE.problemSlug) {
+    specializedPage = <SpousalSupportProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === PRENUPTIAL_AGREEMENT_ROUTE.problemSlug) {
-    return <PrenuptialAgreementProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === PRENUPTIAL_AGREEMENT_ROUTE.problemSlug) {
+    specializedPage = <PrenuptialAgreementProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === INVALID_MARRIAGE_ROUTE.problemSlug) {
-    return <InvalidMarriageProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === INVALID_MARRIAGE_ROUTE.problemSlug) {
+    specializedPage = <InvalidMarriageProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === COMPLEX_MARITAL_PROPERTY_ROUTE.problemSlug) {
-    return <ComplexMaritalPropertyProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === COMPLEX_MARITAL_PROPERTY_ROUTE.problemSlug) {
+    specializedPage = <ComplexMaritalPropertyProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === SURROGACY_ORIGIN_ROUTE.problemSlug) {
-    return <SurrogacyOriginProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === SURROGACY_ORIGIN_ROUTE.problemSlug) {
+    specializedPage = <SurrogacyOriginProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === INTERNATIONAL_FAMILY_DISPUTES_ROUTE.problemSlug) {
-    return <InternationalFamilyDisputesProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === INTERNATIONAL_FAMILY_DISPUTES_ROUTE.problemSlug) {
+    specializedPage = <InternationalFamilyDisputesProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === RELATIVE_CHILD_CONTACT_ROUTE.problemSlug) {
-    return <RelativeChildContactProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === RELATIVE_CHILD_CONTACT_ROUTE.problemSlug) {
+    specializedPage = <RelativeChildContactProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
-  if (problem.slug === EMANCIPATION_ROUTE.problemSlug) {
-    return <EmancipationProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
+  else if (problem.slug === EMANCIPATION_ROUTE.problemSlug) {
+    specializedPage = <EmancipationProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }
+  if (specializedPage) return <FamilyProblemQna questions={relatedQuestions}>{specializedPage}</FamilyProblemQna>;
   if (problem.slug !== ZAGS_PROBLEM_ROUTE.problemSlug) notFound();
   const scenario = getZagsScenario(resolvedSearchParams.scenario);
   const problemPath = `/problems/${category.slug}/${problem.slug}/`;
@@ -248,7 +264,8 @@ export default async function ProblemPage({ params, searchParams }: PageProps) {
   ];
 
   return (
-    <>
+    <FamilyProblemQna questions={relatedQuestions}>
+      <>
       <JsonLd data={[
         breadcrumbJsonLd(breadcrumbs),
         legalServiceJsonLd({ path: problemPath, name: "Брак и ЗАГС", description: problem.shortAnswer, lawyers: [] }),
@@ -288,7 +305,8 @@ export default async function ProblemPage({ params, searchParams }: PageProps) {
           <p className="mt-6 text-xs leading-5 text-zinc-500">Юридическая проверка: {formatReviewDate(problem.lastReviewedAt)}.</p>
         ) : null}
       </article>
-    </>
+      </>
+    </FamilyProblemQna>
   );
 }
 
@@ -786,7 +804,7 @@ function DivorceScenarioDetails({ problemPath, scenario }: { problemPath: string
       </Link>
 
       {scenario.goal === "divorce" ? (
-        <Link href="/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/" className="mt-4 flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">
+        <Link href="/problems/semeynoe-pravo/roditeli-i-rebenok-posle-razvoda/" className="mt-4 flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">
           Решить вопросы о ребёнке после развода
         </Link>
       ) : null}
@@ -892,6 +910,21 @@ function InfoBox({ text, title }: { text: string; title: string }) {
       <h3 className="text-sm font-semibold text-ink">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-zinc-700">{text}</p>
     </section>
+  );
+}
+
+function FamilyProblemQna({ children, questions }: { children: ReactNode; questions: Question[] }) {
+  return (
+    <>
+      {children}
+      <section className="mx-auto max-w-5xl border-t border-line px-4 py-8 sm:px-6 lg:px-8" aria-labelledby="similar-questions-title">
+        <h2 id="similar-questions-title" className="text-2xl font-semibold text-ink">Похожие вопросы</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">
+          Посмотрите, как пользователи описывали похожие обстоятельства. Ответы помогают сориентироваться, но не заменяют проверку закона для вашей ситуации.
+        </p>
+        <div className="mt-5"><RelatedQuestionsBlock questions={questions} /></div>
+      </section>
+    </>
   );
 }
 

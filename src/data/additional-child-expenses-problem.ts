@@ -2,7 +2,7 @@ import type { LegalProblem } from "@/data/legal-problems";
 import { ADDITIONAL_CHILD_EXPENSES_REVIEWED_AT } from "@/data/additional-child-expenses-legal-review";
 
 export const ADDITIONAL_CHILD_EXPENSES_PROBLEM = {
-  slug: "dopolnitelnye-rashody-na-rebenka", categorySlug: "semya-i-deti", title: "Дополнительные расходы на ребёнка", h1: "Дополнительные расходы на ребёнка", shortTitle: "Дополнительные расходы на ребёнка",
+  slug: "dopolnitelnye-rashody-na-rebenka", categorySlug: "semeynoe-pravo", title: "Дополнительные расходы на ребёнка", h1: "Дополнительные расходы на ребёнка", shortTitle: "Дополнительные расходы на ребёнка",
   shortAnswer: "Проверьте исключительный характер расходов, подготовьте добровольные условия либо безопасный судебный черновик по понесённым или будущим расходам.",
   description: "Маршрут отделяет дополнительные расходы по статье 86 СК РФ от обычных повседневных трат и не обещает взыскание без доказательств.",
   seoTitle: "Дополнительные расходы на ребёнка: соглашение и взыскание", seoDescription: "Как проверить дополнительные расходы на ребёнка, согласовать участие родителей или подготовить судебный черновик по понесённым и будущим расходам.", riskLevel: "high", urgency: "standard",

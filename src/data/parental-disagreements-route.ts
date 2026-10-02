@@ -1,6 +1,6 @@
 import { RUSSIAN_REGIONS } from "@/data/guardianship-territories";
 
-export const PARENTAL_DISAGREEMENTS_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu" } as const;
+export const PARENTAL_DISAGREEMENTS_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu" } as const;
 export const PARENTAL_DISAGREEMENTS_SCENARIO_KEYS = ["agreement", "guardianship", "court"] as const;
 export type ParentalDisagreementsScenarioKey = (typeof PARENTAL_DISAGREEMENTS_SCENARIO_KEYS)[number];
 export type ParentalDisagreementsField = { name: string; label: string; type?: "text" | "textarea" | "select" | "searchable"; required?: boolean; options?: Array<{ label: string; value: string }>; hint?: string };

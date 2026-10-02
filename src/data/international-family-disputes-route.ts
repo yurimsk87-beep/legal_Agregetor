@@ -1,5 +1,5 @@
 export const INTERNATIONAL_FAMILY_DISPUTES_ROUTE = {
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   problemSlug: "mezhdunarodnye-semeynye-spory",
   documentSlug: "mezhdunarodnyy-semeynyy-spor-list-dannyh"
 } as const;

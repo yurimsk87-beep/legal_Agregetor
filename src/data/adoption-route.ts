@@ -1,6 +1,6 @@
 import { RUSSIAN_REGIONS } from "@/data/guardianship-territories";
 
-export const ADOPTION_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "usynovlenie-rebenka" } as const;
+export const ADOPTION_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "usynovlenie-rebenka" } as const;
 export const ADOPTION_SCENARIO_KEYS = ["step-parent", "domestic", "consent-review", "international"] as const;
 export type AdoptionScenarioKey = (typeof ADOPTION_SCENARIO_KEYS)[number];
 export type AdoptionField = { name: string; label: string; type?: "text" | "textarea" | "select" | "searchable"; required?: boolean; options?: Array<{ label: string; value: string }>; hint?: string };

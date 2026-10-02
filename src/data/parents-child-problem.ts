@@ -3,7 +3,7 @@ import { PARENTS_CHILD_REVIEWED_AT } from "@/data/parents-child-legal-review";
 
 export const PARENTS_CHILD_PROBLEM = {
   slug: "roditeli-i-rebenok-posle-razvoda",
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   title: "Родители и ребёнок после развода",
   h1: "Родители и ребёнок после развода",
   shortTitle: "Родители и ребёнок после развода",

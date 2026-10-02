@@ -1,6 +1,6 @@
 import { RUSSIAN_REGIONS } from "@/data/guardianship-territories";
 
-export const PARENTAL_RIGHTS_RESTRICTION_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "ogranichenie-roditelskih-prav" } as const;
+export const PARENTAL_RIGHTS_RESTRICTION_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "ogranichenie-roditelskih-prav" } as const;
 export const PARENTAL_RIGHTS_RESTRICTION_SCENARIO_KEYS = ["objective", "behavior", "court"] as const;
 export type ParentalRightsRestrictionScenarioKey = (typeof PARENTAL_RIGHTS_RESTRICTION_SCENARIO_KEYS)[number];
 export type ParentalRightsRestrictionField = { name: string; label: string; type?: "text" | "textarea" | "select" | "searchable"; required?: boolean; options?: Array<{ label: string; value: string }>; hint?: string };

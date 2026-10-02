@@ -1,4 +1,4 @@
-export const COMPLEX_MARITAL_PROPERTY_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "slozhnye-imushchestvennye-spory-suprugov" } as const;
+export const COMPLEX_MARITAL_PROPERTY_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "slozhnye-imushchestvennye-spory-suprugov" } as const;
 export const COMPLEX_MARITAL_PROPERTY_SCENARIO_KEYS = ["debts", "mortgage", "business", "third-party", "bankruptcy-security"] as const;
 export type ComplexMaritalPropertyScenarioKey = (typeof COMPLEX_MARITAL_PROPERTY_SCENARIO_KEYS)[number];
 export type ComplexMaritalPropertyField = { name: string; label: string; type?: "text" | "textarea" | "select"; required?: boolean; options?: Array<{ label: string; value: string }>; hint?: string };

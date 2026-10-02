@@ -10,16 +10,16 @@ type NavigatorResponse = {
 };
 
 const baseUrl = process.env.AI_NAVIGATOR_CHECK_URL || "http://localhost:3000";
-const allowedProblem = "/problems/semya-i-deti/brak-zags-i-smena-familii/";
+const allowedProblem = "/problems/semeynoe-pravo/brak-zags-i-smena-familii/";
 const allowedDocument = "/documents/zayavlenie-v-zags/";
-const divorceProblem = "/problems/semya-i-deti/razvod-i-razdel-imushchestva/";
+const divorceProblem = "/problems/semeynoe-pravo/razvod-i-razdel-imushchestva/";
 const divorceDocuments = [
   "/documents/zayavlenie-o-rastorzhenii-braka-v-zags/",
   "/documents/isk-o-rastorzhenii-braka/",
   "/documents/soglashenie-o-razdele-imushchestva/",
   "/documents/isk-o-razdele-imushchestva-suprugov/"
 ];
-const guardianshipProblem = "/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/";
+const guardianshipProblem = "/problems/semeynoe-pravo/opeka-i-popechitelstvo-nad-rebenkom/";
 const guardianshipDocuments = [
   "/documents/zayavlenie-o-naznachenii-opekuna-rebenku/",
   "/documents/zayavlenie-roditelya-o-naznachenii-opekuna/",
@@ -27,7 +27,7 @@ const guardianshipDocuments = [
   "/documents/zhaloba-na-organ-opeki/"
 ];
 const guardianshipContent = [guardianshipProblem, ...guardianshipDocuments];
-const parentsChildProblem = "/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/";
+const parentsChildProblem = "/problems/semeynoe-pravo/roditeli-i-rebenok-posle-razvoda/";
 const parentsChildDocuments = [
   "/documents/mesto-zhitelstva-rebenka-posle-razvoda/",
   "/documents/poryadok-obshcheniya-s-rebenkom/",
@@ -35,7 +35,7 @@ const parentsChildDocuments = [
   "/documents/ispolnenie-resheniya-o-rebenke/"
 ];
 const parentsChildContent = [parentsChildProblem, ...parentsChildDocuments];
-const childSupportProblem = "/problems/semya-i-deti/alimenty-na-rebenka/";
+const childSupportProblem = "/problems/semeynoe-pravo/alimenty-na-rebenka/";
 const childSupportDocuments = [
   "/documents/soglashenie-ob-uplate-alimentov-na-rebenka/",
   "/documents/vzyskanie-alimentov-na-rebenka/",
@@ -44,7 +44,7 @@ const childSupportDocuments = [
   "/documents/ispolnenie-alimentov-na-rebenka/"
 ];
 const childSupportContent = [childSupportProblem, ...childSupportDocuments];
-const deprivationProblem = "/problems/semya-i-deti/lishenie-roditelskih-prav/";
+const deprivationProblem = "/problems/semeynoe-pravo/lishenie-roditelskih-prav/";
 const deprivationDocuments = [
   "/documents/proverka-osnovaniy-lisheniya-roditelskih-prav/",
   "/documents/isk-o-lishenii-roditelskih-prav/",
@@ -52,14 +52,14 @@ const deprivationDocuments = [
   "/documents/lishenie-roditelskih-prav-i-alimenty/"
 ];
 const deprivationContent = [deprivationProblem, ...deprivationDocuments];
-const restrictionProblem = "/problems/semya-i-deti/ogranichenie-roditelskih-prav/";
+const restrictionProblem = "/problems/semeynoe-pravo/ogranichenie-roditelskih-prav/";
 const restrictionDocuments = [
   "/documents/ogranichenie-prav-po-nezavisyashchim-obstoyatelstvam/",
   "/documents/proverka-opasnogo-povedeniya-roditelya/",
   "/documents/isk-ob-ogranichenii-roditelskih-prav/"
 ];
 const restrictionContent = [restrictionProblem, ...restrictionDocuments];
-const paternityProblem = "/problems/semya-i-deti/ustanovlenie-otcovstva/";
+const paternityProblem = "/problems/semeynoe-pravo/ustanovlenie-otcovstva/";
 const paternityDocuments = [
   "/documents/zayavlenie-ob-ustanovlenii-otcovstva/",
   "/documents/isk-ob-ustanovlenii-otcovstva/",
@@ -68,7 +68,7 @@ const paternityDocuments = [
   "/documents/ustanovlenie-otcovstva-i-drugoe-trebovanie/"
 ];
 const paternityContent = [paternityProblem, ...paternityDocuments];
-const paternityContestProblem = "/problems/semya-i-deti/osparivanie-otcovstva/";
+const paternityContestProblem = "/problems/semeynoe-pravo/osparivanie-otcovstva/";
 const paternityContestDocuments = [
   "/documents/isk-ob-osparivanii-otcovstva-zapisannym-roditelem/",
   "/documents/isk-ob-osparivanii-zapisi-biologicheskim-roditelem/",
@@ -76,7 +76,7 @@ const paternityContestDocuments = [
   "/documents/osparivanie-otcovstva-posle-smerti/"
 ];
 const paternityContestContent = [paternityContestProblem, ...paternityContestDocuments];
-const adoptionProblem = "/problems/semya-i-deti/usynovlenie-rebenka/";
+const adoptionProblem = "/problems/semeynoe-pravo/usynovlenie-rebenka/";
 const adoptionDocuments = [
   "/documents/usynovlenie-rebenka-suprugom-roditelya/",
   "/documents/chek-list-vnutrirossiyskogo-usynovleniya/",
@@ -84,7 +84,7 @@ const adoptionDocuments = [
   "/documents/mezhdunarodnoe-usynovlenie-proverka/"
 ];
 const adoptionContent = [adoptionProblem, ...adoptionDocuments];
-const childTravelProblem = "/problems/semya-i-deti/vyezd-rebenka-za-granitsu/";
+const childTravelProblem = "/problems/semeynoe-pravo/vyezd-rebenka-za-granitsu/";
 const childTravelDocuments = [
   "/documents/vyezd-rebenka-s-odnim-roditelem/",
   "/documents/soglasie-na-vyezd-rebenka-bez-roditeley/",
@@ -92,7 +92,7 @@ const childTravelDocuments = [
   "/documents/dokumenty-dlya-vyezda-rebenka-v-inostrannoe-gosudarstvo/"
 ];
 const childTravelContent = [childTravelProblem, ...childTravelDocuments];
-const childNameProblem = "/problems/semya-i-deti/imya-familiya-otchestvo-rebenka/";
+const childNameProblem = "/problems/semeynoe-pravo/imya-familiya-otchestvo-rebenka/";
 const childNameDocuments = [
   "/documents/izmenenie-imeni-ili-familii-rebenka-do-14-let/",
   "/documents/izmenenie-familii-rebenka-pri-razdelnom-prozhivanii/",
@@ -100,28 +100,28 @@ const childNameDocuments = [
   "/documents/izmenenie-otchestva-rebenka-do-14-let/"
 ];
 const childNameContent = [childNameProblem, ...childNameDocuments];
-const restorationProblem = "/problems/semya-i-deti/vosstanovlenie-v-roditelskih-pravah/";
+const restorationProblem = "/problems/semeynoe-pravo/vosstanovlenie-v-roditelskih-pravah/";
 const restorationDocuments = [
   "/documents/isk-o-vosstanovlenii-v-roditelskih-pravah/",
   "/documents/vosstanovlenie-roditelskih-prav-i-vozvrat-rebenka/",
   "/documents/proverka-prepyatstviy-k-vosstanovleniyu-roditelskih-prav/"
 ];
 const restorationContent = [restorationProblem, ...restorationDocuments];
-const restrictionCancellationProblem = "/problems/semya-i-deti/otmena-ogranicheniya-roditelskih-prav/";
+const restrictionCancellationProblem = "/problems/semeynoe-pravo/otmena-ogranicheniya-roditelskih-prav/";
 const restrictionCancellationDocuments = [
   "/documents/isk-ob-otmene-ogranicheniya-roditelskih-prav/",
   "/documents/otmena-ogranicheniya-roditelskih-prav-i-vozvrat-rebenka/",
   "/documents/proverka-usloviy-otmeny-ogranicheniya-roditelskih-prav/"
 ];
 const restrictionCancellationContent = [restrictionCancellationProblem, ...restrictionCancellationDocuments];
-const parentalDisagreementsProblem = "/problems/semya-i-deti/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/";
+const parentalDisagreementsProblem = "/problems/semeynoe-pravo/raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu/";
 const parentalDisagreementsDocuments = [
   "/documents/sovmestnoe-reshenie-roditeley-po-vospitaniyu-i-obrazovaniyu/",
   "/documents/obrashchenie-v-organ-opeki-po-raznoglasiyu-roditeley/",
   "/documents/sudebnyy-spor-po-vospitaniyu-i-obrazovaniyu-rebenka/"
 ];
 const parentalDisagreementsContent = [parentalDisagreementsProblem, ...parentalDisagreementsDocuments];
-const additionalChildExpensesProblem = "/problems/semya-i-deti/dopolnitelnye-rashody-na-rebenka/";
+const additionalChildExpensesProblem = "/problems/semeynoe-pravo/dopolnitelnye-rashody-na-rebenka/";
 const additionalChildExpensesDocuments = [
   "/documents/proverka-dopolnitelnyh-rashodov-na-rebenka/",
   "/documents/soglashenie-o-dopolnitelnyh-rashodah-na-rebenka/",
@@ -129,22 +129,22 @@ const additionalChildExpensesDocuments = [
   "/documents/vzyskanie-budushchih-dopolnitelnyh-rashodov-na-rebenka/"
 ];
 const additionalChildExpensesContent = [additionalChildExpensesProblem, ...additionalChildExpensesDocuments];
-const spousalSupportProblem = "/problems/semya-i-deti/soderzhanie-supruga-i-byvshego-supruga/";
+const spousalSupportProblem = "/problems/semeynoe-pravo/soderzhanie-supruga-i-byvshego-supruga/";
 const spousalSupportDocuments = ["/documents/proverka-prava-na-soderzhanie-supruga/", "/documents/soglashenie-o-soderzhanii-supruga/", "/documents/isk-o-soderzhanii-supruga-v-brake/", "/documents/isk-o-soderzhanii-byvshego-supruga/"];
 const spousalSupportContent = [spousalSupportProblem, ...spousalSupportDocuments];
-const prenuptialAgreementProblem = "/problems/semya-i-deti/brachnyy-dogovor/";
+const prenuptialAgreementProblem = "/problems/semeynoe-pravo/brachnyy-dogovor/";
 const prenuptialAgreementDocuments = ["/documents/brachnyy-dogovor-do-braka/", "/documents/brachnyy-dogovor-v-brake/", "/documents/izmenenie-brachnogo-dogovora/", "/documents/rastorzhenie-brachnogo-dogovora/", "/documents/spor-o-brachnom-dogovore/"];
 const prenuptialAgreementContent = [prenuptialAgreementProblem, ...prenuptialAgreementDocuments];
-const invalidMarriageProblem = "/problems/semya-i-deti/priznanie-braka-nedeystvitelnym/";
+const invalidMarriageProblem = "/problems/semeynoe-pravo/priznanie-braka-nedeystvitelnym/";
 const invalidMarriageDocuments = ["/documents/isk-o-nedeystvitelnosti-braka-bez-soglasiya/", "/documents/isk-o-nedeystvitelnosti-braka-s-nesovershennoletnim/", "/documents/isk-o-nedeystvitelnosti-braka-pri-prepyatstvii/", "/documents/isk-o-fiktivnom-brake/", "/documents/isk-o-nedeystvitelnosti-braka-pri-sokrytii-zabolevaniya/"];
 const invalidMarriageContent = [invalidMarriageProblem, ...invalidMarriageDocuments];
-const complexMaritalPropertyProblem = "/problems/semya-i-deti/slozhnye-imushchestvennye-spory-suprugov/";
+const complexMaritalPropertyProblem = "/problems/semeynoe-pravo/slozhnye-imushchestvennye-spory-suprugov/";
 const complexMaritalPropertyDocuments = ["/documents/slozhnyy-spor-ob-obshchih-dolgah-suprugov/", "/documents/slozhnyy-spor-ob-ipotechnom-imushchestve-suprugov/", "/documents/slozhnyy-spor-o-biznes-aktivah-suprugov/", "/documents/slozhnyy-spor-s-pravami-tretih-lits-i-kompensatsiey/", "/documents/slozhnyy-spor-pri-bankrotstve-i-obespechitelnye-mery/"];
 const complexMaritalPropertyContent = [complexMaritalPropertyProblem, ...complexMaritalPropertyDocuments];
-const surrogacyOriginContent = ["/problems/semya-i-deti/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/", "/documents/surrogatnoe-materinstvo-list-dannyh/"];
-const internationalFamilyDisputesContent = ["/problems/semya-i-deti/mezhdunarodnye-semeynye-spory/", "/documents/mezhdunarodnyy-semeynyy-spor-list-dannyh/"];
-const relativeChildContactContent = ["/problems/semya-i-deti/obshchenie-rodstvennikov-s-rebenkom/", "/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/"];
-const emancipationContent = ["/problems/semya-i-deti/emansipatsiya-nesovershennoletnego/", "/documents/emansipatsiya-nesovershennoletnego-materialy/"];
+const surrogacyOriginContent = ["/problems/semeynoe-pravo/surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka/", "/documents/surrogatnoe-materinstvo-list-dannyh/"];
+const internationalFamilyDisputesContent = ["/problems/semeynoe-pravo/mezhdunarodnye-semeynye-spory/", "/documents/mezhdunarodnyy-semeynyy-spor-list-dannyh/"];
+const relativeChildContactContent = ["/problems/semeynoe-pravo/obshchenie-rodstvennikov-s-rebenkom/", "/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/"];
+const emancipationContent = ["/problems/semeynoe-pravo/emansipatsiya-nesovershennoletnego/", "/documents/emansipatsiya-nesovershennoletnego-materialy/"];
 const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent, ...childSupportContent, ...deprivationContent, ...restrictionContent, ...paternityContent, ...paternityContestContent, ...adoptionContent, ...childTravelContent, ...childNameContent, ...restorationContent, ...restrictionCancellationContent, ...parentalDisagreementsContent, ...additionalChildExpensesContent, ...spousalSupportContent, ...prenuptialAgreementContent, ...invalidMarriageContent, ...complexMaritalPropertyContent, ...surrogacyOriginContent, ...internationalFamilyDisputesContent, ...relativeChildContactContent, ...emancipationContent];
 
 const queries = [

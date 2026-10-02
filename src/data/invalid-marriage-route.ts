@@ -1,4 +1,4 @@
-export const INVALID_MARRIAGE_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "priznanie-braka-nedeystvitelnym" } as const;
+export const INVALID_MARRIAGE_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "priznanie-braka-nedeystvitelnym" } as const;
 export const INVALID_MARRIAGE_SCENARIO_KEYS = ["consent", "underage", "obstacle", "fictitious", "concealed-health"] as const;
 export type InvalidMarriageScenarioKey = (typeof INVALID_MARRIAGE_SCENARIO_KEYS)[number];
 export type InvalidMarriageField = { name: string; label: string; type?: "text" | "textarea" | "select"; required?: boolean; options?: Array<{ label: string; value: string }>; hint?: string };

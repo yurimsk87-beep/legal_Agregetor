@@ -2,7 +2,7 @@ import type { LegalProblem } from "@/data/legal-problems";
 import { PATERNITY_ESTABLISHMENT_REVIEWED_AT } from "@/data/paternity-establishment-legal-review";
 
 export const PATERNITY_ESTABLISHMENT_PROBLEM = {
-  slug: "ustanovlenie-otcovstva", categorySlug: "semya-i-deti", title: "Установление отцовства", h1: "Установление отцовства", shortTitle: "Установление отцовства",
+  slug: "ustanovlenie-otcovstva", categorySlug: "semeynoe-pravo", title: "Установление отцовства", h1: "Установление отцовства", shortTitle: "Установление отцовства",
   shortAnswer: "Определите добровольный или судебный путь, проверьте запись о рождении и получите безопасный лист данных либо маркированный черновик.",
   description: "Маршрут разделяет добровольную регистрацию в ЗАГС, судебное установление, ситуацию после смерти предполагаемого отца, существующую запись об отце и объединение с алиментами.",
   seoTitle: "Установление отцовства: через ЗАГС или суд", seoDescription: "Как установить отцовство добровольно, через суд или после смерти предполагаемого отца и что делать при существующей записи об отце.",

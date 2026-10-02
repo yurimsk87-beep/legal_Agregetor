@@ -2,7 +2,7 @@ import type { LegalProblem } from "@/data/legal-problems";
 import { PATERNITY_CONTEST_REVIEWED_AT } from "@/data/paternity-contest-legal-review";
 
 export const PATERNITY_CONTEST_PROBLEM = {
-  slug: "osparivanie-otcovstva", categorySlug: "semya-i-deti", title: "Оспаривание отцовства", h1: "Оспаривание отцовства", shortTitle: "Оспаривание отцовства",
+  slug: "osparivanie-otcovstva", categorySlug: "semeynoe-pravo", title: "Оспаривание отцовства", h1: "Оспаривание отцовства", shortTitle: "Оспаривание отцовства",
   shortAnswer: "Проверьте, кто вправе обратиться, как внесена запись и действуют ли специальные ограничения, прежде чем готовить судебный черновик.",
   description: "Маршрут разделяет обращение записанного родителя, биологического родителя, ребёнка или представителя и случай после смерти записанного родителя.",
   seoTitle: "Оспаривание отцовства: кто может обратиться в суд", seoDescription: "Проверка права на иск, основания записи, знания обстоятельств, генетической экспертизы и специальных ограничений.", riskLevel: "high", urgency: "standard",

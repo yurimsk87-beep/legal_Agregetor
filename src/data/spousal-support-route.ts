@@ -1,4 +1,4 @@
-export const SPOUSAL_SUPPORT_ROUTE = { categorySlug: "semya-i-deti", problemSlug: "soderzhanie-supruga-i-byvshego-supruga" } as const;
+export const SPOUSAL_SUPPORT_ROUTE = { categorySlug: "semeynoe-pravo", problemSlug: "soderzhanie-supruga-i-byvshego-supruga" } as const;
 export const SPOUSAL_SUPPORT_SCENARIO_KEYS = ["assessment", "agreement", "current", "former"] as const;
 export type SpousalSupportScenarioKey = (typeof SPOUSAL_SUPPORT_SCENARIO_KEYS)[number];
 export type SpousalSupportField = { name: string; label: string; type?: "text" | "number" | "textarea" | "select"; required?: boolean; options?: Array<{ label: string; value: string }>; hint?: string };
