@@ -982,14 +982,7 @@ export const questions: Question[] = [
   )
 ];
 
-export const documentTemplates: DocumentTemplate[] = [
-  makeDocument("document-1", "Исковое заявление", "iskovoe-zayavlenie", services[19]),
-  makeDocument("document-2", "Претензия", "pretenziya", services[18]),
-  makeDocument("document-3", "Апелляционная жалоба", "apellyacionnaya-zhaloba", services[19]),
-  makeDocument("document-4", "Заявление на алименты", "zayavlenie-na-alimenty", services[1]),
-  makeDocument("document-5", "Жалоба в прокуратуру", "zhaloba-v-prokuraturu", services[5]),
-  makeDocument("document-6", "Ходатайство в суд", "hodatajstvo-v-sud", services[19])
-];
+export const documentTemplates: DocumentTemplate[] = [makeDocument("document-zags", "Заявление в орган ЗАГС", "zayavlenie-v-zags", services[0])];
 
 export const calculators: Calculator[] = [
   makeCalculator("calculator-1", "Алименты", "alimenty", services[1], "Доход плательщика * доля по количеству детей"),
@@ -1040,12 +1033,7 @@ export const videoPages: VideoPage[] = [
   makeVideoPage("video-3", "Как вступить в наследство без ошибок", "kak-vstupit-v-nasledstvo", services[4], lawyers[0])
 ];
 
-export const legalScenarios: LegalScenario[] = [
-  makeScenario("scenario-1", "Не платят зарплату", "ne-platyat-zarplatu", services[5]),
-  makeScenario("scenario-2", "Банк подал в суд", "bank-podal-v-sud", services[7]),
-  makeScenario("scenario-3", "Отказали во вступлении в наследство", "otkazali-v-nasledstve", services[4]),
-  makeScenario("scenario-4", "Уволили без причины", "uvolili-bez-prichiny", services[6])
-];
+export const legalScenarios: LegalScenario[] = [makeScenario("scenario-zags", "Брак и ЗАГС", "brak-zags-i-smena-familii", services[0])];
 
 export const nextBestActions: NextBestAction[] = [
   makeNextBestAction("nba-1", "SERVICE", services[4], null, "Найти юриста по наследству", "/nasledstvo/"),

@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SearchX } from "lucide-react";
 
-// Страница «не найдено» отдаётся с кодом 200 (особенность Next + middleware), поэтому
-// закрываем её от индексации, чтобы поисковики не индексировали soft-404-контент.
 export const metadata: Metadata = {
   title: "Страница не найдена — ПравоПоиск",
   robots: { index: false, follow: false }

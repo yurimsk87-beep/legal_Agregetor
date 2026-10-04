@@ -59,6 +59,7 @@ export const revalidate = 900;
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { slug: citySlug, serviceSlug } = await params;
+  if (citySlug === "documents" || citySlug === "problems") notFound();
   const query = searchParams ? await searchParams : undefined;
   const [city, service] = await Promise.all([getCity(citySlug), getService(serviceSlug)]);
 
@@ -75,12 +76,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
         });
       }
 
-      return buildMetadata({
-        title: "Страница не найдена",
-        description: "Страница не найдена.",
-        path: `/${citySlug}/${serviceSlug}/`,
-        isIndexable: false
-      });
+      notFound();
     }
 
     const scenario = await getLegalScenario(serviceSlug);
@@ -125,6 +121,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 
 export default async function CityServicePage({ params }: PageProps) {
   const { slug: citySlug, serviceSlug } = await params;
+  if (citySlug === "documents" || citySlug === "problems") notFound();
   const [city, service, cities, services] = await Promise.all([
     getCity(citySlug),
     getService(serviceSlug),

@@ -61,46 +61,6 @@ export type LegalReference = {
   url?: string;
 };
 
-export type DocumentField = {
-  name: string;
-  label: string;
-  type: "text" | "textarea" | "date" | "number" | "select" | "checkbox";
-  required?: boolean;
-  placeholder?: string;
-  helpText?: string;
-  options?: {
-    value: string;
-    label: string;
-  }[];
-  showWhen?: {
-    field: string;
-    equals: string | boolean;
-  };
-};
-
-export type DocumentGeneratorVariant = {
-  key: string;
-  title: string;
-  description: string;
-  relatedCategorySlugs?: string[];
-  relatedProblemSlugs?: string[];
-  extraFields?: DocumentField[];
-  legalReferenceKeys?: string[];
-  introText?: string;
-  generatedTextHints?: string[];
-};
-
-export type DocumentGeneratorTemplate = {
-  slug: string;
-  title: string;
-  description: string;
-  documentType: "objection" | "claim" | "complaint" | "petition" | "application" | "contract" | "power_of_attorney" | "other";
-  baseFields: DocumentField[];
-  variants: DocumentGeneratorVariant[];
-  legalReferenceKeys: string[];
-  baseTemplateNote?: string;
-};
-
 export type QualityStatus =
   | "PENDING"
   | "APPROVED"

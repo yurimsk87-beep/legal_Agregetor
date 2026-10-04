@@ -155,10 +155,7 @@ const profiles: DocumentTypeProfile[] = [
       "При спорном сроке подготовьте заявление о восстановлении срока.",
       "Отправьте документы в суд и сохраните подтверждение отправки."
     ],
-    relatedDocuments: [
-      { title: "Возражение на судебный приказ", href: "/documents/vozrazhenie-na-sudebnyy-prikaz/#fill-online", label: "Сформировать документ" },
-      { title: "Заявление о восстановлении срока", href: "/documents/zayavlenie-o-vosstanovlenii-sroka-na-otmenu-sudebnogo-prikaza/#fill-online", label: "Сформировать документ" }
-    ]
+    relatedDocuments: []
   },
   {
     id: "bailiff_order",
@@ -180,10 +177,7 @@ const profiles: DocumentTypeProfile[] = [
       "Подготовьте жалобу или заявление приставу.",
       "При спорном сроке покажите документ юристу."
     ],
-    relatedDocuments: [
-      { title: "Жалоба на судебного пристава", href: "/documents/zhaloba-na-sudebnogo-pristava/#fill-online", label: "Сформировать документ" },
-      { title: "Заявление о снятии ареста со счета", href: "/documents/zayavlenie-o-snyatii-aresta-so-scheta/#fill-online", label: "Сформировать документ" }
-    ]
+    relatedDocuments: []
   },
   {
     id: "writ",
@@ -204,10 +198,7 @@ const profiles: DocumentTypeProfile[] = [
       "Если данные неверные, подготовьте обращение или жалобу.",
       "Сохраните копии всех постановлений и выписок."
     ],
-    relatedDocuments: [
-      { title: "Жалоба на судебного пристава", href: "/documents/zhaloba-na-sudebnogo-pristava/#fill-online", label: "Сформировать документ" },
-      { title: "Заявление о снятии ареста со счета", href: "/documents/zayavlenie-o-snyatii-aresta-so-scheta/#fill-online", label: "Сформировать документ" }
-    ]
+    relatedDocuments: []
   },
   {
     id: "claim",
@@ -229,10 +220,7 @@ const profiles: DocumentTypeProfile[] = [
       "Подготовьте ответ или свою претензию.",
       "Перед отправкой проверьте формулировки."
     ],
-    relatedDocuments: [
-      { title: "Претензия продавцу о возврате денег", href: "/documents/pretenziya-prodavcu-o-vozvrate-deneg/#fill-online", label: "Сформировать документ" },
-      { title: "Претензия в управляющую компанию", href: "/documents/pretenziya-v-upravlyayuschuyu-kompaniyu/#fill-online", label: "Сформировать документ" }
-    ]
+    relatedDocuments: []
   },
   {
     id: "claim_response",
@@ -253,10 +241,7 @@ const profiles: DocumentTypeProfile[] = [
       "Соберите приложения и доказательства.",
       "Подготовьте жалобу, повторную претензию или заявление в суд."
     ],
-    relatedDocuments: [
-      { title: "Претензия продавцу о возврате денег", href: "/documents/pretenziya-prodavcu-o-vozvrate-deneg/#fill-online", label: "Открыть шаблон" },
-      { title: "Все юридические документы", href: "/documents/", label: "Подобрать документ" }
-    ]
+    relatedDocuments: []
   },
   {
     id: "complaint",
@@ -277,10 +262,7 @@ const profiles: DocumentTypeProfile[] = [
       "Добавьте документы и доказательства.",
       "Сохраните подтверждение отправки."
     ],
-    relatedDocuments: [
-      { title: "Жалоба на судебного пристава", href: "/documents/zhaloba-na-sudebnogo-pristava/#fill-online", label: "Сформировать документ" },
-      { title: "Жалоба в трудовую инспекцию", href: "/documents/zhaloba-v-trudovuyu-inspekciyu/#fill-online", label: "Сформировать документ" }
-    ]
+    relatedDocuments: []
   },
   {
     id: "court_application",
@@ -301,10 +283,7 @@ const profiles: DocumentTypeProfile[] = [
       "Проверьте приложения и госпошлину.",
       "Перед отправкой проверьте документ у юриста."
     ],
-    relatedDocuments: [
-      { title: "Заявление о взыскании алиментов", href: "/documents/zayavlenie-o-vzyskanii-alimentov/#fill-online", label: "Сформировать документ" },
-      { title: "Все судебные документы", href: "/documents/", label: "Подобрать документ" }
-    ]
+    relatedDocuments: []
   },
   {
     id: "contract",
@@ -325,10 +304,7 @@ const profiles: DocumentTypeProfile[] = [
       "Сверьте приложения и реквизиты.",
       "При сомнениях отправьте договор юристу."
     ],
-    relatedDocuments: [
-      { title: "Претензия контрагенту по договору", href: "/documents/pretenziya-kontragentu-po-dogovoru/", label: "Открыть шаблон" },
-      { title: "Все юридические документы", href: "/documents/", label: "Подобрать документ" }
-    ]
+    relatedDocuments: []
   },
   {
     id: "employer_notice",
@@ -349,10 +325,7 @@ const profiles: DocumentTypeProfile[] = [
       "Соберите трудовой договор, расчётные листки и переписку.",
       "Подготовьте жалобу или вопрос юристу."
     ],
-    relatedDocuments: [
-      { title: "Жалоба в трудовую инспекцию", href: "/documents/zhaloba-v-trudovuyu-inspekciyu/#fill-online", label: "Сформировать документ" },
-      { title: "Все трудовые документы", href: "/documents/", label: "Подобрать документ" }
-    ]
+    relatedDocuments: []
   },
   {
     id: "alimony",
@@ -373,10 +346,7 @@ const profiles: DocumentTypeProfile[] = [
       "Соберите свидетельство о рождении и подтверждения проживания ребёнка.",
       "Подготовьте заявление или обращение приставу."
     ],
-    relatedDocuments: [
-      { title: "Заявление о взыскании алиментов", href: "/documents/zayavlenie-o-vzyskanii-alimentov/#fill-online", label: "Сформировать документ" },
-      { title: "Жалоба на судебного пристава", href: "/documents/zhaloba-na-sudebnogo-pristava/#fill-online", label: "Сформировать документ" }
-    ]
+    relatedDocuments: []
   }
 ];
 
@@ -398,7 +368,7 @@ const unknownProfile: DocumentTypeProfile = {
     "Посмотрите, есть ли требование что-то оплатить, подписать или отправить.",
     "Опишите ситуацию или отправьте документ юристу на проверку."
   ],
-  relatedDocuments: [{ title: "Все юридические документы", href: "/documents/", label: "Подобрать документ" }]
+  relatedDocuments: []
 };
 
 export function analyzeDocumentCheck(input: DocumentCheckInput): DocumentCheckAnalysis {

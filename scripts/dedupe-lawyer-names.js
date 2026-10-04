@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // Assigns unique gender-matched ФИО to dev-seed lawyer clones (slug dev-*),
 // so all profiles have distinct names. Keeps gender (description regen handled
 // separately by generate-lawyer-bios.js). Usage: node scripts/dedupe-lawyer-names.js [--apply]

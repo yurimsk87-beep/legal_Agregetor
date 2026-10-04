@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // Deterministic lawyer "description" generator.
 // Builds a 1000+ char bio from real profile fields (FIO, gender via patronymic,
 // education, specializations, experienceYears). No invented facts.

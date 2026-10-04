@@ -1,0 +1,2 @@
+export const DOCUMENT_REVIEW_RETENTION_DAYS = 30;
+

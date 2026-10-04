@@ -3,94 +3,121 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
-import { QuestionCtaLink } from "@/components/QuestionCtaLink";
-import { LegalReferencesBlock } from "@/components/legal/LegalReferencesBlock";
-import { RelatedLawyersBlock, RelatedQuestionsBlock, SectionHeading } from "@/components/navigator/NavigatorBlocks";
-import { DutyLawyerWidget } from "@/components/qna/DutyLawyerWidget";
-import {
-  getDocumentH1,
-  getDocumentInstructionCtaLabel,
-  getDocumentMetaDescription,
-  getDocumentOnlineFillCtaLabel,
-  getDocumentPageTitle
-} from "@/lib/document-seo";
-import { breadcrumbJsonLd } from "@/lib/jsonld";
-import { absoluteUrl, buildMetadata } from "@/lib/seo";
-import { getRelatedLawyersBySpecializations, getRelatedQuestionsForContext } from "@/lib/navigator-relations";
-import { buildDocumentQuestionContext, PROBLEM_EXCLUDED_TOPICS } from "@/data/related-questions-context";
-import { DocumentGeneratorSection } from "@/components/documents/DocumentGeneratorSection";
-import { getDocumentTemplate } from "@/data/document-templates";
-import { getLegalReferences } from "@/data/legal-references";
+import { DivorcePropertyDocumentHelper } from "@/components/documents/DivorcePropertyDocumentHelper";
+import { GuardianshipDocumentHelper } from "@/components/documents/GuardianshipDocumentHelper";
+import { ParentsChildDocumentHelper } from "@/components/documents/ParentsChildDocumentHelper";
+import { ChildSupportDocumentHelper } from "@/components/documents/ChildSupportDocumentHelper";
+import { ParentalRightsDeprivationDocumentHelper } from "@/components/documents/ParentalRightsDeprivationDocumentHelper";
+import { ParentalRightsRestrictionDocumentHelper } from "@/components/documents/ParentalRightsRestrictionDocumentHelper";
+import { PaternityEstablishmentDocumentHelper } from "@/components/documents/PaternityEstablishmentDocumentHelper";
+import { PaternityContestDocumentHelper } from "@/components/documents/PaternityContestDocumentHelper";
+import { AdoptionDocumentHelper } from "@/components/documents/AdoptionDocumentHelper";
+import { ChildTravelDocumentHelper } from "@/components/documents/ChildTravelDocumentHelper";
+import { ChildNameDocumentHelper } from "@/components/documents/ChildNameDocumentHelper";
+import { ParentalRightsRestorationDocumentHelper } from "@/components/documents/ParentalRightsRestorationDocumentHelper";
+import { ParentalRightsRestrictionCancellationDocumentHelper } from "@/components/documents/ParentalRightsRestrictionCancellationDocumentHelper";
+import { ParentalDisagreementsDocumentHelper } from "@/components/documents/ParentalDisagreementsDocumentHelper";
+import { AdditionalChildExpensesDocumentHelper } from "@/components/documents/AdditionalChildExpensesDocumentHelper";
+import { SpousalSupportDocumentHelper } from "@/components/documents/SpousalSupportDocumentHelper";
+import { PrenuptialAgreementDocumentHelper } from "@/components/documents/PrenuptialAgreementDocumentHelper";
+import { InvalidMarriageDocumentHelper } from "@/components/documents/InvalidMarriageDocumentHelper";
+import { ComplexMaritalPropertyDocumentHelper } from "@/components/documents/ComplexMaritalPropertyDocumentHelper";
+import { SurrogacyOriginHelper } from "@/components/documents/SurrogacyOriginHelper";
+import { SURROGACY_ORIGIN_REVIEWED_AT, SURROGACY_ORIGIN_RULES } from "@/data/surrogacy-origin-legal-review";
+import { SURROGACY_ORIGIN_ROUTE, SURROGACY_ORIGIN_KEYS, SURROGACY_ORIGIN_SCENARIOS, getSurrogacyOriginScenario } from "@/data/surrogacy-origin-route";
+import { InternationalFamilyDisputesHelper } from "@/components/documents/InternationalFamilyDisputesHelper";
+import { INTERNATIONAL_FAMILY_DISPUTES_REVIEWED_AT, INTERNATIONAL_FAMILY_DISPUTES_RULES } from "@/data/international-family-disputes-legal-review";
+import { INTERNATIONAL_FAMILY_DISPUTES_ROUTE, INTERNATIONAL_FAMILY_DISPUTES_KEYS, INTERNATIONAL_FAMILY_DISPUTES_SCENARIOS, getInternationalFamilyDisputesScenario } from "@/data/international-family-disputes-route";
+import { RelativeChildContactHelper } from "@/components/documents/RelativeChildContactHelper";
+import { RELATIVE_CHILD_CONTACT_REVIEWED_AT, RELATIVE_CHILD_CONTACT_RULES } from "@/data/relative-child-contact-legal-review";
+import { RELATIVE_CHILD_CONTACT_ROUTE, RELATIVE_CHILD_CONTACT_KEYS, RELATIVE_CHILD_CONTACT_SCENARIOS, getRelativeChildContactScenario } from "@/data/relative-child-contact-route";
+import { EmancipationHelper } from "@/components/documents/EmancipationHelper";
+import { EMANCIPATION_REVIEWED_AT, EMANCIPATION_RULES } from "@/data/emancipation-legal-review";
+import { EMANCIPATION_ROUTE, EMANCIPATION_KEYS, EMANCIPATION_SCENARIOS, getEmancipationScenario } from "@/data/emancipation-route";
+import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
+import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
-import type { NavigatorDocument } from "@/data/documents";
-import type { LegalProblem } from "@/data/legal-problems";
-import { legalProblems } from "@/data/legal-problems";
-import type { NavigatorTool } from "@/data/tools";
-import { navigatorTools } from "@/data/tools";
+import {
+  DIVORCE_PROPERTY_LEGAL_RULES,
+  getDivorcePropertyLegalReviewDate,
+  isDivorcePropertyLegalReviewFullyPrimaryVerified
+} from "@/data/divorce-property-legal-review";
+import { getDivorceScenarioByDocumentSlug } from "@/data/divorce-property-route";
+import type { DivorcePropertyScenario } from "@/data/divorce-property-route";
+import {
+  GUARDIANSHIP_LEGAL_RULES,
+  getGuardianshipLegalReviewDate,
+  isGuardianshipLegalReviewFullyPrimaryVerified
+} from "@/data/guardianship-legal-review";
+import { getGuardianshipScenarioByDocumentSlug } from "@/data/guardianship-route";
+import type { GuardianshipScenario } from "@/data/guardianship-route";
+import type { GuardianshipCity } from "@/data/guardianship-territories";
+import { getParentsChildRules, PARENTS_CHILD_REVIEWED_AT } from "@/data/parents-child-legal-review";
+import { getParentsChildScenarioByDocumentSlug, PARENTS_CHILD_ROUTE } from "@/data/parents-child-route";
+import type { ParentsChildScenario } from "@/data/parents-child-route";
+import { CHILD_SUPPORT_REVIEWED_AT, getChildSupportRules } from "@/data/child-support-legal-review";
+import { CHILD_SUPPORT_ROUTE, getChildSupportScenarioByDocumentSlug } from "@/data/child-support-route";
+import type { ChildSupportScenario } from "@/data/child-support-route";
+import { getParentalRightsDeprivationRules, PARENTAL_RIGHTS_DEPRIVATION_REVIEWED_AT } from "@/data/parental-rights-deprivation-legal-review";
+import { getParentalRightsDeprivationScenarioByDocumentSlug, PARENTAL_RIGHTS_DEPRIVATION_ROUTE } from "@/data/parental-rights-deprivation-route";
+import type { ParentalRightsDeprivationScenario } from "@/data/parental-rights-deprivation-route";
+import { getParentalRightsRestrictionRules, PARENTAL_RIGHTS_RESTRICTION_REVIEWED_AT } from "@/data/parental-rights-restriction-legal-review";
+import { getParentalRightsRestrictionScenarioByDocumentSlug, PARENTAL_RIGHTS_RESTRICTION_ROUTE } from "@/data/parental-rights-restriction-route";
+import type { ParentalRightsRestrictionScenario } from "@/data/parental-rights-restriction-route";
+import { getPaternityEstablishmentRules, PATERNITY_ESTABLISHMENT_REVIEWED_AT } from "@/data/paternity-establishment-legal-review";
+import { getPaternityEstablishmentScenarioByDocumentSlug, PATERNITY_ESTABLISHMENT_ROUTE } from "@/data/paternity-establishment-route";
+import type { PaternityEstablishmentScenario } from "@/data/paternity-establishment-route";
+import { getPaternityContestRules, PATERNITY_CONTEST_REVIEWED_AT } from "@/data/paternity-contest-legal-review";
+import { getPaternityContestScenarioByDocumentSlug, PATERNITY_CONTEST_ROUTE } from "@/data/paternity-contest-route";
+import type { PaternityContestScenario } from "@/data/paternity-contest-route";
+import { ADOPTION_REVIEWED_AT, getAdoptionRules } from "@/data/adoption-legal-review";
+import { ADOPTION_ROUTE, getAdoptionScenarioByDocumentSlug } from "@/data/adoption-route";
+import type { AdoptionScenario } from "@/data/adoption-route";
+import { CHILD_TRAVEL_REVIEWED_AT, getChildTravelRules } from "@/data/child-travel-legal-review";
+import { CHILD_TRAVEL_ROUTE, getChildTravelScenarioByDocumentSlug } from "@/data/child-travel-route";
+import type { ChildTravelScenario } from "@/data/child-travel-route";
+import { CHILD_NAME_REVIEWED_AT, getChildNameRules } from "@/data/child-name-legal-review";
+import { CHILD_NAME_ROUTE, getChildNameScenarioByDocumentSlug } from "@/data/child-name-route";
+import type { ChildNameScenario } from "@/data/child-name-route";
+import { PARENTAL_RIGHTS_RESTORATION_REVIEWED_AT, getParentalRightsRestorationRules } from "@/data/parental-rights-restoration-legal-review";
+import { PARENTAL_RIGHTS_RESTORATION_ROUTE, getParentalRightsRestorationScenarioByDocumentSlug } from "@/data/parental-rights-restoration-route";
+import type { ParentalRightsRestorationScenario } from "@/data/parental-rights-restoration-route";
+import { PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_REVIEWED_AT, getParentalRightsRestrictionCancellationRules } from "@/data/parental-rights-restriction-cancellation-legal-review";
+import { PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_ROUTE, getParentalRightsRestrictionCancellationScenarioByDocumentSlug } from "@/data/parental-rights-restriction-cancellation-route";
+import type { ParentalRightsRestrictionCancellationScenario } from "@/data/parental-rights-restriction-cancellation-route";
+import { PARENTAL_DISAGREEMENTS_REVIEWED_AT, getParentalDisagreementsRules } from "@/data/parental-disagreements-legal-review";
+import { PARENTAL_DISAGREEMENTS_ROUTE, getParentalDisagreementsScenarioByDocumentSlug } from "@/data/parental-disagreements-route";
+import type { ParentalDisagreementsScenario } from "@/data/parental-disagreements-route";
+import { ADDITIONAL_CHILD_EXPENSES_REVIEWED_AT, getAdditionalChildExpensesRules } from "@/data/additional-child-expenses-legal-review";
+import { ADDITIONAL_CHILD_EXPENSES_ROUTE, getAdditionalChildExpensesScenarioByDocumentSlug } from "@/data/additional-child-expenses-route";
+import type { AdditionalChildExpensesScenario } from "@/data/additional-child-expenses-route";
+import { SPOUSAL_SUPPORT_REVIEWED_AT, getSpousalSupportRules } from "@/data/spousal-support-legal-review";
+import { SPOUSAL_SUPPORT_ROUTE, getSpousalSupportScenarioByDocumentSlug } from "@/data/spousal-support-route";
+import type { SpousalSupportScenario } from "@/data/spousal-support-route";
+import { PRENUPTIAL_AGREEMENT_REVIEWED_AT, getPrenuptialAgreementRules } from "@/data/prenuptial-agreement-legal-review";
+import { PRENUPTIAL_AGREEMENT_ROUTE, getPrenuptialAgreementScenarioByDocumentSlug } from "@/data/prenuptial-agreement-route";
+import type { PrenuptialAgreementScenario } from "@/data/prenuptial-agreement-route";
+import { INVALID_MARRIAGE_REVIEWED_AT, getInvalidMarriageRules } from "@/data/invalid-marriage-legal-review";
+import { INVALID_MARRIAGE_ROUTE, getInvalidMarriageScenarioByDocumentSlug } from "@/data/invalid-marriage-route";
+import type { InvalidMarriageScenario } from "@/data/invalid-marriage-route";
+import { COMPLEX_MARITAL_PROPERTY_REVIEWED_AT, getComplexMaritalPropertyRules } from "@/data/complex-marital-property-legal-review";
+import { COMPLEX_MARITAL_PROPERTY_ROUTE, getComplexMaritalPropertyScenarioByDocumentSlug } from "@/data/complex-marital-property-route";
+import type { ComplexMaritalPropertyScenario } from "@/data/complex-marital-property-route";
+import {
+  getZagsScenario,
+  ZAGS_PROBLEM_ROUTE,
+  ZAGS_SCENARIO_CHOICES
+} from "@/data/zags-route";
+import type { ZagsScenario, ZagsScenarioKey } from "@/data/zags-route";
+import { breadcrumbJsonLd } from "@/lib/jsonld";
+import { getCities } from "@/lib/repositories";
+import { cities as fallbackCities } from "@/lib/sample-data";
+import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
-type PageProps = { params: Promise<{ documentSlug: string }> };
-type DocumentFaq = { question: string; answer: string };
-
-const DOCUMENT_SLUG_ALIASES: Record<string, string> = {
-  "pretenziya-v-upravlyayushchuyu-kompaniyu": "pretenziya-v-upravlyayuschuyu-kompaniyu"
+type PageProps = {
+  params: Promise<{ documentSlug: string }>;
+  searchParams?: Promise<{ variant?: string }>;
 };
-
-const WHEN_TO_USE_FALLBACK = [
-  "Этот документ используют, когда нужно письменно зафиксировать требование, обращение, возражение или жалобу и получить подтверждение подачи."
-];
-
-const PREPARATION_FALLBACK = [
-  "паспортные или контактные данные заявителя;",
-  "данные второй стороны или организации;",
-  "даты событий;",
-  "суммы, если есть денежный спор;",
-  "договоры, чеки, переписку и уведомления;",
-  "доказательства подачи предыдущих обращений;",
-  "реквизиты суда или госоргана, если документ подается туда."
-];
-
-const FILL_STEPS_FALLBACK = [
-  "Укажите свои данные.",
-  "Укажите адресата.",
-  "Опишите ситуацию по датам.",
-  "Сформулируйте требование.",
-  "Перечислите приложения.",
-  "Поставьте дату и подпись.",
-  "Сохраните копию документа."
-];
-
-const SUBMISSION_OPTIONS = [
-  "лично через канцелярию или приемную;",
-  "почтой заказным письмом с описью вложения;",
-  "через электронную приемную, если она есть у адресата;",
-  "через суд, ГАС или Мой арбитр, если документ связан с судебным делом;",
-  "через Госуслуги, если для этого документа доступна электронная подача;",
-  "через представителя по доверенности."
-];
-
-const SUBMISSION_FALLBACK =
-  "Способ подачи зависит от адресата. Важно сохранить подтверждение: отметку о принятии, почтовую квитанцию, трек-номер, электронное уведомление или расписку.";
-
-const DEADLINES_FALLBACK =
-  "Срок рассмотрения зависит от типа документа и адресата. Если ответа нет или он отрицательный, следующим шагом может быть жалоба, повторное обращение или обращение в суд.";
-
-const AFTER_SUBMISSION_STEPS = [
-  "Сохраните подтверждение подачи и копию документа.",
-  "Отслеживайте входящий номер, трек-номер или уведомление в личном кабинете.",
-  "Если ответа нет в установленный срок, направьте повторное обращение или жалобу.",
-  "Если пришел отказ, проверьте срок и порядок обжалования."
-];
-
-const UNIVERSAL_MISTAKES = [
-  "подать документ без подтверждения;",
-  "не указать даты и суммы;",
-  "не приложить доказательства;",
-  "описывать эмоции вместо фактов;",
-  "не сформулировать конкретное требование;",
-  "пропустить срок;",
-  "отправить документ не тому адресату;",
-  "не сохранить копию."
-];
 
 export const dynamicParams = false;
 export const revalidate = 3600;
@@ -98,334 +125,565 @@ export const revalidate = 3600;
 export function generateStaticParams() {
   return navigatorDocuments.map((document) => ({ documentSlug: document.slug }));
 }
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+  const { documentSlug } = await params;
+  const document = getNavigatorDocument(documentSlug);
+  if (!document) notFound();
+  const isZagsReference = document.slug === ZAGS_PROBLEM_ROUTE.documentSlug;
 
-// Индексируем только содержательные карточки документов. «Бедные» документы-заглушки
-// (страница состоит из шаблонного fallback-текста, без генератора, правовых оснований,
-// FAQ и собственного SEO) закрываем от индексации.
-function isIndexableDocumentPage(document: NavigatorDocument | null): boolean {
-  if (!document) return false;
+  return buildMetadata({
+    title: isZagsReference ? "Заявление в ЗАГС: формы и порядок заполнения" : document.seoTitle ?? document.title,
+    description: isZagsReference
+      ? "Выберите процедуру ЗАГС, проверьте форму, документы, пошлину и льготы, затем подготовьте сведения для официального заявления."
+      : document.seoDescription ?? document.shortDescription,
+    path: `/documents/${document.slug}/`,
+    isIndexable: true,
+    searchParams: searchParams ? await searchParams : {}
+  });
+}
+
+export default async function DocumentPage({ params, searchParams }: PageProps) {
+  const { documentSlug } = await params;
+  const document = getNavigatorDocument(documentSlug);
+  if (!document) notFound();
+
+  const divorceScenario = getDivorceScenarioByDocumentSlug(document.slug);
+  if (divorceScenario) {
+    return <DivorcePropertyDocumentPage document={document} scenario={divorceScenario} />;
+  }
+  const guardianshipScenario = getGuardianshipScenarioByDocumentSlug(document.slug);
+  if (guardianshipScenario) {
+    const repositoryCities = await getCities();
+    const cities = (repositoryCities.length ? repositoryCities : fallbackCities)
+      .map(({ id, name, region, slug }) => ({ id, name, region, slug }));
+    return <GuardianshipDocumentPage document={document} scenario={guardianshipScenario} cities={cities} />;
+  }
+  const parentsChildScenario = getParentsChildScenarioByDocumentSlug(document.slug);
+  if (parentsChildScenario) return <ParentsChildDocumentPage document={document} scenario={parentsChildScenario} />;
+  const childSupportScenario = getChildSupportScenarioByDocumentSlug(document.slug);
+  if (childSupportScenario) return <ChildSupportDocumentPage document={document} scenario={childSupportScenario} />;
+  const deprivationScenario = getParentalRightsDeprivationScenarioByDocumentSlug(document.slug);
+  if (deprivationScenario) return <ParentalRightsDeprivationDocumentPage document={document} scenario={deprivationScenario} />;
+  const restrictionScenario = getParentalRightsRestrictionScenarioByDocumentSlug(document.slug);
+  if (restrictionScenario) return <ParentalRightsRestrictionDocumentPage document={document} scenario={restrictionScenario} />;
+  const paternityScenario = getPaternityEstablishmentScenarioByDocumentSlug(document.slug);
+  if (paternityScenario) return <PaternityEstablishmentDocumentPage document={document} scenario={paternityScenario} />;
+  const paternityContestScenario = getPaternityContestScenarioByDocumentSlug(document.slug);
+  if (paternityContestScenario) return <PaternityContestDocumentPage document={document} scenario={paternityContestScenario} />;
+  const adoptionScenario = getAdoptionScenarioByDocumentSlug(document.slug);
+  if (adoptionScenario) return <AdoptionDocumentPage document={document} scenario={adoptionScenario} />;
+  const childTravelScenario = getChildTravelScenarioByDocumentSlug(document.slug);
+  if (childTravelScenario) return <ChildTravelDocumentPage document={document} scenario={childTravelScenario} />;
+  const childNameScenario = getChildNameScenarioByDocumentSlug(document.slug);
+  if (childNameScenario) return <ChildNameDocumentPage document={document} scenario={childNameScenario} />;
+  const parentalRightsRestorationScenario = getParentalRightsRestorationScenarioByDocumentSlug(document.slug);
+  if (parentalRightsRestorationScenario) return <ParentalRightsRestorationDocumentPage document={document} scenario={parentalRightsRestorationScenario} />;
+  const parentalRightsRestrictionCancellationScenario = getParentalRightsRestrictionCancellationScenarioByDocumentSlug(document.slug);
+  if (parentalRightsRestrictionCancellationScenario) return <ParentalRightsRestrictionCancellationDocumentPage document={document} scenario={parentalRightsRestrictionCancellationScenario} />;
+  const parentalDisagreementsScenario = getParentalDisagreementsScenarioByDocumentSlug(document.slug);
+  if (parentalDisagreementsScenario) return <ParentalDisagreementsDocumentPage document={document} scenario={parentalDisagreementsScenario} />;
+  const additionalChildExpensesScenario = getAdditionalChildExpensesScenarioByDocumentSlug(document.slug);
+  if (additionalChildExpensesScenario) return <AdditionalChildExpensesDocumentPage document={document} scenario={additionalChildExpensesScenario} />;
+  const spousalSupportScenario = getSpousalSupportScenarioByDocumentSlug(document.slug);
+  if (spousalSupportScenario) return <SpousalSupportDocumentPage document={document} scenario={spousalSupportScenario} />;
+  const prenuptialAgreementScenario = getPrenuptialAgreementScenarioByDocumentSlug(document.slug);
+  if (prenuptialAgreementScenario) return <PrenuptialAgreementDocumentPage document={document} scenario={prenuptialAgreementScenario} />;
+  const invalidMarriageScenario = getInvalidMarriageScenarioByDocumentSlug(document.slug);
+  if (invalidMarriageScenario) return <InvalidMarriageDocumentPage document={document} scenario={invalidMarriageScenario} />;
+  const complexMaritalPropertyScenario = getComplexMaritalPropertyScenarioByDocumentSlug(document.slug);
+  if (complexMaritalPropertyScenario) return <ComplexMaritalPropertyDocumentPage document={document} scenario={complexMaritalPropertyScenario} />;
+  if (document.slug === SURROGACY_ORIGIN_ROUTE.documentSlug) {
+    const variant = searchParams ? (await searchParams).variant : undefined;
+    return <SurrogacyOriginDocumentPage document={document} variant={variant} />;
+  }
+  if (document.slug === INTERNATIONAL_FAMILY_DISPUTES_ROUTE.documentSlug) {
+    const variant = searchParams ? (await searchParams).variant : undefined;
+    return <InternationalFamilyDisputesDocumentPage document={document} variant={variant} />;
+  }
+  if (document.slug === RELATIVE_CHILD_CONTACT_ROUTE.documentSlug) {
+    const variant = searchParams ? (await searchParams).variant : undefined;
+    return <RelativeChildContactDocumentPage document={document} variant={variant} />;
+  }
+  if (document.slug === EMANCIPATION_ROUTE.documentSlug) {
+    const variant = searchParams ? (await searchParams).variant : undefined;
+    return <EmancipationDocumentPage document={document} variant={variant} />;
+  }
+  if (document.slug !== ZAGS_PROBLEM_ROUTE.documentSlug) notFound();
+
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const scenario = getZagsScenario(resolvedSearchParams.variant);
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [
+    { name: "Главная", path: "/" },
+    { name: "Документы", path: "/documents/" },
+    { name: "Заявление в ЗАГС", path: documentPath }
+  ];
+
   return (
-    Boolean(document.templateSlug) ||
-    document.legalReferenceKeys.length > 0 ||
-    document.legalBasis.length > 0 ||
-    document.faq.length >= 2 ||
-    Boolean(document.seoTitle)
+    <>
+      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath)]} />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-8">
+          <p className="text-sm font-semibold uppercase tracking-wide text-trust">Документы ЗАГС</p>
+          <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">
+            {scenario ? `Заявление в ЗАГС: ${scenario.shortTitle.toLowerCase()}` : "Заявление в ЗАГС: выберите процедуру"}
+          </h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">
+            {scenario
+              ? scenario.description[0]
+              : "Для разных обращений применяются разные утверждённые формы. Выберите цель, чтобы увидеть подходящий бланк, порядок подачи и помощник по подготовке данных."}
+          </p>
+          {scenario ? (
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="#fill-online" className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+                Подготовить документ
+              </Link>
+              <Link href={documentPath} className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/20">
+                Выбрать другую процедуру
+              </Link>
+            </div>
+          ) : null}
+        </header>
+
+        {scenario ? (
+          <ZagsScenarioDetails scenario={scenario} />
+        ) : (
+          <>
+            <section className="mt-6 grid gap-4 md:grid-cols-2" aria-label="Варианты заявления в ЗАГС">
+              {ZAGS_SCENARIO_CHOICES.map((choice) => (
+                <Link
+                  key={choice.key}
+                  href={`${documentPath}?variant=${choice.key}`}
+                  className="min-h-11 rounded-lg border border-line bg-white p-5 shadow-sm outline-none hover:border-trust focus:border-trust focus:ring-2 focus:ring-trust/20"
+                >
+                  <span className="text-lg font-semibold text-ink">{choice.title}</span>
+                  <span className="mt-2 block text-sm leading-6 text-zinc-600">{choice.description}</span>
+                </Link>
+              ))}
+            </section>
+            <ZagsScenarioOverview basePath={documentPath} queryKey="variant" linkLabel="Открыть подготовку данных" />
+          </>
+        )}
+      </article>
+    </>
   );
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { documentSlug } = await params;
-  const document = getDocumentByParam(documentSlug);
+function AdoptionDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: AdoptionScenario }) { const documentPath = `/documents/${document.slug}/`; const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }]; return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} /><article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить чек-лист</a></header><section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section><div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div><div className="mt-7"><AdoptionDocumentHelper scenarioKey={scenario.key} /></div><section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getAdoptionRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {ADOPTION_REVIEWED_AT.split("-").reverse().join(".")}.</p></section><Link href={`/problems/semya-i-deti/${ADOPTION_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link></article></>; }
 
-  return buildMetadata({
-    title: document ? getDocumentPageTitle(document) : "Документ не найден",
-    description: document ? getDocumentMetaDescription(document) : "Документ не найден.",
-    path: document ? `/documents/${document.slug}/` : `/documents/${documentSlug}/`,
-    isIndexable: isIndexableDocumentPage(document)
-  });
+function ChildTravelDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ChildTravelScenario }) { const documentPath = `/documents/${document.slug}/`; const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }]; return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} /><article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить поездку</a></header><section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section><div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div><div className="mt-7"><ChildTravelDocumentHelper scenarioKey={scenario.key} /></div><section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getChildTravelRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {CHILD_TRAVEL_REVIEWED_AT.split("-").reverse().join(".")}.</p></section><Link href={`/problems/semya-i-deti/${CHILD_TRAVEL_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link></article></>; }
+
+function ChildNameDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ChildNameScenario }) { const documentPath = `/documents/${document.slug}/`; const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }]; return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} /><article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить процедуру</a></header><section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section><div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div><div className="mt-7"><ChildNameDocumentHelper scenarioKey={scenario.key} /></div><section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getChildNameRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {CHILD_NAME_REVIEWED_AT.split("-").reverse().join(".")}.</p></section><Link href={`/problems/semya-i-deti/${CHILD_NAME_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link></article></>; }
+
+function ParentalRightsRestorationDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ParentalRightsRestorationScenario }) { const documentPath = `/documents/${document.slug}/`; const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }]; return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} /><article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить условия</a></header><section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section><div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div><div className="mt-7"><ParentalRightsRestorationDocumentHelper scenarioKey={scenario.key} /></div><section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getParentalRightsRestorationRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PARENTAL_RIGHTS_RESTORATION_REVIEWED_AT.split("-").reverse().join(".")}.</p></section><Link href={`/problems/semya-i-deti/${PARENTAL_RIGHTS_RESTORATION_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link></article></>; }
+
+function ParentalRightsRestrictionCancellationDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ParentalRightsRestrictionCancellationScenario }) { const documentPath = `/documents/${document.slug}/`; const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }]; return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} /><article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить условия</a></header><section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section><div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div><div className="mt-7"><ParentalRightsRestrictionCancellationDocumentHelper scenarioKey={scenario.key} /></div><section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getParentalRightsRestrictionCancellationRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_REVIEWED_AT.split("-").reverse().join(".")}.</p></section><Link href={`/problems/semya-i-deti/${PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link></article></>; }
+
+function ParentalDisagreementsDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ParentalDisagreementsScenario }) { const documentPath = `/documents/${document.slug}/`; const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }]; return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} /><article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить путь</a></header><section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section><div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div><div className="mt-7"><ParentalDisagreementsDocumentHelper scenarioKey={scenario.key} /></div><section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getParentalDisagreementsRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PARENTAL_DISAGREEMENTS_REVIEWED_AT.split("-").reverse().join(".")}.</p></section><Link href={`/problems/semya-i-deti/${PARENTAL_DISAGREEMENTS_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link></article></>; }
+
+function AdditionalChildExpensesDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: AdditionalChildExpensesScenario }) { const documentPath = `/documents/${document.slug}/`; const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }]; return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} /><article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить путь</a></header><section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section><div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div><div className="mt-7"><AdditionalChildExpensesDocumentHelper scenarioKey={scenario.key} /></div><section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getAdditionalChildExpensesRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {ADDITIONAL_CHILD_EXPENSES_REVIEWED_AT.split("-").reverse().join(".")}.</p></section><Link href={`/problems/semya-i-deti/${ADDITIONAL_CHILD_EXPENSES_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link></article></>; }
+
+function SpousalSupportDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: SpousalSupportScenario }) { const documentPath = `/documents/${document.slug}/`; const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }]; return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} /><article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить путь</a></header><section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section><div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div><div className="mt-7"><SpousalSupportDocumentHelper scenarioKey={scenario.key} /></div><section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getSpousalSupportRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {SPOUSAL_SUPPORT_REVIEWED_AT.split("-").reverse().join(".")}.</p></section><Link href={`/problems/semya-i-deti/${SPOUSAL_SUPPORT_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link></article></>; }
+
+function PrenuptialAgreementDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: PrenuptialAgreementScenario }) { const documentPath = `/documents/${document.slug}/`; const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }]; return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} /><article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить проект</a></header><section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section><div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div><div className="mt-7"><PrenuptialAgreementDocumentHelper scenarioKey={scenario.key} /></div><section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getPrenuptialAgreementRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PRENUPTIAL_AGREEMENT_REVIEWED_AT.split("-").reverse().join(".")}.</p></section><Link href={`/problems/semya-i-deti/${PRENUPTIAL_AGREEMENT_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link></article></>; }
+
+function InvalidMarriageDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: InvalidMarriageScenario }) { const documentPath = `/documents/${document.slug}/`; const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }]; return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} /><article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить основание</a></header><section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section><div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div><div className="mt-7"><InvalidMarriageDocumentHelper scenarioKey={scenario.key} /></div><section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getInvalidMarriageRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {INVALID_MARRIAGE_REVIEWED_AT.split("-").reverse().join(".")}.</p></section><Link href={`/problems/semya-i-deti/${INVALID_MARRIAGE_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link></article></>; }
+
+function ComplexMaritalPropertyDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ComplexMaritalPropertyScenario }) { const documentPath = `/documents/${document.slug}/`; const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }]; return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} /><article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить материал</a></header><section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section><div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div><div className="mt-7"><ComplexMaritalPropertyDocumentHelper scenarioKey={scenario.key} /></div><section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getComplexMaritalPropertyRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {COMPLEX_MARITAL_PROPERTY_REVIEWED_AT.split("-").reverse().join(".")}.</p></section><Link href={`/problems/semya-i-deti/${COMPLEX_MARITAL_PROPERTY_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link></article></>; }
+
+function SurrogacyOriginDocumentPage({ document, variant }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; variant?: string }) {
+  const path = `/documents/${document.slug}/`;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path }];
+  const selected = getSurrogacyOriginScenario(variant);
+  return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(path, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} />
+    <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p></header>
+      <section className="mt-7 grid gap-4 md:grid-cols-2" aria-label="Варианты применения">{SURROGACY_ORIGIN_KEYS.map((key) => <div key={key} className="border-t border-line pt-3"><h2 className="text-lg font-semibold text-ink">{SURROGACY_ORIGIN_SCENARIOS[key].title}</h2><p className="mt-2 text-sm leading-6 text-zinc-700">{SURROGACY_ORIGIN_SCENARIOS[key].summary}</p></div>)}</section>
+      <div className="mt-7"><SurrogacyOriginHelper initialKey={selected?.key} /></div>
+      <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{SURROGACY_ORIGIN_RULES.map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline focus:ring-2 focus:ring-trust/20">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {SURROGACY_ORIGIN_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+      <Link href={`/problems/semya-i-deti/${SURROGACY_ORIGIN_ROUTE.problemSlug}/`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline">Вернуться к выбору ситуации</Link>
+    </article></>;
 }
 
-export default async function DocumentPage({ params }: PageProps) {
-  const { documentSlug } = await params;
-  const document = getDocumentByParam(documentSlug);
-  if (!document) notFound();
+function InternationalFamilyDisputesDocumentPage({ document, variant }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; variant?: string }) {
+  const path = `/documents/${document.slug}/`;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path }];
+  const selected = getInternationalFamilyDisputesScenario(variant);
+  return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(path, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} />
+    <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p></header>
+      <section className="mt-7 grid gap-4 md:grid-cols-2" aria-label="Варианты применения">{INTERNATIONAL_FAMILY_DISPUTES_KEYS.map((key) => <div key={key} className="border-t border-line pt-3"><h2 className="text-lg font-semibold text-ink">{INTERNATIONAL_FAMILY_DISPUTES_SCENARIOS[key].title}</h2><p className="mt-2 text-sm leading-6 text-zinc-700">{INTERNATIONAL_FAMILY_DISPUTES_SCENARIOS[key].summary}</p></div>)}</section>
+      <div className="mt-7"><InternationalFamilyDisputesHelper initialKey={selected?.key} /></div>
+      <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{INTERNATIONAL_FAMILY_DISPUTES_RULES.map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline focus:ring-2 focus:ring-trust/20">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {INTERNATIONAL_FAMILY_DISPUTES_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+      <Link href={`/problems/semya-i-deti/${INTERNATIONAL_FAMILY_DISPUTES_ROUTE.problemSlug}/`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline">Вернуться к выбору ситуации</Link>
+    </article></>;
+}
 
-  const relatedProblems = legalProblems.filter((problem) => document.relatedProblemSlugs.includes(problem.slug));
-  const relatedSpecializations = new Set(relatedProblems.flatMap((problem) => problem.relatedLawyerSpecializations));
-  const documentQuestionContext = buildDocumentQuestionContext({
-    documentSlug: document.slug,
-    relatedPrimaryTags: [...new Set(relatedProblems.flatMap((problem) => problem.relatedQuestionTopics))],
-    relatedExcludedTopics: [...new Set(relatedProblems.flatMap((problem) => PROBLEM_EXCLUDED_TOPICS[problem.slug] ?? []))]
-  });
-  const documentTemplate = document.templateSlug ? getDocumentTemplate(document.templateSlug) : null;
-  const [relatedQuestions, relatedLawyers] = await Promise.all([
-    getRelatedQuestionsForContext(documentQuestionContext, { limit: 12 }),
-    getRelatedLawyersBySpecializations(relatedSpecializations)
-  ]);
-  const faq = buildDocumentFaq(document);
-  const legalReferences = getLegalReferences(document.legalReferenceKeys);
+function RelativeChildContactDocumentPage({ document, variant }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; variant?: string }) {
+  const path = `/documents/${document.slug}/`; const selected = getRelativeChildContactScenario(variant);
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path }];
+  return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(path, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} />
+    <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p></header>
+      <section className="mt-7 grid gap-4 md:grid-cols-2" aria-label="Варианты применения">{RELATIVE_CHILD_CONTACT_KEYS.map((key) => <div key={key} className="border-t border-line pt-3"><h2 className="text-lg font-semibold text-ink">{RELATIVE_CHILD_CONTACT_SCENARIOS[key].title}</h2><p className="mt-2 text-sm leading-6 text-zinc-700">{RELATIVE_CHILD_CONTACT_SCENARIOS[key].summary}</p></div>)}</section>
+      <div className="mt-7"><RelativeChildContactHelper initialKey={selected?.key} /></div>
+      <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{RELATIVE_CHILD_CONTACT_RULES.map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {RELATIVE_CHILD_CONTACT_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+      <Link href={`/problems/semya-i-deti/${RELATIVE_CHILD_CONTACT_ROUTE.problemSlug}/`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline">Вернуться к выбору ситуации</Link>
+    </article></>;
+}
+
+function EmancipationDocumentPage({ document, variant }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; variant?: string }) {
+  const path = `/documents/${document.slug}/`; const selected = getEmancipationScenario(variant);
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path }];
+  return <><JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(path, document.title, document.shortDescription)]} /><Breadcrumbs items={breadcrumbs} />
+    <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"><header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl [overflow-wrap:anywhere] text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p></header>
+      <section className="mt-7 grid gap-4 md:grid-cols-2" aria-label="Варианты применения">{EMANCIPATION_KEYS.map((key) => <div key={key} className="border-t border-line pt-3"><h2 className="text-lg font-semibold text-ink">{EMANCIPATION_SCENARIOS[key].title}</h2><p className="mt-2 text-sm leading-6 text-zinc-700">{EMANCIPATION_SCENARIOS[key].summary}</p></div>)}</section>
+      <div className="mt-7"><EmancipationHelper initialKey={selected?.key} /></div>
+      <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{EMANCIPATION_RULES.map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {EMANCIPATION_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+      <Link href={`/problems/semya-i-deti/${EMANCIPATION_ROUTE.problemSlug}/`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline">Вернуться к выбору ситуации</Link>
+    </article></>;
+}
+
+function PaternityContestDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: PaternityContestScenario }) {
   const documentPath = `/documents/${document.slug}/`;
-  const primaryProblem = relatedProblems[0];
-  const primaryProblemHref = primaryProblem ? `/problems/${primaryProblem.categorySlug}/${primaryProblem.slug}/` : "/problems/";
-  const checkHref = primaryProblemHref;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }];
+  return <>
+    <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+    <Breadcrumbs items={breadcrumbs} />
+    <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить ситуацию</a></header>
+      <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
+      <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+      <div className="mt-7"><PaternityContestDocumentHelper scenarioKey={scenario.key} /></div>
+      <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getPaternityContestRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PATERNITY_CONTEST_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+      <Link href={`/problems/semya-i-deti/${PATERNITY_CONTEST_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link>
+    </article>
+  </>;
+}
+
+function PaternityEstablishmentDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: PaternityEstablishmentScenario }) {
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }];
+  return <>
+    <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+    <Breadcrumbs items={breadcrumbs} />
+    <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить ситуацию</a></header>
+      <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
+      <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+      <div className="mt-7"><PaternityEstablishmentDocumentHelper scenarioKey={scenario.key} /></div>
+      <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getPaternityEstablishmentRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PATERNITY_ESTABLISHMENT_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+      <Link href={`/problems/semya-i-deti/${PATERNITY_ESTABLISHMENT_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link>
+    </article>
+  </>;
+}
+
+function ParentalRightsRestrictionDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ParentalRightsRestrictionScenario }) {
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }];
+  return <>
+    <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+    <Breadcrumbs items={breadcrumbs} />
+    <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить ситуацию</a></header>
+      <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
+      <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+      <div className="mt-7"><ParentalRightsRestrictionDocumentHelper scenarioKey={scenario.key} /></div>
+      <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getParentalRightsRestrictionRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PARENTAL_RIGHTS_RESTRICTION_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+      <Link href={`/problems/semya-i-deti/${PARENTAL_RIGHTS_RESTRICTION_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link>
+    </article>
+  </>;
+}
+
+function ParentalRightsDeprivationDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ParentalRightsDeprivationScenario }) {
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }];
+  return (
+    <>
+      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить ситуацию</a></header>
+        <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
+        <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+        <div className="mt-7"><ParentalRightsDeprivationDocumentHelper scenarioKey={scenario.key} /></div>
+        <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getParentalRightsDeprivationRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PARENTAL_RIGHTS_DEPRIVATION_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+        <Link href={`/problems/semya-i-deti/${PARENTAL_RIGHTS_DEPRIVATION_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link>
+      </article>
+    </>
+  );
+}
+
+function ChildSupportDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ChildSupportScenario }) {
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }];
+  return (
+    <>
+      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить документ</a></header>
+        <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
+        <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+        <div className="mt-7"><ChildSupportDocumentHelper scenarioKey={scenario.key} /></div>
+        <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getChildSupportRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><p className="text-zinc-600">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.officialSource}</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {CHILD_SUPPORT_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+        <Link href={`/problems/semya-i-deti/${CHILD_SUPPORT_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link>
+      </article>
+    </>
+  );
+}
+
+function ParentsChildDocumentPage({ document, scenario }: { document: NonNullable<ReturnType<typeof getNavigatorDocument>>; scenario: ParentsChildScenario }) {
+  const documentPath = `/documents/${document.slug}/`;
+  const breadcrumbs = [{ name: "Главная", path: "/" }, { name: "Документы", path: "/documents/" }, { name: document.title, path: documentPath }];
+  return (
+    <>
+      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить документ</a></header>
+        <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
+        <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+        <div className="mt-7"><ParentsChildDocumentHelper scenarioKey={scenario.key} /></div>
+        <section className="mt-7 border-t border-line pt-6"><h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2><ul className="mt-4 grid gap-4 text-sm leading-6">{getParentsChildRules(scenario.key).map((rule) => <li key={rule.id} className="border-l-2 border-line pl-3"><p className="font-medium text-ink">{rule.statement}</p><p className="text-zinc-600">{rule.norm}. Граница применения: {rule.scope}</p><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Проверенный источник</a></li>)}</ul><p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: {PARENTS_CHILD_REVIEWED_AT.split("-").reverse().join(".")}.</p></section>
+        <Link href={`/problems/semya-i-deti/${PARENTS_CHILD_ROUTE.problemSlug}/?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Вернуться к порядку действий</Link>
+      </article>
+    </>
+  );
+}
+
+function GuardianshipDocumentPage({
+  document,
+  scenario,
+  cities
+}: {
+  document: NonNullable<ReturnType<typeof getNavigatorDocument>>;
+  scenario: GuardianshipScenario;
+  cities: GuardianshipCity[];
+}) {
+  const documentPath = `/documents/${document.slug}/`;
   const breadcrumbs = [
     { name: "Главная", path: "/" },
     { name: "Документы", path: "/documents/" },
     { name: document.title, path: documentPath }
   ];
-
   return (
     <>
-      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(document), documentArticleJsonLd(document), faqPageJsonLd(faq)]} />
+      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
       <Breadcrumbs items={breadcrumbs} />
-      <article className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <DocumentHero document={document} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="border-b border-line pb-7">
+          <p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p>
+          <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p>
+          <a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить документ</a>
+        </header>
 
-        <DocumentFactCards document={document} />
+        <section className="mt-7 grid gap-4 md:grid-cols-2">
+          <DocumentFact title="Когда подходит" items={scenario.description} />
+          <DocumentFact title="Что подготовить" items={scenario.documents} />
+          <DocumentFact title="Пошлина и расходы" items={[scenario.fee]} />
+          <DocumentFact title="Подача и срок" items={[scenario.filing, scenario.term]} />
+        </section>
+        {scenario.warning ? <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div> : null}
+        <div className="mt-7"><GuardianshipDocumentHelper scenarioKey={scenario.key} cities={cities} /></div>
 
-        {documentTemplate ? (
-          <div className="mt-8">
-            <DocumentGeneratorSection template={documentTemplate} instructionHref={primaryProblemHref} />
-          </div>
-        ) : null}
-
-        {legalReferences.length ? (
-          <div className="mt-8">
-            <LegalReferencesBlock
-              references={legalReferences}
-              description="Нормы, на которые опирается документ. Перед подачей сверьте их с обстоятельствами конкретного дела."
-            />
-          </div>
-        ) : null}
-
-        <DocumentMistakesCards mistakes={document.commonMistakes.length ? document.commonMistakes : document.mistakes} />
-
-        <FaqBlock faq={faq} />
+        <section className="mt-7 border-t border-line pt-6">
+          <h2 className="text-2xl font-semibold text-ink">Правовой реестр</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-700">Для каждого правила указаны источник, предел применения и статус проверки. Региональные сведения не выдаются за федеральное правило.</p>
+          <ul className="mt-4 grid gap-4 text-sm leading-6">
+            {GUARDIANSHIP_LEGAL_RULES.filter((rule) => rule.scenarios.includes(scenario.key)).map((rule) => (
+              <li key={rule.id} className="border-l-2 border-line pl-3">
+                <p className="font-medium text-ink">{rule.statement}</p>
+                <p className="text-zinc-600">{rule.act}, {rule.provision}. Тип: {guardianshipSourceLabel(rule.sourceType)}. Статус: {guardianshipStatusLabel(rule.status)}.</p>
+                <p className="text-zinc-600">
+                  {rule.edition ? `${rule.edition}. ` : ""}Проверено: {rule.reviewedAt.split("-").reverse().join(".")}.
+                </p>
+                <p className="text-zinc-600">Граница применения: {rule.scopeNote}</p>
+                <a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Основной источник</a>
+                {rule.supplementaryUrl ? <a href={rule.supplementaryUrl} target="_blank" rel="noreferrer" className="ml-4 inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Контрольная редакция</a> : null}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs leading-5 text-zinc-500">
+            Последняя документированная сверка: {getGuardianshipLegalReviewDate(scenario.key).split("-").reverse().join(".")}.
+            {isGuardianshipLegalReviewFullyPrimaryVerified(scenario.key)
+              ? " Все первичные официальные источники доступны."
+              : " Недоступность первичного источника или необходимость региональной проверки раскрыта у соответствующего правила."}
+          </p>
+        </section>
       </article>
-
-      {relatedQuestions.length ? (
-        <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="Вопросы по заполнению и подаче документа"
-            description="Ответы на частые вопросы о том, как подготовить, подать и использовать этот документ."
-          />
-          <div className="mt-6">
-            <RelatedQuestionsBlock questions={relatedQuestions} />
-          </div>
-        </section>
-      ) : null}
-
-      {relatedLawyers.length ? (
-        <section className="bg-white">
-          <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-            <SectionHeading
-              title="Юристы, которые могут проверить документ"
-              description="Специалисты подобраны по связанным ситуациям и специализациям."
-            />
-            <div className="mt-6">
-              <RelatedLawyersBlock lawyers={relatedLawyers} />
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      <DocumentFinalCta checkHref={checkHref} documentPath={documentPath} problemHref={primaryProblemHref} />
-      <DutyLawyerWidget source="document" />
     </>
   );
 }
 
-function DocumentHero({ document }: { document: NavigatorDocument }) {
-  // Генератор встроен в эту же страницу — кнопка ведёт якорем к форме ниже.
-  const generatorHref = document.templateSlug ? "#fill-online" : null;
-
-  return (
-    <header className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-8">
-      <p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.documentType || document.category}</p>
-      <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{getDocumentH1(document)}</h1>
-      <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription || document.description}</p>
-      <div className="mt-6 flex flex-wrap gap-3">
-        {generatorHref ? (
-          <Link href={generatorHref} className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink">
-            Заполнить онлайн
-          </Link>
-        ) : (
-          <QuestionCtaLink sourcePage={`/documents/${document.slug}/`} label="Задать вопрос юристу" />
-        )}
-      </div>
-    </header>
-  );
+function guardianshipSourceLabel(source: "official" | "official-court" | "consolidated-fallback") {
+  if (source === "official") return "официальный";
+  if (source === "official-court") return "официальная судебная практика";
+  return "контрольная консолидированная редакция";
 }
 
-// Четыре компактные карточки фактов на первом экране: когда используется, срок,
-// куда подавать, какие документы приложить. Пустые карточки скрываются.
-function DocumentFactCards({ document }: { document: NavigatorDocument }) {
-  const submitLines = document.filingProcedure.length ? document.filingProcedure : document.howToSubmit;
-  const whereAndHow = [document.whereToSubmit || document.whereToFile, ...submitLines].filter(Boolean) as string[];
-  const cards = [
-    { title: "Когда используется", items: document.whenToUse },
-    { title: "Срок подачи", items: document.deadlines },
-    { title: "Куда и как подать", items: whereAndHow },
-    { title: "Какие документы приложить", items: document.documentsToAttach }
-  ].filter((card) => card.items.length);
+function guardianshipStatusLabel(status: "current" | "primary-unavailable" | "regional-check-required" | "not-found") {
+  if (status === "current") return "актуально";
+  if (status === "regional-check-required") return "нужна региональная проверка";
+  if (status === "not-found") return "подтверждающая норма не найдена";
+  return "первичный портал недоступен при проверке";
+}
 
-  if (!cards.length) return null;
-
+function DivorcePropertyDocumentPage({
+  document,
+  scenario
+}: {
+  document: NonNullable<ReturnType<typeof getNavigatorDocument>>;
+  scenario: DivorcePropertyScenario;
+}) {
+  const documentPath = `/documents/${document.slug}/`;
+  const problemPath = "/problems/semya-i-deti/razvod-i-razdel-imushchestva/";
+  const breadcrumbs = [
+    { name: "Главная", path: "/" },
+    { name: "Документы", path: "/documents/" },
+    { name: document.title, path: documentPath }
+  ];
   return (
-    <section className="mt-8 grid gap-4 md:grid-cols-2">
-      {cards.map((card) => (
-        <article key={card.title} className="rounded-lg border border-line bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold text-ink">{card.title}</h2>
-          <ul className="mt-3 grid gap-2">
-            {card.items.slice(0, 6).map((item) => (
-              <li key={item} className="flex min-w-0 gap-2 text-sm leading-6 text-zinc-700">
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-trust" aria-hidden="true" />
-                <span className="min-w-0">{item}</span>
+    <>
+      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
+      <Breadcrumbs items={breadcrumbs} />
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="border-b border-line pb-7">
+          <p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p>
+          <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p>
+          <a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+            Подготовить документ
+          </a>
+        </header>
+
+        <section className="mt-7 grid gap-4 md:grid-cols-2">
+          <DocumentFact title="Когда подходит" items={scenario.description} />
+          <DocumentFact title="Основные приложения" items={scenario.documents} />
+          <DocumentFact title="Платёж" items={[scenario.fee]} />
+          <DocumentFact title="Подача и срок" items={[scenario.filing, scenario.term]} />
+        </section>
+
+        {scenario.warning ? <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div> : null}
+
+        <div className="mt-7">
+          <DivorcePropertyDocumentHelper scenarioKey={scenario.key} />
+        </div>
+
+        <section className="mt-7 border-t border-line pt-6">
+          <h2 className="text-2xl font-semibold text-ink">Правовые основания документа</h2>
+          <ul className="mt-4 grid gap-3 text-sm leading-6">
+            {DIVORCE_PROPERTY_LEGAL_RULES.filter((rule) => rule.scenarios.includes(scenario.key)).map((rule) => (
+              <li key={rule.id} className="border-l-2 border-line pl-3">
+                <p className="font-medium text-ink">{rule.statement}</p>
+                <p className="text-zinc-600">{rule.norm}. Статус: {legalReviewStatusLabel(rule.status)}.</p>
+                <p className="text-zinc-600">Автоматизация: {legalAutomationLabel(rule.automation)}. {rule.fallbackBehavior}</p>
+                <a href={rule.officialUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Официальный источник</a>
+                {rule.supplementaryUrl ? <a href={rule.supplementaryUrl} target="_blank" rel="noreferrer" className="ml-4 inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Контрольная редакция</a> : null}
               </li>
             ))}
           </ul>
-        </article>
-      ))}
+          <p className="mt-4 text-xs leading-5 text-zinc-500">
+            Последняя документированная сверка: {getDivorcePropertyLegalReviewDate(scenario.key).split("-").reverse().join(".")}.
+            {isDivorcePropertyLegalReviewFullyPrimaryVerified(scenario.key)
+              ? " Все используемые источники в этом сценарии открыты на первичных официальных ресурсах."
+              : " Часть первичных официальных страниц была недоступна; контрольная сверка и статус каждого правила зафиксированы отдельно."}
+          </p>
+        </section>
+
+        <Link href={`${problemPath}?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+          Вернуться к порядку действий
+        </Link>
+      </article>
+    </>
+  );
+}
+
+function DocumentFact({ items, title }: { items: string[]; title: string }) {
+  return (
+    <section className="border-t-4 border-zinc-300 bg-white p-5 shadow-sm">
+      <h2 className="text-lg font-semibold text-ink">{title}</h2>
+      <ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-700">
+        {items.map((item) => <li key={item}>- {item}</li>)}
+      </ul>
     </section>
   );
 }
 
-// Частые ошибки: аккуратные карточки с меткой-крестиком (5-6 штук).
-function DocumentMistakesCards({ mistakes }: { mistakes: string[] }) {
-  const items = uniqueItems(mistakes.length ? mistakes : UNIVERSAL_MISTAKES).slice(0, 6);
-  if (!items.length) return null;
+function legalReviewStatusLabel(status: "verified-primary" | "primary-unavailable-supplementary-checked" | "manual-regional-check") {
+  if (status === "verified-primary") return "первичный официальный источник проверен";
+  if (status === "manual-regional-check") return "региональные сведения требуют ручной проверки";
+  return "первичный источник временно недоступен, выполнена контрольная сверка";
+}
 
+function legalAutomationLabel(automation: "allowed" | "manual-only" | "not-applicable") {
+  if (automation === "allowed") return "допустима только в пределах описанного правила";
+  if (automation === "manual-only") return "требуется ручная проверка";
+  return "не применяется";
+}
+
+function ZagsScenarioDetails({ scenario }: { scenario: ZagsScenario }) {
+  return (
+    <>
+      <section className="mt-6 grid gap-4 md:grid-cols-2">
+        <ZagsDocumentFact title="Официальная форма" text={scenario.forms.map((form) => `Форма N ${form.number}: ${form.purpose}.`).join(" ")} />
+        <ZagsDocumentFact title="Куда и как подать" text={scenario.filing} />
+        <ZagsDocumentFact title="Срок" text={scenario.term} />
+        <ZagsDocumentFact title="Госпошлина" text={scenario.fee} />
+      </section>
+
+      <section className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-2xl font-semibold text-ink">Что подготовить</h2>
+        <ul className="mt-4 grid gap-2 text-sm leading-6 text-zinc-700">
+          {scenario.documents.map((item) => <li key={item}>- {item}</li>)}
+        </ul>
+        {scenario.warning ? (
+          <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
+        ) : null}
+      </section>
+
+      <div className="mt-6">
+        <ZagsApplicationHelper scenarioKey={scenario.key as ZagsScenarioKey} />
+      </div>
+
+      <section className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-2xl font-semibold text-ink">Правовые основания</h2>
+        <ul className="mt-4 grid gap-2 text-sm leading-6">
+          {scenario.legalSources.map((source) => (
+            <li key={source.href}>
+              <a href={source.href} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+                {source.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <FaqBlock faq={scenario.faq} />
+    </>
+  );
+}
+
+function ZagsDocumentFact({ text, title }: { text: string; title: string }) {
+  return (
+    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
+      <h2 className="text-lg font-semibold text-ink">{title}</h2>
+      <p className="mt-3 text-sm leading-6 text-zinc-700">{text}</p>
+    </section>
+  );
+}
+
+function FaqBlock({ faq }: { faq: Array<{ question: string; answer: string }> }) {
   return (
     <section className="mt-8">
-      <h2 className="text-2xl font-semibold text-ink">Частые ошибки</h2>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        {items.map((item) => (
-          <div key={item} className="flex items-start gap-3 rounded-lg border border-line bg-white p-4 shadow-sm">
-            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="h-3 w-3">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
-              </svg>
-            </span>
-            <p className="text-sm leading-6 text-zinc-700">{item}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function DocumentPreparationBlock({ items }: { items: string[] }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Что подготовить перед заполнением</h2>
-      <TextList items={items.length ? items : PREPARATION_FALLBACK} />
-    </section>
-  );
-}
-
-function DocumentOptionalListBlock({ items, title }: { items: string[]; title: string }) {
-  if (!items.length) return null;
-
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">{title}</h2>
-      <TextList items={items} />
-    </section>
-  );
-}
-
-function DocumentCostsBlock({ costs }: { costs: string[] }) {
-  if (!costs.length) return null;
-
-  return (
-    <section className="rounded-lg border border-amber-200 bg-amber-50 p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Госпошлина и расходы</h2>
-      <TextList items={costs} />
-    </section>
-  );
-}
-
-// Объединённый блок «образец, заполнение и подача»: короткое вступление с
-// SEO-ключами (образец/бланк), шаги заполнения и чек-лист перед подачей —
-// вместо двух прежних блоков с четырьмя повторяющимися карточками.
-function DocumentHowToBlock({ document }: { document: NavigatorDocument }) {
-  const steps = document.howToFill.length ? document.howToFill : FILL_STEPS_FALLBACK;
-
-  return (
-    <section id="how-to-fill" className="mt-8 scroll-mt-24 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
-      <div className="max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-wide text-trust">Образец, бланк и заполнение</p>
-        <h2 className="mt-2 text-2xl font-semibold text-ink">Как составить и подать документ</h2>
-        <p className="mt-3 text-sm leading-6 text-zinc-600">
-          Отдельный обязательный бланк не требуется — используйте образец как черновик: укажите адресата и свои данные, опишите события по датам и сформулируйте конкретное требование.
-          {document.templateSlug ? " Готовый текст можно сформировать онлайн в форме выше." : ""}
-        </p>
-      </div>
-      <ol className="mt-5 grid gap-3">
-        {steps.map((item, index) => (
-          <li key={`${index}-${item}`} className="flex min-w-0 gap-4 rounded-lg border border-line bg-zinc-50 p-4">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-trust text-sm font-bold text-white">{index + 1}</span>
-            <p className="min-w-0 leading-7 text-zinc-700">{item}</p>
-          </li>
-        ))}
-      </ol>
-      <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-        <p className="font-semibold">Перед подачей проверьте</p>
-        <p className="mt-1">
-          Срок подачи, адресата, номера дел и документов, доказательства и копии приложений. Если спор сложный, срок пропущен или цена ошибки высока — покажите документ юристу.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function DocumentSubmissionBlock({ howToSubmit, whereToSubmit }: { howToSubmit: string[]; whereToSubmit: string }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Куда подавать документ</h2>
-      <p className="mt-3 text-base leading-7 text-zinc-700">{whereToSubmit || SUBMISSION_FALLBACK}</p>
-      <h3 className="mt-5 font-semibold text-ink">Как подать документ</h3>
-      <TextList items={howToSubmit.length ? howToSubmit : SUBMISSION_OPTIONS} />
-    </section>
-  );
-}
-
-function DocumentDeadlinesBlock({ afterFiling, deadlines }: { afterFiling: string[]; deadlines: string[] }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Сроки и что будет после подачи</h2>
-      <TextList items={deadlines.length ? deadlines : [DEADLINES_FALLBACK]} />
-      <div className="mt-5 rounded-lg bg-zinc-50 p-4">
-        <h3 className="font-semibold text-ink">Что происходит после подачи</h3>
-        <TextList items={afterFiling.length ? afterFiling : AFTER_SUBMISSION_STEPS} />
-      </div>
-    </section>
-  );
-}
-
-function DocumentMistakesBlock({ includeUniversal, mistakes }: { includeUniversal: boolean; mistakes: string[] }) {
-  const items = includeUniversal ? uniqueItems([...mistakes, ...UNIVERSAL_MISTAKES]) : uniqueItems(mistakes);
-
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Частые ошибки</h2>
-      <TextList items={items} />
-    </section>
-  );
-}
-
-function DocumentToolsBlock({ tools }: { tools: NavigatorTool[] }) {
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Проверить срок перед подготовкой документа</h2>
-      <p className="mt-3 text-sm leading-6 text-zinc-600">Если документ связан со сроком подачи, сначала проверьте ориентировочную дату и риски пропуска.</p>
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
-        {tools.map((tool) => (
-          <Link key={tool.slug} href={`/tools/${tool.slug}/`} className="rounded-lg border border-line bg-zinc-50 p-4 hover:border-trust">
-            <h3 className="font-semibold text-ink">{tool.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-zinc-600">{tool.description}</p>
-            <span className="mt-4 inline-flex text-sm font-semibold text-trust">Открыть инструмент</span>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function FaqBlock({ faq }: { faq: DocumentFaq[] }) {
-  if (!faq.length) return null;
-
-  return (
-    <section className="mt-8">
-      <h2 className="text-2xl font-semibold text-ink">FAQ</h2>
+      <h2 className="text-2xl font-semibold text-ink">Частые вопросы</h2>
       <div className="mt-5 grid gap-3">
         {faq.map((item) => (
           <details key={item.question} className="group rounded-lg border border-line bg-white px-5 shadow-sm">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-lg font-semibold text-ink [&::-webkit-details-marker]:hidden">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-4 text-lg font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-trust/30 [&::-webkit-details-marker]:hidden">
               <span>{item.question}</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true" className="h-5 w-5 shrink-0 text-zinc-400 transition-transform group-open:rotate-180">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
-              </svg>
+              <span aria-hidden="true" className="text-zinc-400 transition-transform group-open:rotate-180">⌄</span>
             </summary>
             <p className="pb-4 text-sm leading-6 text-zinc-600">{item.answer}</p>
           </details>
@@ -435,135 +693,16 @@ function FaqBlock({ faq }: { faq: DocumentFaq[] }) {
   );
 }
 
-function DocumentRelatedDocumentsBlock({ documents }: { documents: NavigatorDocument["relatedDocuments"] }) {
-  if (!documents.length) return null;
-
-  return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-semibold text-ink">Похожие документы</h2>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        {documents.map((document) =>
-          document.slug ? (
-            <Link
-              key={`${document.slug}-${document.title}`}
-              href={`/documents/${document.slug}/`}
-              className="rounded-lg border border-line bg-zinc-50 p-4 text-sm font-semibold text-ink hover:border-trust"
-            >
-              {document.title}
-            </Link>
-          ) : (
-            <article key={document.title} className="rounded-lg border border-line bg-zinc-50 p-4 text-sm font-semibold text-zinc-600">
-              {document.title}
-            </article>
-          )
-        )}
-      </div>
-    </section>
-  );
-}
-
-function DocumentFinalCta({ checkHref, documentPath, problemHref }: { checkHref: string; documentPath: string; problemHref: string }) {
-  return (
-    <section className="bg-ink">
-      <div className="mx-auto max-w-7xl px-4 py-12 text-white sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-semibold">Не уверены, что документ составлен правильно?</h2>
-        <p className="mt-3 max-w-3xl text-base leading-7 text-zinc-200">
-          Опишите ситуацию — мы подскажем, какой документ нужен, какие сроки проверить и стоит ли показать текст юристу перед подачей.
-        </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link href={checkHref} className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-zinc-100">
-            Проверить ситуацию
-          </Link>
-          <QuestionCtaLink sourcePage={documentPath} label="Получить первичную консультацию" variant="secondary" />
-          <Link href={problemHref} className="inline-flex min-h-11 max-w-full min-w-0 items-center justify-center rounded-md border border-white/40 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">
-            Открыть инструкцию
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TextList({ items }: { items: string[] }) {
-  return (
-    <ul className="mt-4 grid gap-3">
-      {items.map((item) => (
-        <li key={item} className="flex min-w-0 gap-2 text-sm leading-6 text-zinc-700">
-          <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-trust" aria-hidden="true" />
-          <span className="min-w-0">{item}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function buildDocumentFaq(document: NavigatorDocument): DocumentFaq[] {
-  if (document.faq.length) return document.faq;
-
-  return [
-    {
-      question: `Где скачать образец: ${document.title}?`,
-      answer: "На этой странице можно использовать готовый образец и перейти к онлайн-заполнению, если для документа доступна форма. Перед подачей проверьте адресата, срок, факты и приложения."
-    },
-    {
-      question: `Как правильно составить документ: ${document.title}?`,
-      answer: "Опишите события по датам, укажите документы и номера дел, сформулируйте конкретное требование и приложите доказательства."
-    },
-    {
-      question: "Можно ли использовать этот образец без юриста?",
-      answer: "Если есть спор о сроках, сумме, доказательствах или последствиях подачи, документ лучше проверить до отправки."
-    },
-    {
-      question: `Куда подавать документ: ${document.title}?`,
-      answer: "Порядок подачи зависит от ситуации и адресата. Проверьте, кому направляется документ: другой стороне, должностному лицу, ведомству или в суд."
-    }
-  ];
-}
-
-function documentWebPageJsonLd(document: NavigatorDocument) {
+function documentWebPageJsonLd(
+  path: string,
+  name = "Заявление в ЗАГС: формы и порядок заполнения",
+  description = "Формы, документы, пошлины, льготы и порядок подготовки сведений для обращения в ЗАГС."
+) {
   return {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: getDocumentH1(document),
-    description: getDocumentMetaDescription(document),
-    url: absoluteUrl(`/documents/${document.slug}/`)
+    name,
+    description,
+    url: absoluteUrl(path)
   };
-}
-
-function documentArticleJsonLd(document: NavigatorDocument) {
-  if (!document.lastReviewedAt && !document.seoDescription) return null;
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: document.title,
-    description: getDocumentMetaDescription(document),
-    dateModified: document.lastReviewedAt,
-    mainEntityOfPage: absoluteUrl(`/documents/${document.slug}/`)
-  };
-}
-
-function faqPageJsonLd(faq: DocumentFaq[]) {
-  if (faq.length < 2) return null;
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faq.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer
-      }
-    }))
-  };
-}
-
-function getDocumentByParam(slug: string) {
-  return getNavigatorDocument(DOCUMENT_SLUG_ALIASES[slug] ?? slug);
-}
-
-function uniqueItems(items: string[]) {
-  return [...new Set(items.filter(Boolean))];
 }
