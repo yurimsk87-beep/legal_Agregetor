@@ -19,10 +19,26 @@ for (const problem of legalProblems) {
   const context = buildProblemQuestionContext({
     slug: problem.slug,
     categoryTitle: "Семейное право",
+    allowedCategories: ["Семейные дела"],
     primaryTags: problem.relatedQuestionTopics
   });
   assert.ok(context.primaryTags.length > 0, `${problem.slug}: отсутствуют темы и aliases`);
+  assert.deepEqual(context.allowedCategories, ["Семейные дела"], `${problem.slug}: отсутствует строгий фильтр категории`);
   assert.equal(new Set(context.primaryTags.map((item) => item.toLowerCase())).size, context.primaryTags.length, `${problem.slug}: дубли тем`);
+  const crossCategoryQuestion = {
+    id: `cross-category-${problem.slug}`,
+    slug: `cross-category-${problem.slug}`,
+    title: context.primaryTags[0],
+    text: context.primaryTags[0],
+    category: "Защита прав потребителя",
+    status: "PUBLISHED",
+    answersCount: 1
+  } as Question;
+  assert.deepEqual(
+    scoreQuestion(crossCategoryQuestion, context).reasons,
+    ["category_not_allowed"],
+    `${problem.slug}: вопрос из другой сферы права прошёл фильтр`
+  );
 
   const alias = PROBLEM_QNA_CONTEXTS[problem.slug].aliases[0];
   const expectedHref = `/problems/${problem.categorySlug}/${problem.slug}/`;
@@ -32,6 +48,10 @@ for (const problem of legalProblems) {
 const pageSource = fs.readFileSync(path.join(process.cwd(), "src/app/problems/[category]/[slug]/page.tsx"), "utf8");
 assert.match(pageSource, /FamilyProblemQna questions=\{relatedQuestions\}/, "Общий блок похожих вопросов не подключён");
 assert.match(pageSource, />Похожие вопросы</, "Заголовок блока похожих вопросов отсутствует");
+assert.match(pageSource, /questions\.length \? \(/, "Пустой блок похожих вопросов не скрывается");
+
+const documentPageSource = fs.readFileSync(path.join(process.cwd(), "src/app/documents/[documentSlug]/page.tsx"), "utf8");
+assert.match(documentPageSource, /relatedQuestions\.length \? \(/, "Пустой блок похожих вопросов документа не скрывается");
 
 function question(id: string, text: string): Question {
   return {
@@ -39,7 +59,7 @@ function question(id: string, text: string): Question {
     slug: id,
     title: text,
     text,
-    category: "Семейное право",
+    category: "Семейные дела",
     status: "PUBLISHED",
     answersCount: 1
   } as Question;
@@ -48,6 +68,7 @@ function question(id: string, text: string): Question {
 const context = buildProblemQuestionContext({
   slug: "alimenty-na-rebenka",
   categoryTitle: "Семейное право",
+  allowedCategories: ["Семейные дела"],
   primaryTags: ["алименты"]
 });
 const emailQuestion = question("email", "Как взыскать алименты? Напишите на test@example.com");
@@ -58,6 +79,12 @@ assert.deepEqual(scoreQuestion(emailQuestion, context).reasons, ["sensitive_pers
 assert.deepEqual(scoreQuestion(phoneQuestion, context).reasons, ["sensitive_personal_data"]);
 assert.deepEqual(scoreQuestion(passportQuestion, context).reasons, ["sensitive_personal_data"]);
 assert.deepEqual(scoreQuestion(addressQuestion, context).reasons, ["sensitive_personal_data"]);
+
+const unrelatedCategoryQuestion = {
+  ...question("consumer", "Можно ли вернуть деньги за некачественный товар и взыскать алименты?"),
+  category: "Защита прав потребителя"
+};
+assert.deepEqual(scoreQuestion(unrelatedCategoryQuestion, context).reasons, ["category_not_allowed"]);
 
 const ranked = getRelatedQuestions(context, [
   question("same", "Как взыскать алименты на ребёнка?"),

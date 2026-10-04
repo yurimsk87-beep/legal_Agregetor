@@ -55,7 +55,7 @@ export function validateParentalRightsRestriction(scenarioKey: ParentalRightsRes
 
   const missing = fields.filter((field) => field.required && !values[field.name]?.trim()).map((field) => ({ field: field.name, message: `Заполните поле «${field.label}».` }));
   if (missing.length) return base("missing-data", "assessment", "legalReviewOnly", "Не хватает обязательных сведений", scenario.mainDocument, true, missing, preparedData, ["Заполните обязательные поля."], [], "");
-  if (scenarioKey !== "court") return checklist(`${scenarioKey}-assessment`, scenario.mainDocument, "Помощник подготовил факты для юридической проверки; наличие основания определяет суд.", preparedData, scenarioKey);
+  if (scenarioKey !== "court") return checklist(`${scenarioKey}-assessment`, scenario.mainDocument, "Сервис подготовил факты для юридической проверки; наличие основания определяет суд.", preparedData, scenarioKey);
 
   const courtIssues = validateCourt(values);
   const title = values.dangerSource === "objective" ? "Черновик иска об ограничении родительских прав по объективным обстоятельствам" : "Черновик иска об ограничении родительских прав в связи с опасным поведением";

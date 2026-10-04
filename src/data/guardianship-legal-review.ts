@@ -43,7 +43,7 @@ export const GUARDIANSHIP_LEGAL_RULES: GuardianshipLegalRule[] = [
     reviewedAt,
     status: "primary-unavailable",
     scenarios: ["appointment", "parent-period"],
-    scopeNote: "Помощник не заменяет межведомственную, медицинскую и личностную проверку кандидата."
+    scopeNote: "Сервис не заменяет межведомственную, медицинскую и личностную проверку кандидата."
   },
   {
     id: "preliminary-guardianship",
@@ -190,7 +190,7 @@ export const GUARDIANSHIP_LEGAL_RULES: GuardianshipLegalRule[] = [
     reviewedAt,
     status: "primary-unavailable",
     scenarios: ["property-report"],
-    scopeNote: "Помощник не формирует банковское заявление и не подменяет правила конкретного банка."
+    scopeNote: "Сервис не формирует банковское заявление и не подменяет правила конкретного банка."
   },
   {
     id: "guardianship-federal-fee-search",

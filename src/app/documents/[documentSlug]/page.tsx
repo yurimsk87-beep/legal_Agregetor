@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { LegalReviewLawyers } from "@/components/lawyers/LegalReviewLawyers";
+import { RelatedQuestionsBlock } from "@/components/navigator/NavigatorBlocks";
 import { DivorcePropertyDocumentHelper } from "@/components/documents/DivorcePropertyDocumentHelper";
 import { GuardianshipDocumentHelper } from "@/components/documents/GuardianshipDocumentHelper";
 import { ParentsChildDocumentHelper } from "@/components/documents/ParentsChildDocumentHelper";
@@ -37,6 +40,7 @@ import { EMANCIPATION_ROUTE, EMANCIPATION_KEYS, EMANCIPATION_SCENARIOS, getEmanc
 import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
+import { buildDocumentQuestionContext, PROBLEM_QNA_CONTEXTS } from "@/data/related-questions-context";
 import {
   DIVORCE_PROPERTY_LEGAL_RULES,
   getDivorcePropertyLegalReviewDate,
@@ -113,6 +117,7 @@ import { breadcrumbJsonLd } from "@/lib/jsonld";
 import { getCities } from "@/lib/repositories";
 import { cities as fallbackCities } from "@/lib/sample-data";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
+import { getRelatedQuestionsForContext } from "@/lib/navigator-relations";
 
 type PageProps = {
   params: Promise<{ documentSlug: string }>;
@@ -147,6 +152,21 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
   const { documentSlug } = await params;
   const document = getNavigatorDocument(documentSlug);
   if (!document) notFound();
+
+  return (
+    <DocumentQna document={document}>
+      <DocumentPageContent document={document} searchParams={searchParams} />
+    </DocumentQna>
+  );
+}
+
+async function DocumentPageContent({
+  document,
+  searchParams
+}: {
+  document: NonNullable<ReturnType<typeof getNavigatorDocument>>;
+  searchParams?: PageProps["searchParams"];
+}) {
 
   const divorceScenario = getDivorceScenarioByDocumentSlug(document.slug);
   if (divorceScenario) {
@@ -233,7 +253,7 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
           <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">
             {scenario
               ? scenario.description[0]
-              : "Для разных обращений применяются разные утверждённые формы. Выберите цель, чтобы увидеть подходящий бланк, порядок подачи и помощник по подготовке данных."}
+              : "Для разных обращений применяются разные утверждённые формы. Выберите цель, чтобы увидеть подходящий бланк, порядок подачи и сервис по подготовке данных."}
           </p>
           {scenario ? (
             <div className="mt-6 flex flex-wrap gap-3">
@@ -267,6 +287,36 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
           </>
         )}
       </article>
+    </>
+  );
+}
+
+async function DocumentQna({
+  children,
+  document
+}: {
+  children: ReactNode;
+  document: NonNullable<ReturnType<typeof getNavigatorDocument>>;
+}) {
+  const problemSlug = document.relatedProblemSlugs[0];
+  const problemContext = problemSlug ? PROBLEM_QNA_CONTEXTS[problemSlug] : undefined;
+  const relatedQuestions = await getRelatedQuestionsForContext(buildDocumentQuestionContext({
+    documentSlug: document.slug,
+    allowedCategories: problemContext ? ["Семейные дела"] : undefined,
+    relatedPrimaryTags: [document.title, ...document.keywords, ...document.userQueries, ...(problemContext?.aliases ?? [])],
+    relatedExcludedTopics: problemContext?.excludedTopics ?? []
+  }), { limit: 6 });
+
+  return (
+    <>
+      {children}
+      {relatedQuestions.length ? (
+        <section className="mx-auto max-w-5xl border-t border-line px-4 py-8 sm:px-6 lg:px-8" aria-labelledby="document-similar-questions-title">
+          <h2 id="document-similar-questions-title" className="text-2xl font-semibold text-ink">Похожие вопросы</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-700">Посмотрите ответы по похожим семейным ситуациям. Для правовых выводов используйте нормы закона и официальные источники на этой странице.</p>
+          <div className="mt-5"><RelatedQuestionsBlock questions={relatedQuestions} /></div>
+        </section>
+      ) : null}
     </>
   );
 }
@@ -578,20 +628,21 @@ function DivorcePropertyDocumentPage({
             {DIVORCE_PROPERTY_LEGAL_RULES.filter((rule) => rule.scenarios.includes(scenario.key)).map((rule) => (
               <li key={rule.id} className="border-l-2 border-line pl-3">
                 <p className="font-medium text-ink">{rule.statement}</p>
-                <p className="text-zinc-600">{rule.norm}. Статус: {legalReviewStatusLabel(rule.status)}.</p>
-                <p className="text-zinc-600">Автоматизация: {legalAutomationLabel(rule.automation)}. {rule.fallbackBehavior}</p>
+                <p className="text-zinc-600">{rule.norm}.</p>
                 <a href={rule.officialUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Официальный источник</a>
                 {rule.supplementaryUrl ? <a href={rule.supplementaryUrl} target="_blank" rel="noreferrer" className="ml-4 inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Контрольная редакция</a> : null}
               </li>
             ))}
           </ul>
           <p className="mt-4 text-xs leading-5 text-zinc-500">
-            Последняя документированная сверка: {getDivorcePropertyLegalReviewDate(scenario.key).split("-").reverse().join(".")}.
-            {isDivorcePropertyLegalReviewFullyPrimaryVerified(scenario.key)
-              ? " Все используемые источники в этом сценарии открыты на первичных официальных ресурсах."
-              : " Часть первичных официальных страниц была недоступна; контрольная сверка и статус каждого правила зафиксированы отдельно."}
+            Правовые основания проверены {getDivorcePropertyLegalReviewDate(scenario.key).split("-").reverse().join(".")}.
+            {isDivorcePropertyLegalReviewFullyPrimaryVerified(scenario.key) ? " Ссылки ведут на официальные источники." : " Перед подачей проверьте актуальную редакцию нормы по приведённым ссылкам."}
           </p>
         </section>
+
+        <div className="mt-7">
+          <LegalReviewLawyers context={{ route: documentPath, scenario: scenario.key, documentTitle: document.title }} />
+        </div>
 
         <Link href={`${problemPath}?scenario=${scenario.key}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 hover:text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
           Вернуться к порядку действий
@@ -610,18 +661,6 @@ function DocumentFact({ items, title }: { items: string[]; title: string }) {
       </ul>
     </section>
   );
-}
-
-function legalReviewStatusLabel(status: "verified-primary" | "primary-unavailable-supplementary-checked" | "manual-regional-check") {
-  if (status === "verified-primary") return "первичный официальный источник проверен";
-  if (status === "manual-regional-check") return "региональные сведения требуют ручной проверки";
-  return "первичный источник временно недоступен, выполнена контрольная сверка";
-}
-
-function legalAutomationLabel(automation: "allowed" | "manual-only" | "not-applicable") {
-  if (automation === "allowed") return "допустима только в пределах описанного правила";
-  if (automation === "manual-only") return "требуется ручная проверка";
-  return "не применяется";
 }
 
 function ZagsScenarioDetails({ scenario }: { scenario: ZagsScenario }) {

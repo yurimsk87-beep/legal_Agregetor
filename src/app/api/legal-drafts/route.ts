@@ -23,6 +23,10 @@ export async function POST(request: Request) {
     if (error instanceof RequestPayloadTooLargeError) {
       return NextResponse.json({ ok: false, message: "Слишком большой объём данных документа." }, { status: 413 });
     }
+    console.error("[legal-drafts] generation failed", {
+      code: error instanceof LegalDraftGenerationError ? error.code : "unknown",
+      message: error instanceof Error ? error.message : "Unknown error"
+    });
     const status = error instanceof LegalDraftGenerationError && error.code === "configuration" ? 503 : 502;
     return NextResponse.json({ ok: false, message: safeFailureMessage }, { status });
   }

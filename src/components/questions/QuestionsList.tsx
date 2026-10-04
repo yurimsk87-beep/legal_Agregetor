@@ -423,8 +423,8 @@ export function RelatedQuestionsExpandable({
 
   if (!questions.length) return null;
 
-  const visible = questions.slice(0, visibleCount);
-  const remaining = questions.length - visible.length;
+  const view = getRelatedQuestionsViewState(questions.length, visibleCount, step);
+  const visible = questions.slice(0, view.visibleCount);
 
   return (
     <div>
@@ -433,17 +433,31 @@ export function RelatedQuestionsExpandable({
           <QuestionCard key={question.id} question={question} />
         ))}
       </div>
-      {remaining > 0 ? (
+      {view.canShowMore ? (
         <div className="mt-6 flex justify-center">
           <button
             type="button"
-            onClick={() => setVisibleCount((count) => Math.min(count + step, questions.length))}
-            className="rounded-full border border-line bg-white px-6 py-2.5 text-sm font-semibold text-ink shadow-sm transition hover:border-trust hover:text-trust"
+            onClick={() => setVisibleCount(view.nextVisibleCount)}
+            className="min-h-11 w-full rounded-md border border-line bg-white px-6 py-2.5 text-sm font-semibold text-ink shadow-sm transition hover:border-trust hover:text-trust focus:outline-none focus:ring-2 focus:ring-trust/30 sm:w-auto"
           >
-            Показать ещё {Math.min(step, remaining)}
+            Показать ещё
           </button>
         </div>
       ) : null}
     </div>
   );
+}
+
+export function getRelatedQuestionsViewState(total: number, requestedVisible: number, step = 3) {
+  const safeTotal = Math.max(0, total);
+  const safeStep = Math.max(1, step);
+  const visibleCount = Math.min(Math.max(0, requestedVisible), safeTotal);
+  const remaining = safeTotal - visibleCount;
+
+  return {
+    visibleCount,
+    remaining,
+    canShowMore: remaining > 0,
+    nextVisibleCount: Math.min(visibleCount + safeStep, safeTotal)
+  };
 }

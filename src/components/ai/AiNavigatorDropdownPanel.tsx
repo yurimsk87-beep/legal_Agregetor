@@ -329,11 +329,11 @@ export function AiNavigatorDropdownPanel({ query, page }: Props) {
   if (trimmed.length < MIN_QUERY_LENGTH) return null;
 
   return (
-    <section ref={panelRef} className="scroll-mt-3 rounded-lg border border-trust/30 bg-trust/5 p-3 sm:p-4" aria-label="ИИ-консультант ПравоПоиска">
+    <section ref={panelRef} className="scroll-mt-3 rounded-lg border border-trust/30 bg-trust/5 p-3 sm:p-4" aria-label="Сервис ПравоПоиск">
       <div className="flex items-center justify-between gap-3 text-xs font-semibold text-trust">
         <span className="inline-flex items-center gap-2">
           <Sparkles className="h-4 w-4" aria-hidden="true" />
-          ИИ-консультант
+          Сервис ПравоПоиск
         </span>
         {status === "ready" && !completed ? <span className="font-medium text-zinc-500">Шаг {Math.min(history.length + 1, 3)} из 3</span> : null}
       </div>

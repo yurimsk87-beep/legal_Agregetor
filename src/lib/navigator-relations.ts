@@ -88,8 +88,11 @@ export async function getRelatedQuestionsForContext(context: RelatedQuestionsCon
     ...context.primaryTags,
     ...(context.candidatePhrases ?? [])
   ]);
-  const candidates = await getQuestionsMatchingPhrases(searchTerms, 200);
-  if (candidates.length) return getRelatedQuestions(context, candidates, options);
+  const candidates = await getQuestionsMatchingPhrases(searchTerms, 200, context.allowedCategories);
+  if (candidates.length) {
+    const relatedQuestions = getRelatedQuestions(context, candidates, options);
+    if (relatedQuestions.length) return relatedQuestions;
+  }
 
   // Fallback: nothing matched (or DB unavailable) — score the shared recent index.
   const index = await getNavigatorRelationIndex();

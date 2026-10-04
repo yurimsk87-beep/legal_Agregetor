@@ -1,9 +1,9 @@
 import { legalDraftModelResponseSchema, type LegalDraftRequest, type LegalDraftResponse } from "@/lib/legal-draft-contract";
 
-const DEFAULT_BASE_URL = "https://api.deepseek.com";
-const DEFAULT_MODEL = "deepseek-flash";
+const DEFAULT_BASE_URL = "https://codex.sale/v1";
+const DEFAULT_MODEL = "gpt-5.6-luna";
 const DEFAULT_TIMEOUT_MS = 20_000;
-const MAX_ATTEMPTS = 2;
+const MAX_ATTEMPTS = 3;
 
 type FetchLike = typeof fetch;
 
@@ -18,13 +18,13 @@ export async function generateLegalDraft(
   input: LegalDraftRequest,
   options: { fetchImpl?: FetchLike; apiKey?: string; baseUrl?: string; model?: string; timeoutMs?: number } = {}
 ): Promise<LegalDraftResponse> {
-  const apiKey = options.apiKey ?? process.env.DEEPSEEK_API_KEY;
-  if (!apiKey) throw new LegalDraftGenerationError("DeepSeek API is not configured", "configuration");
+  const apiKey = options.apiKey ?? process.env.AI_API_KEY;
+  if (!apiKey) throw new LegalDraftGenerationError("LLM API is not configured", "configuration");
 
   const fetchImpl = options.fetchImpl ?? fetch;
-  const baseUrl = (options.baseUrl ?? process.env.DEEPSEEK_BASE_URL ?? DEFAULT_BASE_URL).replace(/\/$/, "");
-  const model = options.model ?? process.env.DEEPSEEK_MODEL ?? DEFAULT_MODEL;
-  const timeoutMs = options.timeoutMs ?? parsePositiveInteger(process.env.DEEPSEEK_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
+  const baseUrl = (options.baseUrl ?? process.env.AI_BASE_URL ?? DEFAULT_BASE_URL).replace(/\/$/, "");
+  const model = options.model ?? process.env.AI_MODEL ?? DEFAULT_MODEL;
+  const timeoutMs = options.timeoutMs ?? parsePositiveInteger(process.env.AI_LLM_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
@@ -38,6 +38,7 @@ export async function generateLegalDraft(
           model,
           messages: [
             { role: "system", content: buildSystemPrompt() },
+            ...(attempt > 1 ? [{ role: "system" as const, content: buildCorrectionPrompt() }] : []),
             { role: "user", content: JSON.stringify(input) }
           ],
           response_format: { type: "json_object" },
@@ -49,14 +50,14 @@ export async function generateLegalDraft(
       });
       if (!response.ok) {
         if (response.status >= 500 && attempt < MAX_ATTEMPTS) continue;
-        throw new LegalDraftGenerationError(`DeepSeek returned HTTP ${response.status}`, "provider");
+        throw new LegalDraftGenerationError(`LLM provider returned HTTP ${response.status}`, "provider");
       }
 
       const envelope = (await response.json()) as { choices?: Array<{ message?: { content?: string | null } }> };
       const raw = envelope.choices?.[0]?.message?.content;
-      if (!raw) throw new LegalDraftGenerationError("DeepSeek returned an empty response", "invalid-output");
+      if (!raw) throw new LegalDraftGenerationError("LLM provider returned an empty response", "invalid-output");
       const parsed = legalDraftModelResponseSchema.safeParse(parseJson(raw));
-      if (!parsed.success) throw new LegalDraftGenerationError("DeepSeek response does not match the schema", "invalid-output");
+      if (!parsed.success) throw new LegalDraftGenerationError("LLM response does not match the schema", "invalid-output");
       validateModelOutput(input, parsed.data);
 
       const marker = input.requiresLegalReview || !input.filingReady
@@ -75,10 +76,14 @@ export async function generateLegalDraft(
       };
     } catch (error) {
       lastError = error;
-      if (error instanceof LegalDraftGenerationError && error.code !== "provider") throw error;
+      if (error instanceof LegalDraftGenerationError) {
+        const canCorrectOutput = error.code === "invalid-output" || error.code === "unsafe-output";
+        if (canCorrectOutput && attempt < MAX_ATTEMPTS) continue;
+        if (error.code !== "provider") throw error;
+      }
       if (isAbortError(error)) {
         if (attempt < MAX_ATTEMPTS) continue;
-        throw new LegalDraftGenerationError("DeepSeek request timed out", "timeout");
+        throw new LegalDraftGenerationError("LLM request timed out", "timeout");
       }
       if (attempt >= MAX_ATTEMPTS) break;
     } finally {
@@ -87,7 +92,7 @@ export async function generateLegalDraft(
   }
 
   if (lastError instanceof LegalDraftGenerationError) throw lastError;
-  throw new LegalDraftGenerationError("DeepSeek request failed", "provider");
+  throw new LegalDraftGenerationError("LLM request failed", "provider");
 }
 
 function buildSystemPrompt() {
@@ -103,6 +108,15 @@ function buildSystemPrompt() {
     "Не прогнозируй решение суда и не называй документ готовым к подаче.",
     "Структура JSON: {\"documentTitle\":string,\"draftText\":string,\"usedRuleIds\":string[],\"placeholders\":string[]}.",
     "Для иска, где применимо, включи адресата, стороны, обстоятельства, правовое обоснование, просительную часть, приложения, подпись и дату."
+  ].join(" ");
+}
+
+function buildCorrectionPrompt() {
+  return [
+    "Предыдущий вариант не прошёл серверную проверку.",
+    "В draftText запрещены любые номера и названия статей, кодексов, законов, постановлений, приказов и любые URL.",
+    "Не вставляй раздел с правовыми основаниями: сервер добавит его отдельно по usedRuleIds.",
+    "Сохрани полный юридический документ: адресат, стороны, обстоятельства, требования, приложения, дата и подпись."
   ].join(" ");
 }
 
@@ -159,7 +173,7 @@ function parseJson(raw: string) {
   try {
     return JSON.parse(raw);
   } catch {
-    throw new LegalDraftGenerationError("DeepSeek returned invalid JSON", "invalid-output");
+    throw new LegalDraftGenerationError("LLM provider returned invalid JSON", "invalid-output");
   }
 }
 

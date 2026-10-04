@@ -80,7 +80,7 @@ export const PARENTAL_RIGHTS_DEPRIVATION_RULES: ParentalRightsDeprivationRule[] 
     scope: "Содержание и приложения искового заявления.",
     scenarios: ["court", "existing", "support"],
     legalPaths: ["court", "existing", "support", "adult-special"],
-    limitations: "Помощник не подтверждает полноту доказательств, участников и просительной части."
+    limitations: "Сервис не подтверждает полноту доказательств, участников и просительной части."
   },
   {
     id: "ks-49-2026",

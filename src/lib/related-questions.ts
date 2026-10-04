@@ -14,6 +14,8 @@ export type RelatedQuestionsContext = {
   contextType: RelatedQuestionsContextType;
   /** Free-text category name as stored on questions (e.g. "Семья и дети"). */
   categoryName?: string;
+  /** When set, questions from every other category are rejected. */
+  allowedCategories?: string[];
   /** Strong signals — usually the page's relatedQuestionTopics / userQueries. */
   primaryTags: string[];
   /** Weak signals — broader words that only help alongside a primary match. */
@@ -26,6 +28,8 @@ export type RelatedQuestionsContext = {
   candidatePhrases?: string[];
   /** Every group must match at least one phrase before a question can be shown. */
   requiredTopicGroups?: string[][];
+  /** Every group must contain an exact normalized phrase, without loose token matching. */
+  strictRequiredTopicGroups?: string[][];
   /** Manual overrides (rarely needed — scoring is the main mechanism). */
   pinnedQuestionIds?: string[];
   excludeQuestionIds?: string[];
@@ -143,6 +147,13 @@ function countPhraseMatches(phrases: string[], haystack: string): number {
   return count;
 }
 
+function countStrictPhraseMatches(phrases: string[], haystack: string): number {
+  return phrases.filter((phrase) => {
+    const normalizedPhrase = normalizeText(phrase);
+    return normalizedPhrase.length >= 4 && haystack.includes(normalizedPhrase);
+  }).length;
+}
+
 function buildHaystack(question: Question): string {
   return normalizeText(
     [question.title, question.text, question.summary ?? "", question.category ?? "", ...(question.tags ?? [])].join(" ")
@@ -186,22 +197,33 @@ export function scoreQuestion(question: Question, context: RelatedQuestionsConte
     return { questionId: question.id, score: -999, reasons: ["sensitive_personal_data"] };
   }
 
+  const allowedCategories = (context.allowedCategories ?? []).map(normalizeText).filter(Boolean);
+  if (allowedCategories.length > 0 && !allowedCategories.includes(normalizeText(question.category ?? ""))) {
+    return { questionId: question.id, score: -999, reasons: ["category_not_allowed"] };
+  }
+
   const haystack = buildHaystack(question);
   let score = 0;
 
   const missingRequiredGroup = (context.requiredTopicGroups ?? []).some(
     (group) => countPhraseMatches(group, haystack) === 0
   );
-  if (missingRequiredGroup) {
+  const missingStrictRequiredGroup = (context.strictRequiredTopicGroups ?? []).some(
+    (group) => countStrictPhraseMatches(group, haystack) === 0
+  );
+  if (missingRequiredGroup || missingStrictRequiredGroup) {
     return { questionId: question.id, score: -999, reasons: ["missing_required_topic_group"] };
   }
 
   // Hard exclusions first — these should keep a question out even if it matches
   // the category or a primary tag.
-  const excludedMatches = countPhraseMatches(context.excludedTopics ?? [], haystack);
+  const excludedMatches = countStrictPhraseMatches(context.excludedTopics ?? [], haystack);
   if (excludedMatches > 0) {
-    score -= excludedMatches * EXCLUDED_PENALTY;
-    reasons.push(`excluded_topic_matches:${excludedMatches}`);
+    return {
+      questionId: question.id,
+      score: -999,
+      reasons: [`excluded_topic_matches:${excludedMatches}`]
+    };
   }
 
   const searchPhrases = context.searchPhrases?.length ? context.searchPhrases : context.primaryTags;

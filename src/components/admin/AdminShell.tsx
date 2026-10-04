@@ -11,7 +11,7 @@ const adminNav = [
   { href: "/admin/lawyers/", label: "Юристы", icon: Scale },
   { href: "/admin/questions/", label: "Вопросы", icon: FileQuestion },
   { href: "/admin/answers/", label: "Ответы", icon: MessageSquare },
-  { href: "/admin/ai-navigator/", label: "ИИ-консультант", icon: Sparkles },
+  { href: "/admin/ai-navigator/", label: "Сервис ПравоПоиск", icon: Sparkles },
   { href: "/admin/leads/", label: "Заявки", icon: Inbox },
   { href: "/admin/settings/", label: "Настройки", icon: Settings }
 ];

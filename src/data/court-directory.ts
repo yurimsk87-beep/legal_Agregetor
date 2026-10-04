@@ -13,10 +13,10 @@ export const COURT_DIRECTORY = {
   publicApiDocumentationFound: false,
   openJurisdictionDatasetFound: false,
   integrationDocumentationPath: "docs/integrations/gas-pravosudie.md",
-  directServerAccessNote: "При прямой серверной проверке наблюдался HTTP 403. Пользовательская форма не является документированным API.",
+  directServerAccessNote: "При прямой серверной проверке доступ к автоматической сверке не подтверждён. Пользователь должен проверить сведения на официальной странице.",
   forbiddenIntegrationMethods: [
     "production HTML scraping",
-    "undocumented query parameters as API",
+    "undocumented query parameters",
     "HTTP 403 or geographic restriction bypass",
     "iframe embedding without official permission",
     "unverified local territorial-jurisdiction database"

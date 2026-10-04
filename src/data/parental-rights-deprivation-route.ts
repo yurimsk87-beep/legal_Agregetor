@@ -96,7 +96,7 @@ export const PARENTAL_RIGHTS_DEPRIVATION_SCENARIOS: Record<ParentalRightsDepriva
     mainDocument: "Персональный чек-лист проверки основания",
     documentSlug: "proverka-osnovaniy-lisheniya-roditelskih-prav",
     filing: "Чек-лист не подаётся. При подтверждаемом основании дальнейший путь связан с районным судом и обязательной юридической проверкой.",
-    term: "Срок результата суда помощник не прогнозирует.",
+    term: "Срок результата суда сервис не прогнозирует.",
     fee: "Размер платежа и наличие льготы проверяются применительно к заявителю и составу требований до подачи.",
     warning: "Сервис не устанавливает виновность родителя и не рекомендует лишение прав только из-за семейного конфликта.",
     helperFields: safetyFields
@@ -149,9 +149,9 @@ export const PARENTAL_RIGHTS_DEPRIVATION_SCENARIOS: Record<ParentalRightsDepriva
     mainDocument: "Черновик иска с разделом о содержании ребёнка",
     documentSlug: "lishenie-roditelskih-prav-i-alimenty",
     filing: "В районный или городской суд после проверки подсудности и действующего алиментного документа.",
-    term: "Срок конкретного дела помощник не прогнозирует.",
+    term: "Срок конкретного дела сервис не прогнозирует.",
     fee: "Льготы и платёж проверяются отдельно по каждому требованию и статусу заявителя.",
-    warning: "Помощник не рассчитывает размер алиментов и не отменяет ранее выданный исполнительный документ.",
+    warning: "Сервис не рассчитывает размер алиментов и не отменяет ранее выданный исполнительный документ.",
     helperFields: [...safetyFields, { name: "existingSupport", label: "Алименты уже установлены соглашением или судебным актом?", type: "select", required: true, options: yesNoUnsure }, { name: "supportDetails", label: "Реквизиты действующего документа либо обстоятельства нового требования", type: "textarea", required: true }, { name: "supportRecipient", label: "Кому фактически передан ребёнок и кто должен получать содержание?", type: "textarea", required: true }, ...peopleFields, ...courtFields]
   }
 };

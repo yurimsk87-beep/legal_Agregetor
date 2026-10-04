@@ -54,7 +54,7 @@ export function validatePaternityEstablishment(scenarioKey: PaternityEstablishme
   if (scenarioKey === "existing-record") {
     if (values.existingFatherRecord !== "yes") return checklist("record-not-confirmed", "Чек-лист проверки записи о рождении", "Существующая запись о другом отце не подтверждена; выберите добровольный или судебный маршрут после проверки документа.", preparedData, "assessment");
   }
-  if (scenarioKey === "combined" && values.combinedIssue === "other") return review("combined-other-review", "Дополнительное требование требует отдельной квалификации", "Помощник не объединяет автоматически семейные, наследственные или регистрационные требования.", preparedData, "assessment");
+  if (scenarioKey === "combined" && values.combinedIssue === "other") return review("combined-other-review", "Дополнительное требование требует отдельной квалификации", "Сервис не объединяет автоматически семейные, наследственные или регистрационные требования.", preparedData, "assessment");
 
   const missing = fields.filter((field) => field.required && !values[field.name]?.trim()).map((field) => ({ field: field.name, message: `Заполните поле «${field.label}».` }));
   if (missing.length) return base("missing-data", "assessment", "legalReviewOnly", "Не хватает обязательных сведений", scenario.mainDocument, true, missing, preparedData, ["Заполните обязательные поля."], [], "");
