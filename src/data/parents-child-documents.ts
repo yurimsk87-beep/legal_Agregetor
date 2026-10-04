@@ -18,7 +18,7 @@ function createDocument(key: ParentsChildScenarioKey, title: string, type: strin
     shortIntro: scenario.choiceDescription,
     shortDescription: scenario.choiceDescription,
     description: scenario.description.join(" "),
-    heroDescription: `${scenario.choiceDescription} Помощник не прогнозирует решение суда и не подставляет неподтверждённый адресат.`,
+    heroDescription: `${scenario.choiceDescription} Сервис не прогнозирует решение суда и не подставляет неподтверждённый адресат.`,
     whenToUse: scenario.description,
     whenNotToUse: ["Нужно взыскать алименты, установить отцовство, лишить родительских прав, оформить опеку или решить вопрос о выезде ребёнка за границу."],
     beforeFillingChecklist: ["Выберите добровольный или спорный порядок.", "Подготовьте сведения о ребёнке и родителях.", "Не формулируйте мнение ребёнка или заключение органа опеки от их имени."],

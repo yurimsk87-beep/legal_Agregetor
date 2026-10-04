@@ -5,7 +5,7 @@ import {
 import { DIVORCE_PROPERTY_LEGAL_REVIEW } from "@/data/divorce-property-legal-review";
 
 export const DIVORCE_PROPERTY_ROUTE = {
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   problemSlug: "razvod-i-razdel-imushchestva"
 } as const;
 
@@ -116,7 +116,7 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
     filing: "Формы N 9 и 10 подают в ЗАГС, через МФЦ или электронный портал в пределах способов, предусмотренных статьёй 33 Закона N 143-ФЗ. Способ подачи форм N 11 и 12 определяется статьями 34-35 этого закона.",
     mainDocument: "Заявление о расторжении брака по форме N 9, 10, 11 или 12.",
     documentSlug: "zayavlenie-o-rastorzhenii-braka-v-zags",
-    warning: "Помощник определяет форму и готовит данные, но не создаёт приблизительную копию официального бланка Минюста.",
+    warning: "Сервис определяет форму и готовит данные, но не создаёт приблизительную копию официального бланка Минюста.",
     legalSources: [sources.civilStatus, sources.minjustForms, sources.taxRegistry, sources.taxRegistryAmendment, sources.familyCode],
     helperFields: [
       { name: "registryGround", label: "На каком основании оформляется развод?", type: "select", required: true, options: [
@@ -184,7 +184,7 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
     filing: "По общему правилу иск подают по месту жительства ответчика. Истец может подать по своему месту жительства, если при нём находится несовершеннолетний или выезд к ответчику затруднителен по состоянию здоровья.",
     mainDocument: "Исковое заявление о расторжении брака.",
     documentSlug: "isk-o-rastorzhenii-braka",
-    warning: "Если есть спор о детях или дополнительные требования, подсудность и содержание иска меняются. Помощник остановит автоматическое формирование и сохранит собранные сведения для ручной проверки.",
+    warning: "Если есть спор о детях или дополнительные требования, подсудность и содержание иска меняются. Сервис остановит автоматическое формирование и сохранит собранные сведения для ручной проверки.",
     legalSources: [sources.familyCode, sources.civilProcedure, sources.courtSearch, sources.taxRounding, sources.taxCourt, sources.taxCourtAmendment, sources.taxCourtProcedure, sources.taxCourtBenefits, sources.taxCourtDeferral, sources.supremeCourtDuty, sources.supremeCourt],
     helperFields: [
       { name: "courtRegion", label: "Регион суда", type: "court-region", required: true },
@@ -331,11 +331,11 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
       "Подтверждение направления ответчику копий иска и приложений."
     ],
     fee: "Базовая госпошлина рассчитывается по прогрессивной шкале статьи 333.19 НК РФ исходя из цены иска: от 4 000 до 900 000 руб. При объединении с разводом добавляется 5 000 руб. за неимущественное требование. Льготы и изменение платежа проверяются отдельно.",
-    term: "Срок рассмотрения конкретного дела зависит от суда, экспертизы, состава имущества и участников. Помощник не обещает дату решения.",
+    term: "Срок рассмотрения конкретного дела зависит от суда, экспертизы, состава имущества и участников. Сервис не обещает дату решения.",
     filing: "До 50 000 руб. цены иска спор о разделе имущества относится к мировому судье; свыше 50 000 руб. — к районному суду. Иски о правах на недвижимость требуют отдельной проверки исключительной подсудности по статье 30 ГПК РФ.",
     mainDocument: "Исковое заявление о разделе общего имущества супругов.",
     documentSlug: "isk-o-razdele-imushchestva-suprugov",
-    warning: "Иностранное имущество, банкротство, материнский капитал, детские доли и права третьих лиц требуют ручной проверки. Помощник сформирует черновик и отметит ограничения.",
+    warning: "Иностранное имущество, банкротство, материнский капитал, детские доли и права третьих лиц требуют ручной проверки. Сервис сформирует черновик и отметит ограничения.",
     legalSources: [sources.familyCode, sources.civilProcedure, sources.courtSearch, sources.taxRounding, sources.taxCourt, sources.taxCourtAmendment, sources.taxCourtProcedure, sources.taxCourtBenefits, sources.taxCourtDeferral, sources.supremeCourtDuty, sources.supremeCourt],
     helperFields: [
       { name: "courtRegion", label: "Регион суда", type: "court-region", required: true },

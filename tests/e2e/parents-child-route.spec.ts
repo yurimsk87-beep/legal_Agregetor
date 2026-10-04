@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const route = "/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/";
+const route = "/problems/semeynoe-pravo/roditeli-i-rebenok-posle-razvoda/";
 
 test("canonical route is usable on mobile", async ({ page }) => {
   for (const width of [320, 375, 768, 1440]) {
@@ -19,7 +19,10 @@ test("canonical route is usable on mobile", async ({ page }) => {
 
 test("urgent answer stops ordinary document flow", async ({ page }) => {
   await page.goto(`${route}?scenario=residence`);
-  await page.getByRole("link", { name: "Подготовить документ" }).click();
+  const documentLink = page.getByRole("link", { name: "Подготовить документ" });
+  const documentHref = await documentLink.getAttribute("href");
+  expect(documentHref).toBeTruthy();
+  await page.goto(documentHref!);
   await page.getByLabel(/непосредственная угроза/).selectOption("yes");
   await page.getByRole("button", { name: "Подготовить документ" }).click();
   await expect(page.getByRole("heading", { name: "Не откладывайте обращение ради документа" })).toBeVisible();
@@ -44,7 +47,10 @@ test("scenario is keyboard reachable", async ({ page }) => {
 
 test("change flow requires a concrete subject", async ({ page }) => {
   await page.goto(`${route}?scenario=change`);
-  await page.getByRole("link", { name: "Подготовить документ" }).click();
+  const documentLink = page.getByRole("link", { name: "Подготовить документ" });
+  const documentHref = await documentLink.getAttribute("href");
+  expect(documentHref).toBeTruthy();
+  await page.goto(documentHref!);
   for (const label of [/непосредственная угроза/, /насилие, жестокое обращение/, /за пределами России/]) {
     await page.getByLabel(label).selectOption("no");
     await page.getByRole("button", { name: "Продолжить" }).click();
@@ -58,7 +64,7 @@ test("sitemap and unknown route have correct HTTP behavior", async ({ request })
   const sitemap = await request.get("/sitemap-problems.xml");
   expect(sitemap.status()).toBe(200);
   expect(await sitemap.text()).toContain(route);
-  const missing = await request.get("/problems/semya-i-deti/neizvestnyy-marshrut/");
+  const missing = await request.get("/problems/semeynoe-pravo/neizvestnyy-marshrut/");
   expect(missing.status()).toBe(404);
   expect(await missing.text()).toContain("noindex");
 });

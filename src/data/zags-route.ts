@@ -1,7 +1,7 @@
 import { ZAGS_FEES } from "@/lib/zags-application-validator";
 
 export const ZAGS_PROBLEM_ROUTE = {
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   problemSlug: "brak-zags-i-smena-familii",
   documentSlug: "zayavlenie-v-zags"
 } as const;

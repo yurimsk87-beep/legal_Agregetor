@@ -1,4 +1,5 @@
 import type { DivorcePropertyScenarioKey } from "@/data/divorce-property-route";
+import { isOfficialCourtSource } from "@/lib/court-source";
 
 export type DivorcePropertyValues = Record<string, string | undefined>;
 
@@ -265,8 +266,8 @@ function resolveCourtSelection(scenarioKey: DivorcePropertyScenarioKey, values: 
   } else {
     if (!values.courtName?.trim()) issues.push({ field: "courtName", message: "Укажите официальное наименование найденного суда или мирового участка." });
     if (!values.courtAddress?.trim()) issues.push({ field: "courtAddress", message: "Укажите официальный адрес найденного суда или мирового участка." });
-    if (!isHttpsUrl(values.courtWebsite)) {
-      issues.push({ field: "courtWebsite", message: "Укажите ссылку, с которой перенесены реквизиты суда, начинающуюся с https://." });
+    if (!isOfficialCourtSource(values.courtWebsite)) {
+      issues.push({ field: "courtWebsite", message: "Укажите официальную страницу суда в домене судебной системы РФ." });
     } else if (isPlaceholderCourtUrl(values.courtWebsite)) {
       issues.push({ field: "courtWebsite", message: "Пример или тестовый адрес страницы суда использовать нельзя." });
     }
@@ -305,15 +306,6 @@ function resolveCourtSelection(scenarioKey: DivorcePropertyScenarioKey, values: 
   };
 }
 
-function isHttpsUrl(rawValue: string | undefined) {
-  if (!rawValue?.trim()) return false;
-  try {
-    return new URL(rawValue.trim()).protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
 function isPlaceholderCourtUrl(rawValue: string | undefined) {
   if (!rawValue?.trim()) return false;
   try {
@@ -344,7 +336,7 @@ function resolveCourtFee(values: DivorcePropertyValues, baseAmount: number | nul
       amount: null,
       label: `Базовый расчёт: ${baseLabel} Фактический платёж определяется после проверки конкретной льготы.`,
       issue: values.feeReliefDetails?.trim() ? "" : "Укажите норму и документ, подтверждающие заявленную льготу.",
-      notice: "Помощник не применяет льготу автоматически: её основание и пределы нужно подтвердить по статьям 333.35-333.36 НК РФ.",
+      notice: "Сервис не применяет льготу автоматически: её основание и пределы нужно подтвердить по статьям 333.35-333.36 НК РФ.",
       requiresLegalReview: true
     };
   }
@@ -457,7 +449,7 @@ export function validateDivorcePropertyApplication(
   if (scenarioKey === "registry-divorce") {
     documentTitle = "Заявление о расторжении брака через ЗАГС";
     jurisdiction = "Орган ЗАГС по выбору заявителя в пределах способов, предусмотренных Законом N 143-ФЗ.";
-    filingInstruction = "Подайте заявление способом, предусмотренным для определённой формы N 9-12; помощник покажет официальный бланк, но не имитирует его.";
+    filingInstruction = "Подайте заявление способом, предусмотренным для определённой формы N 9-12; сервис покажет официальный бланк, но не имитирует его.";
     paymentInstruction = "Получите актуальные реквизиты выбранного органа ЗАГС или используйте официальный электронный способ оплаты; региональные реквизиты в сервисе не сохраняются.";
     originalsInstruction = "При обращении возьмите документ, удостоверяющий личность, и оригиналы тех документов-оснований, которые применимы к выбранной форме.";
     afterFiling = "ЗАГС проверяет заявление и основания. В применимых случаях регистрация проводится по истечении месяца при требуемом законом присутствии; после регистрации выдается свидетельство, а момент прекращения брака определяется статьей 25 СК РФ.";

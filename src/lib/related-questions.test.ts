@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { buildDocumentQuestionContext, buildProblemQuestionContext } from "../data/related-questions-context";
+import { questions as sampleQuestions } from "./sample-data";
 import { getRelatedQuestions, scoreQuestion, type RelatedQuestionsContext } from "./related-questions";
 import type { Question } from "./types";
 
@@ -59,12 +61,12 @@ const problemContext: RelatedQuestionsContext = {
   assert.deepEqual(result.map((r) => r.id), ["s2", "s1"], "more primary matches should rank first");
 }
 
-// 6. Fewer than 2 relevant → block hidden (empty array).
+// 6. A single relevant question is preferable to filling the block with noise.
 {
   const relevant = q({ id: "h1", title: "Как взыскать алименты" });
   const noise = q({ id: "h2", title: "Как оформить наследство", category: "Семья и дети" });
   const result = getRelatedQuestions(problemContext, [relevant, noise]);
-  assert.deepEqual(result, [], "single relevant question must hide the block");
+  assert.deepEqual(result.map((item) => item.id), ["h1"], "single relevant question must remain visible");
 }
 
 // 7. excludeQuestionIds are never shown.
@@ -104,6 +106,77 @@ const problemContext: RelatedQuestionsContext = {
   const propertyNoise = q({ id: "d3", title: "Как разделить имущество и поделить квартиру при разводе" });
   const filtered = getRelatedQuestions(docContext, [good, better, propertyNoise]);
   assert.ok(!filtered.some((r) => r.id === "d3"), "property question must be excluded on the divorce-claim document");
+}
+
+// 11. Candidate-only phrases may widen the DB query but cannot establish relevance.
+{
+  const context: RelatedQuestionsContext = {
+    contextType: "problem",
+    primaryTags: ["сменить школу без согласия отца"],
+    candidatePhrases: ["сменить школу"],
+    requiredTopicGroups: [["без согласия отца", "несогласие родителей"]]
+  };
+  const noise = q({ id: "c1", title: "Можно ли сменить школу по программе земского учителя?" });
+  const relevant = q({ id: "c2", title: "Может ли мать сменить школу ребёнку без согласия отца?" });
+  assert.equal(scoreQuestion(noise, context).score, -999, "candidate-only phrase must not make a question relevant");
+  assert.ok(scoreQuestion(relevant, context).score >= 35, "required family context must allow the relevant question");
+}
+
+// 12. A divorce document must not accept questions that only describe life after divorce.
+{
+  const context = buildDocumentQuestionContext({
+    documentSlug: "isk-o-rastorzhenii-braka",
+    relatedPrimaryTags: [],
+    relatedExcludedTopics: []
+  });
+  const benefitNoise = q({ id: "divorce-noise-1", title: "Как оформить пособие после развода" });
+  const childNoise = q({ id: "divorce-noise-2", title: "Может ли бывший муж забрать ребёнка после развода" });
+  const relevant = q({ id: "divorce-relevant", title: "Как подать на развод через суд, если супруг не согласен" });
+
+  assert.equal(scoreQuestion(benefitNoise, context).score, -999, "post-divorce benefits must be excluded");
+  assert.equal(scoreQuestion(childNoise, context).score, -999, "post-divorce child dispute must be excluded");
+  assert.ok(scoreQuestion(relevant, context).score >= 40, "court-divorce filing question must remain relevant");
+}
+
+// 13. Family pages must reject questions from every non-family category.
+{
+  const context: RelatedQuestionsContext = {
+    ...problemContext,
+    allowedCategories: ["Семейные дела"]
+  };
+  const familyQuestion = q({ id: "family-category", title: "Как взыскать алименты на ребёнка", category: "Семейные дела" });
+  const consumerQuestion = q({ id: "consumer-category", title: "Как взыскать алименты при возврате товара", category: "Защита прав потребителя" });
+
+  assert.ok(scoreQuestion(familyQuestion, context).score >= 35, "family-category question must remain eligible");
+  assert.deepEqual(scoreQuestion(consumerQuestion, context).reasons, ["category_not_allowed"]);
+}
+
+// 14. A family question that merely mentions former spouses is not a divorce/property match.
+{
+  const context = buildProblemQuestionContext({
+    slug: "razvod-i-razdel-imushchestva",
+    categoryTitle: "Семейное право",
+    allowedCategories: ["Семейные дела"],
+    primaryTags: ["развод", "раздел имущества"]
+  });
+  const alimonyNoise = q({
+    id: "divorce-route-noise",
+    title: "Должна ли сестра бывшего мужа помогать его ребёнку?",
+    text: "Бывшая жена просит родственников помогать деньгами дочери и платить алименты.",
+    category: "Семейные дела"
+  });
+  const divorceQuestion = q({
+    id: "divorce-route-relevant",
+    title: "Как подать на развод через суд, если супруг не согласен?",
+    category: "Семейные дела"
+  });
+
+  assert.deepEqual(scoreQuestion(alimonyNoise, context).reasons, ["missing_required_topic_group"]);
+  assert.ok(scoreQuestion(divorceQuestion, context).score >= 35, "explicit divorce question must remain eligible");
+
+  const productionSnapshotNoise = sampleQuestions.find((question) => question.slug.startsWith("q-30991-"));
+  assert.ok(productionSnapshotNoise, "production snapshot regression question is missing");
+  assert.equal(scoreQuestion(productionSnapshotNoise, context).score, -999, "alimony snapshot must not appear on the divorce route");
 }
 
 console.log("related-questions.test.ts: all assertions passed");

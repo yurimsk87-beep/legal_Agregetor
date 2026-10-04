@@ -366,8 +366,8 @@ async function run() {
   assert.equal(GUARDIANSHIP_LEGAL_RULES.some(({ status }) => status === "not-found"), true);
   assert.equal(isUnknownNavigatorPath("/documents/ne-sushchestvuet/"), true);
   assert.equal(isUnknownNavigatorPath("/problems/ne-sushchestvuet/"), true);
-  assert.equal(isUnknownNavigatorPath("/problems/semya-i-deti/ne-sushchestvuet/"), true);
-  assert.equal(isUnknownNavigatorPath("/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/"), false);
+  assert.equal(isUnknownNavigatorPath("/problems/semeynoe-pravo/ne-sushchestvuet/"), true);
+  assert.equal(isUnknownNavigatorPath("/problems/semeynoe-pravo/opeka-i-popechitelstvo-nad-rebenkom/"), false);
 
   assert.equal(getGuardianshipDocxFilename("zhaloba-na-organ-opeki"), "CHERNOVIK-zhaloba-na-organ-opeki.docx");
   assert.equal(ensureGuardianshipDraftMarker("Текст").startsWith("ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА"), true);

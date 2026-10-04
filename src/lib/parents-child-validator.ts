@@ -110,7 +110,7 @@ export function validateParentsChildApplication(scenarioKey: ParentsChildScenari
   if (courtPath) notices.push("ПравоПоиск не определяет конкретный суд по адресу. Введённые реквизиты считаются данными пользователя и требуют проверки.");
   if (values.childOpinion?.trim()) notices.push("Записано только сообщение заявителя о мнении ребёнка. Оно не является опросом ребёнка или заключением органа опеки.");
   const childAge = Number(values.childAge);
-  if (Number.isFinite(childAge) && childAge >= 10) notices.push("Для ребёнка от 10 лет действует правило об обязательном учёте его мнения, кроме случая, когда это противоречит его интересам. Помощник мнение не выясняет.");
+  if (Number.isFinite(childAge) && childAge >= 10) notices.push("Для ребёнка от 10 лет действует правило об обязательном учёте его мнения, кроме случая, когда это противоречит его интересам. Сервис мнение не выясняет.");
 
   return {
     allowed: issues.length === 0,

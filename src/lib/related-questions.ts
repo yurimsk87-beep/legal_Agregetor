@@ -14,6 +14,8 @@ export type RelatedQuestionsContext = {
   contextType: RelatedQuestionsContextType;
   /** Free-text category name as stored on questions (e.g. "Семья и дети"). */
   categoryName?: string;
+  /** When set, questions from every other category are rejected. */
+  allowedCategories?: string[];
   /** Strong signals — usually the page's relatedQuestionTopics / userQueries. */
   primaryTags: string[];
   /** Weak signals — broader words that only help alongside a primary match. */
@@ -22,6 +24,12 @@ export type RelatedQuestionsContext = {
   excludedTopics?: string[];
   /** Extra search phrases; defaults to primaryTags when omitted. */
   searchPhrases?: string[];
+  /** Candidate-only phrases used by the DB query, but not as relevance evidence. */
+  candidatePhrases?: string[];
+  /** Every group must match at least one phrase before a question can be shown. */
+  requiredTopicGroups?: string[][];
+  /** Every group must contain an exact normalized phrase, without loose token matching. */
+  strictRequiredTopicGroups?: string[][];
   /** Manual overrides (rarely needed — scoring is the main mechanism). */
   pinnedQuestionIds?: string[];
   excludeQuestionIds?: string[];
@@ -50,7 +58,7 @@ const EXCLUDED_PENALTY = 200;
 
 const MIN_PROBLEM_SCORE = 35;
 const MIN_DOCUMENT_SCORE = 40;
-const MIN_RESULTS = 2;
+const MIN_RESULTS = 1;
 const MAX_RESULTS = 6;
 const FRESH_WINDOW_MS = 180 * 24 * 60 * 60 * 1000;
 
@@ -139,10 +147,30 @@ function countPhraseMatches(phrases: string[], haystack: string): number {
   return count;
 }
 
+function countStrictPhraseMatches(phrases: string[], haystack: string): number {
+  return phrases.filter((phrase) => {
+    const normalizedPhrase = normalizeText(phrase);
+    return normalizedPhrase.length >= 4 && haystack.includes(normalizedPhrase);
+  }).length;
+}
+
 function buildHaystack(question: Question): string {
   return normalizeText(
     [question.title, question.text, question.summary ?? "", question.category ?? "", ...(question.tags ?? [])].join(" ")
   );
+}
+
+function containsSensitivePublicData(question: Question): boolean {
+  const text = [question.title, question.text, question.summary ?? ""].join(" ");
+  const email = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
+  const phone = /(?:^|\D)(?:\+?7|8)[\s().-]*(?:\d[\s().-]*){10}(?:\D|$)/;
+  const externalContact = /https?:\/\/|\b(?:t\.me|wa\.me|telegram|whatsapp|телеграм|ватсап)\b/i;
+  const passport = /паспорт\D{0,24}\d{4}[\s-]*\d{6}\b/i;
+  const snils = /\b\d{3}-\d{3}-\d{3}[\s-]\d{2}\b/;
+  const inn = /инн\D{0,12}\d{10,12}\b/i;
+  const bankCard = /\b(?:\d[ -]*?){16}\b/;
+  const fullAddress = /(?:ул\.?|улица|проспект|пр-т|пер\.?|переулок)\s+[\p{L}\s.-]{2,50},?\s+(?:д\.?|дом)\s*\d+/iu;
+  return [email, phone, externalContact, passport, snils, inn, bankCard, fullAddress].some((pattern) => pattern.test(text));
 }
 
 function isPublished(question: Question): boolean {
@@ -165,16 +193,37 @@ export function scoreQuestion(question: Question, context: RelatedQuestionsConte
   if (!isPublished(question)) {
     return { questionId: question.id, score: -999, reasons: ["not_published"] };
   }
+  if (containsSensitivePublicData(question)) {
+    return { questionId: question.id, score: -999, reasons: ["sensitive_personal_data"] };
+  }
+
+  const allowedCategories = (context.allowedCategories ?? []).map(normalizeText).filter(Boolean);
+  if (allowedCategories.length > 0 && !allowedCategories.includes(normalizeText(question.category ?? ""))) {
+    return { questionId: question.id, score: -999, reasons: ["category_not_allowed"] };
+  }
 
   const haystack = buildHaystack(question);
   let score = 0;
 
+  const missingRequiredGroup = (context.requiredTopicGroups ?? []).some(
+    (group) => countPhraseMatches(group, haystack) === 0
+  );
+  const missingStrictRequiredGroup = (context.strictRequiredTopicGroups ?? []).some(
+    (group) => countStrictPhraseMatches(group, haystack) === 0
+  );
+  if (missingRequiredGroup || missingStrictRequiredGroup) {
+    return { questionId: question.id, score: -999, reasons: ["missing_required_topic_group"] };
+  }
+
   // Hard exclusions first — these should keep a question out even if it matches
   // the category or a primary tag.
-  const excludedMatches = countPhraseMatches(context.excludedTopics ?? [], haystack);
+  const excludedMatches = countStrictPhraseMatches(context.excludedTopics ?? [], haystack);
   if (excludedMatches > 0) {
-    score -= excludedMatches * EXCLUDED_PENALTY;
-    reasons.push(`excluded_topic_matches:${excludedMatches}`);
+    return {
+      questionId: question.id,
+      score: -999,
+      reasons: [`excluded_topic_matches:${excludedMatches}`]
+    };
   }
 
   const searchPhrases = context.searchPhrases?.length ? context.searchPhrases : context.primaryTags;
@@ -252,9 +301,12 @@ export function getRelatedQuestions(
   const ranked = scored.map((entry) => entry.question);
   const merged: Question[] = [];
   const seen = new Set<string>();
+  const seenTitles = new Set<string>();
   for (const question of [...pinned, ...ranked]) {
-    if (seen.has(question.id)) continue;
+    const titleKey = normalizeText(question.title);
+    if (seen.has(question.id) || (titleKey && seenTitles.has(titleKey))) continue;
     seen.add(question.id);
+    if (titleKey) seenTitles.add(titleKey);
     merged.push(question);
   }
 

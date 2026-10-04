@@ -4,7 +4,7 @@ import { getAiNavigatorAnalytics, type AiNavigatorAnalytics } from "@/lib/ai/nav
 import { getAiNavigatorStatus } from "@/lib/ai/ai-navigator-visibility";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Аналитика ИИ-консультанта", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Аналитика сервиса ПравоПоиск", robots: { index: false, follow: false } };
 
 type PageProps = { searchParams?: Promise<{ period?: string; query?: string }> };
 
@@ -51,8 +51,8 @@ export default async function AdminAiNavigatorPage({ searchParams }: PageProps) 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Аналитика ИИ-консультанта</h1>
-        <p className="mt-1 text-sm text-zinc-600">Показы, клики и уверенность ИИ-консультанта в поиске.</p>
+        <h1 className="text-2xl font-semibold text-ink">Аналитика сервиса ПравоПоиск</h1>
+        <p className="mt-1 text-sm text-zinc-600">Показы, клики и качество работы сервиса в поиске.</p>
       </div>
 
       <StatusBlock status={status} />
@@ -80,7 +80,7 @@ export default async function AdminAiNavigatorPage({ searchParams }: PageProps) 
       ) : (
         <>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Metric label="Показы ИИ-консультанта" value={data.summary.views} />
+            <Metric label="Показы сервиса ПравоПоиск" value={data.summary.views} />
             <Metric label="Ошибки" value={data.summary.errors} />
             <Metric label="Low confidence" value={data.summary.lowConfidence} />
             <Metric label="Просмотры уточнений" value={data.summary.questionViews} />
@@ -159,18 +159,14 @@ function StatusBlock({ status }: { status: ReturnType<typeof getAiNavigatorStatu
     </span>
   );
   const rows: { label: string; value: React.ReactNode }[] = [
-    { label: "AI_NAVIGATOR_ENABLED", value: <Flag on={status.enabled} /> },
-    { label: "AI_NAVIGATOR_VISIBLE_TO", value: <span className="font-mono text-xs">{status.visibleTo}</span> },
-    { label: "AI_NAVIGATOR_LLM_ENABLED", value: <Flag on={status.llmFlag} /> },
-    { label: "LLM эффективно активна", value: <Flag on={status.llmEffective} /> },
-    { label: "AI_PROVIDER", value: <span className="font-mono text-xs">{status.provider ?? "—"}</span> },
-    { label: "AI_MODEL", value: <span className="font-mono text-xs">{status.model ?? "—"}</span> },
-    { label: "AI_BASE_URL", value: <span className="break-all font-mono text-xs">{status.baseUrl ?? "—"}</span> },
-    { label: "AI_API_KEY", value: <span className="text-xs text-zinc-600">{status.apiKeyConfigured ? "задан (скрыт)" : "не задан"}</span> }
+    { label: "Сервис включён", value: <Flag on={status.enabled} /> },
+    { label: "Доступ", value: <span className="font-mono text-xs">{status.visibleTo}</span> },
+    { label: "Формирование ответов включено", value: <Flag on={status.llmFlag} /> },
+    { label: "Сервис готов", value: <Flag on={status.llmEffective} /> }
   ];
 
   return (
-    <Panel title="Статус ИИ-консультанта">
+    <Panel title="Статус сервиса ПравоПоиск">
       <div className="grid gap-x-6 gap-y-2 px-4 py-3 sm:grid-cols-2">
         {rows.map((row) => (
           <div key={row.label} className="flex items-center justify-between gap-3 border-b border-line/60 py-1.5">
@@ -182,8 +178,7 @@ function StatusBlock({ status }: { status: ReturnType<typeof getAiNavigatorStatu
       <p className="border-t border-line px-4 py-3 text-xs leading-5 text-zinc-500">
         {status.enabled
           ? `Карточка показывается ${status.visibleTo === "all" ? "всем пользователям" : "только администраторам"}.`
-          : "ИИ-консультант выключен: карточка не показывается в поиске. События аналитики будут появляться только от ручных API-тестов или прошлых сессий."}
-        {" "}AI_API_KEY не отображается из соображений безопасности.
+          : "Сервис выключен: карточка не показывается в поиске. В аналитике могут оставаться события прошлых сессий."}
       </p>
     </Panel>
   );

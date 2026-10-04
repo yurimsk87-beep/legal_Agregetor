@@ -1,5 +1,5 @@
 export const PARENTS_CHILD_ROUTE = {
-  categorySlug: "semya-i-deti",
+  categorySlug: "semeynoe-pravo",
   problemSlug: "roditeli-i-rebenok-posle-razvoda"
 } as const;
 
@@ -77,7 +77,7 @@ export const PARENTS_CHILD_SCENARIOS: Record<ParentsChildScenarioKey, ParentsChi
     mainDocument: "Соглашение родителей или черновик иска о месте жительства ребёнка",
     documentSlug: "mesto-zhitelstva-rebenka-posle-razvoda",
     filing: "Соглашение подписывают родители. Спор рассматривает районный или городской суд; конкретный суд необходимо подтвердить по официальному источнику.",
-    term: "Срок судебного рассмотрения и дата вступления решения в силу зависят от движения конкретного дела; помощник их не прогнозирует.",
+    term: "Срок судебного рассмотрения и дата вступления решения в силу зависят от движения конкретного дела; сервис их не прогнозирует.",
     fee: "Платёж по судебному требованию необходимо проверить по действующей редакции НК РФ и реквизитам выбранного суда перед подачей.",
     warning: "Ни пол родителя, ни более высокий доход сами по себе не определяют исход спора.",
     helperFields: [...safetyFields, { name: "existingOrder", label: "Этот вопрос уже урегулирован судебным актом?", type: "select", required: true, options: yesNoUnsure }, { name: "existingOrderNeed", label: "Что требуется сделать с существующим порядком?", type: "select", required: true, options: [{ label: "Изменить порядок", value: "change" }, { label: "Добиться исполнения", value: "enforcement" }, { label: "Понять, что делать дальше", value: "unsure" }] }, { name: "agreement", label: "Родители согласны, с кем будет жить ребёнок?", type: "select", required: true, options: yesNoUnsure }, ...partiesFields, { name: "currentCircumstances", label: "Фактические обстоятельства проживания и ухода за ребёнком", type: "textarea", required: true }, { name: "requestedResidence", label: "Какую договорённость или требование нужно зафиксировать?", type: "textarea", required: true }, { name: "evidence", label: "Какие подтверждающие документы имеются?", type: "textarea" }, ...courtFields]
@@ -95,9 +95,9 @@ export const PARENTS_CHILD_SCENARIOS: Record<ParentsChildScenarioKey, ParentsChi
     mainDocument: "Соглашение о порядке общения или черновик иска",
     documentSlug: "poryadok-obshcheniya-s-rebenkom",
     filing: "Соглашение подписывают родители. Спор рассматривает районный или городской суд с участием органа опеки.",
-    term: "Сроки исполнения соглашения задают родители. Срок судебного дела помощник не прогнозирует.",
+    term: "Сроки исполнения соглашения задают родители. Срок судебного дела сервис не прогнозирует.",
     fee: "Перед судебной подачей проверьте действующий размер пошлины и реквизиты на официальной странице суда.",
-    warning: "Помощник не определяет за семью безопасный график и не формулирует мнение ребёнка.",
+    warning: "Сервис не определяет за семью безопасный график и не формулирует мнение ребёнка.",
     helperFields: [...safetyFields, { name: "existingOrder", label: "Порядок общения уже установлен судебным актом?", type: "select", required: true, options: yesNoUnsure }, { name: "existingOrderNeed", label: "Что требуется сделать с существующим порядком?", type: "select", required: true, options: [{ label: "Изменить порядок", value: "change" }, { label: "Добиться исполнения", value: "enforcement" }, { label: "Понять, что делать дальше", value: "unsure" }] }, { name: "agreement", label: "Родители согласовали порядок общения?", type: "select", required: true, options: yesNoUnsure }, ...partiesFields, { name: "currentOrder", label: "Как общение происходит сейчас?", type: "textarea", required: true }, { name: "requestedOrder", label: "Какой порядок предлагают установить?", type: "textarea", required: true }, { name: "evidence", label: "Какие обстоятельства и документы подтверждают позицию?", type: "textarea" }, ...courtFields]
   },
   change: {
@@ -113,7 +113,7 @@ export const PARENTS_CHILD_SCENARIOS: Record<ParentsChildScenarioKey, ParentsChi
     mainDocument: "Изменение места жительства или порядка общения с ребёнком",
     documentSlug: "izmenenie-poryadka-po-rebenku",
     filing: "Изменение соглашения подписывают родители. Изменение судебного порядка требует судебной процедуры, которую нужно проверить применительно к делу.",
-    term: "Единый срок для добровольного изменения соглашения не установлен помощником; срок судебной процедуры зависит от дела.",
+    term: "Единый срок для добровольного изменения соглашения не установлен сервисом; срок судебной процедуры зависит от дела.",
     fee: "Судебные расходы проверяются до подачи по виду требования и реквизитам суда.",
     warning: "Если действующий порядок установлен судом, документ всегда остаётся черновиком и не готов к подаче без проверки.",
     helperFields: [...safetyFields, { name: "changeSubject", label: "Что вы хотите изменить?", type: "select", required: true, options: [{ label: "Место жительства ребёнка", value: "residence" }, { label: "Порядок общения с ребёнком", value: "communication" }] }, { name: "existingBasis", label: "Чем установлен действующий порядок?", type: "select", required: true, options: [{ label: "Письменным соглашением родителей", value: "agreement" }, { label: "Судебным актом", value: "court" }, { label: "Устной договорённостью", value: "oral" }, { label: "Не уверен", value: "unsure" }] }, { name: "bothAgree", label: "Оба родителя согласны с изменениями?", type: "select", required: true, options: yesNoUnsure }, ...partiesFields, { name: "currentResidenceArrangement", label: "Как сейчас определено и фактически устроено место жительства ребёнка?", type: "textarea", required: true }, { name: "currentCommunicationArrangement", label: "Как сейчас установлен и фактически исполняется порядок общения?", type: "textarea", required: true }, { name: "changedCircumstances", label: "Какие обстоятельства изменились?", type: "textarea", required: true }, { name: "requestedResidenceChange", label: "Какое место жительства ребёнка родители согласовали или заявитель просит определить?", type: "textarea", required: true }, { name: "requestedCommunicationChange", label: "Какой новый порядок общения родители согласовали или заявитель предлагает установить?", type: "textarea", required: true }, { name: "evidence", label: "Какие документы подтверждают изменившиеся обстоятельства?", type: "textarea" }, ...courtFields]
@@ -131,8 +131,8 @@ export const PARENTS_CHILD_SCENARIOS: Record<ParentsChildScenarioKey, ParentsChi
     mainDocument: "Чек-лист исполнения или черновик обращения судебному приставу",
     documentSlug: "ispolnenie-resheniya-o-rebenke",
     filing: "В суд за исполнительным листом либо в подтверждённое подразделение ФССП — в зависимости от стадии.",
-    term: "Срок и порядок конкретного исполнительного действия определяются материалами производства; помощник не обещает дату результата.",
-    fee: "Помощник не заявляет о платеже без подтверждённого основания для выбранного действия.",
+    term: "Срок и порядок конкретного исполнительного действия определяются материалами производства; сервис не обещает дату результата.",
+    fee: "Сервис не заявляет о платеже без подтверждённого основания для выбранного действия.",
     warning: "Если судебного решения нет, сначала нужен маршрут определения места жительства или порядка общения.",
     helperFields: [...safetyFields, { name: "decisionExists", label: "Есть судебное решение о месте жительства или порядке общения?", type: "select", required: true, options: yesNoUnsure }, { name: "decisionEffective", label: "Решение вступило в законную силу?", type: "select", required: true, options: yesNoUnsure }, { name: "writExists", label: "Получен исполнительный лист?", type: "select", required: true, options: yesNoUnsure }, { name: "enforcementStarted", label: "Исполнительное производство возбуждено?", type: "select", required: true, options: yesNoUnsure }, ...partiesFields, { name: "decisionDetails", label: "Суд, номер дела, дата и установленный порядок", type: "textarea", required: true }, { name: "enforcementDetails", label: "Номер производства и подразделение ФССП, если известны", type: "textarea" }, { name: "nonCompliance", label: "Какие конкретные действия или эпизоды нарушают решение?", type: "textarea", required: true }, { name: "evidence", label: "Какие подтверждения неисполнения имеются?", type: "textarea" }, { name: "bailiffConfirmed", label: "Подразделение ФССП проверено на официальном сайте?", type: "select", required: true, options: yesNoUnsure }]
   }

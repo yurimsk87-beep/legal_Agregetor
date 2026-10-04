@@ -1,6 +1,7 @@
 import { getNavigatorDocument } from "@/data/documents";
 import { getLegalCategory } from "@/data/legal-categories";
 import { getLegalProblem } from "@/data/legal-problems";
+import { navigatorTools } from "@/data/tools";
 
 export function isUnknownNavigatorPath(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
@@ -15,6 +16,11 @@ export function isUnknownNavigatorPath(pathname: string) {
     if (segments.length === 2) return !getLegalCategory(segments[1]);
     if (segments.length === 3) return !getLegalProblem(segments[1], segments[2]);
     return true;
+  }
+
+  if (segments[0] === "tools") {
+    if (segments.length === 1) return false;
+    return segments.length !== 2 || !navigatorTools.some((tool) => tool.slug === segments[1] && tool.status === "available");
   }
 
   return false;

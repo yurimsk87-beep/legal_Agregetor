@@ -1,0 +1,6 @@
+import assert from "node:assert/strict";
+import { RELATIVE_CHILD_CONTACT_KEYS, RELATIVE_CHILD_CONTACT_SCENARIOS } from "../src/data/relative-child-contact-route";
+import { buildRelativeChildContactPdfText, createRelativeChildContactPdfBlob } from "../src/lib/relative-child-contact-pdf";
+import { validateRelativeChildContact } from "../src/lib/relative-child-contact-validator";
+async function main() { for (const key of RELATIVE_CHILD_CONTACT_KEYS) { const values = Object.fromEntries(RELATIVE_CHILD_CONTACT_SCENARIOS[key].questions.map((field) => [field.name, field.options?.[0]?.value ?? `Проверочное значение: ${field.label}`])); values.childSafety = "no"; if (key === "court") values.guardianshipOrder = "yes"; if (key === "guardianship") { values.region = "region-saint-petersburg"; values.municipality = "spb-gagarinskoe"; values.authorityName = "spb-gagarinskoe-guardianship"; } const result = validateRelativeChildContact(key, values); assert.equal(result.pdfAvailable, true); assert.match(buildRelativeChildContactPdfText(result), /Подготовленные сведения/); const blob = await createRelativeChildContactPdfBlob(result); assert.ok(blob.size > 1000); console.log(`PASS ${key}: ${blob.size} bytes`); } console.log("relative child contact PDF audit passed"); }
+main().catch((error) => { console.error(error); process.exit(1); });

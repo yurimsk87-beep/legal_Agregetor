@@ -73,10 +73,10 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
 
   return (
     <section id="fill-online" className="scroll-mt-24 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
-      <p className="text-sm font-semibold uppercase tracking-wide text-trust">Помощник по подготовке</p>
+      <p className="text-sm font-semibold uppercase tracking-wide text-trust">Сервис по подготовке</p>
       <h2 className="mt-2 text-2xl font-semibold text-ink">Подготовьте данные и список приложений</h2>
       <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-700">
-        Помощник проверит основные условия выбранной процедуры, подскажет форму, приложения и госпошлину. Это не полная правовая оценка и не официальный бланк органа ЗАГС.
+        Сервис проверит основные условия выбранной процедуры, подскажет форму, приложения и госпошлину. Это не полная правовая оценка и не официальный бланк органа ЗАГС.
       </p>
 
       <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">

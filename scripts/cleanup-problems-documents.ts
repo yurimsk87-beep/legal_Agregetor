@@ -6,7 +6,7 @@ const applyChanges = process.argv.includes("--apply");
 const KEEP_DOCUMENT_SLUG = "zayavlenie-v-zags";
 const KEEP_SCENARIO_SLUG = "brak-zags-i-smena-familii";
 const KEEP_DOCUMENT_PATH = `/documents/${KEEP_DOCUMENT_SLUG}/`;
-const KEEP_SCENARIO_PATH = `/problems/semya-i-deti/${KEEP_SCENARIO_SLUG}/`;
+const KEEP_SCENARIO_PATH = `/problems/semeynoe-pravo/${KEEP_SCENARIO_SLUG}/`;
 
 const documentWhere: Prisma.DocumentTemplateWhereInput = { slug: { not: KEEP_DOCUMENT_SLUG } };
 const scenarioWhere: Prisma.LegalScenarioWhereInput = { slug: { not: KEEP_SCENARIO_SLUG } };

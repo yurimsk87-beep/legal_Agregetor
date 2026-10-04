@@ -512,7 +512,7 @@ export async function getQuestions(serviceId?: string, cityId?: string, options:
 // Candidate pool for the "Похожие вопросы" block: public questions whose title
 // or text contains any of the given phrases. Lets the scorer rank relevant
 // questions from the whole DB instead of an arbitrary recent window.
-export async function getQuestionsMatchingPhrases(phrases: string[], take = 200) {
+export async function getQuestionsMatchingPhrases(phrases: string[], take = 200, allowedCategories: string[] = []) {
   // Title-only match: scanning the large `text` column with many ILIKEs over the
   // full question base is too slow (trips the repository query-timeout breaker).
   // Title carries the topic for relevant questions; full text is still used by
@@ -525,6 +525,7 @@ export async function getQuestionsMatchingPhrases(phrases: string[], take = 200)
       ? []
       : questions
           .filter(isPublicQuestion)
+          .filter((question) => (allowedCategories.length ? question.category && allowedCategories.includes(question.category) : true))
           .filter((question) => {
             const haystack = `${question.title} ${question.summary ?? ""} ${(question.tags ?? []).join(" ")}`.toLowerCase();
             return terms.some((term) => haystack.includes(term));
@@ -536,6 +537,7 @@ export async function getQuestionsMatchingPhrases(phrases: string[], take = 200)
     const rows = await prisma.question.findMany({
       where: {
         ...getPublicQuestionWhere(),
+        service: allowedCategories.length ? { name: { in: allowedCategories } } : undefined,
         OR: terms.map((term) => ({ title: { contains: term, mode: "insensitive" as const } }))
       },
       include: {
