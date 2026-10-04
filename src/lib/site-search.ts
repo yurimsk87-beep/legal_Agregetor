@@ -635,6 +635,11 @@ function getResultDomains(result: SearchableResult): Set<SearchDomain> {
 function isConflictingResult(result: SearchableResult, normalizedQuery: string, queryDomains: SearchDomain[]) {
   if (result.type === "lawyer" || result.type === "question") return false;
 
+  if (isChildNameQuery(normalizedQuery)) {
+    if (isChildNameRouteResult(result.href)) return false;
+    if (getResultDomains(result).has("family")) return true;
+  }
+
   // Точное совпадение названия — сильный прямой сигнал, домен-конфликт не применяем.
   if (result.normalizedTitle === normalizedQuery) return false;
   if (isProblemAliasMatch(result, normalizedQuery)) return false;
@@ -651,7 +656,6 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isRelativeChildContactRouteResult(result.href) && isRelativeChildContactQuery(normalizedQuery)) return false;
   if (isEmancipationRouteResult(result.href) && isEmancipationQuery(normalizedQuery)) return false;
   if (isPrenuptialAgreementRouteResult(result.href) && isPrenuptialAgreementQuery(normalizedQuery)) return false;
-  if (isChildNameRouteResult(result.href) && isChildNameQuery(normalizedQuery)) return false;
   if (isChildTravelRouteResult(result.href) && isChildTravelQuery(normalizedQuery)) return false;
   if (isAdoptionRouteResult(result.href) && isAdoptionQuery(normalizedQuery)) return false;
   if (isPaternityContestRouteResult(result.href) && isPaternityContestQuery(normalizedQuery)) return false;
@@ -667,8 +671,6 @@ function isConflictingResult(result: SearchableResult, normalizedQuery: string, 
   if (isRelativeChildContactQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isEmancipationQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
   if (isPrenuptialAgreementQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
-  if (isChildNameQuery(normalizedQuery) && getResultDomains(result).has("family")) return true;
-
   if (isGuardianshipRouteResult(result.href) && isExcludedGuardianshipQuery(normalizedQuery)) return true;
   if (isGuardianshipRouteResult(result.href) && isChildGuardianshipQuery(normalizedQuery)) return false;
   if (isParentsChildRouteResult(result.href) && isExcludedParentsChildQuery(normalizedQuery)) return true;
