@@ -21,6 +21,7 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
   const [message, setMessage] = useState("");
   const [reviewMessage, setReviewMessage] = useState("");
   const [reviewPending, setReviewPending] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   async function generate() {
     const missing = fields.filter((field) => !answers[field.key]?.trim());
@@ -46,6 +47,8 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
       if (!response.ok || !body?.result) throw new Error(body?.message || "Не удалось сформировать документ.");
       setVersion({ ...body.result, answers: { ...answers } });
       setEditing(false);
+      setReviewOpen(false);
+      setReviewMessage("");
       setStatus("idle");
       setMessage("Новая версия документа сформирована.");
     } catch (error) {
@@ -151,9 +154,27 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
         <p className="mt-2 text-sm leading-6">Готовность к подаче не подтверждена. Проверьте адресат, срок, требования, расчет и приложения.</p>
       </section>
 
-      <section className="mt-6 border border-line bg-white p-5" aria-labelledby="generated-document-title">
+      <section className="mt-6 border border-line bg-white p-5" aria-labelledby="generated-document-title" data-result-section="generated-document">
         <h3 id="generated-document-title" className="text-xl font-semibold text-ink">Сформированный документ</h3>
         <pre className="mt-4 whitespace-pre-wrap font-serif text-base leading-7 text-ink">{version.draftText}</pre>
+      </section>
+
+      <section className="mt-6 border-t border-line pt-6" data-result-section="final-actions">
+        <h3 className="text-xl font-semibold text-ink">Итоговый результат</h3>
+        <p className="mt-2 text-sm leading-6 text-zinc-600">Для проверки передаются только текущий PDF и указанные вами контакты после отдельного согласия.</p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button type="button" onClick={downloadPdf} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white"><Download className="h-4 w-4" aria-hidden="true" /> Скачать PDF</button>
+          <button type="button" onClick={() => setReviewOpen((current) => !current)} className="inline-flex min-h-11 items-center gap-2 rounded-md border border-trust px-5 py-3 text-sm font-semibold text-trust"><ShieldCheck className="h-4 w-4" aria-hidden="true" /> Отправить на проверку юристу</button>
+        </div>
+        {reviewOpen ? <form onSubmit={submitReview} className="mt-5 grid gap-4 border border-line bg-zinc-50 p-5">
+          <div><h4 className="text-lg font-semibold text-ink">Передать PDF на проверку</h4><p className="mt-1 text-sm leading-6 text-zinc-700">Форма относится только к текущей сформированной версии документа.</p></div>
+          <div className="grid gap-4 md:grid-cols-3"><label className="grid gap-1 text-sm font-semibold text-ink">Имя<input name="name" required minLength={2} className="min-h-11 rounded-md border border-line bg-white px-3 font-normal" /></label><label className="grid gap-1 text-sm font-semibold text-ink">Телефон<input name="phone" required minLength={6} className="min-h-11 rounded-md border border-line bg-white px-3 font-normal" /></label><label className="grid gap-1 text-sm font-semibold text-ink">Email<input name="email" type="email" className="min-h-11 rounded-md border border-line bg-white px-3 font-normal" /></label></div>
+          <label className="grid gap-1 text-sm font-semibold text-ink">Комментарий юристу<textarea name="documentsNote" rows={2} className="rounded-md border border-line bg-white px-3 py-2 font-normal" /></label>
+          <label className="flex gap-3 text-sm leading-6 text-zinc-700"><input name="consent" type="checkbox" required className="mt-1 h-4 w-4 shrink-0" />Согласен на обработку указанных данных для проверки этой версии документа.</label>
+          <label className="flex gap-3 text-sm leading-6 text-zinc-700"><input name="contactTransferConsent" type="checkbox" required className="mt-1 h-4 w-4 shrink-0" />Согласен на передачу сформированного PDF и контактов назначенному одобренному юристу.</label>
+          <button type="submit" disabled={reviewPending} className="inline-flex min-h-11 w-fit items-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"><ShieldCheck className="h-4 w-4" aria-hidden="true" />{reviewPending ? "Отправляем" : "Передать PDF юристу"}</button>
+          {reviewMessage ? <p className="text-sm text-zinc-700" role="status">{reviewMessage}</p> : null}
+        </form> : null}
       </section>
 
       <section className="mt-6 border-t border-line pt-5">
@@ -166,17 +187,6 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
       <section className="mt-6 border-t border-line pt-5"><h3 className="text-xl font-semibold text-ink">Правовые основания</h3><div className="mt-4 grid gap-4">{rules.filter((rule) => version.usedRuleIds.includes(rule.id)).map((rule) => <article key={rule.id} className="border-l-2 border-line pl-4"><p className="font-semibold text-ink">{rule.act}, {rule.provisions.join(", ")}</p><p className="mt-1 text-sm leading-6 text-zinc-700">{rule.statement}</p><p className="mt-1 text-xs leading-5 text-zinc-500">Ограничение: {rule.limitations}</p><a href={rule.url} target="_blank" rel="noreferrer" className="mt-2 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4">Официальный источник</a></article>)}</div></section>
 
       <LegalReviewLawyers context={{ route: `/documents/${document.slug}/`, scenario: selected.scenario.key, documentTitle: version.documentTitle }} serviceSlug="trudovye-spory" />
-
-      <section className="mt-6 border-t border-line pt-6"><h3 className="text-xl font-semibold text-ink">Итоговый результат</h3><p className="mt-2 text-sm leading-6 text-zinc-600">Для проверки передаются только текущий PDF и указанные вами контакты после отдельного согласия.</p>
-        <form onSubmit={submitReview} className="mt-4 grid gap-4">
-          <div className="grid gap-4 md:grid-cols-3"><label className="grid gap-1 text-sm font-semibold text-ink">Имя<input name="name" required minLength={2} className="min-h-11 rounded-md border border-line px-3 font-normal" /></label><label className="grid gap-1 text-sm font-semibold text-ink">Телефон<input name="phone" required minLength={6} className="min-h-11 rounded-md border border-line px-3 font-normal" /></label><label className="grid gap-1 text-sm font-semibold text-ink">Email<input name="email" type="email" className="min-h-11 rounded-md border border-line px-3 font-normal" /></label></div>
-          <label className="grid gap-1 text-sm font-semibold text-ink">Комментарий юристу<textarea name="documentsNote" rows={2} className="rounded-md border border-line px-3 py-2 font-normal" /></label>
-          <label className="flex gap-3 text-sm leading-6 text-zinc-700"><input name="consent" type="checkbox" required className="mt-1 h-4 w-4 shrink-0" />Согласен на обработку указанных данных для проверки этой версии документа.</label>
-          <label className="flex gap-3 text-sm leading-6 text-zinc-700"><input name="contactTransferConsent" type="checkbox" required className="mt-1 h-4 w-4 shrink-0" />Согласен на передачу контактов назначенному одобренному юристу.</label>
-          <div className="flex flex-wrap gap-3"><button type="button" onClick={downloadPdf} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white"><Download className="h-4 w-4" aria-hidden="true" /> Скачать PDF</button><button type="submit" disabled={reviewPending} className="inline-flex min-h-11 items-center gap-2 rounded-md border border-trust px-5 py-3 text-sm font-semibold text-trust disabled:opacity-60"><ShieldCheck className="h-4 w-4" aria-hidden="true" />{reviewPending ? "Отправляем" : "Отправить на проверку юристу"}</button></div>
-        </form>
-        {reviewMessage ? <p className="mt-3 text-sm text-zinc-700" role="status">{reviewMessage}</p> : null}
-      </section>
     </div> : null}
   </section>;
 }

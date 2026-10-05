@@ -84,9 +84,16 @@ test("document preserves the current version until explicit regeneration", async
   await expect(page.getByText("Версия 1.", { exact: false })).toHaveCount(0);
 
   const finalSection = page.locator("section").filter({ has: page.getByRole("heading", { name: "Итоговый результат" }) }).last();
+  await expect(page.locator('[data-result-section="generated-document"] + [data-result-section="final-actions"]')).toHaveCount(1);
   await expect(finalSection.getByRole("button", { name: "Скачать PDF" })).toBeVisible();
   await expect(finalSection.getByRole("button", { name: "Отправить на проверку юристу" })).toBeVisible();
   await expect(finalSection.getByRole("button")).toHaveCount(2);
+  await expect(finalSection.getByRole("heading", { name: "Передать PDF на проверку" })).toHaveCount(0);
+  await finalSection.getByRole("button", { name: "Отправить на проверку юристу" }).click();
+  await expect(finalSection.getByRole("heading", { name: "Передать PDF на проверку" })).toBeVisible();
+  await expect(finalSection.getByLabel("Имя")).toBeVisible();
+  await finalSection.getByRole("button", { name: "Отправить на проверку юристу" }).click();
+  await expect(finalSection.getByRole("heading", { name: "Передать PDF на проверку" })).toHaveCount(0);
   const downloadPromise = page.waitForEvent("download");
   await finalSection.getByRole("button", { name: "Скачать PDF" }).click();
   const download = await downloadPromise;
