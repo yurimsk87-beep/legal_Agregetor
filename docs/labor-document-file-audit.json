@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-05T09:15:46.970Z",
+  "generatedAt": "2026-10-05T12:14:21.357Z",
   "status": "PASS",
   "documentsChecked": 28,
   "pdfFilesValid": 28,
@@ -20,42 +20,42 @@
     {
       "slug": "isk-o-vosstanovlenii-na-rabote",
       "pdfBytes": 23725,
-      "docxBytes": 9684
+      "docxBytes": 9683
     },
     {
       "slug": "zayavlenie-ob-uvolnenii-po-sobstvennomu",
       "pdfBytes": 24984,
-      "docxBytes": 9770
+      "docxBytes": 9769
     },
     {
       "slug": "otzyv-zayavleniya-ob-uvolnenii",
       "pdfBytes": 24570,
-      "docxBytes": 9736
+      "docxBytes": 9734
     },
     {
       "slug": "zayavlenie-o-prinuzhdenii-k-uvolneniyu",
       "pdfBytes": 24957,
-      "docxBytes": 9750
+      "docxBytes": 9749
     },
     {
       "slug": "predlozhenie-ob-uvolnenii-ranshe-sroka",
       "pdfBytes": 24417,
-      "docxBytes": 9741
+      "docxBytes": 9740
     },
     {
       "slug": "zapros-ekzemplyara-trudovogo-dogovora",
       "pdfBytes": 24936,
-      "docxBytes": 9724
+      "docxBytes": 9723
     },
     {
       "slug": "trebovanie-o-vyplate-zarplaty",
       "pdfBytes": 24550,
-      "docxBytes": 9732
+      "docxBytes": 9731
     },
     {
       "slug": "trebovanie-o-doplate-zarplaty",
       "pdfBytes": 24391,
-      "docxBytes": 9706
+      "docxBytes": 9705
     },
     {
       "slug": "trebovanie-ob-okonchatelnom-raschete",
@@ -70,7 +70,7 @@
     {
       "slug": "zayavlenie-o-predostavlenii-otpuska",
       "pdfBytes": 25023,
-      "docxBytes": 9825
+      "docxBytes": 9824
     },
     {
       "slug": "zayavlenie-ob-otpuske-s-posleduyushchim-uvolneniem",
@@ -80,7 +80,7 @@
     {
       "slug": "trebovanie-o-vyplate-otpusknyh",
       "pdfBytes": 24682,
-      "docxBytes": 9809
+      "docxBytes": 9811
     },
     {
       "slug": "zayavlenie-ob-otpuske-po-uhodu",
@@ -90,7 +90,7 @@
     {
       "slug": "zayavlenie-o-vyhode-iz-otpuska-po-uhodu",
       "pdfBytes": 24454,
-      "docxBytes": 9737
+      "docxBytes": 9736
     },
     {
       "slug": "zapros-o-vyplate-bolnichnogo",
@@ -100,7 +100,7 @@
     {
       "slug": "vozrazheniya-protiv-izmeneniya-grafika",
       "pdfBytes": 24569,
-      "docxBytes": 9738
+      "docxBytes": 9737
     },
     {
       "slug": "trebovanie-ob-oplate-sverhurochnoy-raboty",
@@ -115,7 +115,7 @@
     {
       "slug": "vozrazheniya-protiv-izmeneniya-usloviy",
       "pdfBytes": 25072,
-      "docxBytes": 9827
+      "docxBytes": 9826
     },
     {
       "slug": "vozrazheniya-na-disciplinarnoe-vzyskanie",
@@ -125,27 +125,27 @@
     {
       "slug": "trebovanie-o-formlenii-trudovyh-otnosheniy",
       "pdfBytes": 25425,
-      "docxBytes": 9941
+      "docxBytes": 9940
     },
     {
       "slug": "isk-ob-ustanovlenii-trudovyh-otnosheniy",
       "pdfBytes": 25482,
-      "docxBytes": 9942
+      "docxBytes": 9941
     },
     {
       "slug": "trebovanie-rabotodatelyu",
       "pdfBytes": 23891,
-      "docxBytes": 9679
+      "docxBytes": 9678
     },
     {
       "slug": "zhaloba-v-trudovuyu-inspekciyu",
       "pdfBytes": 24734,
-      "docxBytes": 9715
+      "docxBytes": 9713
     },
     {
       "slug": "isk-po-trudovomu-sporu",
       "pdfBytes": 24158,
-      "docxBytes": 9695
+      "docxBytes": 9693
     }
   ]
 }

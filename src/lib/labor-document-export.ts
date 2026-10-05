@@ -37,7 +37,7 @@ export async function createLaborDocumentPdfBlob(result: LaborDocumentExport) {
     { text: "Правовые основания", style: "heading" },
     { ul: result.rules.map((rule) => `${rule.act}, ${rule.provisions.join(", ")}: ${rule.statement}`) },
     { text: "Что делать дальше", style: "heading" },
-    { ol: result.nextSteps }
+    { ol: result.nextSteps.map((step) => ({ text: step })) }
   ];
   const definition: TDocumentDefinitions = {
     pageSize: "A4",

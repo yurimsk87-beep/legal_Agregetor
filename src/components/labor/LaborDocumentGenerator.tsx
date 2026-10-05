@@ -141,8 +141,8 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
         <button type="button" onClick={generate} disabled={status === "loading"} className="inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">{status === "loading" ? "Формируем документ" : version ? "Сформировать новый документ" : "Сформировать документ"}</button>
         {version ? <button type="button" onClick={cancelEditing} className="inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4">Отменить редактирование</button> : null}
       </div>
-      {message ? <p className={`mt-3 text-sm ${status === "error" ? "text-red-800" : "text-zinc-700"}`} role={status === "error" ? "alert" : "status"}>{message}</p> : null}
     </section> : null}
+    {message ? <p className={`mt-3 text-sm ${status === "error" ? "text-red-800" : "text-zinc-700"}`} role={status === "error" ? "alert" : "status"}>{message}</p> : null}
 
     {version ? <div className={editing ? "mt-10 border-t border-line pt-7" : ""} aria-live="polite">
       <section className="border-l-4 border-amber-400 bg-amber-50 p-4 text-amber-950">

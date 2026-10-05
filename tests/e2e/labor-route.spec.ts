@@ -91,6 +91,8 @@ test("document preserves the current version until explicit regeneration", async
   await finalSection.getByRole("button", { name: "Скачать PDF" }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe("zamechaniya-k-sokrashcheniyu-proekt.pdf");
+  await expect(page.getByText("PDF сформирован из текущей версии документа.")).toBeVisible();
+  await expect(page.getByText("Версия 2.", { exact: false })).toBeVisible();
 });
 
 test("all labor routes and documents return canonical HTML and are in sitemaps", async ({ request }) => {

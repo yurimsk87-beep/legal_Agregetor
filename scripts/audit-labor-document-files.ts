@@ -21,11 +21,13 @@ for (const document of LABOR_DOCUMENTS) {
     nextSteps: selected.scenario.nextSteps,
     reviewedAt: LABOR_LEGAL_REVIEWED_AT
   };
+  const sourceSnapshot = JSON.stringify(exportData);
   const canonicalText = buildLaborDocumentExportText(exportData);
   if (!canonicalText.includes(document.title) || !canonicalText.includes("Правовые основания") || !canonicalText.includes("Что делать дальше")) {
     failures.push(`${document.slug}: canonical export is incomplete.`);
   }
   const [pdf, docx] = await Promise.all([createLaborDocumentPdfBlob(exportData), createLaborDocumentDocxBlob(exportData)]);
+  if (JSON.stringify(exportData) !== sourceSnapshot) failures.push(`${document.slug}: export mutated the generated document version.`);
   const pdfBuffer = Buffer.from(await pdf.arrayBuffer());
   const docxBuffer = Buffer.from(await docx.arrayBuffer());
   if (pdfBuffer.subarray(0, 5).toString("ascii") !== "%PDF-") failures.push(`${document.slug}: invalid PDF signature.`);
