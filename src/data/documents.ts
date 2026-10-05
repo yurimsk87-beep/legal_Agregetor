@@ -2,6 +2,26 @@ import type { LegalReferenceKey } from "@/data/legal-references";
 import { DIVORCE_PROPERTY_DOCUMENTS } from "@/data/divorce-property-documents";
 import { GUARDIANSHIP_DOCUMENTS } from "@/data/guardianship-documents";
 import { PARENTS_CHILD_DOCUMENTS } from "@/data/parents-child-documents";
+import { CHILD_SUPPORT_DOCUMENTS } from "@/data/child-support-documents";
+import { PARENTAL_RIGHTS_DEPRIVATION_DOCUMENTS } from "@/data/parental-rights-deprivation-documents";
+import { PARENTAL_RIGHTS_RESTRICTION_DOCUMENTS } from "@/data/parental-rights-restriction-documents";
+import { PATERNITY_ESTABLISHMENT_DOCUMENTS } from "@/data/paternity-establishment-documents";
+import { PATERNITY_CONTEST_DOCUMENTS } from "@/data/paternity-contest-documents";
+import { ADOPTION_DOCUMENTS } from "@/data/adoption-documents";
+import { CHILD_TRAVEL_DOCUMENTS } from "@/data/child-travel-documents";
+import { CHILD_NAME_DOCUMENTS } from "@/data/child-name-documents";
+import { PARENTAL_RIGHTS_RESTORATION_DOCUMENTS } from "@/data/parental-rights-restoration-documents";
+import { PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_DOCUMENTS } from "@/data/parental-rights-restriction-cancellation-documents";
+import { PARENTAL_DISAGREEMENTS_DOCUMENTS } from "@/data/parental-disagreements-documents";
+import { ADDITIONAL_CHILD_EXPENSES_DOCUMENTS } from "@/data/additional-child-expenses-documents";
+import { SPOUSAL_SUPPORT_DOCUMENTS } from "@/data/spousal-support-documents";
+import { PRENUPTIAL_AGREEMENT_DOCUMENTS } from "@/data/prenuptial-agreement-documents";
+import { INVALID_MARRIAGE_DOCUMENTS } from "@/data/invalid-marriage-documents";
+import { COMPLEX_MARITAL_PROPERTY_DOCUMENTS } from "@/data/complex-marital-property-documents";
+import { SURROGACY_ORIGIN_DOCUMENT } from "@/data/surrogacy-origin-document";
+import { INTERNATIONAL_FAMILY_DISPUTES_DOCUMENT } from "@/data/international-family-disputes-document";
+import { RELATIVE_CHILD_CONTACT_DOCUMENT } from "@/data/relative-child-contact-document";
+import { EMANCIPATION_DOCUMENT } from "@/data/emancipation-document";
 
 export type DocumentFaqItem = {
   question: string;
@@ -90,7 +110,7 @@ export const navigatorDocuments: NavigatorDocument[] = [
     "Определите цель обращения: брак, перемена имени, повторный документ или исправление записи.",
     "Проверьте номер официальной формы для выбранной процедуры.",
     "Подготовьте паспорт, свидетельства и документы-основания.",
-    "Проверьте госпошлину и льготы по статьям 333.26 и 333.39 НК РФ.",
+    "Проверьте госпошлину по статье 333.26 НК РФ.",
     "Если есть отказ ЗАГС, получите его причины письменно."
   ],
   "requiredData": [
@@ -104,7 +124,7 @@ export const navigatorDocuments: NavigatorDocument[] = [
     "Определите цель обращения: брак, перемена имени, повторный документ или исправление записи.",
     "Проверьте номер официальной формы для выбранной процедуры.",
     "Подготовьте паспорт, свидетельства и документы-основания.",
-    "Проверьте госпошлину и льготы по статьям 333.26 и 333.39 НК РФ.",
+    "Проверьте госпошлину по статье 333.26 НК РФ.",
     "Если есть отказ ЗАГС, получите его причины письменно."
   ],
   "whatToInclude": [],
@@ -132,23 +152,23 @@ export const navigatorDocuments: NavigatorDocument[] = [
   "legalBasis": [
     "СК РФ: статьи 11, 12, 13, 14, 32.",
     "Федеральный закон N 143-ФЗ: статьи 9, 11, 26, 27, 28, 58, 59, 60, 69, 71, 72.",
-    "НК РФ: статьи 333.26 и 333.39.",
+    "НК РФ: статья 333.26.",
     "Приказ Минюста России N 201: формы заявлений ЗАГС.",
     "Постановление Правительства РФ N 2267: срок действительности паспорта после смены персональных данных."
   ],
   "deadlinesAndFees": [
     "Заключение брака: 350 руб.; регистрация по истечении месяца и не позднее 12 месяцев, при основаниях возможно раньше.",
     "Перемена имени: 5000 руб.; рассмотрение заявления — 1 месяц, возможно продление не более чем на 2 месяца.",
-    "Исправление записи: 700 руб. по общему правилу; статья 333.39 НК РФ предусматривает специальные освобождения.",
-    "Повторное свидетельство: 500 руб.; справка: 350 руб. по общему правилу и 0 руб. для справки в уполномоченный орган по назначению или перерасчёту пенсии либо пособия.",
+    "Исправление записи: 700 руб.; рассмотрение заявления — 1 месяц, возможно продление не более чем на 2 месяца.",
+    "Повторное свидетельство: 500 руб.; справка из архива ЗАГС: 350 руб.",
     "Паспорт после смены ФИО действует 90 дней."
   ],
   "stateDuty": [
     "Заключение брака — 350 руб.",
     "Перемена имени — 5000 руб.",
-    "Исправление или изменение записи — 700 руб. по общему правилу; отдельные основания освобождены от пошлины.",
+    "Исправление или изменение записи — 700 руб.",
     "Повторное свидетельство — 500 руб.",
-    "Справка из архива ЗАГС — 350 руб. по общему правилу; для назначения или перерасчёта пенсии либо пособия — без пошлины."
+    "Справка из архива ЗАГС — 350 руб."
   ],
   "deadlines": [
     "Срок зависит от выбранной процедуры.",
@@ -236,7 +256,6 @@ export const navigatorDocuments: NavigatorDocument[] = [
     "fz143_71",
     "fz143_72",
     "nk_333_26",
-    "nk_333_39",
     "minjust_201_forms",
     "passport_2267_8",
     "sfr_snils_update",
@@ -258,12 +277,32 @@ export const navigatorDocuments: NavigatorDocument[] = [
     "потерял свидетельство о браке",
     "исправить ошибку в свидетельстве"
   ],
-  "lastReviewedAt": "2026-07-30",
+  "lastReviewedAt": "2026-07-21",
   "disclaimer": "Страница не заменяет официальный бланк ЗАГС. Если точную форму нельзя подтвердить для вашей процедуры, используйте официальный сервис или бланк органа ЗАГС."
 },
 ...DIVORCE_PROPERTY_DOCUMENTS,
 ...GUARDIANSHIP_DOCUMENTS,
-...PARENTS_CHILD_DOCUMENTS
+...PARENTS_CHILD_DOCUMENTS,
+...CHILD_SUPPORT_DOCUMENTS,
+...PARENTAL_RIGHTS_DEPRIVATION_DOCUMENTS,
+...PARENTAL_RIGHTS_RESTRICTION_DOCUMENTS,
+...PATERNITY_ESTABLISHMENT_DOCUMENTS,
+...PATERNITY_CONTEST_DOCUMENTS,
+...ADOPTION_DOCUMENTS,
+...CHILD_TRAVEL_DOCUMENTS,
+...CHILD_NAME_DOCUMENTS,
+...PARENTAL_RIGHTS_RESTORATION_DOCUMENTS,
+...PARENTAL_RIGHTS_RESTRICTION_CANCELLATION_DOCUMENTS,
+...PARENTAL_DISAGREEMENTS_DOCUMENTS,
+...ADDITIONAL_CHILD_EXPENSES_DOCUMENTS,
+...SPOUSAL_SUPPORT_DOCUMENTS,
+...PRENUPTIAL_AGREEMENT_DOCUMENTS,
+...INVALID_MARRIAGE_DOCUMENTS,
+...COMPLEX_MARITAL_PROPERTY_DOCUMENTS,
+SURROGACY_ORIGIN_DOCUMENT,
+INTERNATIONAL_FAMILY_DISPUTES_DOCUMENT,
+RELATIVE_CHILD_CONTACT_DOCUMENT,
+EMANCIPATION_DOCUMENT
 ];
 
 export function getNavigatorDocument(slug: string) {

@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import Link from "next/link";
 import { Download, ShieldCheck } from "lucide-react";
 import { SearchableSelect } from "@/components/forms/SearchableSelect";
+import { OfficialFieldHelp } from "@/components/forms/OfficialServiceHelp";
 import { DOCUMENT_REVIEW_RETENTION_DAYS } from "@/data/document-review-policy";
 import {
   findGuardianshipTerritory,
@@ -24,11 +25,6 @@ import {
   validateGuardianshipApplication
 } from "@/lib/guardianship-validator";
 import type { GuardianshipDecision, GuardianshipDocumentItem, GuardianshipValues } from "@/lib/guardianship-validator";
-import {
-  createGuardianshipDocxBlob,
-  ensureGuardianshipDraftMarker,
-  getGuardianshipDocxFilename
-} from "@/lib/guardianship-docx";
 import { createGuardianshipPdfBlob, getGuardianshipPdfFilename } from "@/lib/guardianship-pdf";
 import { sendAnalyticsEvent } from "@/lib/analytics-client";
 
@@ -40,6 +36,8 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
   const [step, setStep] = useState(0);
   const [decision, setDecision] = useState<GuardianshipDecision | null>(null);
   const [draft, setDraft] = useState("");
+  const [editingValues, setEditingValues] = useState<GuardianshipValues | null>(null);
+  const [editError, setEditError] = useState("");
   const [fieldError, setFieldError] = useState("");
   const [notice, setNotice] = useState("");
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -47,6 +45,10 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
   const [reviewMessage, setReviewMessage] = useState("");
   const [reviewReceipt, setReviewReceipt] = useState<{ leadId: string; withdrawalToken: string } | null>(null);
   const fields = useMemo(() => getVisibleGuardianshipFields(scenarioKey, values), [scenarioKey, values]);
+  const editingFields = useMemo(
+    () => editingValues ? getVisibleGuardianshipFields(scenarioKey, editingValues) : [],
+    [editingValues, scenarioKey]
+  );
   const safeStep = Math.min(step, Math.max(fields.length - 1, 0));
   const field = fields[safeStep];
   const canAdvance = !field?.required || Boolean(values[field.name]?.trim());
@@ -77,7 +79,7 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
     }
     const result = validateGuardianshipApplication(scenarioKey, values);
     setDecision(result);
-    setDraft(result.draftText ? ensureGuardianshipDraftMarker(result.draftText) : "");
+    setDraft(result.draftText ?? "");
   }
 
   function goBack() {
@@ -93,40 +95,38 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
     setFieldError("");
   }
 
-  async function copyDraft() {
-    if (!draft) return;
-    await navigator.clipboard.writeText(ensureGuardianshipDraftMarker(draft));
-    setNotice("Черновик скопирован вместе с обязательной маркировкой.");
+  function startEditing() {
+    setEditingValues({ ...values });
+    setEditError("");
+    setReviewOpen(false);
   }
 
-  async function downloadDraft() {
-    if (!draft) return;
-    try {
-      const blob = await createGuardianshipDocxBlob(draft);
-      const url = URL.createObjectURL(blob);
-      const anchor = window.document.createElement("a");
-      anchor.href = url;
-      anchor.download = getGuardianshipDocxFilename(scenario.documentSlug);
-      anchor.click();
-      URL.revokeObjectURL(url);
-      setNotice("Черновик DOCX сформирован с обязательной маркировкой.");
-    } catch {
-      setNotice("DOCX не сформирован. Текст остаётся доступен для копирования.");
-    }
+  function setEditingField(name: string, value: string) {
+    setEditingValues((current) => current
+      ? resetGuardianshipDependentValues(scenarioKey, name, { ...current, [name]: value })
+      : current);
+    setEditError("");
   }
 
-  function printDraft() {
-    if (!draft) return;
-    const printWindow = window.open("", "_blank", "noopener,noreferrer");
-    if (!printWindow) {
-      setNotice("Браузер заблокировал печатное окно.");
+  function regenerateDocument() {
+    if (!editingValues) return;
+    const missingField = editingFields.find((item) => item.required && !editingValues[item.name]?.trim());
+    if (missingField) {
+      setEditError(`Заполните поле «${missingField.label}».`);
       return;
     }
-    const marked = ensureGuardianshipDraftMarker(draft);
-    printWindow.document.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Черновик</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;white-space:pre-wrap;line-height:1.5;color:#111}@media print{body{margin:20mm}}</style></head><body>${escapeHtml(marked)}</body></html>`);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
+
+    const result = validateGuardianshipApplication(scenarioKey, editingValues);
+    setValues(editingValues);
+    setDecision(result);
+    setDraft(result.draftText ?? "");
+    setEditingValues(null);
+    setEditError("");
+    setNotice("");
+    setReviewOpen(false);
+    setReviewStatus("idle");
+    setReviewMessage("");
+    setReviewReceipt(null);
   }
 
   async function createPdf() {
@@ -227,7 +227,7 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
       <p className="text-sm font-semibold uppercase tracking-wide text-trust">Подготовка документа</p>
       <h2 className="mt-2 text-2xl font-semibold text-ink">{scenario.mainDocument}</h2>
       <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-700">
-        Ответы обрабатываются в браузере. Помощник применяет только заранее заданные правила и не дописывает факты или правовые основания.
+        Правовой путь определяется в браузере по заранее заданным правилам. Если для допустимого черновика доступна серверная подготовка текста, она запускается только отдельной кнопкой и не может добавлять новые факты или правовые основания.
       </p>
 
       {!decision && field ? (
@@ -287,7 +287,14 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
 
           {decision.preparedData.length ? (
             <section className="mt-6 border-t border-line pt-5">
-              <h3 className="text-xl font-semibold text-ink">Подготовленные сведения</h3>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-xl font-semibold text-ink">Подготовленные сведения</h3>
+                {!editingValues ? (
+                  <button type="button" onClick={startEditing} className="inline-flex min-h-11 items-center justify-center rounded-md border border-trust px-4 py-2 text-sm font-semibold text-trust hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-trust/30">
+                    Редактировать данные
+                  </button>
+                ) : null}
+              </div>
               <dl className="mt-3 grid gap-3 text-sm leading-6">
                 {decision.preparedData.map((item) => (
                   <div key={item.label} className="border-l-2 border-line pl-3">
@@ -296,6 +303,33 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
                   </div>
                 ))}
               </dl>
+              {editingValues ? (
+                <form onSubmit={(event) => event.preventDefault()} className="mt-6 border border-line bg-zinc-50 p-4">
+                  <h4 className="text-lg font-semibold text-ink">Редактирование данных</h4>
+                  <p className="mt-2 text-sm leading-6 text-zinc-700">Текущая версия документа сохранена. Она изменится только после явного повторного формирования.</p>
+                  <div className="mt-5 grid gap-5">
+                    {editingFields.map((editingField) => (
+                      <HelperField
+                        key={editingField.name}
+                        field={editingField}
+                        onChange={setEditingField}
+                        value={editingValues[editingField.name] ?? ""}
+                        values={editingValues}
+                        cities={cities}
+                      />
+                    ))}
+                  </div>
+                  {editError ? <p className="mt-3 text-sm text-rose-700" role="alert">{editError}</p> : null}
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <button type="button" onClick={regenerateDocument} className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+                      Сформировать новый документ
+                    </button>
+                    <button type="button" onClick={() => { setEditingValues(null); setEditError(""); }} className="inline-flex min-h-11 items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/30">
+                      Отменить редактирование
+                    </button>
+                  </div>
+                </form>
+              ) : null}
             </section>
           ) : null}
 
@@ -321,11 +355,6 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
             <section className="mt-6 border border-amber-300 bg-amber-50 p-4">
               <p className="font-semibold text-amber-950">ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА</p>
               <textarea aria-label="Текст черновика" value={draft} onChange={(event) => setDraft(event.target.value)} className="mt-4 min-h-[28rem] w-full border border-line bg-white p-4 font-mono text-sm leading-6 text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" />
-              <div className="mt-4 flex flex-wrap gap-3">
-                <button type="button" onClick={copyDraft} className="inline-flex min-h-11 items-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Копировать черновик</button>
-                <button type="button" onClick={downloadDraft} className="inline-flex min-h-11 items-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Скачать черновик DOCX</button>
-                <button type="button" onClick={printDraft} className="inline-flex min-h-11 items-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-trust/30">Печатная версия</button>
-              </div>
             </section>
           ) : null}
 
@@ -380,8 +409,6 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
               {reviewMessage ? <p role="status" className={`text-sm font-medium ${reviewStatus === "error" ? "text-red-700" : "text-leaf"}`}>{reviewMessage}</p> : null}
             </form>
           ) : null}
-
-          <button type="button" onClick={goBack} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Изменить ответы</button>
         </div>
       ) : null}
     </section>
@@ -403,6 +430,7 @@ function HelperField({ field, onChange, value, values, cities }: { field: Guardi
     : undefined;
   return (
     <div className="grid gap-2 text-sm font-semibold text-ink">
+      <OfficialFieldHelp fieldName={field.name} />
       <label htmlFor={id}>{field.label}{field.required ? <span className="sr-only"> (обязательно)</span> : null}</label>
       {isTerritorialField ? (
         <SearchableSelect
@@ -483,9 +511,5 @@ function StringGroup({ items, title }: { items: string[]; title: string }) {
 
 function ResultFact({ text, title }: { text: string; title: string }) {
   return <section className="border-t-4 border-zinc-300 bg-white p-4 shadow-sm"><h3 className="font-semibold text-ink">{title}</h3><p className="mt-2 text-sm leading-6 text-zinc-700">{text}</p></section>;
-}
-
-function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character] ?? character));
 }
 

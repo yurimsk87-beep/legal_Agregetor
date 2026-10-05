@@ -70,8 +70,15 @@ async function run() {
   const ordinaryGuardian = record(validateGuardianshipApplication("appointment", appointmentBase));
   assert.equal(ordinaryGuardian.allowed, true);
   assert.equal(ordinaryGuardian.outcomeKey, "appointment-standard-child");
-  assert.equal(ordinaryGuardian.outputMode, "official-helper");
-  assert.equal(ordinaryGuardian.resultKind, "data-sheet");
+  assert.equal(ordinaryGuardian.outputMode, "draft");
+  assert.equal(ordinaryGuardian.resultKind, "draft");
+  assert.equal(ordinaryGuardian.requiresLegalReview, true);
+  assert.equal(ordinaryGuardian.draftText.includes("ПРОЕКТ ЗАЯВЛЕНИЯ"), true);
+  assert.equal(ordinaryGuardian.draftText.includes("статьи 145"), true);
+  assert.equal(ordinaryGuardian.draftText.includes("Федерального закона от 24.04.2008 № 48-ФЗ"), true);
+  assert.equal(ordinaryGuardian.draftText.includes("Иванов Пётр Иванович"), true);
+  assert.equal(ordinaryGuardian.draftText.includes("назначить меня опекуном ребёнка"), true);
+  assert.equal(buildGuardianshipPdfText(ordinaryGuardian, ordinaryGuardian.draftText).includes("ПРОЕКТ ЗАЯВЛЕНИЯ"), true);
   assert.equal(ordinaryGuardian.providedDocuments.some(({ title }) => title.includes("согласие членов семьи")), false);
   assert.equal(ordinaryGuardian.providedDocuments.some(({ title }) => title.includes("Свидетельство о браке")), false);
 
@@ -435,4 +442,3 @@ function extractZipEntry(buffer: Buffer, expectedName: string) {
   }
   throw new Error(`DOCX entry not found: ${expectedName}`);
 }
-

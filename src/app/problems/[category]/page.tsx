@@ -5,9 +5,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { ProblemCard } from "@/components/navigator/NavigatorBlocks";
 import { breadcrumbJsonLd } from "@/lib/jsonld";
 import { buildMetadata } from "@/lib/seo";
-import { getLegalCategory } from "@/data/legal-categories";
+import { getLegalCategory, legalCategories } from "@/data/legal-categories";
 import { getProblemsByCategory } from "@/data/legal-problems";
-import { ZAGS_PROBLEM_ROUTE } from "@/data/zags-route";
 
 type PageProps = { params: Promise<{ category: string }> };
 
@@ -15,12 +14,13 @@ export const dynamicParams = false;
 export const revalidate = 3600;
 
 export function generateStaticParams() {
-  return [{ category: ZAGS_PROBLEM_ROUTE.categorySlug }];
+  return legalCategories.map((category) => ({ category: category.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category } = await params;
-  if (category !== ZAGS_PROBLEM_ROUTE.categorySlug) {
+  const legalCategory = getLegalCategory(category);
+  if (!legalCategory) {
     return buildMetadata({
       title: "Категория не найдена",
       description: "Категория правового навигатора не найдена.",
@@ -30,17 +30,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return buildMetadata({
-    title: "Семейные споры: брак, развод и раздел имущества",
-    description: "Маршруты по браку и ЗАГС, разводу через ЗАГС или суд и разделу имущества по соглашению или иску.",
-    path: "/problems/semya-i-deti/",
+    title: legalCategory.title,
+    description: legalCategory.description,
+    path: `/problems/${legalCategory.slug}/`,
     isIndexable: true
   });
 }
 
 export default async function ProblemCategoryPage({ params }: PageProps) {
   const { category: categorySlug } = await params;
-  if (categorySlug !== ZAGS_PROBLEM_ROUTE.categorySlug) notFound();
-
   const category = getLegalCategory(categorySlug);
   if (!category) notFound();
 
@@ -58,9 +56,9 @@ export default async function ProblemCategoryPage({ params }: PageProps) {
       <main>
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <p className="text-sm font-semibold uppercase tracking-wide text-trust">Правовой навигатор</p>
-          <h1 className="mt-2 text-4xl font-semibold text-ink">Семейные споры</h1>
+          <h1 className="mt-2 text-4xl font-semibold text-ink">{category.title}</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-700">
-            Выберите жизненную ситуацию. Покажем применимый порядок, основной документ, приложения и обязательные платежи.
+            {category.description} Выберите жизненную ситуацию, чтобы получить применимый порядок действий и безопасный результат.
           </p>
         </section>
 

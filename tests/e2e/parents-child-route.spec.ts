@@ -19,7 +19,10 @@ test("canonical route is usable on mobile", async ({ page }) => {
 
 test("urgent answer stops ordinary document flow", async ({ page }) => {
   await page.goto(`${route}?scenario=residence`);
-  await page.getByRole("link", { name: "Подготовить документ" }).click();
+  const documentLink = page.getByRole("link", { name: "Подготовить документ" });
+  const documentHref = await documentLink.getAttribute("href");
+  expect(documentHref).toBeTruthy();
+  await page.goto(documentHref!);
   await page.getByLabel(/непосредственная угроза/).selectOption("yes");
   await page.getByRole("button", { name: "Подготовить документ" }).click();
   await expect(page.getByRole("heading", { name: "Не откладывайте обращение ради документа" })).toBeVisible();
@@ -44,7 +47,10 @@ test("scenario is keyboard reachable", async ({ page }) => {
 
 test("change flow requires a concrete subject", async ({ page }) => {
   await page.goto(`${route}?scenario=change`);
-  await page.getByRole("link", { name: "Подготовить документ" }).click();
+  const documentLink = page.getByRole("link", { name: "Подготовить документ" });
+  const documentHref = await documentLink.getAttribute("href");
+  expect(documentHref).toBeTruthy();
+  await page.goto(documentHref!);
   for (const label of [/непосредственная угроза/, /насилие, жестокое обращение/, /за пределами России/]) {
     await page.getByLabel(label).selectOption("no");
     await page.getByRole("button", { name: "Продолжить" }).click();

@@ -330,12 +330,13 @@ function validateAppointment(values: GuardianshipValues, decision: GuardianshipD
   } else {
     const appointmentForChild = values.knownChild === "yes";
     decision.outcomeKey = appointmentForChild ? "appointment-standard-child" : "appointment-standard-candidate";
-    decision.outputMode = "official-helper";
-    decision.resultKind = "data-sheet";
-    decision.resultLabel = "Лист подготовленных данных для официальной формы";
+    decision.outputMode = "draft";
+    decision.resultKind = "draft";
+    decision.resultLabel = "Проект заявления для юридической проверки";
     decision.documentTitle = appointmentForChild
-      ? `Данные для официального заявления кандидата о назначении ${childStatus}`
-      : "Данные для официального заявления о выдаче заключения о возможности быть опекуном или попечителем";
+      ? `Проект заявления кандидата о назначении ${childStatus}`
+      : "Проект заявления о выдаче заключения о возможности быть опекуном или попечителем";
+    decision.requiresLegalReview = true;
     decision.officialFormUrl = officialCandidateForm;
     decision.providedDocuments = candidateDocuments(values);
     decision.interagencyInformation = [
@@ -347,9 +348,11 @@ function validateAppointment(values: GuardianshipValues, decision: GuardianshipD
       ...(values.candidateMaritalStatus === "yes" ? ["Копия свидетельства о браке."] : []),
       ...(values.trainingStatus === "completed" ? ["Копия свидетельства о прохождении подготовки."] : [])
     ];
+    decision.draftText = buildStandardAppointmentRequest(values, childStatus, appointmentForChild);
     decision.deadline = "Запросы направляются в течение 2 рабочих дней, ответы поступают в течение 5 рабочих дней. После подтверждения сведений обследование проводится в течение 3 рабочих дней; акт обследования оформляется в течение 3 дней и направляется заявителю в течение 3 дней после утверждения. Решение принимается в течение 10 рабочих дней после подтверждения сведений и направляется в течение 3 дней после подписания. Внесение в журнал — в течение 3 дней; заключение действительно 2 года.";
     decision.filingSteps = authoritySteps(values, [
-      "Откройте действующую официальную форму заявления и перенесите в неё подготовленные сведения.",
+      "Передайте проект заявления юристу для проверки применимого порядка, формулировки просьбы и комплекта приложений.",
+      "Откройте действующую официальную форму заявления и перенесите в неё проверенные сведения из проекта.",
       "Приложите только документы, которые предоставляет кандидат по федеральным Правилам и вашим ответам.",
       "Подайте заявление лично либо через предусмотренный Правилами № 423 электронный канал или МФЦ, если для выбранного органа такой канал технически доступен и действует соглашение о взаимодействии.",
       "Орган направляет межведомственные запросы в течение 2 рабочих дней; ответы на них направляются в течение 5 рабочих дней.",
@@ -750,6 +753,25 @@ function candidateDocuments(values: GuardianshipValues): GuardianshipDocumentIte
 
 function buildPreliminaryRequest(values: GuardianshipValues, role: string) {
   return `В ${value(values, "authorityName")}\n\nОт: ${value(values, "candidateData")}\n\nОБРАЩЕНИЕ\nоб установлении предварительной опеки или попечительства\n\nПрошу рассмотреть вопрос о моём немедленном назначении в предварительном порядке в качестве ${role} в отношении ребёнка: ${value(values, "childData")}.\n\nОбстоятельства: ребёнок ${values.childWithoutCare === "yes" ? "остался без попечения родителей" : "нуждается в срочной оценке органом опеки"}. Прошу провести обследование условий моей жизни и принять письменный акт в пределах статьи 12 Федерального закона № 48-ФЗ.\n\nМне известно, что предварительно назначенный опекун или попечитель не вправе распоряжаться имуществом подопечного.\n\nДата: ____________    Подпись: ____________`;
+}
+
+function buildStandardAppointmentRequest(values: GuardianshipValues, role: string, appointmentForChild: boolean) {
+  const roleInstrumental = role === "опекуна" ? "опекуном" : "попечителем";
+  const request = appointmentForChild
+    ? `1. Рассмотреть мою кандидатуру и назначить меня ${roleInstrumental} ребёнка: ${value(values, "childData")}.
+2. Провести обследование условий моей жизни и оформить акт обследования.
+3. По результатам проверки принять письменный акт о назначении либо выдать мотивированный письменный отказ.`
+    : `1. Провести проверку моей кандидатуры и обследование условий жизни.
+2. Выдать заключение о возможности быть опекуном или попечителем.
+3. В случае отказа выдать мотивированное письменное решение.`;
+  const childSection = appointmentForChild
+    ? `\n\nРебёнок остался без попечения родителей. Возраст ребёнка: ${value(values, "childAge")} лет. Сведения о ребёнке: ${value(values, "childData")}.`
+    : "";
+  const attachments = candidateDocuments(values)
+    .map((document, index) => `${index + 1}. ${document.title}.`)
+    .join("\n");
+
+  return `В ${values.authorityName || "не указано"}\nАдрес: ${value(values, "authorityAddress")}\n\nОт заявителя: ${value(values, "candidateData")}\n\nПРОЕКТ ЗАЯВЛЕНИЯ\n${appointmentForChild ? `о назначении ${role} ребёнку` : "о выдаче заключения о возможности быть опекуном или попечителем"}\n\nЯ являюсь совершеннолетним и полностью дееспособным кандидатом. Указанные в анкете обстоятельства, препятствующие назначению опекуном или попечителем, мне не известны.${childSection}\n\nПравовые основания: пункт 2 статьи 145 и статья 146 Семейного кодекса Российской Федерации; статьи 10 и 11 Федерального закона от 24.04.2008 № 48-ФЗ «Об опеке и попечительстве»; пункты 4–11 Правил, утверждённых постановлением Правительства Российской Федерации от 18.05.2009 № 423.\n\nПРОШУ:\n${request}\n\nПриложения:\n${attachments}\n\nДата: «___» __________ 20___ г.\n\nПодпись: __________________ / __________________`;
 }
 
 function buildParentPeriodRequest(values: GuardianshipValues) {

@@ -37,7 +37,6 @@ export const CATEGORY_QUESTION_PHRASES: Record<string, string[]> = {
 export function categoryQuestionPhrases(slug: string, fallback: string[]): string[] {
   return CATEGORY_QUESTION_PHRASES[slug] ?? fallback;
 }
-
 export function buildProblemQuestionContext(args: {
   slug: string;
   categoryTitle?: string;
