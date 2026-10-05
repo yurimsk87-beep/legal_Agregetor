@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { LaborProblemPage } from "@/components/labor/LaborProblemPage";
 import { DivorcePropertyScenarioOverview } from "@/components/documents/DivorcePropertyScenarioOverview";
 import { GuardianshipScenarioOverview } from "@/components/documents/GuardianshipScenarioOverview";
 import { ParentsChildScenarioOverview } from "@/components/documents/ParentsChildScenarioOverview";
@@ -125,6 +126,7 @@ import {
   ZAGS_SCENARIO_CHOICES
 } from "@/data/zags-route";
 import type { ZagsScenario } from "@/data/zags-route";
+import { LABOR_CATEGORY_SLUG } from "@/data/labor-routes";
 import { breadcrumbJsonLd, legalServiceJsonLd } from "@/lib/jsonld";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
@@ -167,6 +169,9 @@ export default async function ProblemPage({ params, searchParams }: PageProps) {
   if (!category || !problem) notFound();
 
   const resolvedSearchParams = searchParams ? await searchParams : {};
+  if (problem.categorySlug === LABOR_CATEGORY_SLUG) {
+    return <LaborProblemPage categoryTitle={category.title} problem={problem} scenario={resolvedSearchParams.scenario} />;
+  }
   if (problem.slug === DIVORCE_PROPERTY_ROUTE.problemSlug) {
     return <DivorcePropertyProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
   }

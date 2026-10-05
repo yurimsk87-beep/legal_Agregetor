@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { LaborDocumentPage } from "@/components/labor/LaborDocumentPage";
 import { DivorcePropertyDocumentHelper } from "@/components/documents/DivorcePropertyDocumentHelper";
 import { GuardianshipDocumentHelper } from "@/components/documents/GuardianshipDocumentHelper";
 import { ParentsChildDocumentHelper } from "@/components/documents/ParentsChildDocumentHelper";
@@ -37,6 +38,7 @@ import { EMANCIPATION_ROUTE, EMANCIPATION_KEYS, EMANCIPATION_SCENARIOS, getEmanc
 import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
+import { getLaborDocumentScenario } from "@/data/labor-documents";
 import {
   DIVORCE_PROPERTY_LEGAL_RULES,
   getDivorcePropertyLegalReviewDate,
@@ -146,6 +148,9 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
   const { documentSlug } = await params;
   const document = getNavigatorDocument(documentSlug);
   if (!document) notFound();
+
+  const laborDocumentScenario = getLaborDocumentScenario(document.slug);
+  if (laborDocumentScenario) return <LaborDocumentPage document={document} selected={laborDocumentScenario} />;
 
   const divorceScenario = getDivorceScenarioByDocumentSlug(document.slug);
   if (divorceScenario) {

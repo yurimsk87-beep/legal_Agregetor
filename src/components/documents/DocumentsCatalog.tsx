@@ -36,7 +36,8 @@ export function DocumentsCatalog({ documents }: { documents: NavigatorDocument[]
 
 function tagsFor(document: NavigatorDocument) {
   const text = [document.title, document.documentType, document.category, document.shortDescription, ...document.keywords].join(" ");
-  return ["Семья и дети", ...tagRules.filter(([, pattern]) => pattern.test(text)).map(([label]) => label)];
+  const lawArea = document.category === "Трудовое право" ? "Трудовое право" : "Семья и дети";
+  return [lawArea, ...tagRules.filter(([, pattern]) => pattern.test(text)).map(([label]) => label)];
 }
 function normalize(value: string) { return value.toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ").trim(); }
 function tagClass(active: boolean) { return `min-h-11 rounded-full border px-4 py-2 text-sm font-semibold ${active ? "border-trust bg-trust text-white" : "border-line bg-white text-zinc-700 hover:border-trust"}`; }

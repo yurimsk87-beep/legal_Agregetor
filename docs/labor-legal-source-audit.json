@@ -1,0 +1,46 @@
+{
+  "generatedAt": "2026-10-05T09:18:38.170Z",
+  "reviewedAt": "2026-10-05",
+  "rules": 41,
+  "officialHosts": [
+    "pravo.gov.ru",
+    "www.vsrf.ru",
+    "sfr.gov.ru"
+  ],
+  "areaCoverage": {
+    "employer-dismissal": 12,
+    "voluntary-dismissal": 5,
+    "dismissal-notice-period": 4,
+    "employment-contract": 7,
+    "wages": 8,
+    "termination-payments": 6,
+    "annual-leave": 3,
+    "childcare-leave": 5,
+    "sick-leave": 4,
+    "working-time": 7,
+    "transfer-and-change": 3,
+    "employer-rights-and-duties": 7,
+    "informal-employment": 3,
+    "employer-disputes": 9
+  },
+  "verifiedClaimCounts": {
+    "deadlines": 20,
+    "payments": 18,
+    "stateDuties": 2,
+    "jurisdiction": 7,
+    "competentAuthorities": 7
+  },
+  "acceptance": {
+    "rulesWithoutOfficialConfirmation": 0,
+    "brokenRequiredOfficialUrls": 0,
+    "unverifiedDeadlines": 0,
+    "unverifiedPayments": 0,
+    "unverifiedStateDuties": 0,
+    "unverifiedJurisdiction": 0,
+    "unverifiedCompetentAuthorities": 0,
+    "outdatedRules": 0,
+    "traceabilityViolations": 0,
+    "result": "PASS"
+  },
+  "failures": []
+}

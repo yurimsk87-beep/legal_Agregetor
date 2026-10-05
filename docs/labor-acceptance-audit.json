@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-10-05T09:15:33.648Z",
+  "status": "PASS",
+  "laborRoutes": 14,
+  "popularRoutes": 6,
+  "otherRoutes": 8,
+  "scenarios": 50,
+  "documentGenerators": 28,
+  "manualAcceptanceIntents": 22,
+  "verifiedLegalRules": 41,
+  "routesWithoutQnaContext": 0,
+  "routesWithoutOfficialRules": 0,
+  "unsafeFilingReadyResults": 0,
+  "duplicateRouteSlugs": 0,
+  "duplicateDocumentSlugs": 0,
+  "failures": []
+}

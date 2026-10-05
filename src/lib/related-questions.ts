@@ -36,6 +36,7 @@ export type RelatedQuestionScore = {
 export type GetRelatedQuestionsOptions = {
   limit?: number;
   minScore?: number;
+  minResults?: number;
   debug?: boolean;
 };
 
@@ -224,6 +225,7 @@ export function getRelatedQuestions(
 ): Question[] {
   const limit = options.limit ?? MAX_RESULTS;
   const minScore = options.minScore ?? minScoreFor(context);
+  const minResults = options.minResults ?? MIN_RESULTS;
   const excludeIds = new Set(context.excludeQuestionIds ?? []);
   const byId = new Map(questions.map((question) => [question.id, question]));
 
@@ -258,7 +260,7 @@ export function getRelatedQuestions(
     merged.push(question);
   }
 
-  if (pinned.length === 0 && merged.length < MIN_RESULTS) return [];
+  if (pinned.length === 0 && merged.length < minResults) return [];
 
   return merged.slice(0, limit);
 }

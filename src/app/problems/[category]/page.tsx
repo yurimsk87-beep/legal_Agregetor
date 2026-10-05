@@ -7,6 +7,7 @@ import { breadcrumbJsonLd } from "@/lib/jsonld";
 import { buildMetadata } from "@/lib/seo";
 import { getLegalCategory, legalCategories } from "@/data/legal-categories";
 import { getProblemsByCategory } from "@/data/legal-problems";
+import { LABOR_CATEGORY_SLUG, LABOR_POPULAR_ROUTE_SLUGS } from "@/data/labor-routes";
 
 type PageProps = { params: Promise<{ category: string }> };
 
@@ -43,6 +44,9 @@ export default async function ProblemCategoryPage({ params }: PageProps) {
   if (!category) notFound();
 
   const problems = getProblemsByCategory(categorySlug);
+  const popularSlugs = new Set<string>(LABOR_POPULAR_ROUTE_SLUGS);
+  const popularProblems = categorySlug === LABOR_CATEGORY_SLUG ? problems.filter((problem) => popularSlugs.has(problem.slug)) : [];
+  const remainingProblems = categorySlug === LABOR_CATEGORY_SLUG ? problems.filter((problem) => !popularSlugs.has(problem.slug)) : problems;
   const breadcrumbs = [
     { name: "Главная", path: "/" },
     { name: "Правовой навигатор", path: "/problems/" },
@@ -62,10 +66,17 @@ export default async function ProblemCategoryPage({ params }: PageProps) {
           </p>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-semibold text-ink">Жизненные ситуации</h2>
+        {popularProblems.length ? <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold text-ink">Популярные ситуации</h2>
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {problems.map((problem) => <ProblemCard key={problem.slug} problem={problem} />)}
+            {popularProblems.map((problem) => <ProblemCard key={problem.slug} problem={problem} />)}
+          </div>
+        </section> : null}
+
+        <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold text-ink">{popularProblems.length ? "Остальные трудовые ситуации" : "Жизненные ситуации"}</h2>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {remainingProblems.map((problem) => <ProblemCard key={problem.slug} problem={problem} />)}
           </div>
         </section>
       </main>

@@ -23,6 +23,7 @@ import { SURROGACY_ORIGIN_PROBLEM } from "@/data/surrogacy-origin-problem";
 import { INTERNATIONAL_FAMILY_DISPUTES_PROBLEM } from "@/data/international-family-disputes-problem";
 import { RELATIVE_CHILD_CONTACT_PROBLEM } from "@/data/relative-child-contact-problem";
 import { EMANCIPATION_PROBLEM } from "@/data/emancipation-problem";
+import { LABOR_PROBLEMS } from "@/data/labor-problems";
 
 export type LegalProblemFaq = {
   question: string;
@@ -218,7 +219,8 @@ export const legalProblems: LegalProblem[] = [
   SURROGACY_ORIGIN_PROBLEM,
   INTERNATIONAL_FAMILY_DISPUTES_PROBLEM,
   RELATIVE_CHILD_CONTACT_PROBLEM,
-  EMANCIPATION_PROBLEM
+  EMANCIPATION_PROBLEM,
+  ...LABOR_PROBLEMS
 ];
 
 export const popularProblems: LegalProblem[] = legalProblems;
