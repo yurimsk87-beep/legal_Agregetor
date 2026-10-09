@@ -84,7 +84,7 @@ export type NavigatorDocument = {
   disclaimer?: string;
 };
 
-export const navigatorDocuments: NavigatorDocument[] = [
+const navigatorDocumentDefinitions: NavigatorDocument[] = [
 {
   "slug": "zayavlenie-v-zags",
   "title": "Заявление в орган ЗАГС",
@@ -94,6 +94,8 @@ export const navigatorDocuments: NavigatorDocument[] = [
   "titleAccusative": "заявление в орган ЗАГС",
   "shortIntro": "Одна страница для выбора нужного заявления в ЗАГС: заключение брака, перемена имени, повторное свидетельство или справка, исправление записи.",
   "shortDescription": "Выберите цель обращения в ЗАГС — покажем официальную форму, документы, срок, госпошлину и безопасный способ подачи.",
+  "seoTitle": "Заявление в орган ЗАГС: образец, скачать официальный бланк и заполнить",
+  "seoDescription": "Выберите процедуру ЗАГС, откройте официальный образец формы, подготовьте сведения и скачайте утверждённый бланк для подачи.",
   "description": "Заявление в орган ЗАГС нельзя сделать одним универсальным текстом для всех случаев. Для заключения брака, перемены имени, повторных документов и исправления записи применяются разные официальные формы. Эта страница помогает выбрать правильный вариант и не подменяет установленный бланк свободным текстом.",
   "heroDescription": "Выберите вариант заявления в орган ЗАГС. Сервис покажет, какая официальная форма применяется, какие документы подготовить, куда подать и когда вместо внутренней генерации безопаснее использовать официальный электронный сервис или бланк ЗАГС.",
   "whenToUse": [
@@ -128,7 +130,13 @@ export const navigatorDocuments: NavigatorDocument[] = [
     "Проверьте госпошлину по статье 333.26 НК РФ.",
     "Если есть отказ ЗАГС, получите его причины письменно."
   ],
-  "whatToInclude": [],
+  "whatToInclude": [
+    "Сведения о заявителе или обоих будущих супругах по документам, удостоверяющим личность.",
+    "Наименование выбранного органа ЗАГС и способ подачи.",
+    "Сведения, обязательные для выбранной утверждённой формы.",
+    "Реквизиты документов-оснований и перечень приложений.",
+    "Подписи заявителей и дата в случаях, предусмотренных официальной формой."
+  ],
   "howToFill": [
     "Заполняйте только официальную форму, которая соответствует выбранной процедуре.",
     "Для заключения брака используются формы N 7 и N 8.",
@@ -306,6 +314,34 @@ RELATIVE_CHILD_CONTACT_DOCUMENT,
 EMANCIPATION_DOCUMENT,
 ...LABOR_DOCUMENTS
 ];
+
+export const navigatorDocuments: NavigatorDocument[] = navigatorDocumentDefinitions.map((document) => ({
+  ...document,
+  seoTitle: ensureDocumentSeoTitle(document)
+}));
+
+function ensureDocumentSeoTitle(document: NavigatorDocument) {
+  const existing = document.seoTitle?.trim() || document.title.trim();
+  if (containsDocumentName(existing, document) && /образец/iu.test(existing) && /скач/iu.test(existing)) {
+    return existing;
+  }
+
+  const name = document.shortTitle?.trim() || document.title.trim();
+  return `${name}: образец, заполнить онлайн, скачать PDF`;
+}
+
+function containsDocumentName(title: string, document: NavigatorDocument) {
+  const name = normalizeSeoTitle(document.shortTitle?.trim() || document.title);
+  const candidate = normalizeSeoTitle(title);
+  if (candidate.includes(name)) return true;
+
+  const words = name.split(" ").filter((word) => word.length >= 5);
+  return words.length > 0 && words.filter((word) => candidate.includes(word)).length / words.length >= 0.7;
+}
+
+function normalizeSeoTitle(value: string) {
+  return value.toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я0-9]+/giu, " ").trim();
+}
 
 export function getNavigatorDocument(slug: string) {
   return navigatorDocuments.find((document) => document.slug === slug) ?? null;

@@ -5,14 +5,13 @@ import { FormEvent, useMemo, useState } from "react";
 import { LegalReviewLawyers } from "@/components/lawyers/LegalReviewLawyers";
 import type { LaborDocumentScenario } from "@/data/labor-documents";
 import type { LaborLegalRule } from "@/data/labor-legal-sources";
-import type { NavigatorDocument } from "@/data/documents";
 import type { LaborDocumentResponse } from "@/lib/labor-document-contract";
 import { createLaborDocumentPdfBlob, laborDocumentFilename } from "@/lib/labor-document-export";
 
 type GeneratedVersion = LaborDocumentResponse & { answers: Record<string, string> };
 type Field = { key: string; label: string; hint: string };
 
-export function LaborDocumentGenerator({ document, selected, rules }: { document: NavigatorDocument; selected: LaborDocumentScenario; rules: LaborLegalRule[] }) {
+export function LaborDocumentGenerator({ document, selected, rules }: { document: { slug: string }; selected: LaborDocumentScenario; rules: LaborLegalRule[] }) {
   const fields = useMemo(() => buildFields(selected), [selected]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [version, setVersion] = useState<GeneratedVersion | null>(null);

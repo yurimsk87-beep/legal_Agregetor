@@ -69,7 +69,7 @@ export function ParentsChildDocumentHelper({ scenarioKey }: { scenarioKey: Paren
     <section id="fill-online" className="scroll-mt-24 border border-line bg-white p-5 shadow-sm sm:p-6">
       <p className="text-sm font-semibold uppercase tracking-wide text-trust">Подготовка результата</p>
       <h2 className="mt-2 text-2xl font-semibold text-ink">{scenario.mainDocument}</h2>
-      <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-700">Ответы обрабатываются по заранее заданным правилам. Помощник не дописывает факты, мнение ребёнка, заключение органа опеки или реквизиты суда.</p>
+      <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-700">Ответы обрабатываются по заранее заданным правилам. Сервис не дописывает факты, мнение ребёнка, заключение органа опеки или реквизиты суда.</p>
 
       {!decision && field ? (
         <form className="mt-6" onSubmit={advance}>

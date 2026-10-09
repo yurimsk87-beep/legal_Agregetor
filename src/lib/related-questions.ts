@@ -1,4 +1,5 @@
 import type { Question } from "./types";
+import { canonicalHarantQuestionCategoryName } from "./harant-question-categories";
 
 // Context-aware "Похожие вопросы" scorer for /problems/ and /documents/.
 //
@@ -14,6 +15,8 @@ export type RelatedQuestionsContext = {
   contextType: RelatedQuestionsContextType;
   /** Free-text category name as stored on questions (e.g. "Семья и дети"). */
   categoryName?: string;
+  /** Hard category allowlist. Questions outside these categories never surface. */
+  allowedCategoryNames?: string[];
   /** Strong signals — usually the page's relatedQuestionTopics / userQueries. */
   primaryTags: string[];
   /** Weak signals — broader words that only help alongside a primary match. */
@@ -43,6 +46,7 @@ export type GetRelatedQuestionsOptions = {
 // --- tuning ------------------------------------------------------------------
 
 const PRIMARY_TAG_SCORE = 40;
+const BROAD_PRIMARY_TAG_SCORE = 15;
 const SECONDARY_TAG_SCORE = 8;
 const CATEGORY_SCORE = 10;
 const HAS_ANSWER_BONUS = 5;
@@ -76,6 +80,7 @@ const SYNONYM_GROUPS: string[][] = [
   ["место жительства ребенка", "с кем будет жить ребенок", "оставить ребенка с матерью", "оставить ребенка с отцом", "ребенка забрали", "мать не отдает ребенка"],
   ["раздел имущества", "совместно нажитое", "поделить квартиру", "раздел квартиры", "раздел ипотеки", "делится ли квартира"],
   ["лишение родительских прав", "лишить прав", "лишить родительских прав", "родитель опасен для ребенка"],
+  ["оспорить отцовство", "оспаривание отцовства", "аннулировать отцовство", "исключить запись об отце", "оспорить запись об отце"],
   ["развод", "расторжение брака", "развестись"],
   ["судебный приказ", "приказ о взыскании"],
   ["госпошлина", "пошлина за подачу"],
@@ -109,6 +114,15 @@ function expandPhrase(phrase: string): string[] {
   return [...variants];
 }
 
+function phraseGroupKey(phrase: string): string {
+  const normalizedPhrase = normalizeText(phrase);
+  for (const group of SYNONYM_GROUPS) {
+    const normalizedGroup = group.map(normalizeText);
+    if (normalizedGroup.includes(normalizedPhrase)) return [...normalizedGroup].sort().join("|");
+  }
+  return normalizedPhrase;
+}
+
 /**
  * Expand phrases with their synonym groups, for building a DB candidate query.
  * Returns normalized, deduped terms long enough to be useful in an ILIKE search.
@@ -123,13 +137,33 @@ export function expandPhrases(phrases: string[]): string[] {
   return [...out];
 }
 
-function phrasePresent(phrase: string, haystack: string): boolean {
+type PhraseMatchKind = "none" | "broad" | "precise";
+
+function phraseMatchKind(phrase: string, haystack: string): PhraseMatchKind {
+  let bestMatch: PhraseMatchKind = "none";
+
   for (const variant of expandPhrase(phrase)) {
-    if (variant.length >= 4 && haystack.includes(variant)) return true;
-    const words = variant.split(" ").filter((word) => word.length >= 5);
-    if (words.length >= 2 && words.filter((word) => haystack.includes(word)).length >= 2) return true;
+    const variantWords = variant.split(" ").filter(Boolean);
+    const matchKind: PhraseMatchKind = variantWords.length === 1 ? "broad" : "precise";
+    if (variant.length >= 4 && haystack.includes(variant)) {
+      if (matchKind === "precise") return "precise";
+      bestMatch = "broad";
+      continue;
+    }
+
+    const words = variantWords.filter((word) => word.length >= 4);
+    const requiredMatches = words.length <= 5 ? words.length : Math.ceil(words.length * 0.8);
+    if (words.length >= 2 && words.filter((word) => haystack.includes(word)).length >= requiredMatches) {
+      if (matchKind === "precise") return "precise";
+      bestMatch = "broad";
+    }
   }
-  return false;
+
+  return bestMatch;
+}
+
+function phrasePresent(phrase: string, haystack: string): boolean {
+  return phraseMatchKind(phrase, haystack) !== "none";
 }
 
 function countPhraseMatches(phrases: string[], haystack: string): number {
@@ -138,6 +172,24 @@ function countPhraseMatches(phrases: string[], haystack: string): number {
     if (phrasePresent(phrase, haystack)) count += 1;
   }
   return count;
+}
+
+function scorePrimaryPhraseMatches(phrases: string[], haystack: string) {
+  const matchesByGroup = new Map<string, PhraseMatchKind>();
+
+  for (const phrase of phrases) {
+    const matchKind = phraseMatchKind(phrase, haystack);
+    if (matchKind === "none") continue;
+    const groupKey = phraseGroupKey(phrase);
+    if (matchKind === "precise" || !matchesByGroup.has(groupKey)) matchesByGroup.set(groupKey, matchKind);
+  }
+
+  const score = [...matchesByGroup.values()].reduce(
+    (total, matchKind) => total + (matchKind === "broad" ? BROAD_PRIMARY_TAG_SCORE : PRIMARY_TAG_SCORE),
+    0
+  );
+
+  return { matches: matchesByGroup.size, score };
 }
 
 function buildHaystack(question: Question): string {
@@ -150,6 +202,16 @@ function isPublished(question: Question): boolean {
   // Static dev fallback questions may omit status; DB layer already filters to
   // public, so treat "no status" as publishable.
   return !question.status || question.status === "PUBLISHED";
+}
+
+function isAllowedCategory(question: Question, allowedCategoryNames?: string[]): boolean {
+  if (!allowedCategoryNames?.length) return true;
+
+  const category = question.category ?? question.service?.name;
+  if (!category) return false;
+
+  const canonicalCategory = canonicalHarantQuestionCategoryName(category);
+  return allowedCategoryNames.some((allowedCategory) => canonicalHarantQuestionCategoryName(allowedCategory) === canonicalCategory);
 }
 
 function isFresh(createdAt?: string): boolean {
@@ -167,6 +229,10 @@ export function scoreQuestion(question: Question, context: RelatedQuestionsConte
     return { questionId: question.id, score: -999, reasons: ["not_published"] };
   }
 
+  if (!isAllowedCategory(question, context.allowedCategoryNames)) {
+    return { questionId: question.id, score: -999, reasons: ["category_not_allowed"] };
+  }
+
   const haystack = buildHaystack(question);
   let score = 0;
 
@@ -179,10 +245,10 @@ export function scoreQuestion(question: Question, context: RelatedQuestionsConte
   }
 
   const searchPhrases = context.searchPhrases?.length ? context.searchPhrases : context.primaryTags;
-  const primaryMatches = countPhraseMatches([...new Set([...context.primaryTags, ...searchPhrases])], haystack);
-  if (primaryMatches > 0) {
-    score += primaryMatches * PRIMARY_TAG_SCORE;
-    reasons.push(`primary_matches:${primaryMatches}`);
+  const primary = scorePrimaryPhraseMatches([...new Set([...context.primaryTags, ...searchPhrases])], haystack);
+  if (primary.matches > 0) {
+    score += primary.score;
+    reasons.push(`primary_matches:${primary.matches}`);
   }
 
   const secondaryMatches = countPhraseMatches(context.secondaryTags ?? [], haystack);
@@ -267,6 +333,7 @@ export function getRelatedQuestions(
 
 export const RELATED_QUESTIONS_TUNING = {
   PRIMARY_TAG_SCORE,
+  BROAD_PRIMARY_TAG_SCORE,
   SECONDARY_TAG_SCORE,
   CATEGORY_SCORE,
   EXCLUDED_PENALTY,

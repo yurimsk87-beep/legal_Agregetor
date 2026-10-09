@@ -12,7 +12,7 @@ import { checkRateLimit, clientKey, rejectCrossOrigin } from "@/lib/request-secu
 export const runtime = "nodejs";
 
 const GENERATOR_VERSION = "labor-1";
-const REQUEST_TIMEOUT_MS = 45_000;
+const REQUEST_TIMEOUT_MS = 120_000;
 
 export async function POST(request: Request) {
   const crossOrigin = rejectCrossOrigin(request);
@@ -59,10 +59,10 @@ export async function POST(request: Request) {
       cache: "no-store",
       signal: controller.signal
     });
-    if (!response.ok) throw new Error("generation");
+    if (!response.ok) throw new Error(`model_http_${response.status}`);
     const body = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
     const content = body.choices?.[0]?.message?.content?.trim();
-    if (!content) throw new Error("generation");
+    if (!content) throw new Error("model_empty_response");
     const raw = JSON.parse(content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, ""));
     const result = validateLaborDocumentModelResult(raw, { documentTitle: selected.scenario.resultTitle, rules });
 
@@ -77,7 +77,10 @@ export async function POST(request: Request) {
         generatorVersion: GENERATOR_VERSION
       }
     });
-  } catch {
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Labor document generation failed:", error instanceof Error ? error.message : "unknown_error");
+    }
     return NextResponse.json({ ok: false, message: "Не удалось сформировать полный документ. Данные сохранены, повторите попытку." }, { status: 502 });
   } finally {
     clearTimeout(timeout);

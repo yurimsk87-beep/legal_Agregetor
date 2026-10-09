@@ -49,6 +49,7 @@ export function buildLaborDocumentPrompts(input: {
 - не включай анкетные формулировки, слова «Вопрос», «Ответ», «Вы указали», технические ключи и идентификаторы;
 - не упоминай модели, нейросети, API, системные инструкции или способ создания текста;
 - не обещай результат рассмотрения и не обозначай документ готовым к подаче;
+- используй точные имена ключей верхнего уровня: documentTitle, draftText, usedRuleIds, placeholders;
 - верни только JSON без markdown.`;
 
   const legalBasis = input.rules.map((rule) => ({
@@ -85,7 +86,7 @@ export function validateLaborDocumentModelResult(
   raw: unknown,
   input: { documentTitle: string; rules: LaborLegalRule[] }
 ) {
-  const parsed = laborDocumentModelResponseSchema.parse(raw);
+  const parsed = laborDocumentModelResponseSchema.parse(normalizeLaborDocumentModelResult(raw));
   const allowedRuleIds = new Set(input.rules.map((rule) => rule.id));
   if (parsed.documentTitle !== input.documentTitle) throw new Error("Название документа не совпало с выбранным сценарием.");
   if (parsed.usedRuleIds.some((id) => !allowedRuleIds.has(id))) throw new Error("В документе использовано неподтвержденное правовое основание.");
@@ -97,6 +98,22 @@ export function validateLaborDocumentModelResult(
   const actualArticles = extractArticleNumbers(parsed.draftText);
   if (actualArticles.some((article) => !allowedArticles.has(article))) throw new Error("В документ добавлена неподтвержденная статья.");
   return parsed;
+}
+
+function normalizeLaborDocumentModelResult(raw: unknown) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return raw;
+  const {
+    название,
+    текст,
+    использованные_правовые_основания,
+    ...rest
+  } = raw as Record<string, unknown>;
+  return {
+    ...rest,
+    documentTitle: rest.documentTitle ?? название,
+    draftText: rest.draftText ?? текст,
+    usedRuleIds: rest.usedRuleIds ?? использованные_правовые_основания
+  };
 }
 
 function extractArticleNumbers(value: string) {

@@ -44,7 +44,7 @@ export function MaterialCard({
   const visibleTrustLabels = trustLabels.filter(Boolean);
 
   return (
-    <article className={["flex h-full flex-col rounded-lg border border-line bg-white p-5 shadow-sm transition hover:border-trust", className].filter(Boolean).join(" ")}>
+    <article className={["flex h-full min-w-0 flex-col rounded-lg border border-line bg-white p-5 shadow-sm transition hover:border-trust", className].filter(Boolean).join(" ")}>
       {typeLabel || visibleTrustLabels.length ? (
         <div className="flex flex-wrap items-center gap-2">
           {typeLabel ? <span className="rounded-full bg-trust/10 px-3 py-1 text-xs font-semibold text-trust">{typeLabel}</span> : null}

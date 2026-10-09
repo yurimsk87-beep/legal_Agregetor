@@ -54,7 +54,7 @@ export function validatePaternityEstablishment(scenarioKey: PaternityEstablishme
   if (scenarioKey === "existing-record") {
     if (values.existingFatherRecord !== "yes") return checklist("record-not-confirmed", "Чек-лист проверки записи о рождении", "Существующая запись о другом отце не подтверждена; выберите добровольный или судебный маршрут после проверки документа.", preparedData, "assessment");
   }
-  if (scenarioKey === "combined" && values.combinedIssue === "other") return review("combined-other-review", "Дополнительное требование требует отдельной квалификации", "Помощник не объединяет автоматически семейные, наследственные или регистрационные требования.", preparedData, "assessment");
+  if (scenarioKey === "combined" && values.combinedIssue === "other") return review("combined-other-review", "Дополнительное требование требует отдельной квалификации", "Сервис не объединяет автоматически семейные, наследственные или регистрационные требования.", preparedData, "assessment");
 
   const missing = fields.filter((field) => field.required && !values[field.name]?.trim()).map((field) => ({ field: field.name, message: `Заполните поле «${field.label}».` }));
   if (missing.length) return base("missing-data", "assessment", "legalReviewOnly", "Не хватает обязательных сведений", scenario.mainDocument, true, missing, preparedData, ["Заполните обязательные поля."], [], "");
@@ -65,12 +65,12 @@ export function validatePaternityEstablishment(scenarioKey: PaternityEstablishme
   }
   if (scenarioKey === "existing-record") return review("existing-record-court-review", "Требуется судебная проверка существующей записи", "Не формируйте новое заявление ЗАГС до определения требований об исключении или изменении записи.", preparedData, "record-review");
   if (scenarioKey === "deceased") {
-    const title = values.deceasedAcknowledged === "yes" ? "Черновик заявления об установлении факта признания отцовства" : "Черновик заявления об установлении факта отцовства";
+    const title = values.deceasedAcknowledged === "yes" ? "Заявление об установлении факта признания отцовства" : "Заявление об установлении факта отцовства";
     return base(`deceased-${values.deceasedAcknowledged === "yes" ? "recognition" : "paternity"}-draft`, "deceased", "courtDraft", "ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА", title, true, validateCourt(values), preparedData, ["Особое производство допустимо только при отсутствии спора о праве.", "Дата рождения ребёнка и цель обращения требуют проверки применимого регулирования."], ["Проверьте вид устанавливаемого факта и применимое право по дате рождения ребёнка.", "Определите всех заинтересованных лиц.", "Проверьте суд и подсудность.", "Проверьте доказательства и юридическую цель у юриста.", "Только после проверки определите способ подачи."], buildCourtDraft(values, title));
   }
 
   const combined = scenarioKey === "combined";
-  const title = combined ? "Черновик иска об установлении отцовства и взыскании алиментов" : "Черновик иска об установлении отцовства";
+  const title = combined ? "Иск об установлении отцовства и взыскании алиментов" : "Иск об установлении отцовства";
   const issues = validateCourt(values);
   return base(combined ? "court-paternity-support-draft" : "court-paternity-draft", combined ? "combined" : "court", "courtDraft", "ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА", title, true, issues, preparedData, combined ? ["Требования об установлении отцовства и алиментах проверяются раздельно.", "Алименты при удовлетворении требования присуждаются со дня обращения в суд; прошедший период автоматически не добавляется."] : ["Происхождение ребёнка и достаточность доказательств устанавливает только суд."], ["Проверьте право заявителя и участников.", "Проверьте районный суд и территориальную подсудность.", "Соберите законно полученные доказательства.", combined ? "Проверьте вид, размер и расчёт алиментов отдельно." : "Проверьте просительную часть и приложения.", "После вступления решения в законную силу используйте его для регистрации установления отцовства в ЗАГС; сведения переносятся в форму № 18.", "Перед подачей проверьте черновик у юриста."], issues.length ? "" : buildCourtDraft(values, title));
 }

@@ -4,7 +4,12 @@ import { LABOR_ROUTES } from "../../src/data/labor-routes";
 
 const categoryPath = "/problems/trudovoe-pravo/";
 const routePath = "/problems/trudovoe-pravo/uvolnenie-po-iniciative-rabotodatelya/?scenario=redundancy";
+const plannedRoutePath = "/problems/trudovoe-pravo/uvolnenie-po-iniciative-rabotodatelya/?scenario=planned";
+const plannedDocumentPath = "/documents/zapros-osnovaniy-planiruemogo-uvolneniya/";
+const dismissedDocumentPath = "/documents/isk-o-vosstanovlenii-na-rabote/";
 const documentPath = "/documents/zamechaniya-k-sokrashcheniyu/";
+const plannedSeoTitle = "Запрос письменных оснований планируемого увольнения: образец, скачать PDF и запросить документы";
+const dismissedSeoTitle = "Иск о восстановлении на работе: образец, скачать PDF и оспорить увольнение";
 
 for (const viewport of [
   { width: 320, height: 780 },
@@ -31,18 +36,47 @@ test("category contains 6 popular and 8 other routes", async ({ page }) => {
   expect(routeLinks).toHaveLength(14);
 });
 
-test("route produces a safe result with law, next steps and document", async ({ page }) => {
+test("route opens one complete document form without a preliminary result branch", async ({ page }) => {
   await page.goto(routePath);
   await dismissAnalytics(page);
-  const answers = page.locator("#clarifications-title ~ div textarea");
-  await expect(answers).toHaveCount(3);
-  for (let index = 0; index < await answers.count(); index += 1) await answers.nth(index).fill(`Подтвержденный ответ ${index + 1}`);
-  await page.getByRole("button", { name: "Получить порядок действий" }).click();
-  await expect(page.getByText("Сведения собраны. Результат остается предварительным", { exact: false })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Что делать дальше" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Правовые основания" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Официальный источник" }).first()).toHaveAttribute("href", /^https:\/\//);
-  await expect(page.getByRole("link", { name: "Открыть документ" })).toHaveAttribute("href", "/documents/zamechaniya-k-sokrashcheniyu/");
+  await expect(page.getByRole("heading", { name: "Подготовка документа" })).toBeVisible();
+  expect(await page.locator("#fill-online textarea").count()).toBeGreaterThan(10);
+  await expect(page.getByRole("button", { name: "Получить порядок действий" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Сформировать документ" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Сформировать документ", exact: true })).toHaveCount(1);
+});
+
+test("planned dismissal document exposes an exact SEO title, benefit, sample and download intent", async ({ page }) => {
+  for (const path of [plannedRoutePath, plannedDocumentPath]) {
+    await page.goto(path);
+    await expect(page).toHaveTitle(`${plannedSeoTitle} | ПравоПоиск`);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /Образец запроса письменных оснований.+скачайте PDF.+запросить у работодателя/i);
+  }
+  await page.goto(plannedRoutePath);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/problems\/trudovoe-pravo\/uvolnenie-po-iniciative-rabotodatelya\/$/);
+  await page.goto(plannedDocumentPath);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Запрос письменных оснований планируемого увольнения");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /^index, follow$/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/documents\/zapros-osnovaniy-planiruemogo-uvolneniya\/$/);
+});
+
+test("reinstatement claim exposes its exact SEO title and search intent", async ({ page }) => {
+  await page.goto(dismissedDocumentPath);
+  await expect(page).toHaveTitle(`${dismissedSeoTitle} | ПравоПоиск`);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Иск о восстановлении на работе");
+  await expect(page.getByText(/Подготовьте проект иска, если считаете увольнение незаконным.+использовать как образец и скачать в PDF/i)).toBeVisible();
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /Образец иска о восстановлении.+скачайте PDF.+оспаривания увольнения в суде/i);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /^index, follow$/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/documents\/isk-o-vosstanovlenii-na-rabote\/$/);
+  await expect(page.getByRole("heading", { name: "Что войдет в иск" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Какие доказательства приложить" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Проверенные правовые основания" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Что делать после скачивания" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Связанные материалы" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Запрос письменных оснований планируемого увольнения" })).toHaveAttribute("href", "/documents/zapros-osnovaniy-planiruemogo-uvolneniya/");
+  const structuredData = await page.locator('script[type="application/ld+json"]').evaluateAll((elements) => elements.map((element) => element.textContent).join("\n"));
+  expect(structuredData).toContain('"@type":"WebPage"');
 });
 
 test("document preserves the current version until explicit regeneration", async ({ page }) => {
@@ -104,7 +138,12 @@ test("document preserves the current version until explicit regeneration", async
 
 test("all labor routes and documents return canonical HTML and are in sitemaps", async ({ request }) => {
   test.setTimeout(180_000);
+  const scenarios = LABOR_ROUTES.flatMap((route) => route.scenarios);
+  const documentSlugs = new Set(LABOR_DOCUMENTS.map(({ slug }) => slug));
+  expect(scenarios).toHaveLength(50);
+  expect(scenarios.every(({ documentSlug }) => Boolean(documentSlug) && documentSlugs.has(documentSlug!))).toBe(true);
   const routePaths = LABOR_ROUTES.map(({ slug }) => `/problems/trudovoe-pravo/${slug}/`);
+  const scenarioPaths = LABOR_ROUTES.flatMap((route) => route.scenarios.map((scenario) => `${categoryPath}${route.slug}/?scenario=${scenario.key}`));
   const documentPaths = LABOR_DOCUMENTS.map(({ slug }) => `/documents/${slug}/`);
   const responses = await Promise.all([...routePaths, ...documentPaths].map(async (path) => ({ path, response: await request.get(path) })));
   for (const { path, response } of responses) {
@@ -112,6 +151,14 @@ test("all labor routes and documents return canonical HTML and are in sitemaps",
     const html = await response.text();
     expect(html, path).toContain(`rel="canonical"`);
     expect(html, path).toContain(path);
+  }
+  const scenarioResponses = await Promise.all(scenarioPaths.map(async (path) => ({ path, response: await request.get(path) })));
+  for (const { path, response } of scenarioResponses) {
+    expect(response.status(), path).toBe(200);
+    const html = await response.text();
+    expect(html, path).toContain("Подготовка документа");
+    expect(html, path).toContain("Сформировать документ");
+    expect(html, path).not.toContain("Получить порядок действий");
   }
   const [problemSitemap, documentSitemap] = await Promise.all([
     request.get("/sitemap-problems.xml").then((response) => response.text()),

@@ -25,7 +25,7 @@ export function validateRelativeChildContact(key: RelativeChildContactKey, rawVa
   if (emergency) notices.push("Подготовка документа не должна задерживать защиту ребёнка.");
   const blocked = issues.length > 0 || parentIntent || emergency;
   const kind = key === "agreement" ? "agreement" : key === "guardianship" ? "applicationDraft" : key === "court" ? "courtDraft" : "checklist";
-  const title = key === "agreement" ? "Проект договорённости об общении родственника с ребёнком" : key === "guardianship" ? "Обращение об устранении препятствий к общению с ребёнком" : key === "court" ? "ЧЕРНОВИК — требование об устранении препятствий к общению с ребёнком" : "Чек-лист исполнения решения об общении с ребёнком";
+  const title = key === "agreement" ? "Проект договорённости об общении родственника с ребёнком" : key === "guardianship" ? "Обращение об устранении препятствий к общению с ребёнком" : key === "court" ? "Требование об устранении препятствий к общению с ребёнком" : "Чек-лист исполнения решения об общении с ребёнком";
   return {
     outcomeKey: parentIntent ? "parent-neighbor-route" : emergency ? "urgent-child-safety" : issues.length ? `${key}-missing-data` : `${key}-${rawValues.relation}`,
     allowed: !blocked, resultKind: kind, resultLabel: parentIntent ? "Используйте маршрут для родителей" : emergency ? "Сначала защитите ребёнка" : requiresLegalReview ? "Черновик — требуется юридическая проверка" : "Материал подготовлен",

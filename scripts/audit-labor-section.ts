@@ -12,6 +12,7 @@ async function main() {
 const failures: string[] = [];
 const fail = (condition: unknown, message: string) => { if (!condition) failures.push(message); };
 const routeSlugs = new Set(LABOR_ROUTES.map(({ slug }) => slug));
+const laborScenarios = LABOR_ROUTES.flatMap(({ scenarios }) => scenarios);
 const documentSlugs = new Set(LABOR_DOCUMENTS.map(({ slug }) => slug));
 const allProblemPaths = new Set(legalProblems.map(({ categorySlug, slug }) => `/problems/${categorySlug}/${slug}/`));
 const allDocumentPaths = new Set(navigatorDocuments.map(({ slug }) => `/documents/${slug}/`));
@@ -22,7 +23,8 @@ fail(LABOR_POPULAR_ROUTE_SLUGS.length === 6, "Expected 6 popular labor routes.")
 fail(LABOR_ROUTES.length - LABOR_POPULAR_ROUTE_SLUGS.length === 8, "Expected 8 remaining labor routes.");
 fail(routeSlugs.size === LABOR_ROUTES.length, "Labor route slugs must be unique.");
 fail(documentSlugs.size === LABOR_DOCUMENTS.length, "Labor document slugs must be unique.");
-fail(LABOR_DOCUMENTS.length === 28, "Expected exactly 28 labor document generators.");
+fail(laborScenarios.every(({ documentSlug }) => Boolean(documentSlug)), "Every labor scenario must have a document generator.");
+fail(LABOR_DOCUMENTS.length === laborScenarios.length, "Labor document generator count must match labor scenario count.");
 fail(LABOR_MANUAL_ACCEPTANCE_INTENTS.length === 22, "Expected 22 manual acceptance intents.");
 fail(new Set(LABOR_ROUTES.map(({ seoTitle }) => seoTitle)).size === LABOR_ROUTES.length, "Labor SEO titles must be unique.");
 fail(new Set(LABOR_ROUTES.map(({ seoDescription }) => seoDescription)).size === LABOR_ROUTES.length, "Labor SEO descriptions must be unique.");
@@ -43,9 +45,7 @@ for (const route of LABOR_ROUTES) {
     fail(scenario.authority.length > 0, `${route.slug}/${scenario.key}: authority class is empty.`);
     const answers = Object.fromEntries(scenario.questions.map((question) => [question, "Подтверждено документами"]));
     fail(resolveLaborResult(route, scenario.key, answers).filingReady === false, `${route.slug}/${scenario.key}: unsafe filingReady.`);
-    if (scenario.documentSlug) {
-      fail(documentSlugs.has(scenario.documentSlug), `${route.slug}/${scenario.key}: document generator is missing.`);
-    }
+    fail(Boolean(scenario.documentSlug && documentSlugs.has(scenario.documentSlug)), `${route.slug}/${scenario.key}: document generator is missing.`);
   }
 }
 
@@ -81,7 +81,7 @@ const report = {
   laborRoutes: LABOR_ROUTES.length,
   popularRoutes: LABOR_POPULAR_ROUTE_SLUGS.length,
   otherRoutes: LABOR_ROUTES.length - LABOR_POPULAR_ROUTE_SLUGS.length,
-  scenarios: LABOR_ROUTES.flatMap(({ scenarios }) => scenarios).length,
+  scenarios: laborScenarios.length,
   documentGenerators: LABOR_DOCUMENTS.length,
   manualAcceptanceIntents: LABOR_MANUAL_ACCEPTANCE_INTENTS.length,
   verifiedLegalRules: LABOR_LEGAL_RULES.length,

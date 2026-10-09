@@ -28,9 +28,9 @@ export const LABOR_DOCUMENTS: NavigatorDocument[] = documentScenarios.map(({ rou
     documentTypeAccusative: documentType.toLowerCase(),
     shortIntro: `Подготовьте ${documentType.toLowerCase()} по подтвержденным обстоятельствам трудовой ситуации.`,
     shortDescription: `${scenario.resultTitle}: пошаговое заполнение, проверенные правовые основания, PDF и передача профильному юристу.`,
-    description: `Сервис помогает подготовить связный проект документа «${scenario.resultTitle}» по выбранному трудовому сценарию. Неподтвержденные адресат, срок, расчет и иные критические сведения не подменяются предположениями.`,
-    heroDescription: `Заполните сведения по документам и переписке. Сервис сформирует проект, покажет применимые нормы и дальнейшие действия. Готовность к подаче подтверждается только после юридической проверки.`,
-    whenToUse: [scenario.description, ...route.whatToKnow.slice(0, 2)],
+    description: scenario.pageDescription ?? `Сервис помогает подготовить связный проект документа «${scenario.resultTitle}» по выбранному трудовому сценарию. Неподтвержденные адресат, срок, расчет и иные критические сведения не подменяются предположениями.`,
+    heroDescription: `${scenario.resultTitle}. ${scenario.pageDescription ?? "Заполните сведения по документам и переписке. Сервис сформирует проект, покажет применимые нормы и дальнейшие действия. Готовность к подаче подтверждается только после юридической проверки."}`,
+    whenToUse: scenario.pageWhenToUse ?? [scenario.description, ...route.whatToKnow.slice(0, 2)],
     whenNotToUse: route.exclusions.length ? route.exclusions : ["Ситуация относится к другому трудовому маршруту."],
     beforeFillingChecklist: [
       "Проверьте даты и содержание документов работодателя.",
@@ -38,8 +38,8 @@ export const LABOR_DOCUMENTS: NavigatorDocument[] = documentScenarios.map(({ rou
       "Отдельно проверьте срок обращения, если нарушение уже состоялось."
     ],
     requiredData: scenario.questions,
-    whatToPrepare: route.documents,
-    whatToInclude: ["Адресат и сведения об участниках.", "Подтвержденные обстоятельства.", "Предметная просьба или требования.", "Перечень приложений, дата и подпись."],
+    whatToPrepare: scenario.pageWhatToPrepare ?? route.documents,
+    whatToInclude: scenario.pageWhatToInclude ?? ["Адресат и сведения об участниках.", "Подтвержденные обстоятельства.", "Предметная просьба или требования.", "Перечень приложений, дата и подпись."],
     howToFill: ["Вносите только подтвержденные сведения.", "Не указывайте точный суд или орган, если он не проверен.", "После редактирования явно сформируйте новую версию документа."],
     whereToFile: scenario.authority.join(", "),
     whereToSubmit: scenario.authority.join(", "),
@@ -49,20 +49,20 @@ export const LABOR_DOCUMENTS: NavigatorDocument[] = documentScenarios.map(({ rou
     deadlinesAndFees: [scenario.deadline, scenario.stateDuty, scenario.payments].filter((item): item is string => Boolean(item)),
     stateDuty: scenario.stateDuty ? [scenario.stateDuty] : ["Применимость госпошлины проверяется по типу требования и статусу заявителя."],
     deadlines: scenario.deadline ? [scenario.deadline] : ["Специальный срок проверяется по предмету требования и подтвержденным датам."],
-    afterFiling: scenario.nextSteps,
+    afterFiling: scenario.pageAfterDownload ?? scenario.nextSteps,
     importantFactsToFix: scenario.questions,
     mistakes: ["Указывать непроверенный адресат.", "Пропускать специальный срок.", "Добавлять обстоятельства без подтверждения."],
     commonMistakes: ["Подменять факты оценочными формулировками.", "Ссылаться на нормы, которые не относятся к выбранному сценарию."],
-    documentsToAttach: route.documents,
-    attachments: route.documents,
+    documentsToAttach: scenario.pageAttachments ?? route.documents,
+    attachments: scenario.pageAttachments ?? route.documents,
     relatedProblems: [{ title: route.title, slug: route.slug }],
     relatedSituations: [{ title: route.title, slug: route.slug }],
-    relatedDocuments: [],
+    relatedDocuments: scenario.relatedDocuments ?? [],
     faq: [],
     relatedProblemSlugs: [route.slug],
     legalReferenceKeys: [],
-    seoTitle: `${scenario.resultTitle}: подготовить документ онлайн`,
-    seoDescription: `Подготовьте ${scenario.resultTitle.toLowerCase()} по трудовой ситуации: проверенные нормы, редактирование данных, PDF и юридическая проверка.`,
+    seoTitle: scenario.seoTitle ?? `${scenario.resultTitle}: подготовить документ онлайн`,
+    seoDescription: scenario.seoDescription ?? `Подготовьте ${scenario.resultTitle.toLowerCase()} по трудовой ситуации: проверенные нормы, редактирование данных, PDF и юридическая проверка.`,
     generatorSeoTitle: `${scenario.resultTitle}: заполнить онлайн`,
     generatorSeoDescription: `Пошаговая подготовка документа «${scenario.resultTitle}» с проверенными правовыми основаниями и безопасным статусом готовности.`,
     keywords: [...route.aliases, ...route.relatedQuestionTopics, documentType],
@@ -82,6 +82,8 @@ function getDocumentType(title: string) {
   if (/^Заявление/i.test(title)) return "Заявление";
   if (/^Запрос/i.test(title)) return "Запрос";
   if (/^Требование/i.test(title)) return "Требование";
+  if (/^Предложение/i.test(title)) return "Предложение";
+  if (/^Уведомление/i.test(title)) return "Уведомление";
   if (/^Отзыв/i.test(title)) return "Отзыв заявления";
   if (/^Возражения/i.test(title)) return "Возражения";
   return "Проект документа";

@@ -24,6 +24,7 @@ export const LABOR_PROBLEMS: LegalProblem[] = LABOR_ROUTES.map((route) => ({
   relatedDocumentSlugs: route.scenarios.map((scenario) => scenario.documentSlug).filter((item): item is string => Boolean(item)),
   legalReferenceKeys: [],
   relatedQuestionTopics: route.relatedQuestionTopics,
+  relatedQuestionExclusions: route.exclusions,
   relatedLawyerSpecializations: ["Трудовое право"],
   relatedProblemSlugs: route.relatedProblemSlugs,
   selfHelpConditions: ["Критические факты подтверждены документами.", "Не требуется индивидуальный расчет или восстановление пропущенного срока."],

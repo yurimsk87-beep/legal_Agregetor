@@ -38,10 +38,10 @@ export function validatePaternityContest(scenarioKey: PaternityContestScenarioKe
   const courtIssues = validateCourt(values);
   const subject = values.recordTarget === "mother" ? "материнства" : "отцовства";
   const titles: Record<PaternityContestScenarioKey, string> = {
-    "recorded-parent": `Черновик иска записанного родителя об оспаривании ${subject}`,
-    "biological-parent": `Черновик иска биологического родителя об оспаривании записи о ${values.recordTarget === "mother" ? "матери" : "отце"}`,
-    "child-representative": `Черновик иска ребёнка или опекуна об оспаривании ${subject}`,
-    "after-death": `Черновик иска об оспаривании ${subject} после смерти записанного родителя`
+    "recorded-parent": `Иск записанного родителя об оспаривании ${subject}`,
+    "biological-parent": `Иск биологического родителя об оспаривании записи о ${values.recordTarget === "mother" ? "матери" : "отце"}`,
+    "child-representative": `Иск ребёнка или опекуна об оспаривании ${subject}`,
+    "after-death": `Иск об оспаривании ${subject} после смерти записанного родителя`
   };
   const title = titles[scenarioKey];
   return base(`${scenarioKey}-${values.recordTarget}-court-draft`, "court", "courtDraft", "ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА", title, courtIssues, preparedData, ["Экспертиза не гарантирует результат и оценивается судом вместе с другими доказательствами.", "Исключение записи и его последствия для ребёнка определяет суд."], ["Проверьте право заявителя и надлежащих ответчиков.", "Проверьте районный суд и территориальную подсудность.", "Проверьте основание актовой записи и специальные ограничения.", "Соберите законно полученные доказательства; вопрос об экспертизе разрешает суд.", "Перед подачей проверьте просительную часть, приложения и последствия у юриста.", "После вступления решения в законную силу уточните порядок изменения актовой записи в ЗАГС."], courtIssues.length ? "" : buildCourtDraft(values, title));

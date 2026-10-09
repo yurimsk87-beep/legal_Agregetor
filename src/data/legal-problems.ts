@@ -55,6 +55,7 @@ export type LegalProblem = {
   relatedDocumentSlugs: string[];
   legalReferenceKeys: LegalReferenceKey[];
   relatedQuestionTopics: string[];
+  relatedQuestionExclusions?: string[];
   relatedLawyerSpecializations: string[];
   relatedProblemSlugs: string[];
   selfHelpConditions?: string[];

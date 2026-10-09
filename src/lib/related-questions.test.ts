@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { navigatorDocuments } from "../data/documents";
+import { legalProblems } from "../data/legal-problems";
 import { getRelatedQuestions, scoreQuestion, type RelatedQuestionsContext } from "./related-questions";
 import type { Question } from "./types";
 
@@ -104,6 +106,89 @@ const problemContext: RelatedQuestionsContext = {
   const propertyNoise = q({ id: "d3", title: "Как разделить имущество и поделить квартиру при разводе" });
   const filtered = getRelatedQuestions(docContext, [good, better, propertyNoise]);
   assert.ok(!filtered.some((r) => r.id === "d3"), "property question must be excluded on the divorce-claim document");
+}
+
+// 11. A hard category allowlist rejects a strong text match from another area.
+{
+  const familyContext: RelatedQuestionsContext = {
+    ...problemContext,
+    categoryName: "Семейные дела",
+    allowedCategoryNames: ["Семейные дела", "Алименты"]
+  };
+  const familyQuestion = q({ id: "c1", title: "Как взыскать алименты", category: "Алименты" });
+  const consumerNoise = q({ id: "c2", title: "Как взыскать алименты по договору услуг", category: "Защита прав потребителя" });
+  const result = getRelatedQuestions(familyContext, [familyQuestion, consumerNoise], { minResults: 1 });
+  assert.deepEqual(result.map((item) => item.id), ["c1"], "questions from another legal area must be rejected");
+  assert.deepEqual(scoreQuestion(consumerNoise, familyContext).reasons, ["category_not_allowed"]);
+}
+
+// 12. A long phrase must not match on a generic two-word suffix.
+{
+  const zagsContext: RelatedQuestionsContext = {
+    contextType: "problem",
+    primaryTags: ["получить справку о браке после развода"]
+  };
+  const unrelatedDivorceQuestion = q({ id: "z1", title: "Может ли бывший муж забрать ребенка после развода?" });
+  assert.equal(scoreQuestion(unrelatedDivorceQuestion, zagsContext).score, 0, "generic words must not create a false topic match");
+}
+
+// 13. One broad word alone is not enough to open a related-questions block.
+{
+  const broadContext: RelatedQuestionsContext = {
+    contextType: "problem",
+    categoryName: "Семейные дела",
+    primaryTags: ["развод"]
+  };
+  const childQuestion = q({
+    id: "b1",
+    title: "Может ли бывший муж забрать ребенка после развода?",
+    category: "Семейные дела",
+    answersCount: 1
+  });
+  assert.ok(scoreQuestion(childQuestion, broadContext).score < 35, "a broad one-word match must stay below the problem threshold");
+
+  const synonymContext: RelatedQuestionsContext = {
+    ...broadContext,
+    primaryTags: ["развод", "расторжение брака"]
+  };
+  assert.ok(scoreQuestion(childQuestion, synonymContext).score < 35, "synonyms must count as one broad signal");
+}
+
+// 14. Every current and future route/document must provide automatic Q&A context.
+{
+  assert.deepEqual(
+    legalProblems.filter((problem) => !problem.relatedQuestionTopics.length).map((problem) => problem.slug),
+    [],
+    "every problem route must define relatedQuestionTopics"
+  );
+  assert.deepEqual(
+    navigatorDocuments.filter((document) => !(document.userQueries.length || document.keywords.length)).map((document) => document.slug),
+    [],
+    "every document must define Q&A search phrases"
+  );
+  assert.deepEqual(
+    navigatorDocuments.filter((document) => !document.relatedProblemSlugs.length).map((document) => document.slug),
+    [],
+    "every document must be linked to a legal problem"
+  );
+}
+
+// 15. Everyday paternity-dispute wording resolves to the same precise topic.
+{
+  const paternityContext: RelatedQuestionsContext = {
+    contextType: "problem",
+    categoryName: "Семейные дела",
+    allowedCategoryNames: ["Семейные дела"],
+    primaryTags: ["оспорить отцовство"]
+  };
+  const question = q({
+    id: "pat1",
+    title: "Можно ли аннулировать отцовство и исключить запись об отце?",
+    category: "Семейные дела",
+    answersCount: 1
+  });
+  const result = getRelatedQuestions(paternityContext, [question], { minResults: 1 });
+  assert.deepEqual(result.map((item) => item.id), ["pat1"], "paternity-dispute synonyms must match the route");
 }
 
 console.log("related-questions.test.ts: all assertions passed");

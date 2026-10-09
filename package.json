@@ -24,6 +24,8 @@
     "prisma:seed": "prisma db seed",
     "dev:lawyers:regions": "tsx scripts/upsert-dev-lawyers-per-region.ts",
     "seo:audit": "node scripts/seo-audit.mjs",
+    "seo:audit:documents": "tsx scripts/audit-document-seo.ts",
+    "seo:audit:document-titles": "tsx scripts/audit-document-titles.ts",
     "smoke:seo-aggregator": "node scripts/seo-aggregator-smoke.mjs",
     "fixture:qna:pravoved": "tsx scripts/pravoved-qna-fixture-report.ts",
     "import:qna:pravoved": "tsx scripts/import-pravoved-qna.ts",

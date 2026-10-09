@@ -27,7 +27,7 @@ export function LegalDraftGenerator({ input, onGenerated }: { input: LegalDraftR
   return (
     <section className="mt-6 border border-amber-300 bg-amber-50 p-4">
       <p className="font-semibold text-amber-950">Юридический черновик</p>
-      <p className="mt-2 text-sm leading-6 text-amber-950">Для подготовки связного текста выбранные сведения передаются на защищённый сервер ПравоПоиск и далее в DeepSeek API. Не добавляйте сведения, которые не нужны для этого документа.</p>
+      <p className="mt-2 text-sm leading-6 text-amber-950">Для подготовки связного текста выбранные сведения передаются на защищённый сервер ПравоПоиск. Не добавляйте сведения, которые не нужны для этого документа.</p>
       {status !== "ready" ? <button type="button" onClick={generate} disabled={status === "loading"} className="mt-4 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">{status === "loading" ? "Формируем черновик" : "Сформировать текст документа"}</button> : null}
       {draft ? <textarea aria-label="Текст юридического черновика" value={draft} onChange={(event) => { setDraft(event.target.value); onGenerated(event.target.value); }} className="mt-4 min-h-[28rem] w-full border border-line bg-white p-4 font-mono text-sm leading-6 text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" /> : null}
       {message ? <p role="alert" className="mt-3 text-sm text-red-800">{message}</p> : null}

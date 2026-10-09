@@ -34,7 +34,7 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
     region: "federal",
     status: "primary-unavailable-supplementary-checked",
     automation: "manual-only",
-    fallbackBehavior: "Помощник определяет применимую официальную форму, но не создаёт приблизительный бланк и не подтверждает готовность к подаче.",
+    fallbackBehavior: "Сервис определяет применимую официальную форму, но не создаёт приблизительный бланк и не подтверждает готовность к подаче.",
     verificationNote: "Официальный портал не отдал содержание документа при повторной проверке; реквизиты первичного источника сохранены, текст сверен по консолидированной редакции."
   },
   {
@@ -54,7 +54,7 @@ export const DIVORCE_PROPERTY_LEGAL_RULES: DivorcePropertyLegalRule[] = [
   },
   {
     id: "registry-duty",
-    statement: "Размер пошлины за государственную регистрацию расторжения брака зависит от основания обращения; помощник не сохраняет региональные платёжные реквизиты.",
+    statement: "Размер пошлины за государственную регистрацию расторжения брака зависит от основания обращения; сервис не сохраняет региональные платёжные реквизиты.",
     norm: "НК РФ, статьи 333.26 и 333.35",
     officialUrl: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102067058",
     supplementaryUrl: "https://www.consultant.ru/document/cons_doc_LAW_28165/",

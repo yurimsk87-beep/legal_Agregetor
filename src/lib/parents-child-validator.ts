@@ -110,7 +110,7 @@ export function validateParentsChildApplication(scenarioKey: ParentsChildScenari
   if (courtPath) notices.push("ПравоПоиск не определяет конкретный суд по адресу. Введённые реквизиты считаются данными пользователя и требуют проверки.");
   if (values.childOpinion?.trim()) notices.push("Записано только сообщение заявителя о мнении ребёнка. Оно не является опросом ребёнка или заключением органа опеки.");
   const childAge = Number(values.childAge);
-  if (Number.isFinite(childAge) && childAge >= 10) notices.push("Для ребёнка от 10 лет действует правило об обязательном учёте его мнения, кроме случая, когда это противоречит его интересам. Помощник мнение не выясняет.");
+  if (Number.isFinite(childAge) && childAge >= 10) notices.push("Для ребёнка от 10 лет действует правило об обязательном учёте его мнения, кроме случая, когда это противоречит его интересам. Сервис мнение не выясняет.");
 
   return {
     allowed: issues.length === 0,
@@ -172,7 +172,7 @@ function enforcementDecision(values: ParentsChildValues, issues: ParentsChildIss
     steps = ["Уточните в суде порядок выдачи исполнительного листа по вашему делу.", "Подготовьте реквизиты дела и документ, удостоверяющий личность.", "После получения проверьте содержание исполнительного листа."];
   } else if (values.decisionExists === "yes" && values.decisionEffective === "yes" && values.writExists === "yes") {
     outcomeKey = values.enforcementStarted === "yes" ? "enforcement-bailiff-draft" : "enforcement-opening-draft";
-    documentTitle = values.enforcementStarted === "yes" ? "Черновик обращения судебному приставу о неисполнении" : "Черновик заявления о возбуждении исполнительного производства";
+    documentTitle = values.enforcementStarted === "yes" ? "Обращение судебному приставу о неисполнении" : "Заявление о возбуждении исполнительного производства";
     steps = values.enforcementStarted === "yes"
       ? ["Проверьте номер производства и подразделение ФССП.", "Передайте приставу точные эпизоды неисполнения и подтверждения.", "Сохраните регистрацию обращения и ответы."]
       : ["Проверьте подразделение ФССП по правилам места совершения исполнительных действий.", "Приложите оригинал исполнительного листа в применимом порядке.", "Сохраните подтверждение подачи и постановление пристава."];
@@ -269,10 +269,10 @@ function optionLabel(field: ParentsChildField, value: string) {
 }
 
 function titleFor(scenarioKey: ParentsChildScenarioKey, voluntary: boolean, changeSubject?: ParentsChildChangeSubject) {
-  if (scenarioKey === "residence") return voluntary ? "Проект соглашения о месте жительства ребёнка" : "Черновик искового заявления об определении места жительства ребёнка";
-  if (scenarioKey === "communication") return voluntary ? "Проект соглашения о порядке общения с ребёнком" : "Черновик искового заявления об определении порядка общения с ребёнком";
-  if (changeSubject === "residence") return voluntary ? "Проект соглашения об изменении места жительства ребёнка" : "Черновик требования об изменении места жительства ребёнка";
-  return voluntary ? "Проект соглашения об изменении порядка общения с ребёнком" : "Черновик требования об изменении порядка общения с ребёнком";
+  if (scenarioKey === "residence") return voluntary ? "Проект соглашения о месте жительства ребёнка" : "Исковое заявление об определении места жительства ребёнка";
+  if (scenarioKey === "communication") return voluntary ? "Проект соглашения о порядке общения с ребёнком" : "Исковое заявление об определении порядка общения с ребёнком";
+  if (changeSubject === "residence") return voluntary ? "Проект соглашения об изменении места жительства ребёнка" : "Требование об изменении места жительства ребёнка";
+  return voluntary ? "Проект соглашения об изменении порядка общения с ребёнком" : "Требование об изменении порядка общения с ребёнком";
 }
 
 function filingStepsFor(scenarioKey: ParentsChildScenarioKey, voluntary: boolean, changeSubject?: ParentsChildChangeSubject) {

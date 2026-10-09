@@ -67,10 +67,10 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
 
   return (
     <section id="fill-online" className="scroll-mt-24 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
-      <p className="text-sm font-semibold uppercase tracking-wide text-trust">Проверка применимости</p>
-      <h2 className="mt-2 text-2xl font-semibold text-ink">Подготовьте данные для заявления</h2>
+      <p className="text-sm font-semibold uppercase tracking-wide text-trust">Подготовка результата</p>
+      <h2 className="mt-2 text-2xl font-semibold text-ink">Сформируйте лист данных для официального заявления</h2>
       <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-700">
-        Помощник проверит выбранную процедуру, форму, приложения и госпошлину. Он не создаёт и не имитирует официальный бланк органа ЗАГС.
+        Сервис проверит выбранную процедуру, форму, приложения и госпошлину. Результат поможет без потерь перенести сведения в утверждённый бланк органа ЗАГС.
       </p>
 
       <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
@@ -91,7 +91,7 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
             rel="noreferrer"
             className="inline-flex min-h-11 items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/30"
           >
-            Официальное опубликование
+            Официальный источник: формы Минюста
           </a>
           <a
             href="https://www.consultant.ru/document/cons_doc_LAW_308185/"
@@ -99,7 +99,7 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
             rel="noreferrer"
             className="inline-flex min-h-11 items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/30"
           >
-            Открыть действующую редакцию форм
+            Скачать официальный бланк
           </a>
         </div>
       </div>
@@ -117,7 +117,7 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
 
         <div>
           <button type="submit" className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
-            Проверить применимость и данные
+            Сформировать лист данных
           </button>
         </div>
       </form>
@@ -133,7 +133,7 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
           </div>
         ) : review ? (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950">
-            <p className="font-semibold">Данные собраны, применимость проверена.</p>
+            <p className="font-semibold">Лист подготовленных данных сформирован.</p>
             <p className="mt-2"><strong>Форма:</strong> {review.decision.formNumbers.map((number) => `N ${number}`).join(", ")}.</p>
             <p className="mt-1"><strong>Госпошлина:</strong> {review.decision.feeLabel}</p>
             {review.decision.notices.map((notice) => <p key={notice} className="mt-2">{notice}</p>)}

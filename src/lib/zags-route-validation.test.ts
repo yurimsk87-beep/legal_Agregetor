@@ -1,7 +1,18 @@
 import assert from "node:assert/strict";
+import { ZAGS_SCENARIOS, ZAGS_SCENARIO_KEYS } from "@/data/zags-route";
 import { ZAGS_FEES, calculateAge, isZagsFieldVisible, validateZagsApplication } from "@/lib/zags-application-validator";
 
 const today = new Date("2026-07-29T12:00:00+03:00");
+
+const seoTitles = ZAGS_SCENARIO_KEYS.map((key) => ZAGS_SCENARIOS[key].seoTitle);
+assert.equal(new Set(seoTitles).size, ZAGS_SCENARIO_KEYS.length);
+for (const key of ZAGS_SCENARIO_KEYS) {
+  const scenario = ZAGS_SCENARIOS[key];
+  assert.match(scenario.pageTitle, /^Заявление в ЗАГС/u);
+  assert.match(scenario.seoTitle, /образец/iu);
+  assert.match(scenario.seoTitle, /скач/iu);
+  assert.ok(scenario.seoDescription.length > 80);
+}
 
 assert.equal(calculateAge("2008-07-29", today), 18);
 assert.equal(calculateAge("2012-07-30", today), 13);
