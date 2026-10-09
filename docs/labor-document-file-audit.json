@@ -1,0 +1,261 @@
+{
+  "generatedAt": "2026-10-09T05:33:30.489Z",
+  "status": "PASS",
+  "documentsChecked": 50,
+  "pdfFilesValid": 50,
+  "docxFilesValid": 50,
+  "canonicalContentParity": true,
+  "failures": [],
+  "results": [
+    {
+      "slug": "zapros-osnovaniy-planiruemogo-uvolneniya",
+      "pdfBytes": 24599,
+      "docxBytes": 9714
+    },
+    {
+      "slug": "zamechaniya-k-sokrashcheniyu",
+      "pdfBytes": 24553,
+      "docxBytes": 9680
+    },
+    {
+      "slug": "vozrazheniya-na-disciplinarnoe-uvolnenie",
+      "pdfBytes": 24307,
+      "docxBytes": 9699
+    },
+    {
+      "slug": "isk-o-vosstanovlenii-na-rabote",
+      "pdfBytes": 23725,
+      "docxBytes": 9684
+    },
+    {
+      "slug": "zayavlenie-ob-uvolnenii-po-sobstvennomu",
+      "pdfBytes": 24984,
+      "docxBytes": 9773
+    },
+    {
+      "slug": "otzyv-zayavleniya-ob-uvolnenii",
+      "pdfBytes": 24570,
+      "docxBytes": 9736
+    },
+    {
+      "slug": "zayavlenie-o-prinuzhdenii-k-uvolneniyu",
+      "pdfBytes": 24957,
+      "docxBytes": 9749
+    },
+    {
+      "slug": "trebovanie-ob-oformlenii-uvolneniya-i-vydache-dokumentov",
+      "pdfBytes": 24851,
+      "docxBytes": 9766
+    },
+    {
+      "slug": "zayavlenie-ob-uvolnenii-s-obshchim-srokom",
+      "pdfBytes": 25502,
+      "docxBytes": 9762
+    },
+    {
+      "slug": "zayavlenie-ob-uvolnenii-so-specialnym-srokom",
+      "pdfBytes": 25569,
+      "docxBytes": 9772
+    },
+    {
+      "slug": "predlozhenie-ob-uvolnenii-ranshe-sroka",
+      "pdfBytes": 24417,
+      "docxBytes": 9741
+    },
+    {
+      "slug": "zapros-ekzemplyara-trudovogo-dogovora",
+      "pdfBytes": 24936,
+      "docxBytes": 9723
+    },
+    {
+      "slug": "zapros-ob-osnovaniyah-srochnogo-trudovogo-dogovora",
+      "pdfBytes": 24819,
+      "docxBytes": 9728
+    },
+    {
+      "slug": "zapros-dokumentov-ob-ispytatelnom-sroke",
+      "pdfBytes": 24848,
+      "docxBytes": 9728
+    },
+    {
+      "slug": "predlozhenie-ob-usloviyah-distancionnoy-raboty",
+      "pdfBytes": 25128,
+      "docxBytes": 9738
+    },
+    {
+      "slug": "trebovanie-o-vyplate-zarplaty",
+      "pdfBytes": 24550,
+      "docxBytes": 9732
+    },
+    {
+      "slug": "trebovanie-o-doplate-zarplaty",
+      "pdfBytes": 24391,
+      "docxBytes": 9705
+    },
+    {
+      "slug": "trebovanie-o-vyplate-premii",
+      "pdfBytes": 24007,
+      "docxBytes": 9695
+    },
+    {
+      "slug": "trebovanie-o-raschete-i-vyplate-zarabotnoy-platy",
+      "pdfBytes": 24910,
+      "docxBytes": 9744
+    },
+    {
+      "slug": "trebovanie-ob-okonchatelnom-raschete",
+      "pdfBytes": 24123,
+      "docxBytes": 9721
+    },
+    {
+      "slug": "trebovanie-o-kompensacii-otpuska",
+      "pdfBytes": 24817,
+      "docxBytes": 9756
+    },
+    {
+      "slug": "trebovanie-o-vyplate-vyhodnogo-posobiya",
+      "pdfBytes": 24055,
+      "docxBytes": 9730
+    },
+    {
+      "slug": "zayavlenie-o-predostavlenii-otpuska",
+      "pdfBytes": 25023,
+      "docxBytes": 9825
+    },
+    {
+      "slug": "zayavlenie-ob-otpuske-s-posleduyushchim-uvolneniem",
+      "pdfBytes": 25538,
+      "docxBytes": 9838
+    },
+    {
+      "slug": "trebovanie-o-vyplate-otpusknyh",
+      "pdfBytes": 24682,
+      "docxBytes": 9807
+    },
+    {
+      "slug": "vozrazheniya-protiv-otzyva-iz-otpuska",
+      "pdfBytes": 25158,
+      "docxBytes": 9845
+    },
+    {
+      "slug": "zayavlenie-ob-otpuske-po-uhodu",
+      "pdfBytes": 25035,
+      "docxBytes": 9740
+    },
+    {
+      "slug": "zayavlenie-o-vyhode-iz-otpuska-po-uhodu",
+      "pdfBytes": 24454,
+      "docxBytes": 9740
+    },
+    {
+      "slug": "vozrazheniya-protiv-uvolneniya-rabotnika-s-semeynymi-obyazannostyami",
+      "pdfBytes": 25226,
+      "docxBytes": 9781
+    },
+    {
+      "slug": "zapros-o-vyplate-bolnichnogo",
+      "pdfBytes": 25338,
+      "docxBytes": 9849
+    },
+    {
+      "slug": "zayavlenie-o-naznachenii-posobiya-posle-uvolneniya",
+      "pdfBytes": 25401,
+      "docxBytes": 9850
+    },
+    {
+      "slug": "vozrazheniya-protiv-uvolneniya-vo-vremya-bolnichnogo",
+      "pdfBytes": 25816,
+      "docxBytes": 9852
+    },
+    {
+      "slug": "vozrazheniya-protiv-izmeneniya-grafika",
+      "pdfBytes": 24569,
+      "docxBytes": 9737
+    },
+    {
+      "slug": "trebovanie-ob-oplate-sverhurochnoy-raboty",
+      "pdfBytes": 24628,
+      "docxBytes": 9772
+    },
+    {
+      "slug": "trebovanie-ob-oplate-raboty-v-vyhodnoy-ili-prazdnik",
+      "pdfBytes": 24599,
+      "docxBytes": 9774
+    },
+    {
+      "slug": "trebovanie-ob-oplate-raboty-v-nochnoe-vremya",
+      "pdfBytes": 24329,
+      "docxBytes": 9750
+    },
+    {
+      "slug": "vozrazheniya-protiv-perevoda",
+      "pdfBytes": 24323,
+      "docxBytes": 9806
+    },
+    {
+      "slug": "vozrazheniya-protiv-izmeneniya-usloviy",
+      "pdfBytes": 25072,
+      "docxBytes": 9827
+    },
+    {
+      "slug": "vozrazheniya-protiv-umensheniya-oplaty-truda",
+      "pdfBytes": 25107,
+      "docxBytes": 9841
+    },
+    {
+      "slug": "vozrazheniya-na-disciplinarnoe-vzyskanie",
+      "pdfBytes": 24328,
+      "docxBytes": 9720
+    },
+    {
+      "slug": "uvedomlenie-o-neschastnom-sluchae-na-proizvodstve",
+      "pdfBytes": 24309,
+      "docxBytes": 9728
+    },
+    {
+      "slug": "vozrazheniya-protiv-vzyskaniya-ushcherba-s-rabotnika",
+      "pdfBytes": 24837,
+      "docxBytes": 9728
+    },
+    {
+      "slug": "trebovanie-prekratit-narushenie-personalnyh-dannyh",
+      "pdfBytes": 24423,
+      "docxBytes": 9756
+    },
+    {
+      "slug": "trebovanie-o-formlenii-trudovyh-otnosheniy",
+      "pdfBytes": 25425,
+      "docxBytes": 9940
+    },
+    {
+      "slug": "isk-ob-ustanovlenii-trudovyh-otnosheniy",
+      "pdfBytes": 25482,
+      "docxBytes": 9942
+    },
+    {
+      "slug": "vozrazheniya-protiv-podmeny-trudovogo-dogovora-gph",
+      "pdfBytes": 25816,
+      "docxBytes": 9965
+    },
+    {
+      "slug": "trebovanie-rabotodatelyu",
+      "pdfBytes": 24175,
+      "docxBytes": 9763
+    },
+    {
+      "slug": "zhaloba-v-trudovuyu-inspekciyu",
+      "pdfBytes": 25005,
+      "docxBytes": 9802
+    },
+    {
+      "slug": "zayavlenie-v-komissiyu-po-trudovym-sporam",
+      "pdfBytes": 24754,
+      "docxBytes": 9792
+    },
+    {
+      "slug": "isk-po-trudovomu-sporu",
+      "pdfBytes": 24428,
+      "docxBytes": 9780
+    }
+  ]
+}

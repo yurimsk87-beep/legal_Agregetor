@@ -30,7 +30,7 @@ export function validateSpousalSupport(scenarioKey: SpousalSupportScenarioKey, v
   if (scenarioKey === "former" && values.relationship === "current") return review("wrong-relationship-route", "Выбран неверный судебный путь", "При действующем браке применяется статья 89 СК РФ.", preparedData);
   if (values.courtConfirmed !== "yes" || !isOfficialCourtSource(values.courtSource)) return review("court-not-confirmed", "Суд не подтверждён", "Не включайте неподтверждённый суд в документ. Проверьте его на официальном ресурсе судебной системы.", preparedData, "court");
   const former = scenarioKey === "former";
-  const title = former ? "Черновик иска о взыскании алиментов на бывшего супруга" : "Черновик иска о взыскании алиментов на супруга";
+  const title = former ? "Иск о взыскании алиментов на бывшего супруга" : "Иск о взыскании алиментов на супруга";
   return base(`${scenarioKey}-${values.basis}-court-draft`, "court", "courtDraft", "ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА", title, true, [], preparedData, ["Размер, основание, подсудность и доказательства должны быть проверены до подачи."], ["Проверьте применимость основания и временные условия.", "Подтвердите материальное и семейное положение сторон.", "Проверьте суд, расчёт и приложения.", "Передайте черновик юристу до подачи."], buildDraft(values, title, values.courtName));
 }
 

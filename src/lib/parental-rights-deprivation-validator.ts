@@ -89,7 +89,7 @@ export function validateParentalRightsDeprivation(scenarioKey: ParentalRightsDep
 
 function courtDraft(scenarioKey: ParentalRightsDeprivationScenarioKey, values: ParentalRightsDeprivationValues, preparedData: ParentalRightsDeprivationDecision["preparedData"], path: ParentalRightsDeprivationLegalPath) {
   const issues = validateCourt(values);
-  const title = scenarioKey === "support" ? "Черновик иска о лишении родительских прав с разделом о содержании ребёнка" : scenarioKey === "existing" ? "Черновик иска с учётом ранее принятого акта" : "Черновик иска о лишении родительских прав";
+  const title = scenarioKey === "support" ? "Иск о лишении родительских прав с разделом о содержании ребёнка" : scenarioKey === "existing" ? "Иск с учётом ранее принятого акта" : "Иск о лишении родительских прав";
   const notices = ["Лишение родительских прав является крайней мерой; выбранное пользователем основание должен установить суд.", "В деле участвуют прокурор и орган опеки и попечительства."];
   if (scenarioKey === "existing") notices.push("Правовое значение прежнего акта и возможность использовать установленные им обстоятельства требуют проверки.");
   if (scenarioKey === "support") notices.push(values.existingSupport === "yes" ? "Необходимо проверить действующий алиментный документ и не дублировать разрешённое требование." : "Суд решает вопрос о взыскании алиментов, но способ и формулировка требования требуют проверки.");

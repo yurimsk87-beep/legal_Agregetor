@@ -7,8 +7,8 @@ import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { navigatorDocuments } from "@/data/documents";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Юридические документы по семейным спорам",
-  description: "Подготовьте заявления, иски, соглашения и другие документы по семейным ситуациям с проверенными правовыми основаниями.",
+  title: "Юридические документы по жизненным ситуациям",
+  description: "Подготовьте заявления, иски, соглашения и другие юридические документы с проверенными правовыми основаниями.",
   path: "/documents/",
   isIndexable: true
 });

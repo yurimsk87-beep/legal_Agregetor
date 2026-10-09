@@ -132,7 +132,7 @@ function firstDecision(values: ChildSupportValues, issues: ChildSupportIssue[], 
   }
   const orderPath = values.paymentMethod === "share" && values.otherInterested === "no";
   const legalPath: ChildSupportLegalPath = orderPath ? "order" : "claim";
-  const title = orderPath ? "Черновик заявления о вынесении судебного приказа о взыскании алиментов" : "Черновик искового заявления о взыскании алиментов на ребёнка";
+  const title = orderPath ? "Заявление о вынесении судебного приказа о взыскании алиментов" : "Исковое заявление о взыскании алиментов на ребёнка";
   const courtIssues = validateCourt(values);
   const allIssues = [...issues, ...courtIssues];
   return {
@@ -173,7 +173,7 @@ function changeDecision(values: ChildSupportValues, issues: ChildSupportIssue[],
       draftText: issues.length ? "" : buildChangeDraft(values, title, true)
     };
   }
-  const title = "Черновик искового заявления об изменении размера или способа уплаты алиментов";
+  const title = "Исковое заявление об изменении размера или способа уплаты алиментов";
   const courtIssues = validateCourt(values);
   const allIssues = [...issues, ...courtIssues];
   return {
@@ -206,7 +206,7 @@ function debtDecision(values: ChildSupportValues, issues: ChildSupportIssue[], p
   if (values.bailiffCalculation === "yes") {
     return checklist("debt-calculation-review", "Чек-лист проверки расчёта задолженности", "Сопоставьте расчёт пристава с исполнительным документом и подтверждёнными платежами.", allIssues, preparedData);
   }
-  const title = "Черновик заявления судебному приставу о расчёте задолженности по алиментам";
+  const title = "Заявление судебному приставу о расчёте задолженности по алиментам";
   return applicationDraft("debt-calculation-request", title, allIssues, preparedData, values, ["Передайте обращение только в подтверждённое подразделение ФССП.", "Сохраните подтверждение подачи и полученное постановление."]);
 }
 
@@ -216,7 +216,7 @@ function enforcementDecision(values: ChildSupportValues, issues: ChildSupportIss
   }
   const allIssues = [...issues, ...validateBailiff(values)];
   const started = values.enforcementStarted === "yes";
-  const title = started ? "Черновик обращения судебному приставу о неисполнении алиментных обязательств" : "Черновик заявления о возбуждении исполнительного производства";
+  const title = started ? "Обращение судебному приставу о неисполнении алиментных обязательств" : "Заявление о возбуждении исполнительного производства";
   return applicationDraft(started ? "enforcement-bailiff-request" : "enforcement-opening-request", title, allIssues, preparedData, values, started
     ? ["Проверьте номер производства и изложите только подтверждаемые факты.", "Сохраните регистрацию обращения и ответ."]
     : ["Проверьте территориальное подразделение ФССП.", "Приложите исполнительный документ в применимом порядке.", "Сохраните постановление о возбуждении либо письменный отказ."]);

@@ -2,6 +2,7 @@ import { legalCategories } from "@/data/legal-categories";
 import { navigatorDocuments } from "@/data/documents";
 import { legalPages } from "@/data/legal-pages";
 import { legalProblems } from "@/data/legal-problems";
+import { LABOR_CATEGORY_SLUG, LABOR_MANUAL_ACCEPTANCE_INTENTS } from "@/data/labor-routes";
 import type { LegalProblemRiskLevel, LegalProblemUrgency } from "@/data/legal-problems";
 import { navigatorTools } from "@/data/tools";
 import { getGeneratorMetaDescription, getGeneratorPageTitle } from "@/lib/document-seo";
@@ -589,11 +590,13 @@ function getQueryDomains(normalizedQuery: string): SearchDomain[] {
 function getResultDomain(result: SearchableResult): SearchDomain {
   const href = result.href;
   if (href.includes("/semya-i-deti/")) return "family";
+  if (href.includes(`/${LABOR_CATEGORY_SLUG}/`)) return "employment";
   return "other";
 }
 
 function categorySlugToDomain(categorySlug: string): SearchDomain {
   if (categorySlug === "semya-i-deti") return "family";
+  if (categorySlug === LABOR_CATEGORY_SLUG) return "employment";
   return "other";
 }
 
@@ -806,6 +809,8 @@ function isParentsChildQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
+  const laborIntent = LABOR_MANUAL_ACCEPTANCE_INTENTS.find(({ query }) => normalizedQuery.includes(normalizeSearchText(query)));
+  if (laborIntent && href.includes(`/problems/${LABOR_CATEGORY_SLUG}/${laborIntent.routeSlug}/`)) return 1100;
   if (isParentsChildQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/")) return 1020;
   if (isParentsChildQuery(normalizedQuery) && isParentsChildRouteResult(href)) return 1000;
   if (isChildGuardianshipQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/opeka-i-popechitelstvo-nad-rebenkom/")) return 1000;

@@ -75,7 +75,7 @@ export const PARENTS_CHILD_LEGAL_RULES: ParentsChildLegalRule[] = [
     url: "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102078828",
     scenarios: ["residence", "communication", "change"],
     paths: ["court"],
-    scope: "Помощник формирует только маркированный черновик и не подтверждает его готовность к подаче без юридической проверки."
+    scope: "Сервис формирует только маркированный черновик и не подтверждает его готовность к подаче без юридической проверки."
   },
   {
     id: "enforcement-109-3",
@@ -83,7 +83,7 @@ export const PARENTS_CHILD_LEGAL_RULES: ParentsChildLegalRule[] = [
     norm: "статья 109.3 Федерального закона № 229-ФЗ",
     url: "https://epp.genproc.gov.ru/upload/iblock/c0c/sayetmh8w7waa5ynnlxfvkpkrtw53jtx.pdf",
     scenarios: ["enforcement"],
-    scope: "Помощник не придумывает подразделение ФССП и требует проверить исполнительный документ и стадию производства."
+    scope: "Сервис не придумывает подразделение ФССП и требует проверить исполнительный документ и стадию производства."
   },
   {
     id: "emergency-112",

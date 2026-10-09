@@ -55,10 +55,10 @@ export function validateParentalRightsRestriction(scenarioKey: ParentalRightsRes
 
   const missing = fields.filter((field) => field.required && !values[field.name]?.trim()).map((field) => ({ field: field.name, message: `Заполните поле «${field.label}».` }));
   if (missing.length) return base("missing-data", "assessment", "legalReviewOnly", "Не хватает обязательных сведений", scenario.mainDocument, true, missing, preparedData, ["Заполните обязательные поля."], [], "");
-  if (scenarioKey !== "court") return checklist(`${scenarioKey}-assessment`, scenario.mainDocument, "Помощник подготовил факты для юридической проверки; наличие основания определяет суд.", preparedData, scenarioKey);
+  if (scenarioKey !== "court") return checklist(`${scenarioKey}-assessment`, scenario.mainDocument, "Сервис подготовил факты для юридической проверки; наличие основания определяет суд.", preparedData, scenarioKey);
 
   const courtIssues = validateCourt(values);
-  const title = values.dangerSource === "objective" ? "Черновик иска об ограничении родительских прав по объективным обстоятельствам" : "Черновик иска об ограничении родительских прав в связи с опасным поведением";
+  const title = values.dangerSource === "objective" ? "Иск об ограничении родительских прав по объективным обстоятельствам" : "Иск об ограничении родительских прав в связи с опасным поведением";
   const notices = ["Ограничение родительских прав и наличие опасности устанавливает только суд.", "В деле участвуют прокурор и орган опеки и попечительства.", values.existingSupport === "yes" ? "Проверьте действующий алиментный документ и не дублируйте разрешённое требование." : "Суд решает вопрос о взыскании алиментов, но формулировка требования требует проверки."];
   if (values.dangerSource === "behavior") notices.push("Если после решения поведение не изменится, статья 73 СК РФ предусматривает последующее обращение органа опеки с иском о лишении прав; это не происходит автоматически.");
   return base(`court-${values.dangerSource}-draft`, "court", "courtDraft", "ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА", title, true, courtIssues, preparedData, notices, ["Проверьте право заявителя и основание по статье 73 СК РФ.", "Проверьте районный суд и территориальную подсудность по официальному ресурсу.", "Подготовьте доказательства опасности отдельно по каждому ребёнку.", "Проверьте участников, требования, алиментную часть и приложения у юриста.", "Только после проверки определите способ подачи."], courtIssues.length ? "" : buildCourtDraft(values, title));

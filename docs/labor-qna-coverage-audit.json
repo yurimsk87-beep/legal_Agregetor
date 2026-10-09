@@ -1,0 +1,583 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-05T09:19:00.455Z",
+  "source": {
+    "databaseHost": "127.0.0.1",
+    "databasePort": 55432,
+    "service": {
+      "id": "cmq8gn01a0008u6p4o7otllzb",
+      "name": "Трудовое право",
+      "slug": "trudovoe-pravo"
+    },
+    "selection": "Question.serviceId = cmq8gn01a0008u6p4o7otllzb",
+    "fullCorpusRead": true,
+    "scenarioIdUsedForClassification": false
+  },
+  "methodology": {
+    "contentFields": [
+      "enrichedTitle",
+      "title",
+      "enrichedText",
+      "text",
+      "rawText"
+    ],
+    "classification": "Deterministic content-pattern scoring with specialized labor areas taking precedence over the general employer route.",
+    "outOfCategoryRule": "A strong non-labor category signal must exceed labor-area evidence; mixed employment disputes remain in labor law.",
+    "privacy": "Only aggregate PII counts are stored; question and answer text, IDs and detected values are not written to the report.",
+    "qnaDemandNote": "Counts describe relative demand inside the local Q&A corpus and are not Google or Yandex search volume."
+  },
+  "summary": {
+    "questionsAnalyzed": 14826,
+    "relevantLaborQuestions": 14278,
+    "outOfCategoryQuestions": 548,
+    "classifiedLaborQuestions": 14278,
+    "problemAreasConfirmed": 14,
+    "requiredProblemAreas": 14,
+    "conflictingIntentQuestions": 1063,
+    "duplicateGroups": 0,
+    "duplicateRecords": 0,
+    "databaseDuplicateFlags": 0,
+    "questionsOrAnswersWithPiiSignals": 16
+  },
+  "problemAreas": [
+    {
+      "id": "employer-rights-and-duties",
+      "title": "Права и обязанности работодателя",
+      "questionCount": 7292,
+      "relativeDemandPercent": 51.07,
+      "aliases": [
+        "обязанности работодателя",
+        "охрана труда",
+        "дисциплинарное взыскание",
+        "материальная ответственность",
+        "персональные данные работника"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "wages",
+      "title": "Заработная плата",
+      "questionCount": 1685,
+      "relativeDemandPercent": 11.8,
+      "aliases": [
+        "зарплата",
+        "задержка зарплаты",
+        "невыплата",
+        "премия",
+        "удержание",
+        "серая зарплата"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "employment-contract",
+      "title": "Трудовой договор",
+      "questionCount": 1430,
+      "relativeDemandPercent": 10.02,
+      "aliases": [
+        "трудовой договор",
+        "срочный договор",
+        "испытательный срок",
+        "приём на работу",
+        "условия договора"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "sick-leave",
+      "title": "Больничный",
+      "questionCount": 1119,
+      "relativeDemandPercent": 7.84,
+      "aliases": [
+        "больничный",
+        "листок нетрудоспособности",
+        "временная нетрудоспособность",
+        "больничный после увольнения"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "voluntary-dismissal",
+      "title": "Увольнение по собственному желанию",
+      "questionCount": 973,
+      "relativeDemandPercent": 6.81,
+      "aliases": [
+        "по собственному",
+        "заявление на увольнение",
+        "отзыв заявления",
+        "заставляют уволиться"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "childcare-leave",
+      "title": "Отпуск по уходу за ребёнком",
+      "questionCount": 442,
+      "relativeDemandPercent": 3.1,
+      "aliases": [
+        "отпуск по уходу",
+        "декрет",
+        "выход из декрета",
+        "работа в отпуске по уходу"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "annual-leave",
+      "title": "Ежегодный отпуск",
+      "questionCount": 304,
+      "relativeDemandPercent": 2.13,
+      "aliases": [
+        "ежегодный отпуск",
+        "график отпусков",
+        "отпускные",
+        "перенос отпуска",
+        "отпуск перед увольнением"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "working-time",
+      "title": "Рабочее время",
+      "questionCount": 303,
+      "relativeDemandPercent": 2.12,
+      "aliases": [
+        "график работы",
+        "переработка",
+        "сверхурочная работа",
+        "смены",
+        "ночная работа",
+        "работа в выходной"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "employer-dismissal",
+      "title": "Увольнение по инициативе работодателя",
+      "questionCount": 288,
+      "relativeDemandPercent": 2.02,
+      "aliases": [
+        "увольнение работодателем",
+        "сокращение",
+        "ликвидация",
+        "прогул",
+        "увольнение по статье"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "dismissal-notice-period",
+      "title": "Срок предупреждения при увольнении",
+      "questionCount": 130,
+      "relativeDemandPercent": 0.91,
+      "aliases": [
+        "отработка",
+        "две недели",
+        "14 дней",
+        "уволиться без отработки",
+        "срок предупреждения"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "informal-employment",
+      "title": "Неоформленные трудовые отношения",
+      "questionCount": 124,
+      "relativeDemandPercent": 0.87,
+      "aliases": [
+        "работа без оформления",
+        "неофициальная работа",
+        "фактические трудовые отношения",
+        "ГПХ вместо трудового",
+        "самозанятый"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "termination-payments",
+      "title": "Выплаты при увольнении",
+      "questionCount": 92,
+      "relativeDemandPercent": 0.64,
+      "aliases": [
+        "расчёт при увольнении",
+        "компенсация отпуска",
+        "выходное пособие",
+        "окончательный расчёт"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "employer-disputes",
+      "title": "Споры с работодателем",
+      "questionCount": 83,
+      "relativeDemandPercent": 0.58,
+      "aliases": [
+        "трудовой спор",
+        "трудовая инспекция",
+        "ГИТ",
+        "КТС",
+        "суд с работодателем",
+        "жалоба на работодателя"
+      ],
+      "coverage": "CONFIRMED"
+    },
+    {
+      "id": "transfer-and-change",
+      "title": "Перевод и изменение условий труда",
+      "questionCount": 13,
+      "relativeDemandPercent": 0.09,
+      "aliases": [
+        "перевод",
+        "изменение условий",
+        "смена должности",
+        "уменьшение оклада",
+        "изменение режима"
+      ],
+      "coverage": "CONFIRMED"
+    }
+  ],
+  "outOfCategory": [
+    {
+      "id": "education",
+      "title": "Образование",
+      "questionCount": 305,
+      "relativeCorpusPercent": 2.06
+    },
+    {
+      "id": "social-security",
+      "title": "Социальное обеспечение",
+      "questionCount": 77,
+      "relativeCorpusPercent": 0.52
+    },
+    {
+      "id": "bankruptcy-and-finance",
+      "title": "Банкротство и финансовые споры",
+      "questionCount": 50,
+      "relativeCorpusPercent": 0.34
+    },
+    {
+      "id": "enforcement",
+      "title": "Исполнительное производство",
+      "questionCount": 42,
+      "relativeCorpusPercent": 0.28
+    },
+    {
+      "id": "military-law",
+      "title": "Военное право",
+      "questionCount": 35,
+      "relativeCorpusPercent": 0.24
+    },
+    {
+      "id": "family-law",
+      "title": "Семейное право",
+      "questionCount": 17,
+      "relativeCorpusPercent": 0.11
+    },
+    {
+      "id": "migration-law",
+      "title": "Миграционное право",
+      "questionCount": 10,
+      "relativeCorpusPercent": 0.07
+    },
+    {
+      "id": "housing-and-property",
+      "title": "Жилищное и гражданское право",
+      "questionCount": 9,
+      "relativeCorpusPercent": 0.06
+    },
+    {
+      "id": "consumer-law",
+      "title": "Защита прав потребителей",
+      "questionCount": 3,
+      "relativeCorpusPercent": 0.02
+    }
+  ],
+  "conflictingIntents": [
+    {
+      "areas": [
+        "employment-contract",
+        "wages"
+      ],
+      "questionCount": 99
+    },
+    {
+      "areas": [
+        "sick-leave",
+        "wages"
+      ],
+      "questionCount": 56
+    },
+    {
+      "areas": [
+        "employment-contract",
+        "informal-employment"
+      ],
+      "questionCount": 45
+    },
+    {
+      "areas": [
+        "employment-contract",
+        "voluntary-dismissal"
+      ],
+      "questionCount": 42
+    },
+    {
+      "areas": [
+        "employment-contract",
+        "sick-leave"
+      ],
+      "questionCount": 37
+    },
+    {
+      "areas": [
+        "employer-rights-and-duties",
+        "wages"
+      ],
+      "questionCount": 35
+    },
+    {
+      "areas": [
+        "childcare-leave",
+        "sick-leave"
+      ],
+      "questionCount": 35
+    },
+    {
+      "areas": [
+        "informal-employment",
+        "wages"
+      ],
+      "questionCount": 34
+    },
+    {
+      "areas": [
+        "annual-leave",
+        "wages"
+      ],
+      "questionCount": 33
+    },
+    {
+      "areas": [
+        "annual-leave",
+        "childcare-leave"
+      ],
+      "questionCount": 29
+    },
+    {
+      "areas": [
+        "employer-disputes",
+        "wages"
+      ],
+      "questionCount": 28
+    },
+    {
+      "areas": [
+        "sick-leave",
+        "voluntary-dismissal"
+      ],
+      "questionCount": 27
+    },
+    {
+      "areas": [
+        "childcare-leave",
+        "wages"
+      ],
+      "questionCount": 25
+    },
+    {
+      "areas": [
+        "employment-contract",
+        "working-time"
+      ],
+      "questionCount": 24
+    },
+    {
+      "areas": [
+        "voluntary-dismissal",
+        "wages"
+      ],
+      "questionCount": 23
+    },
+    {
+      "areas": [
+        "annual-leave",
+        "sick-leave"
+      ],
+      "questionCount": 21
+    },
+    {
+      "areas": [
+        "employer-dismissal",
+        "voluntary-dismissal"
+      ],
+      "questionCount": 21
+    },
+    {
+      "areas": [
+        "employer-rights-and-duties",
+        "employment-contract"
+      ],
+      "questionCount": 21
+    },
+    {
+      "areas": [
+        "wages",
+        "working-time"
+      ],
+      "questionCount": 20
+    },
+    {
+      "areas": [
+        "employer-disputes",
+        "employment-contract"
+      ],
+      "questionCount": 16
+    },
+    {
+      "areas": [
+        "employer-rights-and-duties",
+        "sick-leave"
+      ],
+      "questionCount": 16
+    },
+    {
+      "areas": [
+        "childcare-leave",
+        "employment-contract"
+      ],
+      "questionCount": 15
+    },
+    {
+      "areas": [
+        "sick-leave",
+        "working-time"
+      ],
+      "questionCount": 14
+    },
+    {
+      "areas": [
+        "employment-contract",
+        "voluntary-dismissal",
+        "wages"
+      ],
+      "questionCount": 13
+    },
+    {
+      "areas": [
+        "employer-disputes",
+        "employment-contract",
+        "wages"
+      ],
+      "questionCount": 12
+    },
+    {
+      "areas": [
+        "dismissal-notice-period",
+        "employment-contract"
+      ],
+      "questionCount": 12
+    },
+    {
+      "areas": [
+        "employer-rights-and-duties",
+        "working-time"
+      ],
+      "questionCount": 11
+    },
+    {
+      "areas": [
+        "termination-payments",
+        "voluntary-dismissal"
+      ],
+      "questionCount": 11
+    },
+    {
+      "areas": [
+        "annual-leave",
+        "voluntary-dismissal"
+      ],
+      "questionCount": 11
+    },
+    {
+      "areas": [
+        "employment-contract",
+        "sick-leave",
+        "wages"
+      ],
+      "questionCount": 10
+    }
+  ],
+  "potentialAdditionalScenarios": [
+    {
+      "id": "pregnancy-guarantees",
+      "title": "Гарантии беременным работникам",
+      "recommendedArea": "childcare-leave",
+      "questionCount": 1181,
+      "decision": "REVIEW_AS_SCENARIO_WITHIN_EXISTING_AREA"
+    },
+    {
+      "id": "disciplinary-action",
+      "title": "Дисциплинарное взыскание",
+      "recommendedArea": "employer-rights-and-duties",
+      "questionCount": 144,
+      "decision": "REVIEW_AS_SCENARIO_WITHIN_EXISTING_AREA"
+    },
+    {
+      "id": "remote-work",
+      "title": "Дистанционная работа",
+      "recommendedArea": "employment-contract",
+      "questionCount": 79,
+      "decision": "REVIEW_AS_SCENARIO_WITHIN_EXISTING_AREA"
+    },
+    {
+      "id": "workplace-injury",
+      "title": "Травма и несчастный случай на работе",
+      "recommendedArea": "employer-rights-and-duties",
+      "questionCount": 18,
+      "decision": "REVIEW_AS_SCENARIO_WITHIN_EXISTING_AREA"
+    },
+    {
+      "id": "discrimination",
+      "title": "Дискриминация и притеснение на работе",
+      "recommendedArea": "employer-disputes",
+      "questionCount": 14,
+      "decision": "REVIEW_AS_SCENARIO_WITHIN_EXISTING_AREA"
+    },
+    {
+      "id": "material-liability",
+      "title": "Материальная ответственность работника",
+      "recommendedArea": "employer-rights-and-duties",
+      "questionCount": 1,
+      "decision": "REVIEW_AS_SCENARIO_WITHIN_EXISTING_AREA"
+    }
+  ],
+  "duplicates": {
+    "normalizedQuestionTextGroups": 0,
+    "recordsInsideDuplicateGroups": 0,
+    "databaseIsDuplicateFlags": 0
+  },
+  "piiFindings": {
+    "recordsWithAnySignal": 16,
+    "signals": [
+      {
+        "type": "phone",
+        "questionCount": 16
+      },
+      {
+        "type": "snils",
+        "questionCount": 9
+      }
+    ],
+    "action": "Do not expose detected values. Related-Q&A rendering must use the existing public-content privacy gate and redaction rules."
+  },
+  "acceptance": {
+    "laborQnaScanned": 14826,
+    "fullServiceCorpusScanned": true,
+    "problemAreas": "14/14",
+    "outOfCategoryDetected": true,
+    "unmappedHighDemandIntents": 0,
+    "scenarioIdUsedAsSourceOfTruth": false,
+    "qnaDemandRepresentedAsSearchVolume": false,
+    "result": "PASS"
+  }
+}

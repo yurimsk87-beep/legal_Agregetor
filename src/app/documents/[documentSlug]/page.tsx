@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { LaborDocumentPage } from "@/components/labor/LaborDocumentPage";
 import { DivorcePropertyDocumentHelper } from "@/components/documents/DivorcePropertyDocumentHelper";
 import { GuardianshipDocumentHelper } from "@/components/documents/GuardianshipDocumentHelper";
 import { ParentsChildDocumentHelper } from "@/components/documents/ParentsChildDocumentHelper";
@@ -37,6 +39,7 @@ import { EMANCIPATION_ROUTE, EMANCIPATION_KEYS, EMANCIPATION_SCENARIOS, getEmanc
 import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
+import { getLaborDocumentScenario } from "@/data/labor-documents";
 import {
   DIVORCE_PROPERTY_LEGAL_RULES,
   getDivorcePropertyLegalReviewDate,
@@ -130,15 +133,19 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   const document = getNavigatorDocument(documentSlug);
   if (!document) notFound();
   const isZagsReference = document.slug === ZAGS_PROBLEM_ROUTE.documentSlug;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const zagsScenario = isZagsReference ? getZagsScenario(resolvedSearchParams.variant) : null;
 
   return buildMetadata({
-    title: isZagsReference ? "Заявление в ЗАГС: формы и порядок заполнения" : document.seoTitle ?? document.title,
+    title: isZagsReference
+      ? zagsScenario?.seoTitle ?? "Заявление в орган ЗАГС: образец, скачать официальный бланк и заполнить"
+      : document.seoTitle ?? document.title,
     description: isZagsReference
-      ? "Выберите процедуру ЗАГС, проверьте форму, документы, пошлину и льготы, затем подготовьте сведения для официального заявления."
+      ? zagsScenario?.seoDescription ?? "Выберите процедуру ЗАГС, откройте официальный образец формы, подготовьте сведения и скачайте утверждённый бланк для подачи."
       : document.seoDescription ?? document.shortDescription,
     path: `/documents/${document.slug}/`,
     isIndexable: true,
-    searchParams: searchParams ? await searchParams : {}
+    searchParams: resolvedSearchParams
   });
 }
 
@@ -147,66 +154,73 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
   const document = getNavigatorDocument(documentSlug);
   if (!document) notFound();
 
+  const withAfterDownload = (content: ReactNode) => (
+    <DocumentPageWithAfterDownload document={document}>{content}</DocumentPageWithAfterDownload>
+  );
+
+  const laborDocumentScenario = getLaborDocumentScenario(document.slug);
+  if (laborDocumentScenario) return <LaborDocumentPage document={document} selected={laborDocumentScenario} />;
+
   const divorceScenario = getDivorceScenarioByDocumentSlug(document.slug);
   if (divorceScenario) {
-    return <DivorcePropertyDocumentPage document={document} scenario={divorceScenario} />;
+    return withAfterDownload(<DivorcePropertyDocumentPage document={document} scenario={divorceScenario} />);
   }
   const guardianshipScenario = getGuardianshipScenarioByDocumentSlug(document.slug);
   if (guardianshipScenario) {
     const repositoryCities = await getCities();
     const cities = (repositoryCities.length ? repositoryCities : fallbackCities)
       .map(({ id, name, region, slug }) => ({ id, name, region, slug }));
-    return <GuardianshipDocumentPage document={document} scenario={guardianshipScenario} cities={cities} />;
+    return withAfterDownload(<GuardianshipDocumentPage document={document} scenario={guardianshipScenario} cities={cities} />);
   }
   const parentsChildScenario = getParentsChildScenarioByDocumentSlug(document.slug);
-  if (parentsChildScenario) return <ParentsChildDocumentPage document={document} scenario={parentsChildScenario} />;
+  if (parentsChildScenario) return withAfterDownload(<ParentsChildDocumentPage document={document} scenario={parentsChildScenario} />);
   const childSupportScenario = getChildSupportScenarioByDocumentSlug(document.slug);
-  if (childSupportScenario) return <ChildSupportDocumentPage document={document} scenario={childSupportScenario} />;
+  if (childSupportScenario) return withAfterDownload(<ChildSupportDocumentPage document={document} scenario={childSupportScenario} />);
   const deprivationScenario = getParentalRightsDeprivationScenarioByDocumentSlug(document.slug);
-  if (deprivationScenario) return <ParentalRightsDeprivationDocumentPage document={document} scenario={deprivationScenario} />;
+  if (deprivationScenario) return withAfterDownload(<ParentalRightsDeprivationDocumentPage document={document} scenario={deprivationScenario} />);
   const restrictionScenario = getParentalRightsRestrictionScenarioByDocumentSlug(document.slug);
-  if (restrictionScenario) return <ParentalRightsRestrictionDocumentPage document={document} scenario={restrictionScenario} />;
+  if (restrictionScenario) return withAfterDownload(<ParentalRightsRestrictionDocumentPage document={document} scenario={restrictionScenario} />);
   const paternityScenario = getPaternityEstablishmentScenarioByDocumentSlug(document.slug);
-  if (paternityScenario) return <PaternityEstablishmentDocumentPage document={document} scenario={paternityScenario} />;
+  if (paternityScenario) return withAfterDownload(<PaternityEstablishmentDocumentPage document={document} scenario={paternityScenario} />);
   const paternityContestScenario = getPaternityContestScenarioByDocumentSlug(document.slug);
-  if (paternityContestScenario) return <PaternityContestDocumentPage document={document} scenario={paternityContestScenario} />;
+  if (paternityContestScenario) return withAfterDownload(<PaternityContestDocumentPage document={document} scenario={paternityContestScenario} />);
   const adoptionScenario = getAdoptionScenarioByDocumentSlug(document.slug);
-  if (adoptionScenario) return <AdoptionDocumentPage document={document} scenario={adoptionScenario} />;
+  if (adoptionScenario) return withAfterDownload(<AdoptionDocumentPage document={document} scenario={adoptionScenario} />);
   const childTravelScenario = getChildTravelScenarioByDocumentSlug(document.slug);
-  if (childTravelScenario) return <ChildTravelDocumentPage document={document} scenario={childTravelScenario} />;
+  if (childTravelScenario) return withAfterDownload(<ChildTravelDocumentPage document={document} scenario={childTravelScenario} />);
   const childNameScenario = getChildNameScenarioByDocumentSlug(document.slug);
-  if (childNameScenario) return <ChildNameDocumentPage document={document} scenario={childNameScenario} />;
+  if (childNameScenario) return withAfterDownload(<ChildNameDocumentPage document={document} scenario={childNameScenario} />);
   const parentalRightsRestorationScenario = getParentalRightsRestorationScenarioByDocumentSlug(document.slug);
-  if (parentalRightsRestorationScenario) return <ParentalRightsRestorationDocumentPage document={document} scenario={parentalRightsRestorationScenario} />;
+  if (parentalRightsRestorationScenario) return withAfterDownload(<ParentalRightsRestorationDocumentPage document={document} scenario={parentalRightsRestorationScenario} />);
   const parentalRightsRestrictionCancellationScenario = getParentalRightsRestrictionCancellationScenarioByDocumentSlug(document.slug);
-  if (parentalRightsRestrictionCancellationScenario) return <ParentalRightsRestrictionCancellationDocumentPage document={document} scenario={parentalRightsRestrictionCancellationScenario} />;
+  if (parentalRightsRestrictionCancellationScenario) return withAfterDownload(<ParentalRightsRestrictionCancellationDocumentPage document={document} scenario={parentalRightsRestrictionCancellationScenario} />);
   const parentalDisagreementsScenario = getParentalDisagreementsScenarioByDocumentSlug(document.slug);
-  if (parentalDisagreementsScenario) return <ParentalDisagreementsDocumentPage document={document} scenario={parentalDisagreementsScenario} />;
+  if (parentalDisagreementsScenario) return withAfterDownload(<ParentalDisagreementsDocumentPage document={document} scenario={parentalDisagreementsScenario} />);
   const additionalChildExpensesScenario = getAdditionalChildExpensesScenarioByDocumentSlug(document.slug);
-  if (additionalChildExpensesScenario) return <AdditionalChildExpensesDocumentPage document={document} scenario={additionalChildExpensesScenario} />;
+  if (additionalChildExpensesScenario) return withAfterDownload(<AdditionalChildExpensesDocumentPage document={document} scenario={additionalChildExpensesScenario} />);
   const spousalSupportScenario = getSpousalSupportScenarioByDocumentSlug(document.slug);
-  if (spousalSupportScenario) return <SpousalSupportDocumentPage document={document} scenario={spousalSupportScenario} />;
+  if (spousalSupportScenario) return withAfterDownload(<SpousalSupportDocumentPage document={document} scenario={spousalSupportScenario} />);
   const prenuptialAgreementScenario = getPrenuptialAgreementScenarioByDocumentSlug(document.slug);
-  if (prenuptialAgreementScenario) return <PrenuptialAgreementDocumentPage document={document} scenario={prenuptialAgreementScenario} />;
+  if (prenuptialAgreementScenario) return withAfterDownload(<PrenuptialAgreementDocumentPage document={document} scenario={prenuptialAgreementScenario} />);
   const invalidMarriageScenario = getInvalidMarriageScenarioByDocumentSlug(document.slug);
-  if (invalidMarriageScenario) return <InvalidMarriageDocumentPage document={document} scenario={invalidMarriageScenario} />;
+  if (invalidMarriageScenario) return withAfterDownload(<InvalidMarriageDocumentPage document={document} scenario={invalidMarriageScenario} />);
   const complexMaritalPropertyScenario = getComplexMaritalPropertyScenarioByDocumentSlug(document.slug);
-  if (complexMaritalPropertyScenario) return <ComplexMaritalPropertyDocumentPage document={document} scenario={complexMaritalPropertyScenario} />;
+  if (complexMaritalPropertyScenario) return withAfterDownload(<ComplexMaritalPropertyDocumentPage document={document} scenario={complexMaritalPropertyScenario} />);
   if (document.slug === SURROGACY_ORIGIN_ROUTE.documentSlug) {
     const variant = searchParams ? (await searchParams).variant : undefined;
-    return <SurrogacyOriginDocumentPage document={document} variant={variant} />;
+    return withAfterDownload(<SurrogacyOriginDocumentPage document={document} variant={variant} />);
   }
   if (document.slug === INTERNATIONAL_FAMILY_DISPUTES_ROUTE.documentSlug) {
     const variant = searchParams ? (await searchParams).variant : undefined;
-    return <InternationalFamilyDisputesDocumentPage document={document} variant={variant} />;
+    return withAfterDownload(<InternationalFamilyDisputesDocumentPage document={document} variant={variant} />);
   }
   if (document.slug === RELATIVE_CHILD_CONTACT_ROUTE.documentSlug) {
     const variant = searchParams ? (await searchParams).variant : undefined;
-    return <RelativeChildContactDocumentPage document={document} variant={variant} />;
+    return withAfterDownload(<RelativeChildContactDocumentPage document={document} variant={variant} />);
   }
   if (document.slug === EMANCIPATION_ROUTE.documentSlug) {
     const variant = searchParams ? (await searchParams).variant : undefined;
-    return <EmancipationDocumentPage document={document} variant={variant} />;
+    return withAfterDownload(<EmancipationDocumentPage document={document} variant={variant} />);
   }
   if (document.slug !== ZAGS_PROBLEM_ROUTE.documentSlug) notFound();
 
@@ -216,28 +230,32 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
   const breadcrumbs = [
     { name: "Главная", path: "/" },
     { name: "Документы", path: "/documents/" },
-    { name: "Заявление в ЗАГС", path: documentPath }
+    { name: scenario?.pageTitle ?? "Заявления в ЗАГС", path: documentPath }
   ];
 
   return (
     <>
-      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath)]} />
+      <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(
+        documentPath,
+        scenario?.pageTitle ?? "Заявления в ЗАГС: выбор процедуры",
+        scenario?.seoDescription ?? "Выберите процедуру ЗАГС, официальную форму и порядок подготовки сведений."
+      )]} />
       <Breadcrumbs items={breadcrumbs} />
       <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <header className="rounded-lg border border-line bg-white p-5 shadow-sm sm:p-8">
           <p className="text-sm font-semibold uppercase tracking-wide text-trust">Документы ЗАГС</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">
-            {scenario ? `Заявление в ЗАГС: ${scenario.shortTitle.toLowerCase()}` : "Заявление в ЗАГС: выберите процедуру"}
+            {scenario?.pageTitle ?? "Заявления в ЗАГС: выберите процедуру"}
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">
             {scenario
               ? scenario.description[0]
-              : "Для разных обращений применяются разные утверждённые формы. Выберите цель, чтобы увидеть подходящий бланк, порядок подачи и помощник по подготовке данных."}
+              : "Для разных обращений применяются разные утверждённые формы. Выберите цель, чтобы увидеть подходящий бланк, порядок подачи и сервис подготовки данных."}
           </p>
           {scenario ? (
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="#fill-online" className="inline-flex min-h-11 items-center justify-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
-                Подготовить документ
+                Подготовить данные для формы
               </Link>
               <Link href={documentPath} className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-trust focus:outline-none focus:ring-2 focus:ring-trust/20">
                 Выбрать другую процедуру
@@ -250,7 +268,7 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
           <ZagsScenarioDetails scenario={scenario} />
         ) : (
           <>
-            <section className="mt-6 grid gap-4 md:grid-cols-2" aria-label="Варианты заявления в ЗАГС">
+            <section id="fill-online" className="mt-6 grid scroll-mt-24 gap-4 md:grid-cols-2" aria-label="Варианты заявления в ЗАГС">
               {ZAGS_SCENARIO_CHOICES.map((choice) => (
                 <Link
                   key={choice.key}
@@ -263,9 +281,55 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
               ))}
             </section>
             <ZagsScenarioOverview basePath={documentPath} queryKey="variant" linkLabel="Открыть подготовку данных" />
+            <section className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
+              <h2 className="text-2xl font-semibold text-ink">Официальный источник</h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-700">
+                Формы заявлений утверждены Приказом Минюста России от 01.10.2018 N 201. Выберите процедуру, чтобы открыть нужную форму и подготовить сведения для неё.
+              </p>
+              <a
+                href="https://www.consultant.ru/document/cons_doc_LAW_308185/"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30"
+              >
+                Открыть и скачать официальный бланк
+              </a>
+              <p className="mt-3 text-xs leading-5 text-zinc-500">Последняя документированная сверка: 21.07.2026.</p>
+            </section>
+            <section className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
+              <h2 className="text-2xl font-semibold text-ink">Что делать дальше</h2>
+              <ol className="mt-4 grid gap-2 text-sm leading-6 text-zinc-700">
+                <li><strong>1.</strong> Выберите нужную процедуру ЗАГС.</li>
+                <li><strong>2.</strong> Проверьте обязательные сведения и приложения.</li>
+                <li><strong>3.</strong> Сформируйте лист данных и перенесите сведения в утверждённый бланк.</li>
+                <li><strong>4.</strong> Подайте заявление выбранным для процедуры способом.</li>
+              </ol>
+            </section>
           </>
         )}
       </article>
+    </>
+  );
+}
+
+function DocumentPageWithAfterDownload({
+  children,
+  document
+}: {
+  children: ReactNode;
+  document: NonNullable<ReturnType<typeof getNavigatorDocument>>;
+}) {
+  return (
+    <>
+      {children}
+      <section className="mx-auto max-w-5xl border-t border-line px-4 py-7 sm:px-6 lg:px-8">
+        <h2 className="text-2xl font-semibold text-ink">Что делать после скачивания</h2>
+        <ol className="mt-4 grid gap-3 text-sm leading-6 text-zinc-700">
+          {document.afterFiling.map((item, index) => (
+            <li key={item}><strong>{index + 1}.</strong> {item}</li>
+          ))}
+        </ol>
+      </section>
     </>
   );
 }
@@ -351,7 +415,7 @@ function PaternityContestDocumentPage({ document, scenario }: { document: NonNul
     <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
     <Breadcrumbs items={breadcrumbs} />
     <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить ситуацию</a></header>
+      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить документ</a></header>
       <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
       <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
       <div className="mt-7"><PaternityContestDocumentHelper scenarioKey={scenario.key} /></div>
@@ -368,7 +432,7 @@ function PaternityEstablishmentDocumentPage({ document, scenario }: { document: 
     <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
     <Breadcrumbs items={breadcrumbs} />
     <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить ситуацию</a></header>
+      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить документ</a></header>
       <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
       <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
       <div className="mt-7"><PaternityEstablishmentDocumentHelper scenarioKey={scenario.key} /></div>
@@ -385,7 +449,7 @@ function ParentalRightsRestrictionDocumentPage({ document, scenario }: { documen
     <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
     <Breadcrumbs items={breadcrumbs} />
     <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить ситуацию</a></header>
+      <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить документ</a></header>
       <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
       <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
       <div className="mt-7"><ParentalRightsRestrictionDocumentHelper scenarioKey={scenario.key} /></div>
@@ -403,7 +467,7 @@ function ParentalRightsDeprivationDocumentPage({ document, scenario }: { documen
       <JsonLd data={[breadcrumbJsonLd(breadcrumbs), documentWebPageJsonLd(documentPath, document.title, document.shortDescription)]} />
       <Breadcrumbs items={breadcrumbs} />
       <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Проверить ситуацию</a></header>
+        <header className="border-b border-line pb-7"><p className="text-sm font-semibold uppercase tracking-wide text-trust">{document.category}</p><h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{document.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-700">{document.heroDescription}</p><a href="#fill-online" className="mt-6 inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30">Подготовить документ</a></header>
         <section className="mt-7 grid gap-4 md:grid-cols-2"><DocumentFact title="Когда подходит" items={scenario.description} /><DocumentFact title="Что подготовить" items={scenario.documents} /><DocumentFact title="Куда обращаться" items={[scenario.filing]} /><DocumentFact title="Срок и расходы" items={[scenario.term, scenario.fee]} /></section>
         <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{scenario.warning}</div>
         <div className="mt-7"><ParentalRightsDeprivationDocumentHelper scenarioKey={scenario.key} /></div>
@@ -649,6 +713,9 @@ function ZagsScenarioDetails({ scenario }: { scenario: ZagsScenario }) {
 
       <section className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-2xl font-semibold text-ink">Правовые основания</h2>
+        <p className="mt-3 text-sm leading-6 text-zinc-600">
+          Официальный источник формы — Приказ Минюста России от 01.10.2018 N 201. Ссылки ниже нужны для проверки формы, срока, пошлины и порядка подачи.
+        </p>
         <ul className="mt-4 grid gap-2 text-sm leading-6">
           {scenario.legalSources.map((source) => (
             <li key={source.href}>
@@ -658,6 +725,14 @@ function ZagsScenarioDetails({ scenario }: { scenario: ZagsScenario }) {
             </li>
           ))}
         </ul>
+        <p className="mt-4 text-xs leading-5 text-zinc-500">Последняя документированная сверка: 21.07.2026.</p>
+      </section>
+
+      <section className="mt-6 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-2xl font-semibold text-ink">Что делать дальше</h2>
+        <ol className="mt-4 grid gap-2 text-sm leading-6 text-zinc-700">
+          {scenario.steps.map((step, index) => <li key={step}><strong>{index + 1}.</strong> {step}</li>)}
+        </ol>
       </section>
 
       <FaqBlock faq={scenario.faq} />
