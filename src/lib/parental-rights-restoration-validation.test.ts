@@ -5,7 +5,7 @@ import { ensureParentalRightsRestorationDraftMarker } from "@/lib/parental-right
 import { buildParentalRightsRestorationPdfText } from "@/lib/parental-rights-restoration-pdf";
 import { getVisibleParentalRightsRestorationFields, validateParentalRightsRestoration } from "@/lib/parental-rights-restoration-validator";
 
-const base = { deprivationDecision: "yes", decisionDetails: "Решение районного суда от 01.02.2024, дело № 1", circumstancesChanged: "yes", changeEvidence: "Стабильное жильё, работа и документы об устранении прежних обстоятельств", currentRisks: "no", childAge: "under-10", childAdopted: "no", applicantData: "Иванов Иван, дата рождения, адрес, паспорт", caregiverData: "Иванова Анна, адрес", childData: "Иванов Пётр, 2018 года рождения, адрес", courtRegion: "region-moscow", courtName: "Тверской районный суд города Москвы", courtSource: "https://tverskoy.msk.sudrf.ru/", courtConfirmed: "yes" };
+const base = { deprivationDecision: "yes", decisionDetails: "Решение районного суда от 01.02.2024, дело № 1", circumstancesChanged: "yes", changeEvidence: "Стабильное жильё, работа и документы об устранении прежних обстоятельств", currentRisks: "no", childAge: "under-10", childAdopted: "no", applicantData: "Иванов Иван, дата рождения, адрес, паспорт", caregiverData: "Иванова Анна, адрес", childData: "Иванов Пётр, 2018 года рождения, адрес", courtRegion: "region-moscow", courtName: "Тверской районный суд города Москвы", courtConfirmed: "yes" };
 const outcomes = new Set<string>();
 const record = (decision: ReturnType<typeof validateParentalRightsRestoration>) => { outcomes.add(decision.outcomeKey); return decision; };
 
@@ -27,7 +27,7 @@ assert.equal(record(validateParentalRightsRestoration("restoration", { ...base, 
 assert.equal(record(validateParentalRightsRestoration("restoration", { ...base, childAge: "10-17", childConsent: "no" })).outcomeKey, "child-refuses");
 assert.equal(record(validateParentalRightsRestoration("restoration", { ...base, circumstancesChanged: "no" })).outcomeKey, "changes-not-confirmed");
 assert.equal(record(validateParentalRightsRestoration("restoration", { ...base, currentRisks: "yes" })).outcomeKey, "current-risks");
-assert.equal(record(validateParentalRightsRestoration("restoration", { ...base, courtSource: "https://example.com/" })).outcomeKey, "court-not-confirmed");
+assert.equal(record(validateParentalRightsRestoration("restoration", { ...base, courtConfirmed: "no" })).outcomeKey, "court-not-confirmed");
 assert.equal(record(validateParentalRightsRestoration("barrier-review", { deprivationDecision: "yes", decisionDetails: base.decisionDetails, circumstancesChanged: "yes", changeEvidence: base.changeEvidence, currentRisks: "no", childAge: "under-10", childAdopted: "no" })).outcomeKey, "no-statutory-barrier-detected");
 assert.equal(record(validateParentalRightsRestoration("restoration", {})).outcomeKey, "missing-data");
 assert.equal(getVisibleParentalRightsRestorationFields("restoration", { childAge: "under-10", childAdopted: "no" }).some((field) => field.name === "childConsent"), false);

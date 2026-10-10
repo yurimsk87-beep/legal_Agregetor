@@ -23,7 +23,7 @@ export type ChildSupportDecision = {
   draftText: string;
 };
 
-const courtFieldNames = new Set(["courtName", "courtSource", "courtConfirmed"]);
+const courtFieldNames = new Set(["courtName", "courtConfirmed"]);
 const bailiffFieldNames = new Set(["bailiffOffice", "bailiffSource"]);
 
 export function getVisibleChildSupportFields(scenarioKey: ChildSupportScenarioKey, values: ChildSupportValues): ChildSupportField[] {
@@ -237,7 +237,6 @@ function reviewOnly(outcomeKey: string, title: string, notice: string, issues: C
 function validateCourt(values: ChildSupportValues) {
   const issues: ChildSupportIssue[] = [];
   if (values.courtConfirmed !== "yes") issues.push({ field: "courtConfirmed", message: "Подтвердите суд на официальном ресурсе." });
-  if (!isOfficialUrl(values.courtSource, ["sudrf.ru", "vsrf.ru"])) issues.push({ field: "courtSource", message: "Укажите официальную страницу суда." });
   return issues;
 }
 

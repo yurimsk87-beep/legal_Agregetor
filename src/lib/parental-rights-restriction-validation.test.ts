@@ -6,7 +6,7 @@ import { getVisibleParentalRightsRestrictionFields, validateParentalRightsRestri
 
 const base = { immediateDanger: "no", targetRecordedParent: "yes", childStatus: "minor", applicantRole: "parent", childLeftDangerous: "yes", facts: "Подтверждаемые факты и даты", evidence: "Акты и документы" };
 const people = { applicantData: "Иванова Ирина, адрес", respondentData: "Иванов Иван, дата и место рождения, адрес", childData: "Иванов Пётр, 01.01.2018, адрес" };
-const court = { courtRegion: "region-moscow", courtName: "Районный суд", courtSource: "https://example.sudrf.ru/", courtConfirmed: "yes", existingSupport: "no", supportDetails: "Алименты ранее не установлены" };
+const court = { courtRegion: "region-moscow", courtName: "Районный суд", courtConfirmed: "yes", existingSupport: "no", supportDetails: "Алименты ранее не установлены" };
 const outcomes = new Set<string>();
 const record = (decision: ReturnType<typeof validateParentalRightsRestriction>) => { outcomes.add(decision.outcomeKey); return decision; };
 
@@ -44,7 +44,7 @@ assert.match(buildParentalRightsRestrictionPdfText(objectiveCourt), /Готов�
 const behaviorCourt = record(validateParentalRightsRestriction("court", { ...base, dangerSource: "behavior", behaviorAssessment: "danger-insufficient", ...people, ...court }));
 assert.equal(behaviorCourt.resultKind, "courtDraft");
 assert.match(behaviorCourt.documentTitle, /опасным поведением/);
-const unconfirmedCourt = record(validateParentalRightsRestriction("court", { ...base, dangerSource: "objective", objectiveReason: "health", ...people, ...court, courtSource: "https://example.com/court" }));
+const unconfirmedCourt = record(validateParentalRightsRestriction("court", { ...base, dangerSource: "objective", objectiveReason: "health", ...people, ...court, courtConfirmed: "no" }));
 assert.equal(unconfirmedCourt.allowed, false);
 assert.equal(unconfirmedCourt.draftText, "");
 

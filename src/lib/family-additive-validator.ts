@@ -64,7 +64,7 @@ function validateAdultChild(scenarioKey: string, values: FamilyAdditiveValues, p
     return allowed(route, scenarioKey, "agreement-draft", "agreement", "Проект для нотариуса", scenario.documentTitle, preparedData, ["Проект не заменяет нотариальное удостоверение."], scenario.steps);
   }
   if (scenarioKey === "change" && values.existingBasis !== "court") return review(route, scenarioKey, "agreement-change-route", "Судебный путь не подтверждён", preparedData, values.existingBasis === "agreement" ? "Для нотариального соглашения сначала проверьте взаимное изменение в договорной форме." : "Установите документ, которым определено содержание.");
-  if (!hasVerifiedCourt(values)) return review(route, scenarioKey, "court-not-confirmed", "Суд не подтверждён", preparedData, "Укажите полное наименование и официальную страницу суда.");
+  if (!hasVerifiedCourt(values)) return review(route, scenarioKey, "court-not-confirmed", "Суд не подтверждён", preparedData, "Найдите суд по полному адресу в ГАС «Правосудие», перенесите полное официальное наименование и подтвердите проверку подсудности.");
   return allowed(route, scenarioKey, "court-draft", "court", "Судебный документ требует проверки", scenario.documentTitle, preparedData, ["Подсудность, доказательства и расчёт проверяет юрист."], scenario.steps);
 }
 
@@ -86,13 +86,13 @@ function validateTermination(scenarioKey: string, values: FamilyAdditiveValues, 
   }
   if (scenarioKey === "futureRelief") {
     if (values.obligationSource !== "court") return review(route, scenarioKey, "court-basis-required", "Судебно установленная обязанность не подтверждена", preparedData, "Статья 119 СК РФ применяется к судебно установленным алиментам при отсутствии соглашения.");
-    if (!hasVerifiedCourt(values)) return review(route, scenarioKey, "court-not-confirmed", "Суд не подтверждён", preparedData, "Укажите официальный источник суда.");
+    if (!hasVerifiedCourt(values)) return review(route, scenarioKey, "court-not-confirmed", "Суд не подтверждён", preparedData, "Найдите суд по полному адресу в ГАС «Правосудие» и подтвердите проверку подсудности.");
     return allowed(route, scenarioKey, "future-relief-court-draft", "court", "Судебный документ требует проверки", scenario.documentTitle, preparedData, values.hasDebt === "yes" ? ["Задолженность не включена: используйте отдельную ветвь долга."] : [], scenario.steps);
   }
   if (scenarioKey === "debtRelief") {
     if (values.hasDebt !== "yes") return review(route, scenarioKey, "debt-not-confirmed", "Задолженность не подтверждена", preparedData, "Для этой ветви нужен официальный расчёт задолженности.");
     if (values.nonpaymentReason === "unconfirmed" || values.cannotRepay !== "yes") return review(route, scenarioKey, "debt-relief-conditions-missing", "Условия статьи 114 СК РФ не подтверждены", preparedData, "Нужны доказательства уважительной причины неуплаты и невозможности погасить долг с учётом положения.");
-    if (!hasVerifiedCourt(values)) return review(route, scenarioKey, "court-not-confirmed", "Суд не подтверждён", preparedData, "Укажите официальный источник суда.");
+    if (!hasVerifiedCourt(values)) return review(route, scenarioKey, "court-not-confirmed", "Суд не подтверждён", preparedData, "Найдите суд по полному адресу в ГАС «Правосудие» и подтвердите проверку подсудности.");
     return allowed(route, scenarioKey, "debt-relief-court-draft", "court", "Иск требует проверки", scenario.documentTitle, preparedData, ["Цена требования, пошлина и расчёт задолженности проверяются до подачи."], scenario.steps);
   }
   if (values.terminationBasis === "other" || values.basisConfirmed !== "yes") return review(route, scenarioKey, "enforcement-basis-unconfirmed", "Основание для обращения приставу не подтверждено", preparedData, "Пристав не может подменить необходимое судебное решение.");
@@ -119,7 +119,7 @@ function validateParentSupport(scenarioKey: string, values: FamilyAdditiveValues
     if (values.mutualConsent !== "yes") return review(route, scenarioKey, "agreement-not-reached", "Согласие сторон не подтверждено", preparedData, "Для проекта соглашения нужны согласованные условия.");
     return allowed(route, scenarioKey, "agreement-draft", "agreement", "Проект для нотариуса", scenario.documentTitle, preparedData, ["Проект не заменяет нотариальное удостоверение."], scenario.steps);
   }
-  if (!hasVerifiedCourt(values)) return review(route, scenarioKey, "court-not-confirmed", "Суд не подтверждён", preparedData, "Укажите официальный источник суда.");
+  if (!hasVerifiedCourt(values)) return review(route, scenarioKey, "court-not-confirmed", "Суд не подтверждён", preparedData, "Найдите суд по полному адресу в ГАС «Правосудие» и подтвердите проверку подсудности.");
   return allowed(route, scenarioKey, scenarioKey === "extraExpenses" ? "extra-expenses-court-draft" : "support-court-draft", "court", "Иск требует проверки", scenario.documentTitle, preparedData, scenarioKey === "extraExpenses" ? ["Исключительный характер и размер расходов должны быть доказаны отдельно."] : ["Суд вправе учесть всех совершеннолетних детей."], scenario.steps);
 }
 
@@ -138,7 +138,7 @@ function validateAdoptionCancellation(scenarioKey: string, values: FamilyAdditiv
   if (values.adoptedAge === "yes") return review(route, scenarioKey, "adult-route-required", "Усыновлённый достиг совершеннолетия", preparedData, "Перейдите к отдельной ветви статьи 144 СК РФ.");
   if (values.adoptedAge !== "no") return review(route, scenarioKey, "age-unclear", "Возраст усыновлённого не подтверждён", preparedData, "Возраст определяет применимую процедуру.");
   if (scenarioKey === "eligibility") return allowed(route, scenarioKey, "eligible", "assessment", "Право и основание требуют проверки", scenario.documentTitle, preparedData, ["Орган опеки, прокурор и суд оценивают интересы ребёнка."], scenario.steps);
-  if (!hasVerifiedCourt(values)) return review(route, scenarioKey, "court-not-confirmed", "Суд не подтверждён", preparedData, "Укажите официальный источник суда.");
+  if (!hasVerifiedCourt(values)) return review(route, scenarioKey, "court-not-confirmed", "Суд не подтверждён", preparedData, "Найдите суд по полному адресу в ГАС «Правосудие» и подтвердите проверку подсудности.");
   return allowed(route, scenarioKey, scenarioKey === "minorClaimSupport" ? "claim-support-draft" : "claim-draft", "court", "Иск требует обязательной проверки", scenario.documentTitle, preparedData, ["Участие органа опеки и прокурора обязательно; результат суда не прогнозируется."], scenario.steps);
 }
 
@@ -169,13 +169,7 @@ function displayValue(field: FamilyAdditiveField, value: string) {
 }
 
 function hasVerifiedCourt(values: FamilyAdditiveValues) {
-  if (!values.courtName?.trim()) return false;
-  try {
-    const host = new URL(values.courtSource ?? "").hostname.toLowerCase();
-    return host === "sudrf.ru" || host.endsWith(".sudrf.ru") || host === "mos-gorsud.ru" || host.endsWith(".mos-gorsud.ru");
-  } catch {
-    return false;
-  }
+  return Boolean(values.courtName?.trim()) && values.courtConfirmed === "yes";
 }
 
 function allowed(

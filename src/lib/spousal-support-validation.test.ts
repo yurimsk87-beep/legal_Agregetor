@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { validateSpousalSupport } from "@/lib/spousal-support-validator";
 
 const common = { needConfirmed: "yes", basisConditions: "Подтверждающие документы", payerMeans: "yes", supportRefused: "yes", agreementExists: "yes", international: "no" };
-const people = { applicantData: "Иванова Анна", otherSpouseData: "Иванов Иван", marriageData: "Брак зарегистрирован", requestedAmount: "15000 рублей ежемесячно", financialCircumstances: "Доходы и расходы сторон", courtName: "Тверской районный суд города Москвы", courtSource: "https://tverskoy.msk.sudrf.ru/", courtConfirmed: "yes" };
+const people = { applicantData: "Иванова Анна", otherSpouseData: "Иванов Иван", marriageData: "Брак зарегистрирован", requestedAmount: "15000 рублей ежемесячно", financialCircumstances: "Доходы и расходы сторон", courtName: "Тверской районный суд города Москвы", courtConfirmed: "yes" };
 
 const current = validateSpousalSupport("current", { ...common, ...people, relationship: "current", basis: "care-under-three", commonChild: "yes", actualCare: "yes", childUnderThree: "yes" });
 assert.equal(current.resultKind, "courtDraft"); assert.equal(current.filingReady, false); assert.match(current.draftText, /НЕ ГОТОВ К ПОДАЧЕ/);

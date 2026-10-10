@@ -20,8 +20,7 @@ const commonFields: PaternityContestField[] = [
   { name: "evidence", label: "Какие законно полученные доказательства имеются?", type: "textarea", required: true },
   { name: "dnaExpectation", label: "Вы понимаете, что результат экспертизы заранее не гарантирован и оценивается судом вместе с другими доказательствами?", type: "select", required: true, options: yesNoUnsure },
   { name: "courtRegion", label: "Регион суда", type: "searchable", required: true, options: RUSSIAN_REGIONS.map(({ id, label }) => ({ value: id, label })) },
-  { name: "courtName", label: "Полное наименование районного или городского суда", type: "textarea", required: true, hint: "Перенесите точное наименование с официальной страницы суда." },
-  { name: "courtSource", label: "Ссылка на официальную страницу суда", type: "text", required: true },
+  { name: "courtName", label: "Полное наименование районного или городского суда", type: "textarea", required: true, hint: "Найдите суд по полному адресу в официальном сервисе ГАС «Правосудие» и перенесите сюда полное наименование без сокращений." },
   { name: "courtConfirmed", label: "Вы проверили суд и территориальную подсудность на официальном ресурсе?", type: "select", required: true, options: yesNoUnsure }
 ];
 

@@ -5,7 +5,7 @@ import { ensureParentalRightsRestrictionCancellationDraftMarker } from "@/lib/pa
 import { buildParentalRightsRestrictionCancellationPdfText } from "@/lib/parental-rights-restriction-cancellation-pdf";
 import { getVisibleParentalRightsRestrictionCancellationFields, validateParentalRightsRestrictionCancellation } from "@/lib/parental-rights-restriction-cancellation-validator";
 
-const base = { restrictionDecision: "yes", decisionDetails: "Решение районного суда от 01.02.2025, дело № 1", groundsCeased: "yes", changeEvidence: "Документы об устранении обстоятельств", newRisks: "no", childAge: "under-10", childInterests: "Восстановлены безопасные условия", applicantData: "Иванов Иван, дата рождения, адрес, паспорт", caregiverData: "Иванова Анна, адрес", childData: "Иванов Пётр, 2018 года рождения, адрес", courtRegion: "region-moscow", courtName: "Тверской районный суд города Москвы", courtSource: "https://tverskoy.msk.sudrf.ru/", courtConfirmed: "yes" };
+const base = { restrictionDecision: "yes", decisionDetails: "Решение районного суда от 01.02.2025, дело № 1", groundsCeased: "yes", changeEvidence: "Документы об устранении обстоятельств", newRisks: "no", childAge: "under-10", childInterests: "Восстановлены безопасные условия", applicantData: "Иванов Иван, дата рождения, адрес, паспорт", caregiverData: "Иванова Анна, адрес", childData: "Иванов Пётр, 2018 года рождения, адрес", courtRegion: "region-moscow", courtName: "Тверской районный суд города Москвы", courtConfirmed: "yes" };
 const outcomes = new Set<string>();
 const record = (decision: ReturnType<typeof validateParentalRightsRestrictionCancellation>) => { outcomes.add(decision.outcomeKey); return decision; };
 const cancellation = record(validateParentalRightsRestrictionCancellation("cancellation", base));
@@ -16,7 +16,7 @@ assert.equal(record(validateParentalRightsRestrictionCancellation("cancellation"
 assert.equal(record(validateParentalRightsRestrictionCancellation("cancellation", { ...base, groundsCeased: "no" })).outcomeKey, "grounds-remain");
 assert.equal(record(validateParentalRightsRestrictionCancellation("cancellation", { ...base, newRisks: "yes" })).outcomeKey, "current-risks");
 assert.equal(record(validateParentalRightsRestrictionCancellation("cancellation", { ...base, childAge: "10-17", childOpinion: "objects" })).outcomeKey, "child-objects");
-assert.equal(record(validateParentalRightsRestrictionCancellation("cancellation", { ...base, courtSource: "https://example.com/" })).outcomeKey, "court-not-confirmed");
+assert.equal(record(validateParentalRightsRestrictionCancellation("cancellation", { ...base, courtConfirmed: "no" })).outcomeKey, "court-not-confirmed");
 assert.equal(record(validateParentalRightsRestrictionCancellation("readiness-review", { restrictionDecision: "yes", decisionDetails: base.decisionDetails, groundsCeased: "yes", changeEvidence: base.changeEvidence, newRisks: "no", childAge: "under-10", childInterests: base.childInterests })).outcomeKey, "conditions-appear-confirmed");
 assert.equal(record(validateParentalRightsRestrictionCancellation("cancellation", {})).outcomeKey, "missing-data");
 assert.equal(getVisibleParentalRightsRestrictionCancellationFields("cancellation", { childAge: "under-10" }).some((field) => field.name === "childOpinion"), false);

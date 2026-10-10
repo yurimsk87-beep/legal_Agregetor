@@ -52,8 +52,7 @@ const riskFields: ChildSupportField[] = [
 ];
 
 const courtFields: ChildSupportField[] = [
-  { name: "courtName", label: "Полное наименование суда или мирового судебного участка", type: "textarea", required: true },
-  { name: "courtSource", label: "Ссылка на официальную страницу суда", type: "text", required: true },
+  { name: "courtName", label: "Полное наименование суда или мирового судебного участка", type: "textarea", required: true, hint: "Найдите суд по полному адресу в официальном сервисе ГАС «Правосудие» и перенесите сюда полное наименование без сокращений." },
   { name: "courtConfirmed", label: "Суд проверен на официальном ресурсе судебной системы?", type: "select", required: true, options: yesNoUnsure }
 ];
 

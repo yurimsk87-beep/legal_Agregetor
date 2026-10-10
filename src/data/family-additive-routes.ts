@@ -10,7 +10,7 @@ export type FamilyAdditiveRouteSlug =
 export type FamilyAdditiveField = {
   name: string;
   label: string;
-  type: "text" | "textarea" | "date" | "number" | "select" | "court-name" | "court-source";
+  type: "text" | "textarea" | "date" | "number" | "select" | "court-name";
   required?: boolean;
   hint?: string;
   options?: Array<{ label: string; value: string }>;
@@ -57,8 +57,8 @@ const counterparty = (label: string) => ({ name: "counterpartyData", label, type
 const circumstances = (label = "Подтверждённые обстоятельства") => ({ name: "circumstances", label, type: "textarea" as const, required: true, hint: "Укажите только факты, которые можно подтвердить документами или иными допустимыми доказательствами." });
 const evidence = (label = "Доказательства и документы") => ({ name: "evidenceDetails", label, type: "textarea" as const, required: true });
 const courtFields: FamilyAdditiveField[] = [
-  { name: "courtName", label: "Полное официальное наименование суда", type: "court-name", required: true },
-  { name: "courtSource", label: "Ссылка на официальную страницу суда", type: "court-source", required: true, hint: "Используйте sudrf.ru или официальный сайт суда." }
+  { name: "courtName", label: "Полное официальное наименование суда", type: "court-name", required: true, hint: "Найдите суд по полному адресу в официальном сервисе ГАС «Правосудие» и перенесите сюда полное наименование без сокращений." },
+  { name: "courtConfirmed", label: "Суд и подсудность проверены на официальном ресурсе?", type: "select", required: true, options: yesNoUnsure }
 ];
 
 const adultStatusFields: FamilyAdditiveField[] = [

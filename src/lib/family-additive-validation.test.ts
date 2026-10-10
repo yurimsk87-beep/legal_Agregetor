@@ -8,7 +8,6 @@ function completeValues(routeSlug: FamilyAdditiveRouteSlug, scenarioKey: string,
   for (const field of scenario.helperFields) {
     if (field.type === "select") values[field.name] = field.options?.[0]?.value ?? "yes";
     else if (field.type === "number") values[field.name] = "10000";
-    else if (field.type === "court-source") values[field.name] = "https://tverskoy.msk.sudrf.ru/";
     else if (field.type === "court-name") values[field.name] = "Тверской районный суд города Москвы";
     else values[field.name] = "Подтверждённые сведения и реквизиты документа";
   }

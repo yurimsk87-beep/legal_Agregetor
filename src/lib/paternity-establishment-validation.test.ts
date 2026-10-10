@@ -5,7 +5,7 @@ import { buildPaternityEstablishmentPdfText } from "@/lib/paternity-establishmen
 import { getVisiblePaternityEstablishmentFields, validatePaternityEstablishment } from "@/lib/paternity-establishment-validator";
 
 const people = { motherData: "Иванова Ирина, данные", fatherData: "Иванов Иван, данные", childData: "Иванов Пётр, запись о рождении", childNameAfter: "Иванов Пётр Иванович" };
-const court = { applicantData: "Иванова Ирина, адрес", respondentData: "Иванов Иван, адрес", evidence: "Переписка и иные законно полученные доказательства", courtRegion: "region-moscow", courtName: "Районный суд", courtSource: "https://example.sudrf.ru/", courtConfirmed: "yes" };
+const court = { applicantData: "Иванова Ирина, адрес", respondentData: "Иванов Иван, адрес", evidence: "Переписка и иные законно полученные доказательства", courtRegion: "region-moscow", courtName: "Районный суд", courtConfirmed: "yes" };
 const outcomes = new Set<string>();
 const record = (decision: ReturnType<typeof validatePaternityEstablishment>) => { outcomes.add(decision.outcomeKey); return decision; };
 
@@ -45,7 +45,7 @@ assert.match(combined.documentTitle, /алиментов/);
 assert.equal(combined.resultKind, "courtDraft");
 assert.equal(record(validatePaternityEstablishment("combined", { existingFatherRecord: "no", childAge: "minor", combinedIssue: "other" })).outcomeKey, "combined-other-review");
 
-const badCourt = record(validatePaternityEstablishment("court", { existingFatherRecord: "no", childAge: "minor", applicantRole: "parent", ...people, ...court, courtSource: "https://example.com" }));
+const badCourt = record(validatePaternityEstablishment("court", { existingFatherRecord: "no", childAge: "minor", applicantRole: "parent", ...people, ...court, courtConfirmed: "no" }));
 assert.equal(badCourt.allowed, false);
 assert.equal(badCourt.draftText, "");
 assert.equal(getPaternityEstablishmentRules("court", "court").some((rule) => rule.id === "sk-49-court"), true);

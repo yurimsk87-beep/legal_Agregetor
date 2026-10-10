@@ -55,7 +55,6 @@ const COURT_LOOKUP_FIELD_NAMES = new Set([
   "courtName",
   "courtPrecinctNumber",
   "courtAddress",
-  "courtWebsite",
   "appealCourtName"
 ]);
 
@@ -358,6 +357,7 @@ function HelperField({ courtLevel, field, onChange, value }: {
       ) : (
         <input id={fieldId} name={field.name} type={field.type ?? "text"} min={field.type === "number" ? 0 : undefined} step={field.type === "number" ? "0.01" : undefined} required={field.required} value={value} placeholder={field.placeholder} onChange={(event) => onChange(field.name, event.target.value)} className="min-h-11 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-normal text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" />
       )}
+      {field.hint ? <span className="text-xs font-normal leading-5 text-zinc-600">{field.hint}</span> : null}
     </div>
   );
 }

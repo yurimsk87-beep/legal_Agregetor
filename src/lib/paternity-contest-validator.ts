@@ -51,10 +51,8 @@ function validateCourt(values: PaternityContestValues) {
   const issues: PaternityContestIssue[] = [];
   if (!RUSSIAN_REGIONS.some((region) => region.id === values.courtRegion)) issues.push({ field: "courtRegion", message: "Выберите регион из справочника." });
   if (values.courtConfirmed !== "yes") issues.push({ field: "courtConfirmed", message: "Подтвердите суд и подсудность на официальном ресурсе." });
-  if (!isOfficialCourtUrl(values.courtSource)) issues.push({ field: "courtSource", message: "Укажите официальную страницу суда." });
   return issues;
 }
-function isOfficialCourtUrl(value: string | undefined) { try { const host = new URL(value ?? "").hostname.toLowerCase(); return host === "sudrf.ru" || host.endsWith(".sudrf.ru") || host === "mos-gorsud.ru" || host.endsWith(".mos-gorsud.ru"); } catch { return false; } }
 function displayValue(field: PaternityContestField, value: string) { if (field.name === "courtRegion") return RUSSIAN_REGIONS.find((region) => region.id === value)?.label ?? value; return field.options?.find((option) => option.value === value)?.label ?? value; }
 function review(outcomeKey: string, title: string, notice: string, preparedData: PaternityContestDecision["preparedData"], path: PaternityContestLegalPath) { return base(outcomeKey, path, "legalReviewOnly", "Требуется юридическая проверка", title, [], preparedData, [notice], [notice, "Получите актуальную запись акта о рождении и не используйте судебный черновик до проверки."], ""); }
 function base(outcomeKey: string, legalPath: PaternityContestLegalPath, resultKind: PaternityContestDecision["resultKind"], resultLabel: string, documentTitle: string, issues: PaternityContestIssue[], preparedData: PaternityContestDecision["preparedData"], notices: string[], filingSteps: string[], draftText: string): PaternityContestDecision { return { allowed: issues.length === 0 && resultKind !== "legalReviewOnly", outcomeKey, legalPath, resultKind, resultLabel, documentTitle, filingReady: false, requiresLegalReview: true, pdfAvailable: true, issues, notices, preparedData, filingSteps, draftText: issues.length ? "" : draftText }; }

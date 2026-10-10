@@ -8,14 +8,14 @@ const base = { subject: "education", subjectDetails: "Выбор образов�
 const outcomes = new Set<string>(); const record = (decision: ReturnType<typeof validateParentalDisagreements>) => { outcomes.add(decision.outcomeKey); return decision; };
 const agreement = record(validateParentalDisagreements("agreement", base)); assert.equal(agreement.resultKind, "agreementDraft"); assert.equal(agreement.filingReady, false); assert.match(agreement.draftText, /ПРОЕКТ ДОГОВОРЁННОСТИ/); assert.match(buildParentalDisagreementsPdfText(agreement), /Готово к подаче: нет/); assert.match(ensureParentalDisagreementsDraftMarker("Текст"), /ЧЕРНОВИК/);
 const guardianship = record(validateParentalDisagreements("guardianship", { ...base, parentsAgree: "no", region: "region-saint-petersburg", municipality: "spb-gagarinskoe", authority: "spb-gagarinskoe-guardianship" })); assert.equal(guardianship.resultKind, "applicationDraft"); assert.equal(guardianship.filingReady, false);
-const court = record(validateParentalDisagreements("court", { ...base, parentsAgree: "no", courtRegion: "region-moscow", courtName: "Тверской районный суд города Москвы", courtSource: "https://tverskoy.msk.sudrf.ru/", courtConfirmed: "yes" })); assert.equal(court.resultKind, "courtDraft"); assert.equal(court.requiresLegalReview, true);
+const court = record(validateParentalDisagreements("court", { ...base, parentsAgree: "no", courtRegion: "region-moscow", courtName: "Тверской районный суд города Москвы", courtConfirmed: "yes" })); assert.equal(court.resultKind, "courtDraft"); assert.equal(court.requiresLegalReview, true);
 assert.equal(record(validateParentalDisagreements("agreement", { ...base, subject: "residence" })).outcomeKey, "redirect-residence");
 assert.equal(record(validateParentalDisagreements("agreement", { ...base, subject: "communication" })).outcomeKey, "redirect-communication");
 assert.equal(record(validateParentalDisagreements("agreement", { ...base, subject: "other" })).outcomeKey, "other-subject-review");
 assert.equal(record(validateParentalDisagreements("agreement", { ...base, immediateRisk: "yes" })).outcomeKey, "emergency-risk");
 assert.equal(record(validateParentalDisagreements("agreement", { ...base, childAge: "10-17", childOpinion: "no" })).outcomeKey, "child-opinion-not-accounted");
 assert.equal(record(validateParentalDisagreements("guardianship", { ...base, parentsAgree: "no", region: "region-moscow", municipality: "territory-not-found", authority: "territory-not-found" })).outcomeKey, "authority-not-confirmed");
-assert.equal(record(validateParentalDisagreements("court", { ...base, parentsAgree: "no", courtRegion: "region-moscow", courtName: "Суд", courtSource: "https://example.com", courtConfirmed: "yes" })).outcomeKey, "court-not-confirmed");
+assert.equal(record(validateParentalDisagreements("court", { ...base, parentsAgree: "no", courtRegion: "region-moscow", courtName: "Суд", courtConfirmed: "no" })).outcomeKey, "court-not-confirmed");
 assert.equal(record(validateParentalDisagreements("agreement", {})).outcomeKey, "missing-data");
 for (const key of PARENTAL_DISAGREEMENTS_SCENARIO_KEYS) assert.equal(getParentalDisagreementsRules(key).length > 0, true);
 console.log(`Parental disagreements validation passed: ${outcomes.size} reachable outcomes.`);

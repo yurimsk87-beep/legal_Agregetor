@@ -4,7 +4,7 @@ import { PATERNITY_CONTEST_SCENARIO_KEYS } from "@/data/paternity-contest-route"
 import { buildPaternityContestPdfText } from "@/lib/paternity-contest-pdf";
 import { getVisiblePaternityContestFields, validatePaternityContest } from "@/lib/paternity-contest-validator";
 
-const common = { recordTarget: "father", recordBasis: "marriage", applicantData: "Иванов Иван, адрес", recordedParentData: "Иванов Иван, данные", childData: "Иванов Пётр, запись о рождении", otherParticipants: "Иванова Ирина, адрес", circumstances: "Обстоятельства записи и требования", evidence: "Документы и иные законно полученные доказательства", dnaExpectation: "yes", courtRegion: "region-moscow", courtName: "Районный суд", courtSource: "https://example.sudrf.ru/", courtConfirmed: "yes" };
+const common = { recordTarget: "father", recordBasis: "marriage", applicantData: "Иванов Иван, адрес", recordedParentData: "Иванов Иван, данные", childData: "Иванов Пётр, запись о рождении", otherParticipants: "Иванова Ирина, адрес", circumstances: "Обстоятельства записи и требования", evidence: "Документы и иные законно полученные доказательства", dnaExpectation: "yes", courtRegion: "region-moscow", courtName: "Районный суд", courtConfirmed: "yes" };
 const outcomes = new Set<string>();
 const record = (decision: ReturnType<typeof validatePaternityContest>) => { outcomes.add(decision.outcomeKey); return decision; };
 
@@ -34,7 +34,7 @@ assert.equal(record(validatePaternityContest("biological-parent", { ...common, r
 assert.equal(record(validatePaternityContest("biological-parent", { ...common, recordBasis: "court" })).outcomeKey, "court-record-review");
 assert.equal(record(validatePaternityContest("biological-parent", { ...common, recordTarget: "unsure" })).outcomeKey, "record-target-unclear");
 assert.equal(record(validatePaternityContest("biological-parent", { ...common, dnaExpectation: "unsure" })).outcomeKey, "evidence-expectation-unclear");
-const badCourt = record(validatePaternityContest("biological-parent", { ...common, courtSource: "https://example.com" }));
+const badCourt = record(validatePaternityContest("biological-parent", { ...common, courtConfirmed: "no" }));
 assert.equal(badCourt.allowed, false);
 assert.equal(badCourt.draftText, "");
 assert.equal(getPaternityContestRules("recorded-parent", "court").some((rule) => rule.id === "sk-52-standing"), true);

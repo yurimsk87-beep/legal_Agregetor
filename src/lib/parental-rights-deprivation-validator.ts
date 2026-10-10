@@ -32,7 +32,7 @@ export function getVisibleParentalRightsDeprivationFields(scenarioKey: ParentalR
   return PARENTAL_RIGHTS_DEPRIVATION_SCENARIOS[scenarioKey].helperFields.filter((field) => {
     if (["crimeBefore18", "crimeConfirmed"].includes(field.name)) return false;
     if (field.name === "decisionInForce") return !["authority", "unsure"].includes(values.existingDecisionKind ?? "");
-    if (courtScenarios.has(scenarioKey) && ["applicantData", "respondentData", "childData", "courtRegion", "courtName", "courtSource", "courtConfirmed"].includes(field.name)) {
+    if (courtScenarios.has(scenarioKey) && ["applicantData", "respondentData", "childData", "courtRegion", "courtName", "courtConfirmed"].includes(field.name)) {
       if (values.immediateDanger !== "no") return false;
       if (values.childStatus === "adult" && !isAdultSpecialCandidate(values)) return false;
       if (["objective", "conflict", "unclear"].includes(values.ground ?? "")) return false;
@@ -100,17 +100,7 @@ function validateCourt(values: ParentalRightsDeprivationValues) {
   const issues: ParentalRightsDeprivationIssue[] = [];
   if (!RUSSIAN_REGIONS.some((region) => region.id === values.courtRegion)) issues.push({ field: "courtRegion", message: "Выберите регион из справочника." });
   if (values.courtConfirmed !== "yes") issues.push({ field: "courtConfirmed", message: "Подтвердите суд и подсудность на официальном ресурсе." });
-  if (!isOfficialCourtUrl(values.courtSource)) issues.push({ field: "courtSource", message: "Укажите официальную страницу суда." });
   return issues;
-}
-
-function isOfficialCourtUrl(value: string | undefined) {
-  try {
-    const host = new URL(value ?? "").hostname.toLowerCase();
-    return host === "sudrf.ru" || host.endsWith(".sudrf.ru") || host === "mos-gorsud.ru" || host.endsWith(".mos-gorsud.ru");
-  } catch {
-    return false;
-  }
 }
 
 function isAdultSpecialCandidate(values: ParentalRightsDeprivationValues) {

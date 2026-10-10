@@ -21,7 +21,7 @@ export type ParentsChildDecision = {
   draftText: string;
 };
 
-const courtFields = new Set(["courtRegion", "defendantAddress", "courtName", "courtSource", "courtConfirmed"]);
+const courtFields = new Set(["courtRegion", "defendantAddress", "courtName", "courtConfirmed"]);
 const partiesFields = new Set(["applicantData", "otherParentData", "childData", "childOpinion"]);
 const enforcementStageFields = new Set(["decisionEffective", "writExists", "enforcementStarted"]);
 const enforcementDetailFields = new Set(["decisionDetails", "enforcementDetails", "nonCompliance", "evidence", "bailiffConfirmed"]);
@@ -91,7 +91,6 @@ export function validateParentsChildApplication(scenarioKey: ParentsChildScenari
   const courtPath = isCourtPath(scenarioKey, values);
   if (courtPath) {
     if (values.courtConfirmed !== "yes") issues.push({ field: "courtConfirmed", message: "Конкретный суд не подтверждён на официальном ресурсе." });
-    if (values.courtSource && !isOfficialCourtUrl(values.courtSource)) issues.push({ field: "courtSource", message: "Ссылка не распознана как официальная страница судебной системы. Адресат требует проверки." });
   }
 
   if ((scenarioKey === "residence" || scenarioKey === "communication") && values.existingOrder !== "no") {
@@ -253,15 +252,6 @@ function safetyNotices(values: ParentsChildValues) {
   if (values.complexRisk !== "no") notices.push("Риски насилия, зависимости, удержания или опасного поведения требуют индивидуальной проверки до использования документа.");
   if (values.international !== "no") notices.push("Международный элемент нельзя безопасно разрешить этим маршрутом: применимое право и компетенцию нужно проверить отдельно.");
   return notices;
-}
-
-function isOfficialCourtUrl(value: string) {
-  try {
-    const host = new URL(value).hostname.toLowerCase();
-    return host === "sudrf.ru" || host.endsWith(".sudrf.ru") || host === "vsrf.ru" || host.endsWith(".vsrf.ru");
-  } catch {
-    return false;
-  }
 }
 
 function optionLabel(field: ParentsChildField, value: string) {

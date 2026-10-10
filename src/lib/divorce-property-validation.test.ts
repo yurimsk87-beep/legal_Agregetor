@@ -28,7 +28,6 @@ const magistrateCourtBase = {
   courtName: "Судебный участок мирового судьи N 1 Центрального района",
   courtPrecinctNumber: "1",
   courtAddress: "г. Москва, ул. Судебная, д. 1",
-  courtWebsite: "https://sudrf.ru/index.php?id=300",
   appealCourtName: "Центральный районный суд"
 };
 
@@ -442,8 +441,7 @@ const unconfirmedCourt = validateDivorcePropertyApplication("court-divorce", {
   ...courtBase,
   courtSearchConfirmed: "no",
   courtName: "",
-  courtAddress: "",
-  courtWebsite: ""
+  courtAddress: ""
 });
 assert.equal(unconfirmedCourt.allowed, false);
 assert.equal(unconfirmedCourt.issues.some(({ field }) => field === "courtSearchConfirmed"), true);
@@ -484,22 +482,6 @@ const magistrateWithoutNumber = validateDivorcePropertyApplication("court-divorc
 });
 assert.equal(magistrateWithoutNumber.allowed, false);
 assert.equal(magistrateWithoutNumber.issues.some(({ field }) => field === "courtPrecinctNumber"), true);
-
-const unsupportedCourtUrl = validateDivorcePropertyApplication("court-divorce", {
-  ...courtBase,
-  courtWebsite: "https://example.com/court"
-});
-assert.equal(unsupportedCourtUrl.allowed, false);
-assert.equal(unsupportedCourtUrl.filingReady, false);
-assert.equal(unsupportedCourtUrl.issues.some(({ field }) => field === "courtWebsite"), true);
-
-const fakeSudrfSubdomain = validateDivorcePropertyApplication("court-divorce", {
-  ...courtBase,
-  courtWebsite: "https://example.sudrf.ru/"
-});
-assert.equal(fakeSudrfSubdomain.allowed, false);
-assert.equal(fakeSudrfSubdomain.filingReady, false);
-assert.equal(fakeSudrfSubdomain.issues.some(({ field }) => field === "courtWebsite"), true);
 
 const fakeCourtName = validateDivorcePropertyApplication("court-divorce", {
   ...courtBase,
