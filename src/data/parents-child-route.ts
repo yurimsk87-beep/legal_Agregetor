@@ -58,8 +58,7 @@ const partiesFields: ParentsChildField[] = [
 const courtFields: ParentsChildField[] = [
   { name: "courtRegion", label: "Регион для поиска суда", required: true, hint: "Используется только как параметр ручного поиска." },
   { name: "defendantAddress", label: "Адрес места жительства ответчика", type: "textarea", required: true },
-  { name: "courtName", label: "Полное наименование районного или городского суда", type: "textarea", required: true },
-  { name: "courtSource", label: "Ссылка на официальную страницу суда", type: "text", required: true },
+  { name: "courtName", label: "Полное наименование районного или городского суда", type: "textarea", required: true, hint: "Найдите суд по полному адресу в официальном сервисе ГАС «Правосудие» и перенесите сюда полное наименование без сокращений." },
   { name: "courtConfirmed", label: "Вы проверили суд на официальном ресурсе ГАС «Правосудие»?", type: "select", required: true, options: yesNoUnsure }
 ];
 

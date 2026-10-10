@@ -31,8 +31,7 @@ const peopleFields: ParentalRightsRestrictionField[] = [
 ];
 const courtFields: ParentalRightsRestrictionField[] = [
   { name: "courtRegion", label: "Регион суда", type: "searchable", required: true, options: RUSSIAN_REGIONS.map(({ id, label }) => ({ value: id, label })) },
-  { name: "courtName", label: "Полное наименование районного или городского суда", type: "textarea", required: true, hint: "Перенесите точное наименование с официальной страницы суда." },
-  { name: "courtSource", label: "Ссылка на официальную страницу суда", type: "text", required: true },
+  { name: "courtName", label: "Полное наименование районного или городского суда", type: "textarea", required: true, hint: "Найдите суд по полному адресу в официальном сервисе ГАС «Правосудие» и перенесите сюда полное наименование без сокращений." },
   { name: "courtConfirmed", label: "Вы проверили наименование и территориальную подсудность на официальном ресурсе?", type: "select", required: true, options: yesNoUnsure },
   { name: "existingSupport", label: "Алименты уже установлены соглашением или судебным актом?", type: "select", required: true, options: yesNoUnsure },
   { name: "supportDetails", label: "Реквизиты действующего документа либо сведения о необходимости содержания ребёнка", type: "textarea", required: true }

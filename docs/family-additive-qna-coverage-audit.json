@@ -1,0 +1,1972 @@
+{
+  "stage": "2-qna-gap-audit",
+  "generatedAt": "2026-10-10T12:18:24.869Z",
+  "source": "local_docker_postgresql_read_only",
+  "productionDatabaseUsed": false,
+  "databaseWriteCount": 0,
+  "publicApprovedQuestionsScanned": 171643,
+  "familyCategoryRequiredForSimilarQuestions": "Семейные дела",
+  "identifiers": {
+    "question_id": "Stable database Question.id",
+    "source_question_number": "Public source-facing Question.publicNumber",
+    "analysis_row_number": "Not used; always null"
+  },
+  "confirmedRoutes": [
+    "alimenty-na-sovershennoletnego-rebenka",
+    "prekrashchenie-i-osvobozhdenie-ot-alimentov",
+    "alimenty-na-soderzhanie-roditeley",
+    "otmena-usynovleniya",
+    "dokumenty-o-rozhdenii-i-aktovaya-zapis"
+  ],
+  "outsideCurrentFamilyExpansion": [
+    "opeka-nad-sovershennoletnim"
+  ],
+  "candidates": [
+    {
+      "key": "adult_child_support",
+      "slug": "alimenty-na-sovershennoletnego-rebenka",
+      "title": "Содержание совершеннолетнего ребёнка",
+      "decision": "IMPLEMENT",
+      "minimumEvidence": 1,
+      "candidatesFound": 1055,
+      "relevantQuestions": 88,
+      "eligibleForSimilarQuestions": 0,
+      "outOfCategory": 88,
+      "falsePositive": 784,
+      "piiRejected": 0,
+      "duplicateRejected": 0,
+      "titleIntentRejected": 183,
+      "conflictingMatches": 0,
+      "aliases": [
+        "алименты после 18 лет",
+        "содержание совершеннолетнего ребёнка",
+        "совершеннолетний ребёнок инвалид",
+        "ребёнок учится очно после 18 лет"
+      ],
+      "exclusions": [
+        "алименты несовершеннолетнему",
+        "содержание родителей",
+        "лишение родительских прав"
+      ],
+      "conflictingIntents": [
+        "alimenty-na-rebenka",
+        "alimenty-na-soderzhanie-roditeley"
+      ],
+      "sampleCandidates": [
+        {
+          "question_id": "cmqapsw2d00rxu6twmm825s0g",
+          "source_question_number": "252",
+          "analysis_row_number": null,
+          "title": "Можно ли вернуть разницу неуплаченных алиментов и за какие периоды?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapswmr00wpu6twl89henc4",
+          "source_question_number": "295",
+          "analysis_row_number": null,
+          "title": "Как правильно оформить документы, иски для подачи алиментов на отца ребенка?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsww200z9u6twe6w0sjs3",
+          "source_question_number": "318",
+          "analysis_row_number": null,
+          "title": "Положены ли выплаты бывшей супруге погибшего участника СВО?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmqapsxlb015xu6twzywznadv",
+          "source_question_number": "378",
+          "analysis_row_number": null,
+          "title": "Какие доводы привести истцу в качестве опровержения на частную жалобу?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsxpy017du6twgwy41qnz",
+          "source_question_number": "391",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Военное право"
+        },
+        {
+          "question_id": "cmqapszsq01q1u6twoj4yeseo",
+          "source_question_number": "559",
+          "analysis_row_number": null,
+          "title": "Как снять огромный арест за алименты?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqbiuykr000pu6vwlnae27f2",
+          "source_question_number": "972",
+          "analysis_row_number": null,
+          "title": "Как родился ребенок инвалид договорились и платил с рук по 17500?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqciwc0i000du63wxi66nvka",
+          "source_question_number": "1140",
+          "analysis_row_number": null,
+          "title": "Какие шансы на удовлетворение таких требований именно в отношении официального опекуна?",
+          "category": "Гражданские дела"
+        },
+        {
+          "question_id": "cmqcjcnhv000pu678ivqqb0xz",
+          "source_question_number": "1396",
+          "analysis_row_number": null,
+          "title": "Могу ли Я подать на Алименты?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqcjpc3z001du6l8rkmb32rm",
+          "source_question_number": "1632",
+          "analysis_row_number": null,
+          "title": "Как написать заявление на увольнение, чтобы получить выплаты?",
+          "category": "Трудовое право"
+        }
+      ],
+      "sampleRelevantQuestions": [
+        {
+          "question_id": "cmqgzxam3001dzuvoiz825hka",
+          "source_question_number": "12761",
+          "analysis_row_number": null,
+          "title": "Должен ли мужчина после 18-и платить алименты?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqh5plwb001pzul2e85077eh",
+          "source_question_number": "13711",
+          "analysis_row_number": null,
+          "title": "Могу ли я подать на алименты на родителей после 18 лет?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqhc6k7d0001zunl7qc8pwdn",
+          "source_question_number": "16191",
+          "analysis_row_number": null,
+          "title": "Должен ли я оплачивать алименты ребенку после 18 лет если он обучается на очной?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqhfszpo0019zu0wrzfof10j",
+          "source_question_number": "17577",
+          "analysis_row_number": null,
+          "title": "Может ли мать требовать взыскания алиментов с бывшего мужа на совершеннолетнего ребенка при условии?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqhv394s002pzucxuek4mnxc",
+          "source_question_number": "23398",
+          "analysis_row_number": null,
+          "title": "Можно ли подать на алименты на несовершеннолетнего ребенка в размере прожиточного минимума если уже?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqhvxysw001xzuaacmy5dnwm",
+          "source_question_number": "23712",
+          "analysis_row_number": null,
+          "title": "Можно ли подать на алименты на себя и ребенка инвалида если с отцом ребёнка?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqi8dgcb000pzu71wf4fsnq9",
+          "source_question_number": "28357",
+          "analysis_row_number": null,
+          "title": "Могу ли я не платить алименты если на иждевении есть несовершеннолетний ребенок?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqmmxpna000du6lc41ixxk17",
+          "source_question_number": "34536",
+          "analysis_row_number": null,
+          "title": "Имеет ли ребёнок право получать алименты после 18 лет пока будет учиться?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqo0g70j0039u68krbxbkeds",
+          "source_question_number": "36688",
+          "analysis_row_number": null,
+          "title": "Могут ли обязать в судебном порядке платить алименты после 18 лет, если ребёнок учится?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqos4qm4003pu6oopke0fyac",
+          "source_question_number": "52733",
+          "analysis_row_number": null,
+          "title": "Положены ли алименты на совершеннолетнего ребенка который учится в ВУЗе на дневной форме обучения?",
+          "category": "Алименты"
+        }
+      ],
+      "sampleEligibleForSimilarQuestions": [],
+      "sampleOutOfCategory": [
+        {
+          "question_id": "cmqgzxam3001dzuvoiz825hka",
+          "source_question_number": "12761",
+          "analysis_row_number": null,
+          "title": "Должен ли мужчина после 18-и платить алименты?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqh5plwb001pzul2e85077eh",
+          "source_question_number": "13711",
+          "analysis_row_number": null,
+          "title": "Могу ли я подать на алименты на родителей после 18 лет?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqhc6k7d0001zunl7qc8pwdn",
+          "source_question_number": "16191",
+          "analysis_row_number": null,
+          "title": "Должен ли я оплачивать алименты ребенку после 18 лет если он обучается на очной?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqhfszpo0019zu0wrzfof10j",
+          "source_question_number": "17577",
+          "analysis_row_number": null,
+          "title": "Может ли мать требовать взыскания алиментов с бывшего мужа на совершеннолетнего ребенка при условии?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqhv394s002pzucxuek4mnxc",
+          "source_question_number": "23398",
+          "analysis_row_number": null,
+          "title": "Можно ли подать на алименты на несовершеннолетнего ребенка в размере прожиточного минимума если уже?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqhvxysw001xzuaacmy5dnwm",
+          "source_question_number": "23712",
+          "analysis_row_number": null,
+          "title": "Можно ли подать на алименты на себя и ребенка инвалида если с отцом ребёнка?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqi8dgcb000pzu71wf4fsnq9",
+          "source_question_number": "28357",
+          "analysis_row_number": null,
+          "title": "Могу ли я не платить алименты если на иждевении есть несовершеннолетний ребенок?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqmmxpna000du6lc41ixxk17",
+          "source_question_number": "34536",
+          "analysis_row_number": null,
+          "title": "Имеет ли ребёнок право получать алименты после 18 лет пока будет учиться?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqo0g70j0039u68krbxbkeds",
+          "source_question_number": "36688",
+          "analysis_row_number": null,
+          "title": "Могут ли обязать в судебном порядке платить алименты после 18 лет, если ребёнок учится?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqos4qm4003pu6oopke0fyac",
+          "source_question_number": "52733",
+          "analysis_row_number": null,
+          "title": "Положены ли алименты на совершеннолетнего ребенка который учится в ВУЗе на дневной форме обучения?",
+          "category": "Алименты"
+        }
+      ],
+      "sampleFalsePositives": [
+        {
+          "question_id": "cmqapsww200z9u6twe6w0sjs3",
+          "source_question_number": "318",
+          "analysis_row_number": null,
+          "title": "Положены ли выплаты бывшей супруге погибшего участника СВО?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmqapszsq01q1u6twoj4yeseo",
+          "source_question_number": "559",
+          "analysis_row_number": null,
+          "title": "Как снять огромный арест за алименты?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqciwc0i000du63wxi66nvka",
+          "source_question_number": "1140",
+          "analysis_row_number": null,
+          "title": "Какие шансы на удовлетворение таких требований именно в отношении официального опекуна?",
+          "category": "Гражданские дела"
+        },
+        {
+          "question_id": "cmqcjcnhv000pu678ivqqb0xz",
+          "source_question_number": "1396",
+          "analysis_row_number": null,
+          "title": "Могу ли Я подать на Алименты?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqcjuqkb002lu674s2j6xtaf",
+          "source_question_number": "1778",
+          "analysis_row_number": null,
+          "title": "Может ли отец претендовать на статус многодетного после развода?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqck52gt001pu6mw6a0d5h7z",
+          "source_question_number": "1899",
+          "analysis_row_number": null,
+          "title": "Как подать на алименты, не потеряв единое пособие?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqckb33d0029u6xcj4rkvh7l",
+          "source_question_number": "2092",
+          "analysis_row_number": null,
+          "title": "Как обязать его дальше оплачивать образовавшийся долг по алиментам?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqcklk8k0035u69c5gzrrsog",
+          "source_question_number": "2391",
+          "analysis_row_number": null,
+          "title": "Как и кому обжаловать отказ в рассмотрении частной жалобы по причине неуплаты госпошлины?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqcl9pyg0039u6awxnvshoyv",
+          "source_question_number": "2611",
+          "analysis_row_number": null,
+          "title": "Могу ли я самостоятельно или при поддержке отца потребовать чтобы эти выплаты перечислялись напрямую?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqclcr490005u6qs0xmsf0p9",
+          "source_question_number": "2704",
+          "analysis_row_number": null,
+          "title": "Имеет ли право отец на какие либо соц выплаты на первого ребенка или же?",
+          "category": "Алименты"
+        }
+      ]
+    },
+    {
+      "key": "alimony_termination_release",
+      "slug": "prekrashchenie-i-osvobozhdenie-ot-alimentov",
+      "title": "Прекращение и освобождение от алиментов",
+      "decision": "IMPLEMENT",
+      "minimumEvidence": 1,
+      "candidatesFound": 1962,
+      "relevantQuestions": 321,
+      "eligibleForSimilarQuestions": 5,
+      "outOfCategory": 316,
+      "falsePositive": 1271,
+      "piiRejected": 0,
+      "duplicateRejected": 0,
+      "titleIntentRejected": 367,
+      "conflictingMatches": 3,
+      "aliases": [
+        "когда прекращаются алименты",
+        "отменить алименты",
+        "освобождение от задолженности",
+        "уменьшить алименты",
+        "ребёнка усыновил другой человек"
+      ],
+      "exclusions": [
+        "первичное взыскание алиментов",
+        "оспаривание отцовства"
+      ],
+      "conflictingIntents": [
+        "alimenty-na-rebenka",
+        "osparivanie-otcovstva"
+      ],
+      "sampleCandidates": [
+        {
+          "question_id": "cmqapstt8004tu6tw0d919xxo",
+          "source_question_number": "44",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsu1n0079u6tw5ezgl614",
+          "source_question_number": "66",
+          "analysis_row_number": null,
+          "title": "Как правильно снизить алименты на двоих детей от первого брака имеется судебный приказ 33?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsuu900f5u6tw0nj5q70i",
+          "source_question_number": "137",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsv3d00htu6twzm65nxck",
+          "source_question_number": "161",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsve400l9u6tw7xf7cpuk",
+          "source_question_number": "192",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Трудовое право"
+        },
+        {
+          "question_id": "cmqapsvip00mhu6twxnfyr4fg",
+          "source_question_number": "203",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsvpo00olu6twf4n76ol6",
+          "source_question_number": "222",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsw2d00rxu6twmm825s0g",
+          "source_question_number": "252",
+          "analysis_row_number": null,
+          "title": "Можно ли вернуть разницу неуплаченных алиментов и за какие периоды?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsw2x00s1u6twqrpw33h3",
+          "source_question_number": "253",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqapsw7100t1u6twhfm2pgdu",
+          "source_question_number": "262",
+          "analysis_row_number": null,
+          "title": "Как отменить алименты, с чего начать?",
+          "category": "Алименты"
+        }
+      ],
+      "sampleRelevantQuestions": [
+        {
+          "question_id": "cmqapstt8004tu6tw0d919xxo",
+          "source_question_number": "44",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsu1n0079u6tw5ezgl614",
+          "source_question_number": "66",
+          "analysis_row_number": null,
+          "title": "Как правильно снизить алименты на двоих детей от первого брака имеется судебный приказ 33?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsuu900f5u6tw0nj5q70i",
+          "source_question_number": "137",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsv3d00htu6twzm65nxck",
+          "source_question_number": "161",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsve400l9u6tw7xf7cpuk",
+          "source_question_number": "192",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Трудовое право"
+        },
+        {
+          "question_id": "cmqapsvip00mhu6twxnfyr4fg",
+          "source_question_number": "203",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsvpo00olu6twf4n76ol6",
+          "source_question_number": "222",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsw7100t1u6twhfm2pgdu",
+          "source_question_number": "262",
+          "analysis_row_number": null,
+          "title": "Как отменить алименты, с чего начать?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapswb600tpu6tw7p8tt4xp",
+          "source_question_number": "268",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Военное право"
+        },
+        {
+          "question_id": "cmqapswcb00txu6twund7pazo",
+          "source_question_number": "270",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        }
+      ],
+      "sampleEligibleForSimilarQuestions": [
+        {
+          "question_id": "cmqapt1bo0241u6tw25ur16a4",
+          "source_question_number": "685",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqhl3f57002lzucgqu37fqc0",
+          "source_question_number": "19603",
+          "analysis_row_number": null,
+          "title": "Как грамотно написать исковое заявление об изменении места жительства ребёнка и пересмотра алиментов а?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr61ch8b0041u6cwpylx3qc0",
+          "source_question_number": "94836",
+          "analysis_row_number": null,
+          "title": "Как определить его место жительства у отца и отменить алименты?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr68tbyc0009u69swuarntgv",
+          "source_question_number": "102945",
+          "analysis_row_number": null,
+          "title": "Почему меня не уведомили в изменении в размерах алиментов?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr6nmd6x003lu6kgq5xklsta",
+          "source_question_number": "113918",
+          "analysis_row_number": null,
+          "title": "Как оформить отмену алиментов и заявление об определении места жительства ребенка?",
+          "category": "Семейные дела"
+        }
+      ],
+      "sampleOutOfCategory": [
+        {
+          "question_id": "cmqapstt8004tu6tw0d919xxo",
+          "source_question_number": "44",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsu1n0079u6tw5ezgl614",
+          "source_question_number": "66",
+          "analysis_row_number": null,
+          "title": "Как правильно снизить алименты на двоих детей от первого брака имеется судебный приказ 33?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsuu900f5u6tw0nj5q70i",
+          "source_question_number": "137",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsv3d00htu6twzm65nxck",
+          "source_question_number": "161",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsve400l9u6tw7xf7cpuk",
+          "source_question_number": "192",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Трудовое право"
+        },
+        {
+          "question_id": "cmqapsvip00mhu6twxnfyr4fg",
+          "source_question_number": "203",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsvpo00olu6twf4n76ol6",
+          "source_question_number": "222",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsw7100t1u6twhfm2pgdu",
+          "source_question_number": "262",
+          "analysis_row_number": null,
+          "title": "Как отменить алименты, с чего начать?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapswb600tpu6tw7p8tt4xp",
+          "source_question_number": "268",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Военное право"
+        },
+        {
+          "question_id": "cmqapswcb00txu6twund7pazo",
+          "source_question_number": "270",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        }
+      ],
+      "sampleFalsePositives": [
+        {
+          "question_id": "cmqapsw2d00rxu6twmm825s0g",
+          "source_question_number": "252",
+          "analysis_row_number": null,
+          "title": "Можно ли вернуть разницу неуплаченных алиментов и за какие периоды?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsw2x00s1u6twqrpw33h3",
+          "source_question_number": "253",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqapsww200z9u6twe6w0sjs3",
+          "source_question_number": "318",
+          "analysis_row_number": null,
+          "title": "Положены ли выплаты бывшей супруге погибшего участника СВО?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmqapsxlb015xu6twzywznadv",
+          "source_question_number": "378",
+          "analysis_row_number": null,
+          "title": "Какие доводы привести истцу в качестве опровержения на частную жалобу?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapt30a02jtu6tw5wlij792",
+          "source_question_number": "827",
+          "analysis_row_number": null,
+          "title": "Могу ли я прийти к работодателю и самостоятельно отозвать выплату алиментов я для того?",
+          "category": "Трудовое право"
+        },
+        {
+          "question_id": "cmqcjcnhv000pu678ivqqb0xz",
+          "source_question_number": "1396",
+          "analysis_row_number": null,
+          "title": "Могу ли Я подать на Алименты?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqcjpc3z001du6l8rkmb32rm",
+          "source_question_number": "1632",
+          "analysis_row_number": null,
+          "title": "Как написать заявление на увольнение, чтобы получить выплаты?",
+          "category": "Трудовое право"
+        },
+        {
+          "question_id": "cmqcjuqkb002lu674s2j6xtaf",
+          "source_question_number": "1778",
+          "analysis_row_number": null,
+          "title": "Может ли отец претендовать на статус многодетного после развода?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqck52gt001pu6mw6a0d5h7z",
+          "source_question_number": "1899",
+          "analysis_row_number": null,
+          "title": "Как подать на алименты, не потеряв единое пособие?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqckb33d0029u6xcj4rkvh7l",
+          "source_question_number": "2092",
+          "analysis_row_number": null,
+          "title": "Как обязать его дальше оплачивать образовавшийся долг по алиментам?",
+          "category": "Алименты"
+        }
+      ]
+    },
+    {
+      "key": "support_for_parents",
+      "slug": "alimenty-na-soderzhanie-roditeley",
+      "title": "Содержание родителей совершеннолетними детьми",
+      "decision": "IMPLEMENT",
+      "minimumEvidence": 3,
+      "candidatesFound": 3135,
+      "relevantQuestions": 7,
+      "eligibleForSimilarQuestions": 0,
+      "outOfCategory": 7,
+      "falsePositive": 3121,
+      "piiRejected": 0,
+      "duplicateRejected": 0,
+      "titleIntentRejected": 7,
+      "conflictingMatches": 0,
+      "aliases": [
+        "алименты на родителей",
+        "содержание нетрудоспособных родителей",
+        "взыскать содержание с совершеннолетних детей"
+      ],
+      "exclusions": [
+        "родитель платит ребёнку",
+        "содержание совершеннолетнего ребёнка"
+      ],
+      "conflictingIntents": [
+        "alimenty-na-sovershennoletnego-rebenka",
+        "alimenty-na-rebenka"
+      ],
+      "sampleCandidates": [
+        {
+          "question_id": "cmqapstyu006du6twvqyfrens",
+          "source_question_number": "58",
+          "analysis_row_number": null,
+          "title": "Можно ли вывезти ребенка за границу после развода?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsvip00mhu6twxnfyr4fg",
+          "source_question_number": "203",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsw2d00rxu6twmm825s0g",
+          "source_question_number": "252",
+          "analysis_row_number": null,
+          "title": "Можно ли вернуть разницу неуплаченных алиментов и за какие периоды?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsw2x00s1u6twqrpw33h3",
+          "source_question_number": "253",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqapsw7100t1u6twhfm2pgdu",
+          "source_question_number": "262",
+          "analysis_row_number": null,
+          "title": "Как отменить алименты, с чего начать?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsw7j00t5u6twfbqjvsdn",
+          "source_question_number": "263",
+          "analysis_row_number": null,
+          "title": "Что положено ребенку прожиточный минимум по приказу 1110 денежное довольствие алименты что то одно?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapswb600tpu6tw7p8tt4xp",
+          "source_question_number": "268",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Военное право"
+        },
+        {
+          "question_id": "cmqapswcb00txu6twund7pazo",
+          "source_question_number": "270",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapswmr00wpu6twl89henc4",
+          "source_question_number": "295",
+          "analysis_row_number": null,
+          "title": "Как правильно оформить документы, иски для подачи алиментов на отца ребенка?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsww200z9u6twe6w0sjs3",
+          "source_question_number": "318",
+          "analysis_row_number": null,
+          "title": "Положены ли выплаты бывшей супруге погибшего участника СВО?",
+          "category": "Заключение и расторжение брака"
+        }
+      ],
+      "sampleRelevantQuestions": [
+        {
+          "question_id": "cmqhyg8450015zudxek5pkrwi",
+          "source_question_number": "24622",
+          "analysis_row_number": null,
+          "title": "Можно ли отцу получить алименты с сына, если у отца инвалидность 1 Группы?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqibsu7c0011zub5eojvrgtt",
+          "source_question_number": "29683",
+          "analysis_row_number": null,
+          "title": "Что делать, если мать инвалид третьей группы хочет взыскать алименты с сына?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqo04htr001xu6psnvsnbqnq",
+          "source_question_number": "36011",
+          "analysis_row_number": null,
+          "title": "Может ли отец подать на алименты на детей?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr1157qo000pu64cmm58z26j",
+          "source_question_number": "53186",
+          "analysis_row_number": null,
+          "title": "Как устанавливается размер алиментов на содержание родителей?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr64q4tb0071u6okla0g25ss",
+          "source_question_number": "98531",
+          "analysis_row_number": null,
+          "title": "Может ли отец подать на алименты на ребёнка если у ребанка в графе отец?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr6jwnzg003hu67ggsalsxty",
+          "source_question_number": "110440",
+          "analysis_row_number": null,
+          "title": "Должен ли отец платить алименты на содержание матери так как ребенку нет 3 лет?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr8cnbgt006pu6pcsuv654kd",
+          "source_question_number": "158727",
+          "analysis_row_number": null,
+          "title": "Можно ли бабушке 72 лет взыскать алименты с дочерей при низкой пенсии и отсутствии?",
+          "category": "Алименты"
+        }
+      ],
+      "sampleEligibleForSimilarQuestions": [],
+      "sampleOutOfCategory": [
+        {
+          "question_id": "cmqhyg8450015zudxek5pkrwi",
+          "source_question_number": "24622",
+          "analysis_row_number": null,
+          "title": "Можно ли отцу получить алименты с сына, если у отца инвалидность 1 Группы?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqibsu7c0011zub5eojvrgtt",
+          "source_question_number": "29683",
+          "analysis_row_number": null,
+          "title": "Что делать, если мать инвалид третьей группы хочет взыскать алименты с сына?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqo04htr001xu6psnvsnbqnq",
+          "source_question_number": "36011",
+          "analysis_row_number": null,
+          "title": "Может ли отец подать на алименты на детей?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr1157qo000pu64cmm58z26j",
+          "source_question_number": "53186",
+          "analysis_row_number": null,
+          "title": "Как устанавливается размер алиментов на содержание родителей?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr64q4tb0071u6okla0g25ss",
+          "source_question_number": "98531",
+          "analysis_row_number": null,
+          "title": "Может ли отец подать на алименты на ребёнка если у ребанка в графе отец?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr6jwnzg003hu67ggsalsxty",
+          "source_question_number": "110440",
+          "analysis_row_number": null,
+          "title": "Должен ли отец платить алименты на содержание матери так как ребенку нет 3 лет?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr8cnbgt006pu6pcsuv654kd",
+          "source_question_number": "158727",
+          "analysis_row_number": null,
+          "title": "Можно ли бабушке 72 лет взыскать алименты с дочерей при низкой пенсии и отсутствии?",
+          "category": "Алименты"
+        }
+      ],
+      "sampleFalsePositives": [
+        {
+          "question_id": "cmqapstyu006du6twvqyfrens",
+          "source_question_number": "58",
+          "analysis_row_number": null,
+          "title": "Можно ли вывезти ребенка за границу после развода?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsvip00mhu6twxnfyr4fg",
+          "source_question_number": "203",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsw2d00rxu6twmm825s0g",
+          "source_question_number": "252",
+          "analysis_row_number": null,
+          "title": "Можно ли вернуть разницу неуплаченных алиментов и за какие периоды?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsw2x00s1u6twqrpw33h3",
+          "source_question_number": "253",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqapsw7100t1u6twhfm2pgdu",
+          "source_question_number": "262",
+          "analysis_row_number": null,
+          "title": "Как отменить алименты, с чего начать?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsw7j00t5u6twfbqjvsdn",
+          "source_question_number": "263",
+          "analysis_row_number": null,
+          "title": "Что положено ребенку прожиточный минимум по приказу 1110 денежное довольствие алименты что то одно?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapswb600tpu6tw7p8tt4xp",
+          "source_question_number": "268",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Военное право"
+        },
+        {
+          "question_id": "cmqapswcb00txu6twund7pazo",
+          "source_question_number": "270",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapswmr00wpu6twl89henc4",
+          "source_question_number": "295",
+          "analysis_row_number": null,
+          "title": "Как правильно оформить документы, иски для подачи алиментов на отца ребенка?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsww200z9u6twe6w0sjs3",
+          "source_question_number": "318",
+          "analysis_row_number": null,
+          "title": "Положены ли выплаты бывшей супруге погибшего участника СВО?",
+          "category": "Заключение и расторжение брака"
+        }
+      ]
+    },
+    {
+      "key": "adoption_cancellation",
+      "slug": "otmena-usynovleniya",
+      "title": "Отмена усыновления",
+      "decision": "IMPLEMENT",
+      "minimumEvidence": 1,
+      "candidatesFound": 15,
+      "relevantQuestions": 9,
+      "eligibleForSimilarQuestions": 4,
+      "outOfCategory": 5,
+      "falsePositive": 1,
+      "piiRejected": 0,
+      "duplicateRejected": 0,
+      "titleIntentRejected": 2,
+      "conflictingMatches": 3,
+      "aliases": [
+        "отменить усыновление",
+        "отказаться от усыновлённого ребёнка",
+        "отмена усыновления после развода"
+      ],
+      "exclusions": [
+        "обычное усыновление",
+        "установление отцовства",
+        "опека над ребёнком"
+      ],
+      "conflictingIntents": [
+        "usynovlenie-rebenka",
+        "ustanovlenie-otcovstva"
+      ],
+      "sampleCandidates": [
+        {
+          "question_id": "cmqo22dfs0081u6m0bu1efbyv",
+          "source_question_number": "40334",
+          "analysis_row_number": null,
+          "title": "Как при разводе отменить усыновление?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmr15y4ix002xu6583rwiby6d",
+          "source_question_number": "58720",
+          "analysis_row_number": null,
+          "title": "Что мне нужно сделать, чтобы отказаться от удочерения?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr36a5cz002pu62w7qa01oqp",
+          "source_question_number": "91025",
+          "analysis_row_number": null,
+          "title": "Можно ли отменить алименты с усыновленного ребенка от бывшей супруги?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr60s18v004tu6ss82jt4p9r",
+          "source_question_number": "94220",
+          "analysis_row_number": null,
+          "title": "Могу ли я отказаться от удочерения этого ребёнка и выписать её из моего жилья?",
+          "category": "Жилищные вопросы"
+        },
+        {
+          "question_id": "cmr67exsn0045u6xkfvi1jd4a",
+          "source_question_number": "101332",
+          "analysis_row_number": null,
+          "title": "Как отменить усыновление ребенка или лишить родительских прав на отца?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr686hmx0039u6rc859llrgm",
+          "source_question_number": "102215",
+          "analysis_row_number": null,
+          "title": "Как писать в исковом заявлении заголовок исковое заявление об отмене удочерения или исковое заявление?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr6940dh007pu614qgmu51zz",
+          "source_question_number": "103341",
+          "analysis_row_number": null,
+          "title": "Могу ли я подать исковое заявление об отмене отцовства?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr6mt7f40031u6k43z4tgq2y",
+          "source_question_number": "113123",
+          "analysis_row_number": null,
+          "title": "Как усыновителю официально отменить усыновление 30-летней давности?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmr6xqem0006tu62s0hfjon6k",
+          "source_question_number": "123933",
+          "analysis_row_number": null,
+          "title": "Как оспорить и признать недействительной запись об удочерении из 90‑х годов?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmr7gj8hd0021u6tsyukuogt6",
+          "source_question_number": "131642",
+          "analysis_row_number": null,
+          "title": "Можно ли отменить усыновление ребенка после расставания с гражданской женой?",
+          "category": "Алименты"
+        }
+      ],
+      "sampleRelevantQuestions": [
+        {
+          "question_id": "cmqo22dfs0081u6m0bu1efbyv",
+          "source_question_number": "40334",
+          "analysis_row_number": null,
+          "title": "Как при разводе отменить усыновление?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmr15y4ix002xu6583rwiby6d",
+          "source_question_number": "58720",
+          "analysis_row_number": null,
+          "title": "Что мне нужно сделать, чтобы отказаться от удочерения?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr60s18v004tu6ss82jt4p9r",
+          "source_question_number": "94220",
+          "analysis_row_number": null,
+          "title": "Могу ли я отказаться от удочерения этого ребёнка и выписать её из моего жилья?",
+          "category": "Жилищные вопросы"
+        },
+        {
+          "question_id": "cmr67exsn0045u6xkfvi1jd4a",
+          "source_question_number": "101332",
+          "analysis_row_number": null,
+          "title": "Как отменить усыновление ребенка или лишить родительских прав на отца?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr6mt7f40031u6k43z4tgq2y",
+          "source_question_number": "113123",
+          "analysis_row_number": null,
+          "title": "Как усыновителю официально отменить усыновление 30-летней давности?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmr7gj8hd0021u6tsyukuogt6",
+          "source_question_number": "131642",
+          "analysis_row_number": null,
+          "title": "Можно ли отменить усыновление ребенка после расставания с гражданской женой?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr7gtvcj0009u6wog4yyh27v",
+          "source_question_number": "132003",
+          "analysis_row_number": null,
+          "title": "Может ли суд отменить удочерение, по заявлению кровного отца?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr7m2o80006xu6fop9h6t76a",
+          "source_question_number": "138773",
+          "analysis_row_number": null,
+          "title": "Можно ли отменить усыновление для наследства после смерти биологического отца?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr8e7nas0011u690kjwd9kjo",
+          "source_question_number": "160587",
+          "analysis_row_number": null,
+          "title": "Можно ли мужу отказаться от удочеренного в прошлом браке ребенка?",
+          "category": "Семейные дела"
+        }
+      ],
+      "sampleEligibleForSimilarQuestions": [
+        {
+          "question_id": "cmr15y4ix002xu6583rwiby6d",
+          "source_question_number": "58720",
+          "analysis_row_number": null,
+          "title": "Что мне нужно сделать, чтобы отказаться от удочерения?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr7gtvcj0009u6wog4yyh27v",
+          "source_question_number": "132003",
+          "analysis_row_number": null,
+          "title": "Может ли суд отменить удочерение, по заявлению кровного отца?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr7m2o80006xu6fop9h6t76a",
+          "source_question_number": "138773",
+          "analysis_row_number": null,
+          "title": "Можно ли отменить усыновление для наследства после смерти биологического отца?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr8e7nas0011u690kjwd9kjo",
+          "source_question_number": "160587",
+          "analysis_row_number": null,
+          "title": "Можно ли мужу отказаться от удочеренного в прошлом браке ребенка?",
+          "category": "Семейные дела"
+        }
+      ],
+      "sampleOutOfCategory": [
+        {
+          "question_id": "cmqo22dfs0081u6m0bu1efbyv",
+          "source_question_number": "40334",
+          "analysis_row_number": null,
+          "title": "Как при разводе отменить усыновление?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmr60s18v004tu6ss82jt4p9r",
+          "source_question_number": "94220",
+          "analysis_row_number": null,
+          "title": "Могу ли я отказаться от удочерения этого ребёнка и выписать её из моего жилья?",
+          "category": "Жилищные вопросы"
+        },
+        {
+          "question_id": "cmr67exsn0045u6xkfvi1jd4a",
+          "source_question_number": "101332",
+          "analysis_row_number": null,
+          "title": "Как отменить усыновление ребенка или лишить родительских прав на отца?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmr6mt7f40031u6k43z4tgq2y",
+          "source_question_number": "113123",
+          "analysis_row_number": null,
+          "title": "Как усыновителю официально отменить усыновление 30-летней давности?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmr7gj8hd0021u6tsyukuogt6",
+          "source_question_number": "131642",
+          "analysis_row_number": null,
+          "title": "Можно ли отменить усыновление ребенка после расставания с гражданской женой?",
+          "category": "Алименты"
+        }
+      ],
+      "sampleFalsePositives": [
+        {
+          "question_id": "cmr686hmx0039u6rc859llrgm",
+          "source_question_number": "102215",
+          "analysis_row_number": null,
+          "title": "Как писать в исковом заявлении заголовок исковое заявление об отмене удочерения или исковое заявление?",
+          "category": "Семейные дела"
+        }
+      ]
+    },
+    {
+      "key": "birth_documents_record",
+      "slug": "dokumenty-o-rozhdenii-i-aktovaya-zapis",
+      "title": "Документы о рождении и актовая запись о рождении",
+      "decision": "IMPLEMENT",
+      "minimumEvidence": 1,
+      "candidatesFound": 1403,
+      "relevantQuestions": 79,
+      "eligibleForSimilarQuestions": 36,
+      "outOfCategory": 43,
+      "falsePositive": 1223,
+      "piiRejected": 0,
+      "duplicateRejected": 0,
+      "titleIntentRejected": 101,
+      "conflictingMatches": 0,
+      "aliases": [
+        "получить свидетельство о рождении",
+        "повторное свидетельство о рождении",
+        "исправить актовую запись о рождении",
+        "зарегистрировать рождение"
+      ],
+      "exclusions": [
+        "установление отцовства",
+        "оспаривание отцовства",
+        "перемена имени",
+        "регистрация брака"
+      ],
+      "conflictingIntents": [
+        "brak-zags-i-smena-familii",
+        "ustanovlenie-otcovstva",
+        "osparivanie-otcovstva"
+      ],
+      "sampleCandidates": [
+        {
+          "question_id": "cmqapsti6001du6twxrj8yaw2",
+          "source_question_number": "13",
+          "analysis_row_number": null,
+          "title": "Можно ли оспорить отцовство погибшего участника СВО?",
+          "category": "Военное право"
+        },
+        {
+          "question_id": "cmqapstlj002du6twcey2n3w4",
+          "source_question_number": "22",
+          "analysis_row_number": null,
+          "title": "Как действовать при судебном споре или исполнительном производстве?",
+          "category": "Исполнительное производство"
+        },
+        {
+          "question_id": "cmqapsu9k009tu6tw9t4j2s66",
+          "source_question_number": "89",
+          "analysis_row_number": null,
+          "title": "Как получить единовременное пособие при рождении ребенка?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqapsuu900f5u6tw0nj5q70i",
+          "source_question_number": "137",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsvc700klu6twcwnaket4",
+          "source_question_number": "186",
+          "analysis_row_number": null,
+          "title": "Как защитить права в семейном споре?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqapsvth00ppu6twliarmexr",
+          "source_question_number": "232",
+          "analysis_row_number": null,
+          "title": "Будет ли отсрочка при повторном поступлении в колледж?",
+          "category": "Военное право"
+        },
+        {
+          "question_id": "cmqapsw2x00s1u6twqrpw33h3",
+          "source_question_number": "253",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqapswbp00ttu6tw47zchxxk",
+          "source_question_number": "269",
+          "analysis_row_number": null,
+          "title": "Как решить вопрос с миграционными документами?",
+          "category": "Миграционные вопросы"
+        },
+        {
+          "question_id": "cmqapsykg01elu6twc5n4bwmo",
+          "source_question_number": "456",
+          "analysis_row_number": null,
+          "title": "Как получить пенсию, пособие или социальную выплату?",
+          "category": "Пенсии и пособия"
+        },
+        {
+          "question_id": "cmqapt02001slu6twgzov6trd",
+          "source_question_number": "582",
+          "analysis_row_number": null,
+          "title": "Как выписать человека из квартиры через суд?",
+          "category": "Жилищные вопросы"
+        }
+      ],
+      "sampleRelevantQuestions": [
+        {
+          "question_id": "cmqckkod80021u6bcvw4l8s5y",
+          "source_question_number": "2361",
+          "analysis_row_number": null,
+          "title": "Как лучше сделать сразу поменять свидетельство о рождении затем получить паспорт с новой фамилией?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqcohhrb0019u6vs68kzou9n",
+          "source_question_number": "5199",
+          "analysis_row_number": null,
+          "title": "Как получить свидетельство о рождении с родной матерью если я усыновлен?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqcpuues000pu620585fgdel",
+          "source_question_number": "6656",
+          "analysis_row_number": null,
+          "title": "Как получить красный печать в свидетельстве о рождения если родители в разводе какие документы?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmqcsdo5x0009u6kkepvva4df",
+          "source_question_number": "9488",
+          "analysis_row_number": null,
+          "title": "Как получить российское свидетельство о рождении с отчеством?",
+          "category": "Миграционные вопросы"
+        },
+        {
+          "question_id": "cmqh8yagw0025zugt9pmuz84c",
+          "source_question_number": "14981",
+          "analysis_row_number": null,
+          "title": "Можно ли получить свидетельство о рождении без его участия?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmqhb0v6r000lzu1zeni1xlmk",
+          "source_question_number": "15782",
+          "analysis_row_number": null,
+          "title": "Может ли отец получить свидетельство о рождении ребёнка если не в браке но отцовство?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqhmhyb50001zuywogzzfd3h",
+          "source_question_number": "20124",
+          "analysis_row_number": null,
+          "title": "Как получить гражданство РФ иностранцу с укр свидетельством о рождении?",
+          "category": "Миграционные вопросы"
+        },
+        {
+          "question_id": "cmqhmtm2k002xzunrd1k2irdc",
+          "source_question_number": "20268",
+          "analysis_row_number": null,
+          "title": "Как восстановить паспорт если потерял абсолютно все документы включая свидетельство о рождений?",
+          "category": "Прочие"
+        },
+        {
+          "question_id": "cmqhp7b0l001dzuvpd9jnufrw",
+          "source_question_number": "21179",
+          "analysis_row_number": null,
+          "title": "Можно ли получить ребёнку после 14 лет загранпаспорт по свидетельству о рождении в консульстве?",
+          "category": "Гражданские дела"
+        },
+        {
+          "question_id": "cmqi54js0001hzus5v0lg567a",
+          "source_question_number": "27085",
+          "analysis_row_number": null,
+          "title": "Могу ли я получить свидетельство о рождении ребёнка если на руках у меня выписка?",
+          "category": "Гражданские дела"
+        }
+      ],
+      "sampleEligibleForSimilarQuestions": [
+        {
+          "question_id": "cmqckkod80021u6bcvw4l8s5y",
+          "source_question_number": "2361",
+          "analysis_row_number": null,
+          "title": "Как лучше сделать сразу поменять свидетельство о рождении затем получить паспорт с новой фамилией?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqhb0v6r000lzu1zeni1xlmk",
+          "source_question_number": "15782",
+          "analysis_row_number": null,
+          "title": "Может ли отец получить свидетельство о рождении ребёнка если не в браке но отцовство?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqmmsrc100atu6f00stcxaq8",
+          "source_question_number": "31404",
+          "analysis_row_number": null,
+          "title": "Можно ли получить свидетельство о рождении ребенка не по месту его рождения?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqmmwn2b005pu6o4xnkqpm90",
+          "source_question_number": "33896",
+          "analysis_row_number": null,
+          "title": "Как нам теперь получить свидетельство о рождении ребёнка?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqo1ibbr0089u66g5y8hahte",
+          "source_question_number": "39105",
+          "analysis_row_number": null,
+          "title": "Можно ли получить свидетельство о рождении и свидительство о браке на умершего человека?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqo2uzex001hu66czz5a2qbv",
+          "source_question_number": "42169",
+          "analysis_row_number": null,
+          "title": "Может ли отец получить свидетельство о рождении и прописать ребёнка у себя в квартире?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqo43q6o004hu6t871s2d5sv",
+          "source_question_number": "44023",
+          "analysis_row_number": null,
+          "title": "Как нам получить свидетельство о рождении ребёнка в Москве?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqo64ly70011u6ssr4b64z6d",
+          "source_question_number": "47126",
+          "analysis_row_number": null,
+          "title": "Как получить свидетельство о рождении на ребенка в котором надо по решению суда исключить?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqo8gk9f003pu688m3ngl0l3",
+          "source_question_number": "49954",
+          "analysis_row_number": null,
+          "title": "Как восстановить уверены паспорт, если свидетельство о рождении в другом городе?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqo8rani000du67os4e5v464",
+          "source_question_number": "50286",
+          "analysis_row_number": null,
+          "title": "Можно ли получить свидетельство о рождении в северной осетии если ребёнок родился в южной?",
+          "category": "Семейные дела"
+        }
+      ],
+      "sampleOutOfCategory": [
+        {
+          "question_id": "cmqcohhrb0019u6vs68kzou9n",
+          "source_question_number": "5199",
+          "analysis_row_number": null,
+          "title": "Как получить свидетельство о рождении с родной матерью если я усыновлен?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqcpuues000pu620585fgdel",
+          "source_question_number": "6656",
+          "analysis_row_number": null,
+          "title": "Как получить красный печать в свидетельстве о рождения если родители в разводе какие документы?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmqcsdo5x0009u6kkepvva4df",
+          "source_question_number": "9488",
+          "analysis_row_number": null,
+          "title": "Как получить российское свидетельство о рождении с отчеством?",
+          "category": "Миграционные вопросы"
+        },
+        {
+          "question_id": "cmqh8yagw0025zugt9pmuz84c",
+          "source_question_number": "14981",
+          "analysis_row_number": null,
+          "title": "Можно ли получить свидетельство о рождении без его участия?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmqhmhyb50001zuywogzzfd3h",
+          "source_question_number": "20124",
+          "analysis_row_number": null,
+          "title": "Как получить гражданство РФ иностранцу с укр свидетельством о рождении?",
+          "category": "Миграционные вопросы"
+        },
+        {
+          "question_id": "cmqhmtm2k002xzunrd1k2irdc",
+          "source_question_number": "20268",
+          "analysis_row_number": null,
+          "title": "Как восстановить паспорт если потерял абсолютно все документы включая свидетельство о рождений?",
+          "category": "Прочие"
+        },
+        {
+          "question_id": "cmqhp7b0l001dzuvpd9jnufrw",
+          "source_question_number": "21179",
+          "analysis_row_number": null,
+          "title": "Можно ли получить ребёнку после 14 лет загранпаспорт по свидетельству о рождении в консульстве?",
+          "category": "Гражданские дела"
+        },
+        {
+          "question_id": "cmqi54js0001hzus5v0lg567a",
+          "source_question_number": "27085",
+          "analysis_row_number": null,
+          "title": "Могу ли я получить свидетельство о рождении ребёнка если на руках у меня выписка?",
+          "category": "Гражданские дела"
+        },
+        {
+          "question_id": "cmqi7wqad001dzuqk45xaphao",
+          "source_question_number": "28181",
+          "analysis_row_number": null,
+          "title": "Могу ли я восстановить свидетельство о рождении дедушки если он не жив?",
+          "category": "Гражданские дела"
+        },
+        {
+          "question_id": "cmqmmx3rx0069u6awub8s5nez",
+          "source_question_number": "34197",
+          "analysis_row_number": null,
+          "title": "Как получить свидетельство о рождении деда?",
+          "category": "Международное право"
+        }
+      ],
+      "sampleFalsePositives": [
+        {
+          "question_id": "cmqapsti6001du6twxrj8yaw2",
+          "source_question_number": "13",
+          "analysis_row_number": null,
+          "title": "Можно ли оспорить отцовство погибшего участника СВО?",
+          "category": "Военное право"
+        },
+        {
+          "question_id": "cmqapstlj002du6twcey2n3w4",
+          "source_question_number": "22",
+          "analysis_row_number": null,
+          "title": "Как действовать при судебном споре или исполнительном производстве?",
+          "category": "Исполнительное производство"
+        },
+        {
+          "question_id": "cmqapsu9k009tu6tw9t4j2s66",
+          "source_question_number": "89",
+          "analysis_row_number": null,
+          "title": "Как получить единовременное пособие при рождении ребенка?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqapsuu900f5u6tw0nj5q70i",
+          "source_question_number": "137",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsvc700klu6twcwnaket4",
+          "source_question_number": "186",
+          "analysis_row_number": null,
+          "title": "Как защитить права в семейном споре?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqapsw2x00s1u6twqrpw33h3",
+          "source_question_number": "253",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqapswbp00ttu6tw47zchxxk",
+          "source_question_number": "269",
+          "analysis_row_number": null,
+          "title": "Как решить вопрос с миграционными документами?",
+          "category": "Миграционные вопросы"
+        },
+        {
+          "question_id": "cmqapt02001slu6twgzov6trd",
+          "source_question_number": "582",
+          "analysis_row_number": null,
+          "title": "Как выписать человека из квартиры через суд?",
+          "category": "Жилищные вопросы"
+        },
+        {
+          "question_id": "cmqapt03z01sxu6twcmnxhgb4",
+          "source_question_number": "585",
+          "analysis_row_number": null,
+          "title": "Может ли моя совершеннолетняя подруга пересечь кпп между ДНР и Ростовской обл?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqapt2qq02h9u6twlxb0a405",
+          "source_question_number": "804",
+          "analysis_row_number": null,
+          "title": "Как оформить наследство и защитить свои права?",
+          "category": "Наследство"
+        }
+      ]
+    },
+    {
+      "key": "adult_guardianship",
+      "slug": "opeka-nad-sovershennoletnim",
+      "title": "Опека над совершеннолетним или недееспособным гражданином",
+      "decision": "OUTSIDE_CURRENT_FAMILY_EXPANSION",
+      "minimumEvidence": 1,
+      "candidatesFound": 1744,
+      "relevantQuestions": 30,
+      "eligibleForSimilarQuestions": 4,
+      "outOfCategory": 26,
+      "falsePositive": 1678,
+      "piiRejected": 0,
+      "duplicateRejected": 0,
+      "titleIntentRejected": 36,
+      "conflictingMatches": 0,
+      "aliases": [
+        "опека над недееспособным",
+        "опекун совершеннолетнего"
+      ],
+      "exclusions": [
+        "опека над ребёнком"
+      ],
+      "conflictingIntents": [
+        "opeka-i-popechitelstvo-nad-rebenkom"
+      ],
+      "sampleCandidates": [
+        {
+          "question_id": "cmqapsv4l00i9u6twxw8bqahe",
+          "source_question_number": "165",
+          "analysis_row_number": null,
+          "title": "Может ли он юридически через суд доказать что мы не живем в этом доме?",
+          "category": "Наследство"
+        },
+        {
+          "question_id": "cmqapsvj300mlu6tw1iu1i287",
+          "source_question_number": "204",
+          "analysis_row_number": null,
+          "title": "Как получить пенсию, пособие или социальную выплату?",
+          "category": "Пенсии и пособия"
+        },
+        {
+          "question_id": "cmqapsvju00mtu6twl2aknl6f",
+          "source_question_number": "206",
+          "analysis_row_number": null,
+          "title": "Что нужно сделать чтобы лишить мать родительских прав?",
+          "category": "Пенсии и пособия"
+        },
+        {
+          "question_id": "cmqapsww200z9u6twe6w0sjs3",
+          "source_question_number": "318",
+          "analysis_row_number": null,
+          "title": "Положены ли выплаты бывшей супруге погибшего участника СВО?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmqapsyrw01gxu6twv25x0fub",
+          "source_question_number": "477",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsz0301itu6twfn8mtyy7",
+          "source_question_number": "494",
+          "analysis_row_number": null,
+          "title": "Как выписать человека из квартиры через суд?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqapt0nz01xtu6twsylfal2v",
+          "source_question_number": "629",
+          "analysis_row_number": null,
+          "title": "Как защитить права военнослужащего в спорной ситуации?",
+          "category": "Военное право"
+        },
+        {
+          "question_id": "cmqapt35i02lhu6twjt8kxz3w",
+          "source_question_number": "842",
+          "analysis_row_number": null,
+          "title": "Можно ли выписать опекуна ребенка из квартиры купленной на мат?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqapt38v02mdu6tw0sla7bb6",
+          "source_question_number": "850",
+          "analysis_row_number": null,
+          "title": "Может ли он заявить о своем согласии на усыновление мачехой в судебном заседании без законного представителя?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqapt3gn02odu6twtvet2z47",
+          "source_question_number": "868",
+          "analysis_row_number": null,
+          "title": "Могу ли я не разводиться с мужем на данный момент я являюсь недееспособным человеком?",
+          "category": "Заключение и расторжение брака"
+        }
+      ],
+      "sampleRelevantQuestions": [
+        {
+          "question_id": "cmqhtz70f001pzu9y33whv12w",
+          "source_question_number": "22937",
+          "analysis_row_number": null,
+          "title": "Как оформить опеку над матерью инвалидом 3 группы?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqi4spgp0009zudkvjahwdfr",
+          "source_question_number": "26950",
+          "analysis_row_number": null,
+          "title": "Как оформить опекунство над внуком, не лишая несовершеннолетнюю мать родительских прав?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqo06t72002xu6p0qxq8pntg",
+          "source_question_number": "36174",
+          "analysis_row_number": null,
+          "title": "Как признать маму недееспособной и стать её опекуном?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmqo1p628000tu69o3hae9l1m",
+          "source_question_number": "39397",
+          "analysis_row_number": null,
+          "title": "Могут ли сестер обязать к опеке над братом при признании его недееспособным?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqo1rggv002tu60odk8gng86",
+          "source_question_number": "39606",
+          "analysis_row_number": null,
+          "title": "Какие документы нужны для оформления опекунства над недееспособным?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqo49l5p001tu6tcm7b8e27f",
+          "source_question_number": "44414",
+          "analysis_row_number": null,
+          "title": "Законно ли оформление опеки быть опекуном над недееспособным отцом есть судебное решение если я?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqo4gs4t006tu640od557v90",
+          "source_question_number": "44902",
+          "analysis_row_number": null,
+          "title": "Как оформить опеку дяде или бабушке на несовершеннолетнего?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmr131sfv001hu630lt7skpr1",
+          "source_question_number": "55404",
+          "analysis_row_number": null,
+          "title": "Могу ли я оформить опеку над своей мамой которой 72 года и инвалидность 1?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmr2dyc3b000xu6zoss4t7fmq",
+          "source_question_number": "68796",
+          "analysis_row_number": null,
+          "title": "Могу ли я стать опекуном мамы инвалида 2 группы по психическим заболеванием?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr2pza2b000tu6bggs16gfqq",
+          "source_question_number": "79539",
+          "analysis_row_number": null,
+          "title": "Могу ли я стать опекуном недееспособной тёщи пенсионного возраста?",
+          "category": "Пенсии и пособия"
+        }
+      ],
+      "sampleEligibleForSimilarQuestions": [
+        {
+          "question_id": "cmqo06t72002xu6p0qxq8pntg",
+          "source_question_number": "36174",
+          "analysis_row_number": null,
+          "title": "Как признать маму недееспособной и стать её опекуном?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr2dyc3b000xu6zoss4t7fmq",
+          "source_question_number": "68796",
+          "analysis_row_number": null,
+          "title": "Могу ли я стать опекуном мамы инвалида 2 группы по психическим заболеванием?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr6h6yiy002xu6ecwgjfbtti",
+          "source_question_number": "107957",
+          "analysis_row_number": null,
+          "title": "Нужно ли оформлять опеку бабушке и дедушке над несовершеннолетним ребёнком?",
+          "category": "Семейные дела"
+        },
+        {
+          "question_id": "cmr6zah57000pu6j82luo79tp",
+          "source_question_number": "125427",
+          "analysis_row_number": null,
+          "title": "Могут ли забрать на войну если оформить опекунство бабушки инвалида 3грвппы и у нее?",
+          "category": "Семейные дела"
+        }
+      ],
+      "sampleOutOfCategory": [
+        {
+          "question_id": "cmqhtz70f001pzu9y33whv12w",
+          "source_question_number": "22937",
+          "analysis_row_number": null,
+          "title": "Как оформить опеку над матерью инвалидом 3 группы?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqi4spgp0009zudkvjahwdfr",
+          "source_question_number": "26950",
+          "analysis_row_number": null,
+          "title": "Как оформить опекунство над внуком, не лишая несовершеннолетнюю мать родительских прав?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqo1p628000tu69o3hae9l1m",
+          "source_question_number": "39397",
+          "analysis_row_number": null,
+          "title": "Могут ли сестер обязать к опеке над братом при признании его недееспособным?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqo1rggv002tu60odk8gng86",
+          "source_question_number": "39606",
+          "analysis_row_number": null,
+          "title": "Какие документы нужны для оформления опекунства над недееспособным?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqo49l5p001tu6tcm7b8e27f",
+          "source_question_number": "44414",
+          "analysis_row_number": null,
+          "title": "Законно ли оформление опеки быть опекуном над недееспособным отцом есть судебное решение если я?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqo4gs4t006tu640od557v90",
+          "source_question_number": "44902",
+          "analysis_row_number": null,
+          "title": "Как оформить опеку дяде или бабушке на несовершеннолетнего?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmr131sfv001hu630lt7skpr1",
+          "source_question_number": "55404",
+          "analysis_row_number": null,
+          "title": "Могу ли я оформить опеку над своей мамой которой 72 года и инвалидность 1?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmr2pza2b000tu6bggs16gfqq",
+          "source_question_number": "79539",
+          "analysis_row_number": null,
+          "title": "Могу ли я стать опекуном недееспособной тёщи пенсионного возраста?",
+          "category": "Пенсии и пособия"
+        },
+        {
+          "question_id": "cmr2q5bjj000tu6t82ygekdyh",
+          "source_question_number": "79653",
+          "analysis_row_number": null,
+          "title": "Можно ли оформить опеку над бабушкой‑инвалидом для отсрочки от мобилизации?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmr2qip8o000du6ic4vylf9tg",
+          "source_question_number": "79871",
+          "analysis_row_number": null,
+          "title": "Можно ли получить отсрочку от мобилизации при опекунстве над отцом‑инвалидом?",
+          "category": "Военное право"
+        }
+      ],
+      "sampleFalsePositives": [
+        {
+          "question_id": "cmqapsv4l00i9u6twxw8bqahe",
+          "source_question_number": "165",
+          "analysis_row_number": null,
+          "title": "Может ли он юридически через суд доказать что мы не живем в этом доме?",
+          "category": "Наследство"
+        },
+        {
+          "question_id": "cmqapsvj300mlu6tw1iu1i287",
+          "source_question_number": "204",
+          "analysis_row_number": null,
+          "title": "Как получить пенсию, пособие или социальную выплату?",
+          "category": "Пенсии и пособия"
+        },
+        {
+          "question_id": "cmqapsvju00mtu6twl2aknl6f",
+          "source_question_number": "206",
+          "analysis_row_number": null,
+          "title": "Что нужно сделать чтобы лишить мать родительских прав?",
+          "category": "Пенсии и пособия"
+        },
+        {
+          "question_id": "cmqapsww200z9u6twe6w0sjs3",
+          "source_question_number": "318",
+          "analysis_row_number": null,
+          "title": "Положены ли выплаты бывшей супруге погибшего участника СВО?",
+          "category": "Заключение и расторжение брака"
+        },
+        {
+          "question_id": "cmqapsyrw01gxu6twv25x0fub",
+          "source_question_number": "477",
+          "analysis_row_number": null,
+          "title": "Как взыскать или изменить размер алиментов?",
+          "category": "Алименты"
+        },
+        {
+          "question_id": "cmqapsz0301itu6twfn8mtyy7",
+          "source_question_number": "494",
+          "analysis_row_number": null,
+          "title": "Как выписать человека из квартиры через суд?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqapt0nz01xtu6twsylfal2v",
+          "source_question_number": "629",
+          "analysis_row_number": null,
+          "title": "Как защитить права военнослужащего в спорной ситуации?",
+          "category": "Военное право"
+        },
+        {
+          "question_id": "cmqapt35i02lhu6twjt8kxz3w",
+          "source_question_number": "842",
+          "analysis_row_number": null,
+          "title": "Можно ли выписать опекуна ребенка из квартиры купленной на мат?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqapt38v02mdu6tw0sla7bb6",
+          "source_question_number": "850",
+          "analysis_row_number": null,
+          "title": "Может ли он заявить о своем согласии на усыновление мачехой в судебном заседании без законного представителя?",
+          "category": "Усыновление, опека, попечительство"
+        },
+        {
+          "question_id": "cmqapt3gn02odu6twtvet2z47",
+          "source_question_number": "868",
+          "analysis_row_number": null,
+          "title": "Могу ли я не разводиться с мужем на данный момент я являюсь недееспособным человеком?",
+          "category": "Заключение и расторжение брака"
+        }
+      ]
+    }
+  ],
+  "requirementsChecked": [
+    "full public approved corpus scanned",
+    "legal intent counted separately from display eligibility",
+    "family category enforced for similar-question eligibility",
+    "PII and semantic duplicates rejected from display eligibility",
+    "cross-route conflicts isolated",
+    "stable IDs separated from public question numbers"
+  ],
+  "violationsFound": [],
+  "fixesMade": [
+    "Broad keyword matches are not treated as relevant without a strong semantic pattern."
+  ],
+  "remainingViolations": [],
+  "stageResult": "PASS"
+}

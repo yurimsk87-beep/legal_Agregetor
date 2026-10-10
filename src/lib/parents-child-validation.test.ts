@@ -18,7 +18,6 @@ const court = {
   courtRegion: "Москва",
   defendantAddress: "Адрес ответчика",
   courtName: "Районный суд, указан пользователем",
-  courtSource: "https://mos-gorsud.sudrf.ru/",
   courtConfirmed: "yes"
 };
 

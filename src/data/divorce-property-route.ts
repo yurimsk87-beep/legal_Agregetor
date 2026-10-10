@@ -25,6 +25,7 @@ export type DivorcePropertyHelperField = {
   type?: "text" | "date" | "number" | "textarea" | "select" | "court-region";
   required?: boolean;
   placeholder?: string;
+  hint?: string;
   options?: Array<{ label: string; value: string }>;
 };
 
@@ -203,10 +204,9 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
         { label: "Да, перенёс реквизиты самостоятельно", value: "yes" },
         { label: "Нет, суд ещё не найден", value: "no" }
       ] },
-      { name: "courtName", label: "Наименование суда или участка, введённое пользователем", required: true },
+      { name: "courtName", label: "Наименование суда или участка, введённое пользователем", required: true, hint: "Найдите суд по полному адресу в официальном сервисе ГАС «Правосудие» и перенесите сюда полное наименование без сокращений." },
       { name: "courtPrecinctNumber", label: "Номер мирового судебного участка", required: true },
       { name: "courtAddress", label: "Официальный адрес суда или участка", type: "textarea", required: true },
-      { name: "courtWebsite", label: "Ссылка, с которой перенесены реквизиты", required: true, placeholder: "https://sudrf.ru/..." },
       { name: "appealCourtName", label: "Районный суд, рассматривающий жалобы на решения мирового судьи", required: true },
       { name: "plaintiffData", label: "ФИО, дата и место рождения, адрес, контакты и один идентификатор истца", type: "textarea", required: true },
       { name: "defendantData", label: "ФИО, известные дата и место рождения, адрес, место работы и идентификатор ответчика; неизвестные сведения так и отметьте", type: "textarea", required: true },
@@ -354,10 +354,9 @@ export const DIVORCE_PROPERTY_SCENARIOS: Record<DivorcePropertyScenarioKey, Divo
         { label: "Да, перенёс реквизиты самостоятельно", value: "yes" },
         { label: "Нет, суд ещё не найден", value: "no" }
       ] },
-      { name: "courtName", label: "Наименование суда или участка, введённое пользователем", required: true },
+      { name: "courtName", label: "Наименование суда или участка, введённое пользователем", required: true, hint: "Найдите суд по полному адресу в официальном сервисе ГАС «Правосудие» и перенесите сюда полное наименование без сокращений." },
       { name: "courtPrecinctNumber", label: "Номер мирового судебного участка", required: true },
       { name: "courtAddress", label: "Официальный адрес суда или участка", type: "textarea", required: true },
-      { name: "courtWebsite", label: "Ссылка, с которой перенесены реквизиты", required: true, placeholder: "https://sudrf.ru/..." },
       { name: "appealCourtName", label: "Районный суд, рассматривающий жалобы на решения мирового судьи", required: true },
       { name: "plaintiffData", label: "ФИО, дата и место рождения, адрес, контакты и один идентификатор истца", type: "textarea", required: true },
       { name: "defendantData", label: "ФИО, известные дата и место рождения, адрес, место работы и идентификатор ответчика; неизвестные сведения так и отметьте", type: "textarea", required: true },

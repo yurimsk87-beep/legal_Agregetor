@@ -6,7 +6,7 @@ import { getVisibleParentalRightsDeprivationFields, validateParentalRightsDepriv
 
 const base = { immediateDanger: "no", targetRecordedParent: "yes", childStatus: "minor", applicantRole: "parent", ground: "cruelty", facts: "Подтверждаемые факты и даты", evidence: "Акты и документы" };
 const people = { applicantData: "Иванова Ирина, адрес", respondentData: "Иванов Иван, дата и место рождения, адрес", childData: "Иванов Пётр, 01.01.2018, адрес" };
-const court = { courtRegion: "region-moscow", courtName: "Районный суд", courtSource: "https://example.sudrf.ru/", courtConfirmed: "yes" };
+const court = { courtRegion: "region-moscow", courtName: "Районный суд", courtConfirmed: "yes" };
 const outcomes = new Set<string>();
 const record = (decision: ReturnType<typeof validateParentalRightsDeprivation>) => { outcomes.add(decision.outcomeKey); return decision; };
 
@@ -39,7 +39,7 @@ assert.equal(courtDraft.requiresLegalReview, true);
 assert.match(courtDraft.draftText, /ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ/);
 assert.match(buildParentalRightsDeprivationPdfText(courtDraft), /Готово к подаче: нет/);
 
-const unconfirmedCourt = record(validateParentalRightsDeprivation("court", { ...base, ...people, ...court, courtSource: "https://example.com/court" }));
+const unconfirmedCourt = record(validateParentalRightsDeprivation("court", { ...base, ...people, ...court, courtConfirmed: "no" }));
 assert.equal(unconfirmedCourt.allowed, false);
 assert.equal(unconfirmedCourt.draftText, "");
 

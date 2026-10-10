@@ -39,7 +39,9 @@ import { EMANCIPATION_REVIEWED_AT, EMANCIPATION_RULES } from "@/data/emancipatio
 import { EMANCIPATION_ROUTE, EMANCIPATION_KEYS, EMANCIPATION_SCENARIOS, getEmancipationScenario } from "@/data/emancipation-route";
 import { ZagsApplicationHelper } from "@/components/documents/ZagsApplicationHelper";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
+import { FamilyAdditiveDocumentPage } from "@/components/documents/FamilyAdditiveDocumentPage";
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
+import { getFamilyAdditiveScenarioByDocumentSlug } from "@/data/family-additive-routes";
 import { buildDocumentQuestionContext, PROBLEM_QNA_CONTEXTS } from "@/data/related-questions-context";
 import {
   DIVORCE_PROPERTY_LEGAL_RULES,
@@ -167,6 +169,11 @@ async function DocumentPageContent({
   document: NonNullable<ReturnType<typeof getNavigatorDocument>>;
   searchParams?: PageProps["searchParams"];
 }) {
+
+  const familyAdditiveMatch = getFamilyAdditiveScenarioByDocumentSlug(document.slug);
+  if (familyAdditiveMatch) {
+    return <FamilyAdditiveDocumentPage document={document} route={familyAdditiveMatch.route} scenario={familyAdditiveMatch.scenario} />;
+  }
 
   const divorceScenario = getDivorceScenarioByDocumentSlug(document.slug);
   if (divorceScenario) {

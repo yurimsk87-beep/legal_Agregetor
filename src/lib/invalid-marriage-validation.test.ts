@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { validateInvalidMarriage, type InvalidMarriageValues } from "@/lib/invalid-marriage-validator";
 
-const common: InvalidMarriageValues = { applicant: "Иванова Анна, адрес и контакты", defendant: "Иванов Иван, адрес и контакты", marriageRecord: "Актовая запись № 1 от 01.01.2025", registrationFacts: "Подтверждённые обстоятельства регистрации", evidence: "Свидетельство и документы", marriageEnded: "no", circumstancesRemoved: "no", propertyConsequences: "no", children: "no", prenuptialAgreement: "no", international: "no", courtName: "Тверской районный суд", courtSource: "https://tverskoy.msk.sudrf.ru/", courtConfirmed: "yes" };
+const common: InvalidMarriageValues = { applicant: "Иванова Анна, адрес и контакты", defendant: "Иванов Иван, адрес и контакты", marriageRecord: "Актовая запись № 1 от 01.01.2025", registrationFacts: "Подтверждённые обстоятельства регистрации", evidence: "Свидетельство и документы", marriageEnded: "no", circumstancesRemoved: "no", propertyConsequences: "no", children: "no", prenuptialAgreement: "no", international: "no", courtName: "Тверской районный суд", courtConfirmed: "yes" };
 function draft(values: InvalidMarriageValues, scenario: Parameters<typeof validateInvalidMarriage>[0]) { const result = validateInvalidMarriage(scenario, values); assert.equal(result.resultKind, "courtDraft"); assert.equal(result.filingReady, false); assert.equal(result.requiresLegalReview, true); assert.ok(result.draftText.startsWith("ЧЕРНОВИК")); return result; }
 
 draft({ ...common, applicantRole: "injured-spouse", consentDefect: "coercion" }, "consent");
@@ -18,5 +18,5 @@ assert.equal(validateInvalidMarriage("fictitious", { ...common, applicantRole: "
 assert.equal(validateInvalidMarriage("concealed-health", { ...common, applicantRole: "injured-spouse", condition: "other", concealedAtMarriage: "yes" }).outcomeKey, "condition-not-covered");
 assert.equal(validateInvalidMarriage("consent", { ...common, applicantRole: "injured-spouse", consentDefect: "coercion", marriageEnded: "yes" }).outcomeKey, "already-divorced");
 assert.equal(validateInvalidMarriage("consent", {}).outcomeKey, "missing-data");
-assert.equal(validateInvalidMarriage("consent", { ...common, applicantRole: "injured-spouse", consentDefect: "coercion", courtSource: "https://example.com" }).outcomeKey, "court-not-confirmed");
+assert.equal(validateInvalidMarriage("consent", { ...common, applicantRole: "injured-spouse", consentDefect: "coercion", courtConfirmed: "no" }).outcomeKey, "court-not-confirmed");
 console.log("Invalid-marriage validation passed: 15 material outcomes checked.");

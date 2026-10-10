@@ -7,7 +7,15 @@ import { getRelatedQuestions, scoreQuestion } from "@/lib/related-questions";
 import { searchSite } from "@/lib/site-search";
 import type { Question } from "@/lib/types";
 
-assert.equal(legalProblems.length, 24, "Аудит рассчитан на 24 существующих семейных маршрута");
+const additiveSlugs = new Set([
+  "alimenty-na-sovershennoletnego-rebenka",
+  "prekrashchenie-i-osvobozhdenie-ot-alimentov",
+  "alimenty-na-soderzhanie-roditeley",
+  "otmena-usynovleniya",
+  "dokumenty-o-rozhdenii-i-aktovaya-zapis"
+]);
+assert.equal(legalProblems.filter((problem) => !additiveSlugs.has(problem.slug)).length, 24, "Набор из 24 базовых семейных маршрутов изменился");
+assert.equal(legalProblems.filter((problem) => additiveSlugs.has(problem.slug)).length, 5, "Должно быть пять additive-маршрутов");
 assert.deepEqual(
   Object.keys(PROBLEM_QNA_CONTEXTS).sort(),
   legalProblems.map((problem) => problem.slug).sort(),
@@ -99,4 +107,4 @@ assert.equal(
   "Похожие вопросы с одинаковыми заголовками не должны повторяться"
 );
 
-console.log("Family Q&A coverage: 24/24 routes, aliases/search/block/privacy/duplicates PASS");
+console.log("Family Q&A coverage: 29/29 routes (24 base + 5 additive), aliases/search/block/privacy/duplicates PASS");

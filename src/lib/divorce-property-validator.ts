@@ -1,5 +1,4 @@
 import type { DivorcePropertyScenarioKey } from "@/data/divorce-property-route";
-import { isOfficialCourtSource } from "@/lib/court-source";
 
 export type DivorcePropertyValues = Record<string, string | undefined>;
 
@@ -209,7 +208,6 @@ const COURT_SELECTION_FIELDS = [
   "courtName",
   "courtPrecinctNumber",
   "courtAddress",
-  "courtWebsite",
   "appealCourtName"
 ] as const;
 
@@ -266,11 +264,6 @@ function resolveCourtSelection(scenarioKey: DivorcePropertyScenarioKey, values: 
   } else {
     if (!values.courtName?.trim()) issues.push({ field: "courtName", message: "Укажите официальное наименование найденного суда или мирового участка." });
     if (!values.courtAddress?.trim()) issues.push({ field: "courtAddress", message: "Укажите официальный адрес найденного суда или мирового участка." });
-    if (!isOfficialCourtSource(values.courtWebsite)) {
-      issues.push({ field: "courtWebsite", message: "Укажите официальную страницу суда в домене судебной системы РФ." });
-    } else if (isPlaceholderCourtUrl(values.courtWebsite)) {
-      issues.push({ field: "courtWebsite", message: "Пример или тестовый адрес страницы суда использовать нельзя." });
-    }
     if (isPlaceholderCourtName(values.courtName)) {
       issues.push({ field: "courtName", message: "Пример или вымышленное наименование суда использовать нельзя." });
     }
@@ -300,20 +293,10 @@ function resolveCourtSelection(scenarioKey: DivorcePropertyScenarioKey, values: 
     issues,
     notices,
     level,
-    jurisdiction: `${selectedCourt}${selectedAddress}${region}; ${reason}. Ссылка, указанная пользователем: ${values.courtWebsite?.trim() || "не указана"}. Реквизиты и территория не проверены ПравоПоиском.`,
+    jurisdiction: `${selectedCourt}${selectedAddress}${region}; ${reason}. Реквизиты и территория перенесены пользователем из официального поиска и требуют проверки перед подачей.`,
     reviewReasons,
     requiresLegalReview: true
   };
-}
-
-function isPlaceholderCourtUrl(rawValue: string | undefined) {
-  if (!rawValue?.trim()) return false;
-  try {
-    const url = new URL(rawValue.trim());
-    return url.hostname === "example.com" || url.hostname.endsWith(".example.com") || url.hostname.startsWith("example.");
-  } catch {
-    return false;
-  }
 }
 
 function isPlaceholderCourtName(rawValue: string | undefined) {
@@ -398,7 +381,7 @@ export function isDivorcePropertyFieldVisible(
     if (fieldName === "jurisdictionEvidence") {
       return Boolean(values.territorialBasis && !["defendant", "plaintiff-child"].includes(values.territorialBasis));
     }
-    if (["courtName", "courtAddress", "courtWebsite"].includes(fieldName)) return values.courtSearchConfirmed === "yes";
+    if (["courtName", "courtAddress"].includes(fieldName)) return values.courtSearchConfirmed === "yes";
     if (fieldName === "courtPrecinctNumber") {
       return values.courtSearchConfirmed === "yes" && resolveCourtLevel(scenarioKey, values) === "magistrate";
     }

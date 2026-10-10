@@ -6,7 +6,7 @@ import { getVisibleChildSupportFields, validateChildSupport } from "@/lib/child-
 
 const people = { applicantData: "Иванова Ирина, адрес", payerData: "Иванов Иван, дата и место рождения, адрес", childData: "Иванов Пётр, 01.01.2018", childLivesWithApplicant: "yes" };
 const safe = { childMinor: "yes", paternityRecorded: "yes", paternityDispute: "no", international: "no" };
-const court = { courtName: "Судебный участок № 1", courtSource: "https://example.sudrf.ru/", courtConfirmed: "yes" };
+const court = { courtName: "Судебный участок № 1", courtConfirmed: "yes" };
 const bailiff = { bailiffOffice: "Подразделение ФССП", bailiffSource: "https://fssp.gov.ru/iss/ip" };
 const outcomes = new Set<string>();
 

@@ -1,0 +1,68 @@
+{
+  "stage": "family-additive-final-acceptance",
+  "auditedAt": "2026-10-10",
+  "baseBranch": "agent/family-law-reference-routes-expansion",
+  "baseCommit": "5ec39dbf3ea564de29abf35df1200d70f9b59f37",
+  "implementationBranch": "agent/family-law-additive-gap-routes",
+  "scope": {
+    "existingFamilyRoutesExpected": 24,
+    "existingFamilyRoutesFound": 24,
+    "existingFamilyRoutesModified": 0,
+    "additiveRoutesExpected": 5,
+    "additiveRoutesFound": 5,
+    "additiveScenarios": 21,
+    "additiveDocuments": 21,
+    "adultGuardianshipIncluded": false
+  },
+  "qna": {
+    "publicApprovedQuestionsScanned": 171643,
+    "requiredCategory": "Семейные дела",
+    "routesWithStrictContext": 5,
+    "routesWithoutStrictContext": 0,
+    "runtimeRelevantQuestions": {
+      "alimenty-na-sovershennoletnego-rebenka": 0,
+      "prekrashchenie-i-osvobozhdenie-ot-alimentov": 1,
+      "alimenty-na-soderzhanie-roditeley": 0,
+      "otmena-usynovleniya": 3,
+      "dokumenty-o-rozhdenii-i-aktovaya-zapis": 6
+    },
+    "emptyBlocksHidden": true,
+    "unrelatedCategoryMatches": 0,
+    "duplicateQuestionIds": 0,
+    "result": "PASS"
+  },
+  "legalAndDocumentSafety": {
+    "legalSourceRoutesPassing": 5,
+    "documentRoutesPassing": 5,
+    "documentsPassing": 21,
+    "filingReadyTrue": 0,
+    "requiresLegalReviewApplied": true,
+    "officialCourtSourcesRestricted": true,
+    "result": "PASS"
+  },
+  "verification": {
+    "routeRegressionAudit": "PASS",
+    "qnaCoverageAudit": "PASS",
+    "legalSourceAudit": "PASS",
+    "documentQualityAudit": "PASS",
+    "unitAndIntegrationTests": "PASS",
+    "typecheck": "PASS",
+    "productionBuild": "PASS",
+    "generatedStaticPages": 227,
+    "problemSitemapEntries": "5/5",
+    "documentSitemapEntries": "21/21",
+    "localHostUrl": "http://127.0.0.1:3001",
+    "pageHttpStatus": 200,
+    "cssHttpStatus": 200,
+    "responsiveWidthsPassing": [320, 375, 768, 1440]
+  },
+  "requiredReports": [
+    "docs/family-additive-qna-coverage-audit.json",
+    "docs/family-additive-legal-source-audit.json",
+    "docs/family-additive-routes-regression-audit.json",
+    "docs/family-additive-document-quality-audit.json",
+    "docs/family-additive-acceptance-audit.json"
+  ],
+  "remainingViolations": 0,
+  "stageResult": "PASS"
+}
