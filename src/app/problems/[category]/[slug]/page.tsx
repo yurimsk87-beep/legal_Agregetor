@@ -33,6 +33,8 @@ import { RELATIVE_CHILD_CONTACT_ROUTE, RELATIVE_CHILD_CONTACT_KEYS, RELATIVE_CHI
 import { EMANCIPATION_REVIEWED_AT, getEmancipationRules } from "@/data/emancipation-legal-review";
 import { EMANCIPATION_ROUTE, EMANCIPATION_KEYS, EMANCIPATION_SCENARIOS, getEmancipationScenario } from "@/data/emancipation-route";
 import { ZagsScenarioOverview } from "@/components/documents/ZagsScenarioOverview";
+import { FamilyAdditiveProblemPage } from "@/components/documents/FamilyAdditiveProblemPage";
+import { getFamilyAdditiveRoute } from "@/data/family-additive-routes";
 import {
   DIVORCE_PROPERTY_GOALS,
   DIVORCE_PROPERTY_ROUTE,
@@ -182,6 +184,15 @@ export default async function ProblemPage({ params, searchParams }: PageProps) {
     }),
     { limit: 6 }
   );
+
+  const familyAdditiveRoute = getFamilyAdditiveRoute(problem.slug);
+  if (familyAdditiveRoute) {
+    return (
+      <FamilyProblemQna questions={relatedQuestions}>
+        <FamilyAdditiveProblemPage categoryTitle={category.title} problem={problem} route={familyAdditiveRoute} scenarioKey={resolvedSearchParams.scenario} />
+      </FamilyProblemQna>
+    );
+  }
 
   let specializedPage: ReactNode | null = null;
   if (problem.slug === DIVORCE_PROPERTY_ROUTE.problemSlug) {

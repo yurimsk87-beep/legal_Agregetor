@@ -1,0 +1,67 @@
+{
+  "stage": "family-additive-document-quality",
+  "auditedAt": "2026-10-10",
+  "routesAudited": 5,
+  "scenariosAudited": 21,
+  "documentsAudited": 21,
+  "checks": {
+    "uniqueDocumentSlugs": {
+      "expected": 21,
+      "actual": 21,
+      "result": "PASS"
+    },
+    "uniqueSeoTitles": {
+      "expected": 21,
+      "actual": 21,
+      "requiredWords": ["образец", "скачать"],
+      "result": "PASS"
+    },
+    "seoDescriptions": {
+      "minimumLength": 100,
+      "documentsPassing": 21,
+      "result": "PASS"
+    },
+    "meaningfulGeneratedText": {
+      "minimumLength": 250,
+      "documentsPassing": 21,
+      "result": "PASS"
+    },
+    "legalSafety": {
+      "filingReadyFalse": 21,
+      "unknownFactsNotInvented": true,
+      "officialFormsLinkedInsteadOfImitated": true,
+      "providerOrAiMentions": 0,
+      "result": "PASS"
+    },
+    "familyDocumentStructure": {
+      "generatedDocumentBeforePreparedData": true,
+      "preparedDataHasEditAction": true,
+      "nextStepsAfterPreparedData": true,
+      "legalSourcesAfterNextSteps": true,
+      "profileLawyersBeforeFinalActions": true,
+      "finalActions": ["Скачать PDF", "Отправить на проверку юристу"],
+      "reviewFormHiddenByDefault": true,
+      "result": "PASS"
+    },
+    "manualBrowserCheck": {
+      "problemUrl": "/problems/semeynoe-pravo/otmena-usynovleniya/?scenario=minorClaim",
+      "documentUrl": "/documents/isk-ob-otmene-usynovleniya/#fill-online",
+      "documentGenerated": true,
+      "similarQuestionsVisible": 3,
+      "similarQuestionsCategory": "Семейные дела",
+      "responsiveWidths": [320, 375, 768, 1440],
+      "horizontalOverflowWidths": [],
+      "result": "PASS"
+    }
+  },
+  "routeCoverage": [
+    { "slug": "alimenty-na-sovershennoletnego-rebenka", "documents": 4, "result": "PASS" },
+    { "slug": "prekrashchenie-i-osvobozhdenie-ot-alimentov", "documents": 5, "result": "PASS" },
+    { "slug": "alimenty-na-soderzhanie-roditeley", "documents": 4, "result": "PASS" },
+    { "slug": "otmena-usynovleniya", "documents": 4, "result": "PASS" },
+    { "slug": "dokumenty-o-rozhdenii-i-aktovaya-zapis", "documents": 4, "result": "PASS" }
+  ],
+  "violationsFound": 0,
+  "remainingViolations": 0,
+  "stageResult": "PASS"
+}

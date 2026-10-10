@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { navigatorDocuments } from "@/data/documents";
+import { FAMILY_ADDITIVE_DOCUMENTS } from "@/data/family-additive-documents";
+import { FAMILY_ADDITIVE_PROBLEMS } from "@/data/family-additive-problems";
 import { legalProblems } from "@/data/legal-problems";
 import { ZAGS_SCENARIO_KEYS } from "@/data/zags-route";
 import { buildMetadata } from "@/lib/seo";
@@ -149,9 +151,13 @@ const relativeChildContactProblemHref = "/problems/semeynoe-pravo/obshchenie-rod
 const relativeChildContactDocumentHref = "/documents/obshchenie-rodstvennikov-s-rebenkom-materialy/";
 const emancipationProblemHref = "/problems/semeynoe-pravo/emansipatsiya-nesovershennoletnego/";
 const emancipationDocumentHref = "/documents/emansipatsiya-nesovershennoletnego-materialy/";
+const additiveProblemSlugs = new Set(FAMILY_ADDITIVE_PROBLEMS.map(({ slug }) => slug));
+const additiveDocumentSlugs = new Set(FAMILY_ADDITIVE_DOCUMENTS.map(({ slug }) => slug));
+const additiveProblemHrefs = FAMILY_ADDITIVE_PROBLEMS.map(({ categorySlug, slug }) => `/problems/${categorySlug}/${slug}/`);
+const additiveDocumentHrefs = FAMILY_ADDITIVE_DOCUMENTS.map(({ slug }) => `/documents/${slug}/`);
 
 assert.deepEqual(
-  legalProblems.map(({ categorySlug, slug }) => ({ categorySlug, slug })),
+  legalProblems.filter(({ slug }) => !additiveProblemSlugs.has(slug)).map(({ categorySlug, slug }) => ({ categorySlug, slug })),
   [
     { categorySlug: "semeynoe-pravo", slug: "brak-zags-i-smena-familii" },
     { categorySlug: "semeynoe-pravo", slug: "razvod-i-razdel-imushchestva" },
@@ -180,7 +186,7 @@ assert.deepEqual(
   ]
 );
 assert.deepEqual(
-  navigatorDocuments.map(({ slug }) => slug),
+  navigatorDocuments.filter(({ slug }) => !additiveDocumentSlugs.has(slug)).map(({ slug }) => slug),
   [
     "zayavlenie-v-zags",
     "zayavlenie-o-rastorzhenii-braka-v-zags",
@@ -321,6 +327,8 @@ assert.ok(indexedContentHrefs.includes(relativeChildContactProblemHref));
 assert.ok(indexedContentHrefs.includes(relativeChildContactDocumentHref));
 assert.ok(indexedContentHrefs.includes(emancipationProblemHref));
 assert.ok(indexedContentHrefs.includes(emancipationDocumentHref));
+for (const href of additiveProblemHrefs) assert.ok(indexedContentHrefs.includes(href));
+for (const href of additiveDocumentHrefs) assert.ok(indexedContentHrefs.includes(href));
 assert.equal(
   indexedContentHrefs.every(
     (href) => href === targetProblemHref
@@ -371,6 +379,8 @@ assert.equal(
       || href.startsWith(relativeChildContactDocumentHref)
       || href === emancipationProblemHref
       || href.startsWith(emancipationDocumentHref)
+      || additiveProblemHrefs.includes(href)
+      || additiveDocumentHrefs.some((documentHref) => href.startsWith(documentHref))
   ),
   true
 );

@@ -1,0 +1,554 @@
+{
+  "baselineHead": "5ec39dbf3ea564de29abf35df1200d70f9b59f37",
+  "stage": "14-existing-route-regression-audit",
+  "existingFamilyRoutesBefore": 24,
+  "existingFamilyRoutesModified": 0,
+  "existingScenarioCountsUnchanged": true,
+  "existingScenarioKeysUnchanged": true,
+  "existingRouteSlugsUnchanged": true,
+  "baselineRouteSpecificFiles": [
+    {
+      "slug": "brak-zags-i-smena-familii",
+      "problemHash": "2f877cb9b9730b5593a0abba6c13d5f1c46aba33ebbe4f711d6eec2d91f5e831",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "marriage",
+        "name-change",
+        "record-correction",
+        "repeat-document"
+      ],
+      "files": {
+        "src/data/zags-offices.json": "6926f0ca12e19755ab98941c3e7b30a5e748c27eab025aa9a7b8549163be97df",
+        "src/data/zags-route.ts": "c15ba7b6633a1bec7049dc76e221befa55c044c49daa49799f3a0ce56d7caad7",
+        "src/lib/zags-application-validator.ts": "319703c5e191176b37fd3b725e90156130facd0062d68be6a2537cbc312a0521",
+        "src/lib/zags-route-validation.test.ts": "da92bf8e9ae499e03c9b7992ab72937bf64696d60c3c6faade110cd9b1f7e01d"
+      }
+    },
+    {
+      "slug": "razvod-i-razdel-imushchestva",
+      "problemHash": "37d507d820d43b35c795eea89a01e2a1d6f525fd1be50a22a662ef3314945ba9",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "court-divorce",
+        "property-agreement",
+        "property-claim",
+        "registry-divorce"
+      ],
+      "files": {
+        "src/data/divorce-property-documents.ts": "458ba8f94fdbec08fdd57bd91dc6faf09d0c34dbd633022c5d90559838f9cfd2",
+        "src/data/divorce-property-legal-review.ts": "7d95b5f249f8818e6554c75f23ae6c6fd123071a92c82253954e749fbdabf7e0",
+        "src/data/divorce-property-problem.ts": "3bfa6755d4444e43ce8613ffd712383fa9ce9f8c4e5a88b27d34cefcfb806855",
+        "src/data/divorce-property-route.ts": "b7368196466131f3992c8e0377e2231196e187568b186e621e017ce6266eb693",
+        "src/lib/divorce-property-docx.ts": "32f00026566677dfc324adee0bdbfc44f9074aff855058e53f0f8e495bb5e19a",
+        "src/lib/divorce-property-pdf.ts": "66f4d4103fd8257d003f7947f05efc3a4c212ecd7d306087b62a0d1e3ca8d8d6",
+        "src/lib/divorce-property-validation.test.ts": "4b6cdf1f895eb37a5f80fcd805106f7e2a156ecd2463ecbaa35d238cb4783da6",
+        "src/lib/divorce-property-validator.ts": "c971a69ed40ef1b9739656777ff49963b7b4da5e5f2ddf7c1afca37faaf214fb"
+      }
+    },
+    {
+      "slug": "opeka-i-popechitelstvo-nad-rebenkom",
+      "problemHash": "2bcec5e80af87f379f74cbfb091fcdd5b5f2c4f9f52986dcc7b2a71319520c16",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "appointment",
+        "parent-period",
+        "property-report",
+        "refusal-inaction"
+      ],
+      "files": {
+        "src/data/guardianship-documents.ts": "ea1414b3c84fd5df566f23116272fdf54f91d982cd774d1628c0f763d2779c05",
+        "src/data/guardianship-legal-review.ts": "9bba2c98db60d92d7bdd4c218c88b62d86cd9c99b68932596d4a5fdfce38afe1",
+        "src/data/guardianship-problem.ts": "9f81229ec30f089e7cbc52c726ff63c82d2b559d3dea2bbdc54c3090c4f23a4b",
+        "src/data/guardianship-route.ts": "11c4bee5e991805e0229e2ae276c5d1a553eb1f95eccc9473416946c1893f3a8",
+        "src/data/guardianship-territories.ts": "98484fa91ddfda39e5868edde84e0c2109e02d35d32d6e62ddba365cd4eefc1f",
+        "src/lib/guardianship-docx.ts": "cef9730f1b0215662727d5f616e07999e49f7c2732d6419b8ebefbb083bfc8fa",
+        "src/lib/guardianship-pdf.ts": "8cfb59be5abc222b9aada5a3c67c496d58fb4c641fd2cb3201c7e6127efb3dc5",
+        "src/lib/guardianship-validation.test.ts": "518c5a82d4b77084de0c348332171624d348313dc2a3f30e4ef4fa1d468a735d",
+        "src/lib/guardianship-validator.ts": "b454fb9dafaa5f9f093bba1993713000ef29b23804bd5cbd2b7701a61eb6dba4",
+        "tests/e2e/guardianship-route.spec.ts": "5712ee38f74814a7928f44a47696c41ef4a2a3e568cc0415a1636aac61a749c4"
+      }
+    },
+    {
+      "slug": "roditeli-i-rebenok-posle-razvoda",
+      "problemHash": "50283b391baa75306d7f354627671f4dcdffa82f1f03046378d635428a03dbc2",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "change",
+        "communication",
+        "enforcement",
+        "residence"
+      ],
+      "files": {
+        "src/data/parents-child-documents.ts": "ee15c1c94368422221bf9ca44eb0d80b84fcc97d485a278a7f3754d65abde200",
+        "src/data/parents-child-legal-review.ts": "37172a129666c2cac287e9f886b2b40959adfc8db3d61c8b6624c43acd4d3337",
+        "src/data/parents-child-problem.ts": "42f603b5efb1ff472967c5ea0960f5eaffe0c4be6f16f3f21fbb480712a0a521",
+        "src/data/parents-child-route.ts": "78c2156c59333fcd83469c54305689fe89243c9356918304b51605ed06f187d1",
+        "src/lib/parents-child-docx.ts": "a4084ae93c7e13164d1217fe60fdc4c737b27ad6ac75e57e21accc27e2439fa7",
+        "src/lib/parents-child-pdf.ts": "3bb337fa85bc8b3645db430b1043d1f6c8a2f96eaedaeb1fe84bd3c2b5007eba",
+        "src/lib/parents-child-validation.test.ts": "3a6b21814744658ccd41a962c1206edc180b29199c105b222b2df41df6255f74",
+        "src/lib/parents-child-validator.ts": "8554eb489933d0662012d49113025ee0b8738e3b26806477594f4dd10d027447",
+        "tests/e2e/parents-child-route.spec.ts": "a58e42b89fa0dbd3081dafe15ce08f14189573b431024fe5890eb561fb354e4d"
+      }
+    },
+    {
+      "slug": "alimenty-na-rebenka",
+      "problemHash": "9582af1648da33d426290225921ad64f4dc9e8bbc7a1025ba8060c7626457b54",
+      "scenarioCount": 5,
+      "scenarioKeys": [
+        "agreement",
+        "change",
+        "debt",
+        "enforcement",
+        "first"
+      ],
+      "files": {
+        "src/data/child-support-documents.ts": "99f5e39ebae74f754b1598409e153fcd06f5c55ad12c04ac55d50eabb252f469",
+        "src/data/child-support-legal-review.ts": "edafc9ede35c1a1fcd22d0f2edd7fd029ce83854d286f9e7e284164c39a55af6",
+        "src/data/child-support-problem.ts": "1dfd47da3378c0012dc09ceac83d12b2695713324d94edba22397374cd94a163",
+        "src/data/child-support-route.ts": "94c75233ffe26a9b2401a54548325ea9fdcb66e46a79e0aa176b2b3ef3bebf5f",
+        "src/lib/child-support-docx.ts": "2f6a8dd1ea75d5a44f278a381fb8e81b7d06c2b9d4f46ff5f1d91b606f1358b4",
+        "src/lib/child-support-pdf.ts": "4d41377d0c4ef7c9fd274c2492dee259c7dd1040a4d9087b96e0c3eb90c04ca9",
+        "src/lib/child-support-validation.test.ts": "202b99b79c0cb3b33e1e06f0b813fc8156efd2c7f9f627215809349505edee53",
+        "src/lib/child-support-validator.ts": "8ef67bae85f0bdce8ce79c2407ad6e8730ed8ed65156e3b437a2dd9709ea8534",
+        "tests/e2e/child-support-route.spec.ts": "eed55d8eebbe9b20a1e7bf9ab7a263313cbf327d7dc2badbc8b57e23cb689c43"
+      }
+    },
+    {
+      "slug": "lishenie-roditelskih-prav",
+      "problemHash": "1c16e9ce454617f4938849bb3806ac366d4ff6192523dce7b95e7e59b6ffd6c7",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "court",
+        "existing",
+        "grounds",
+        "support"
+      ],
+      "files": {
+        "src/data/parental-rights-deprivation-documents.ts": "a7ade460c9082992300449bf8f0d81951c250f0b848f33aa176680259ea622c4",
+        "src/data/parental-rights-deprivation-legal-review.ts": "979325b4acc72adfd015b51dc0c6f8b9bfef6fd63efb2adc1df3be101498db8b",
+        "src/data/parental-rights-deprivation-problem.ts": "8765398b8bd315c01ff82fd27cbf0b557066fa5f5de41d0e5266d7de3ffaf742",
+        "src/data/parental-rights-deprivation-route.ts": "b39ff374d0bb719a54a899121738e0ddc5dc72b19ed3d1110795cf6876316bc2",
+        "src/lib/parental-rights-deprivation-docx.ts": "51b73cdf93058ee0d08b23e491ea8edf6a456bf27b3152aaab044f1af3eaa423",
+        "src/lib/parental-rights-deprivation-pdf.ts": "f648559b5a21082240763ecdb222f05ae1c92474bd0deec0b6f26ebb24203c82",
+        "src/lib/parental-rights-deprivation-validation.test.ts": "f17254821810c78ecb9395d1dbd017f50ba84636d333d96cd671a231776fa57a",
+        "src/lib/parental-rights-deprivation-validator.ts": "fd7b78a0186806a9bbaa07096352950fc55d3582500f37f8611862a33e293dfa",
+        "tests/e2e/parental-rights-deprivation-route.spec.ts": "db2a55a4d1c4c856d95fc2f49d2461acb28b23e3b7ccc6b1ec63c6fbd6bd3d60"
+      }
+    },
+    {
+      "slug": "ogranichenie-roditelskih-prav",
+      "problemHash": "b7333a7318b2ed779d969fe954e87bf491009d9343e44e5657bb0ec526549503",
+      "scenarioCount": 3,
+      "scenarioKeys": [
+        "behavior",
+        "court",
+        "objective"
+      ],
+      "files": {
+        "src/data/parental-rights-restriction-cancellation-documents.ts": "e4b41a52881629337b042ace14b1ccc6195d2db9932d7d8b9f5aaaac4390e33e",
+        "src/data/parental-rights-restriction-cancellation-legal-review.ts": "f4a0baae1ec926ae222b41da3c9e319fb07e9ef161fe406c4fc3136379b197df",
+        "src/data/parental-rights-restriction-cancellation-problem.ts": "bc1362b6d7808549d74d5dfa2f02f99a3d68d05c122f53a94b7c0764da9afc19",
+        "src/data/parental-rights-restriction-cancellation-route.ts": "23aab8d2fa9a31d08fbf117e365427dbfef7bd938fba031802787d360beb2024",
+        "src/data/parental-rights-restriction-documents.ts": "f580ed290d86790480dc4790013a5ff4c4bc4a98f8023e6bb62b30802a2bbe8d",
+        "src/data/parental-rights-restriction-legal-review.ts": "cf580df8262d9131e2f2315fc07fbbe818987bc80dff33122e4638956f919625",
+        "src/data/parental-rights-restriction-problem.ts": "56ffd84c1fff6b394f79444a950850e93c7b33ff42bd1374481816c99104326a",
+        "src/data/parental-rights-restriction-route.ts": "43c5cade6aac92ae8c732e0c91a27b012f01d371d5513639c3ed90f2370db23c",
+        "src/lib/parental-rights-restriction-cancellation-docx.ts": "338f831b39619e2fef915a1239cf304c5766e5ecab539c9fac1195cc3e56fba1",
+        "src/lib/parental-rights-restriction-cancellation-pdf.ts": "55898363890b2652b01594fadc891f054de9890de9036dd21cc8fe783a840c81",
+        "src/lib/parental-rights-restriction-cancellation-validation.test.ts": "7b36d7f428fc8d14c0349683376e3cce0f7797f49e785fd7f9d061a967ee867f",
+        "src/lib/parental-rights-restriction-cancellation-validator.ts": "92e0b4ce5cceba0b581d76ff3185070c8a44a733805dc519115f694b3a77e091",
+        "src/lib/parental-rights-restriction-docx.ts": "1db4865c58870b1cf54a2fc3568dfa0be31f37dfe47568f10cf5b4b0cca90b46",
+        "src/lib/parental-rights-restriction-pdf.ts": "96f4393575932b2504b91c5a099335f94b5a0c371903ed7c1d23647ea15d5ad3",
+        "src/lib/parental-rights-restriction-validation.test.ts": "2d434f3a792eb553cd741e348e394f7c756e4c972018f690875d45b372e3607b",
+        "src/lib/parental-rights-restriction-validator.ts": "8a8ef770ab157b73d840c0987f599988efce972192d5542a50ce5048be2da6df",
+        "tests/e2e/parental-rights-restriction-cancellation-route.spec.ts": "ae3ffeefd8b10470d702bd438afd9b3c5fec19197deec0cab1fdc3af8e714db8",
+        "tests/e2e/parental-rights-restriction-route.spec.ts": "54d8931b3a8201eb17893f88973f38895097397f495a0178869e617f0fe402bf"
+      }
+    },
+    {
+      "slug": "ustanovlenie-otcovstva",
+      "problemHash": "4f71eec03dcdea0dcb8e4a756c8c284d1d405b1e43e89df367a397d6d44b596a",
+      "scenarioCount": 5,
+      "scenarioKeys": [
+        "combined",
+        "court",
+        "deceased",
+        "existing-record",
+        "voluntary"
+      ],
+      "files": {
+        "src/data/paternity-establishment-documents.ts": "82ad7899583d777452575f9e1839a4e51b446df3a40473dc639dc8c47ddc28ef",
+        "src/data/paternity-establishment-legal-review.ts": "ee2c6a1d7163393ee7f2eb274d6aedb0b850c45cac24201ebb86a534616e40c3",
+        "src/data/paternity-establishment-problem.ts": "26259a78bbd79f25d755e531199618a2e109db0b022c96215a9a6b278383a031",
+        "src/data/paternity-establishment-route.ts": "cb36a6aef440c5dabef7298001179384bb8c4f77d04c52d328916d7fe5736072",
+        "src/lib/paternity-establishment-docx.ts": "2394834cfdd9e2562a3ce6558cd5af16a06a7e0ed0a53395f4a18c1d351d689a",
+        "src/lib/paternity-establishment-pdf.ts": "65a082814a7ec0ffe6dcc3165436aa8f22a0456cd616cf4f390855230eefeb03",
+        "src/lib/paternity-establishment-validation.test.ts": "e6869fa02a844274a0b72fcb4da9e175839f463db9c62a9841ce2549936cd80e",
+        "src/lib/paternity-establishment-validator.ts": "8ef8d7462f77a7685845db0e5fc43909ae7b18ccd09f224cedbe2fb948e08400",
+        "tests/e2e/paternity-establishment-route.spec.ts": "39be93e627148037aaf597c0efb9f4609e35c3ebc08263099fd4c2c80cb973d3"
+      }
+    },
+    {
+      "slug": "osparivanie-otcovstva",
+      "problemHash": "f4908a87bb8222edd614bdd07731f4178c18bf7d4d4ce2666afdf308a01b5930",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "after-death",
+        "biological-parent",
+        "child-representative",
+        "recorded-parent"
+      ],
+      "files": {
+        "src/data/paternity-contest-documents.ts": "60e5d450ab299d8987d53a7975eeb46f798f4eb5399556ed21e3bf9b6e1dadc2",
+        "src/data/paternity-contest-legal-review.ts": "a18cd0f467003156f3c7640e76afbaac74c37997d9c6e5a0c9a7875683347d32",
+        "src/data/paternity-contest-problem.ts": "12667248085f94256cc2e2ea2ba8e5ab7a36b73d907c5a738de27ab877f4e067",
+        "src/data/paternity-contest-route.ts": "e9d4f9a51765913937ebfd804c676c46ba8ceb4cecb64863dac220df0bdee1e9",
+        "src/lib/paternity-contest-docx.ts": "78c7d37aa783f86374125d571b1427a0c4f33c96e42f78655d6c4b5010427038",
+        "src/lib/paternity-contest-pdf.ts": "96b1d95dafb3a6e87366da2ee7f23f9f1eae8d41718cb497ba19f94aa8bb3ecf",
+        "src/lib/paternity-contest-validation.test.ts": "f64defe897ac73de069577bb89e82499cddf0838024d813a6bce53c170bb1eb8",
+        "src/lib/paternity-contest-validator.ts": "755565b7686aa05b674a9ba20fb5ed4c0232d915cdc5d53fb1b6ee411401b939",
+        "tests/e2e/paternity-contest-route.spec.ts": "e2aed41ed9d8ee480d187d9f5a493ae855cfea16b9c7485cd0a17f5a7b0e9115"
+      }
+    },
+    {
+      "slug": "usynovlenie-rebenka",
+      "problemHash": "7c4f8926e97c0e7906f85d6d573c4ca406ca47847359660f128fcaab18bb6c7f",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "consent-review",
+        "domestic",
+        "international",
+        "step-parent"
+      ],
+      "files": {
+        "src/data/adoption-documents.ts": "10c55417d3f36c4aa4ecfa31649090c5e12d8d5bc5bdd4f8164dd9ad3516c689",
+        "src/data/adoption-legal-review.ts": "fd0c36c7811439b864a13d7307206b68d8db71faaa321fa03b947a4114bd9464",
+        "src/data/adoption-problem.ts": "b7578df193f4c5f4ef7de26509ca7148b70e4f08f2c1018011fe342348dafce6",
+        "src/data/adoption-route.ts": "38407ea7556d0aa4a2754f1555e01863b0dabe71828a5938a348ecfe289e2e4e",
+        "src/lib/adoption-pdf.ts": "07e11e011049f0d18c5390504389acaadc07e086860895865197cb5dbb66040d",
+        "src/lib/adoption-validation.test.ts": "0f34fdfec5d65054fef6506973cfe8a2cb80fe15ec8cf25a681e4bfbeae84613",
+        "src/lib/adoption-validator.ts": "5c365f6814016177fea13c646db345a9c2b064b7d93b2a8275079ece2bda9e28",
+        "tests/e2e/adoption-route.spec.ts": "307074f73b592c7b891726adde96917092f9b80eed23994d3efaebefbe313827"
+      }
+    },
+    {
+      "slug": "vyezd-rebenka-za-granitsu",
+      "problemHash": "ff59ed6da4b4acaf613d27fdf1cdd5691e47fe7815b4fd85ca19b511a68486a1",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "disagreement",
+        "foreign-requirements",
+        "with-parent",
+        "without-parents"
+      ],
+      "files": {
+        "src/data/child-travel-documents.ts": "0dbcfafbad1a62ab832938bf66094121416bf61c779eb5c915e2d310adaed937",
+        "src/data/child-travel-legal-review.ts": "7d92669278583dfb8dd5a5fc075780fe59c969106924dee093a9499b54926798",
+        "src/data/child-travel-problem.ts": "db75c6f204e094ac5d40d10f99e9ef0a69e1ec603af4c0a3c4aded7bb854fd61",
+        "src/data/child-travel-route.ts": "0d1a0163d5b5da267805b4fdc427b105a0e93dd454e4e6de797118a3b37418c6",
+        "src/lib/child-travel-pdf.ts": "b388e60f6ff93d5c2652e0f1786eb8e703539060ca842bbe57c71f5ea50ccc8e",
+        "src/lib/child-travel-validation.test.ts": "7a551e2868335c970f4ef789d40b94b97bd1b1aa1185e34474422875191f5f88",
+        "src/lib/child-travel-validator.ts": "a4f3c2cb5e8efb46d555829883eff562ad55c151f0f4f82250f4834e6bae27c6",
+        "tests/e2e/child-travel-route.spec.ts": "0a4aea227936ba1eebbb56cad992c333a359adb6187901a47ddb3776f4cb71f1"
+      }
+    },
+    {
+      "slug": "imya-familiya-otchestvo-rebenka",
+      "problemHash": "2d56714b021f710dca6844c17861ef2e6894d41eb20d631fa5bf6ac3796c7415",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "fourteen-to-seventeen",
+        "patronymic-special",
+        "under-fourteen-agreement",
+        "under-fourteen-dispute"
+      ],
+      "files": {
+        "src/data/child-name-documents.ts": "8e6f77c0f6b147ae2218fcf876fd653391a13eddad48043e1eaf239a6b81fcc4",
+        "src/data/child-name-legal-review.ts": "8f97151dfacfee40851f09d40d5e606c2f9367df426b1131e99c17ad83e2e315",
+        "src/data/child-name-problem.ts": "01b1bea4e0f511613e6ce60958915efd860d80e34d480a5a5cd36a9bc0fbb401",
+        "src/data/child-name-route.ts": "330c41becd7e89ddece47159f47eeb72aaf7e11a942389f9599ea1261369d24e",
+        "src/lib/child-name-pdf.ts": "749d22364f7afc3f51860c1d6e922d0495cc74e39eef3ad673e4b3ad17c43f01",
+        "src/lib/child-name-validation.test.ts": "12413366c644a8284e286082e39ec2ced0d80171a93ead405f87283c16534fb7",
+        "src/lib/child-name-validator.ts": "6eb696415b91906ccd77d8a3aaa8b3ab7809a2144387808d7a9caf5f74515d95",
+        "tests/e2e/child-name-route.spec.ts": "4ed407338a01b0bc4129c6a2ac00a3cbf96644d9cb83861c2a7545fe890300f2"
+      }
+    },
+    {
+      "slug": "vosstanovlenie-v-roditelskih-pravah",
+      "problemHash": "e6184c1a470489b86b0b76d1abb8d0f0e502829f33a5a2bebf76181fd09a1ae9",
+      "scenarioCount": 3,
+      "scenarioKeys": [
+        "barrier-review",
+        "restoration",
+        "restoration-return"
+      ],
+      "files": {
+        "src/data/parental-rights-restoration-documents.ts": "26ee4c3bee40b04fbcdb9edff70b5eb8949718107d57156170b6e1e3c49885c4",
+        "src/data/parental-rights-restoration-legal-review.ts": "d4c565810d46ce7158751abede821254d33387f3e55a88269eb62244fe190d85",
+        "src/data/parental-rights-restoration-problem.ts": "92fb486d18d92920c98f6aec3042a635732b75d122ce13b8e22d0c0f19751563",
+        "src/data/parental-rights-restoration-route.ts": "e704c6a9f67122bc4e3fd6d18474229b49da677d83c0d7617f90d92ced7081cd",
+        "src/lib/parental-rights-restoration-docx.ts": "0916818730526af25edadba9ed37a573c5fbf18f367021dd113ed33d5c7b017a",
+        "src/lib/parental-rights-restoration-pdf.ts": "8b96a6e571cfa3d14d2e8d6ddd9eff69f5e10c21c5618ea1d239541c27198636",
+        "src/lib/parental-rights-restoration-validation.test.ts": "86f873e447d15af735c9836550dcd48d631e122b50615d8df7a4a07ff214310b",
+        "src/lib/parental-rights-restoration-validator.ts": "2b3e815b3780eb7bbcd4761573944df9fbab8e63e823a2cd29df54663d6923bc",
+        "tests/e2e/parental-rights-restoration-route.spec.ts": "bff57f49b924a1578ac262d54f6c9ecb9ee9e3c90a4ce305805751909103102f"
+      }
+    },
+    {
+      "slug": "otmena-ogranicheniya-roditelskih-prav",
+      "problemHash": "98d629544a0973cb073c193a8012e73170afb7a6aa8e6c7c86b89e3b99ec333a",
+      "scenarioCount": 3,
+      "scenarioKeys": [
+        "cancellation",
+        "cancellation-return",
+        "readiness-review"
+      ],
+      "files": {
+        "src/data/parental-rights-restriction-cancellation-documents.ts": "e4b41a52881629337b042ace14b1ccc6195d2db9932d7d8b9f5aaaac4390e33e",
+        "src/data/parental-rights-restriction-cancellation-legal-review.ts": "f4a0baae1ec926ae222b41da3c9e319fb07e9ef161fe406c4fc3136379b197df",
+        "src/data/parental-rights-restriction-cancellation-problem.ts": "bc1362b6d7808549d74d5dfa2f02f99a3d68d05c122f53a94b7c0764da9afc19",
+        "src/data/parental-rights-restriction-cancellation-route.ts": "23aab8d2fa9a31d08fbf117e365427dbfef7bd938fba031802787d360beb2024",
+        "src/lib/parental-rights-restriction-cancellation-docx.ts": "338f831b39619e2fef915a1239cf304c5766e5ecab539c9fac1195cc3e56fba1",
+        "src/lib/parental-rights-restriction-cancellation-pdf.ts": "55898363890b2652b01594fadc891f054de9890de9036dd21cc8fe783a840c81",
+        "src/lib/parental-rights-restriction-cancellation-validation.test.ts": "7b36d7f428fc8d14c0349683376e3cce0f7797f49e785fd7f9d061a967ee867f",
+        "src/lib/parental-rights-restriction-cancellation-validator.ts": "92e0b4ce5cceba0b581d76ff3185070c8a44a733805dc519115f694b3a77e091",
+        "tests/e2e/parental-rights-restriction-cancellation-route.spec.ts": "ae3ffeefd8b10470d702bd438afd9b3c5fec19197deec0cab1fdc3af8e714db8"
+      }
+    },
+    {
+      "slug": "raznoglasiya-roditeley-po-vospitaniyu-i-obrazovaniyu",
+      "problemHash": "df0b33c7e0bfed36ede8d4aec83449312fdf7de72f1f4924ed4123075d5cd9bc",
+      "scenarioCount": 3,
+      "scenarioKeys": [
+        "agreement",
+        "court",
+        "guardianship"
+      ],
+      "files": {
+        "src/data/parental-disagreements-documents.ts": "31f4f545201ce1402b897981c004201e173d249511a29900064e8ab116015780",
+        "src/data/parental-disagreements-legal-review.ts": "94929d43c10158fbd0fe125f3cf8712204bd8e512e46bb15fca64584355918ef",
+        "src/data/parental-disagreements-problem.ts": "ddc5d5c529b90bfd8b0ec9298059bf9cf18c510585ab4f51f6299f693b8a90ec",
+        "src/data/parental-disagreements-route.ts": "6b3a66ea2f51c06dcb616d9b601706f7a01dc2ddfbe9701c61c03dd4a462df74",
+        "src/lib/parental-disagreements-docx.ts": "fbd482ec3aa9b03fb7ac5609a6431712d0122e78502e7ea170a9dba44e163572",
+        "src/lib/parental-disagreements-pdf.ts": "ab9a3c9782539273786ac04cbaae91e6bdd35070656e483effd6d6e194cddd23",
+        "src/lib/parental-disagreements-validation.test.ts": "5e77e1264e19fe54cabb976af92cc885eb611b7b05ad2c5fe8a3d42ea62eb256",
+        "src/lib/parental-disagreements-validator.ts": "ccad92b754d8b2a1badcfe53d06d8a6ccb8161fca9ffc9c9df74bf8f826c57dc",
+        "tests/e2e/parental-disagreements-route.spec.ts": "365c6a73fe54b8822b4c98223fd45f80a3f4d7c8a7a8842c3cd7d27ea8acff8d"
+      }
+    },
+    {
+      "slug": "dopolnitelnye-rashody-na-rebenka",
+      "problemHash": "86055bc07edb15a47a94d4cca52349d97bd0aa788cdbaa3737d7066af2c0723f",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "agreement",
+        "assessment",
+        "future",
+        "incurred"
+      ],
+      "files": {
+        "src/data/additional-child-expenses-documents.ts": "19cc7f797d5f4de3df1f4765edd612070ebd10ea7e45d76006a95791929586fa",
+        "src/data/additional-child-expenses-legal-review.ts": "245352dc2641dea8a056917cfc9b72018f965cd3f74c343a9914f7adec258cec",
+        "src/data/additional-child-expenses-problem.ts": "b4c421c53875b4cba070c6aeaad3a2f45e41d92855e0f23c7a601c7305396689",
+        "src/data/additional-child-expenses-route.ts": "982765bc571ebcdb71c569dd9c5a2a5c923594956dbcb39d0aeb274e28d44d36",
+        "src/lib/additional-child-expenses-docx.ts": "5b1276d310d8089a16d0d3d7740416ad8b5b71935ddf0b683c9411a3394d20be",
+        "src/lib/additional-child-expenses-pdf.ts": "82a6bca874b853fdbbd02bff3a23930bb3f29c2f6da2a3d0a60ab17bdb367ff8",
+        "src/lib/additional-child-expenses-validation.test.ts": "ba2a1859e1c934cb211c2bbe956cfaf31841fc91ebf2c61f072296707c5d0ccd",
+        "src/lib/additional-child-expenses-validator.ts": "484ebd398923fc5fe454726a684fe145e5c535a4670aca8e8d01c3246053f6fb",
+        "tests/e2e/additional-child-expenses-route.spec.ts": "17f5dfecdba90ae897319ce72ee6c6bf4aec484aba4ede352dbcf009faec3085"
+      }
+    },
+    {
+      "slug": "soderzhanie-supruga-i-byvshego-supruga",
+      "problemHash": "24b8b16dfa4f9841c689b975e25e6477bf7add5030105b941445488a7f86a2e5",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "agreement",
+        "assessment",
+        "current",
+        "former"
+      ],
+      "files": {
+        "src/data/spousal-support-documents.ts": "ae7d15ba025741c59e6383f99ae9b300dfd5112ed447193b4e57656af9c1afe4",
+        "src/data/spousal-support-legal-review.ts": "40433b490dd1c4aa72f5a90373fa8fc88b3ec57c648b782160de16ad4bda4047",
+        "src/data/spousal-support-problem.ts": "ad68200cb28cc3e9a90aa6b96cb595799b8eb53a0cb7cd709ea3a28081ed7136",
+        "src/data/spousal-support-route.ts": "e80a9f29acbe08f121084386145dca68a705fcd6ce3a53bdf2e8dd5b9bc8b61c",
+        "src/lib/spousal-support-docx.ts": "579a5150d5822a9dfc14b1c1d4ee2256a0eb36a45b43e3a60354425282097256",
+        "src/lib/spousal-support-pdf.ts": "bdc78c6156e66cd4a6ccfc6c96a8e399f13875be0f7da524152f9a7509cf8fe0",
+        "src/lib/spousal-support-validation.test.ts": "dff2bf2da386c020c3aa9615c325bb5b4688d183c0f6df95bb1b1aae60b1ee56",
+        "src/lib/spousal-support-validator.ts": "b0754437777f155c56a09a881005355eff25809c8a4cfe59acad449135b276b0",
+        "tests/e2e/spousal-support-route.spec.ts": "9de4394a0e85788940340791f8669f24686ff107dc7fa875f121ebb1012427f0"
+      }
+    },
+    {
+      "slug": "brachnyy-dogovor",
+      "problemHash": "f8700f03e293bbd9d0a98a9c04456071e6d31b56d930210fe3005a64e8429eee",
+      "scenarioCount": 5,
+      "scenarioKeys": [
+        "before",
+        "change",
+        "dispute",
+        "during",
+        "terminate"
+      ],
+      "files": {
+        "src/data/prenuptial-agreement-documents.ts": "1239949a9e369c3cd9014378bf820de7cc2904d5ccfaa7f046a5639fa090889f",
+        "src/data/prenuptial-agreement-legal-review.ts": "c0902fc82388f3390a47e1f7e49dbc2510747bbe47db33115095cfc426e3a2e2",
+        "src/data/prenuptial-agreement-problem.ts": "ac4221cee3bc398f0ee160878e62416318ef69d32063ac43bac60fc0d4e2e492",
+        "src/data/prenuptial-agreement-route.ts": "131d88afd61359247d7a6717da49258731663d487d5751e39f40542e6602259d",
+        "src/lib/prenuptial-agreement-docx.ts": "ef222e8362f11e5324522e8d6bed9bf2a2bfe0b34afb92f30b5141a6af1e6288",
+        "src/lib/prenuptial-agreement-pdf.ts": "9c21a058f576417f7b6b5b3c3909d252d0d1a4afef97d65f9d4959d2a41ce7f0",
+        "src/lib/prenuptial-agreement-validation.test.ts": "4db28a0d278391c1f257943d7ef3679f7d4145d5406f46fa55fe642b3a0c5846",
+        "src/lib/prenuptial-agreement-validator.ts": "e4e32d779c7b4f4a98698b655a6288254d651cdd567d1aa533082e51e816540d",
+        "tests/e2e/prenuptial-agreement-route.spec.ts": "60804bbd151f728057dade37bed02175d0b099c4e1e390c7e1089fc9f837924c"
+      }
+    },
+    {
+      "slug": "priznanie-braka-nedeystvitelnym",
+      "problemHash": "3d55b75191fd3580c43fd363adec9a80d6a561f9e075051080acee86674be665",
+      "scenarioCount": 5,
+      "scenarioKeys": [
+        "concealed-health",
+        "consent",
+        "fictitious",
+        "obstacle",
+        "underage"
+      ],
+      "files": {
+        "src/data/invalid-marriage-documents.ts": "8fc4969d90f92f3d749790925a56906f9663ff9315fe6d902da5130d7b6f32dd",
+        "src/data/invalid-marriage-legal-review.ts": "5a760e87ed556015fedf70394557dc5434b48678f68a4562b0f3e9bc0a936008",
+        "src/data/invalid-marriage-problem.ts": "c6ca4acb476a6dbd09961b4166b302106f2d69714fed738889bd631305fe4078",
+        "src/data/invalid-marriage-route.ts": "4d03359a27b8fa77270e3c43a8afaa91808f76df0971ad8eb33ea4b9e65f699b",
+        "src/lib/invalid-marriage-docx.ts": "6209ae48639ac76f49ae4ffa84a53db0f37ee446327a6520489a2065ed6f80f3",
+        "src/lib/invalid-marriage-pdf.ts": "7eabf7eeb5c75709a1d787a770856fecea7bf0c751fc2568252e429b7ac6ee25",
+        "src/lib/invalid-marriage-validation.test.ts": "6f7f8e8fdb555f6e3a2827e20501deca2e8ec76e643c373bae81491155c8605f",
+        "src/lib/invalid-marriage-validator.ts": "c3797cfb193756c782d8cdcee7704e3e08cc3b73c27315b4324eabfdbd1e9ad4",
+        "tests/e2e/invalid-marriage-route.spec.ts": "67e3efea7dc0a1d1f76eb392a62cf295287acda2011bb305f00609941b6a013a"
+      }
+    },
+    {
+      "slug": "slozhnye-imushchestvennye-spory-suprugov",
+      "problemHash": "fafdae3f136d25d9685acd19f4326ac788be752a568582c53812a0080b08d172",
+      "scenarioCount": 5,
+      "scenarioKeys": [
+        "bankruptcy-security",
+        "business",
+        "debts",
+        "mortgage",
+        "third-party"
+      ],
+      "files": {
+        "src/data/complex-marital-property-documents.ts": "baa9f4854e7f0762db8a596a6de07cd3ceaf8807c6d8a1c57c2c4d768c32b1aa",
+        "src/data/complex-marital-property-legal-review.ts": "7ed311ba9573415a30f616fa9a8b89c537ff87d26051d6d8b47fa55390969498",
+        "src/data/complex-marital-property-problem.ts": "356644107082b4a4cd550cc5f7e40843380fced744e1a741446ae7eff3f4ac32",
+        "src/data/complex-marital-property-route.ts": "c8104aa8b78bad38e8a40295d821712c7371bf8d4602d1c46af0ef5c4882d129",
+        "src/lib/complex-marital-property-docx.ts": "af26896474699b7e476e80136e8e21046a701721d46d07ad3e1145c3afcf30b2",
+        "src/lib/complex-marital-property-pdf.ts": "811d8e6f357dcd88a8ad9c196e595b128173df3bf890f33e3a024714af55eef1",
+        "src/lib/complex-marital-property-validation.test.ts": "d7ca7e75675867ee605d7536a37d257e3e2247bedeaadb23d7edaf35c1fd657a",
+        "src/lib/complex-marital-property-validator.ts": "46fc5239013616a67a4731d1e2ef2e2b487064597550eb274bcf5a3ea028cf44",
+        "tests/e2e/complex-marital-property-route.spec.ts": "32e11798fb732a2ce2aeaa7683387bba4e3d580590221091cba457c9709d2418"
+      }
+    },
+    {
+      "slug": "surrogatnoe-materinstvo-i-proiskhozhdenie-rebenka",
+      "problemHash": "55a3ea3d517a926fbf149134ff2a3ba9655615749769113e8cd0d75b090eb36b",
+      "scenarioCount": 5,
+      "scenarioKeys": [
+        "consents",
+        "dispute",
+        "foreign",
+        "origin",
+        "registration"
+      ],
+      "files": {
+        "src/data/surrogacy-origin-document.ts": "1e0b53ef74a00000378b0819074830588c0f5629fe12d514a6e227371da561ca",
+        "src/data/surrogacy-origin-legal-review.ts": "e63094526eb18eab0cf2bcf0d357f17f91436a3fc03155c40ec4ba21a413e24d",
+        "src/data/surrogacy-origin-problem.ts": "ee7477f31dc78967b7c133ebefebf0d0c96a42ffcc94bd6e91d4446e0e960817",
+        "src/data/surrogacy-origin-route.ts": "6ef2c6f945e468c205e85292326699a6221b62fe885154654d1c59c7045a7f75",
+        "src/lib/surrogacy-origin-pdf.ts": "159cf35aba7acca5c5b6b6e23aa434a684be7b75ea32ac8c74ee3c4338b98bd6",
+        "src/lib/surrogacy-origin-validation.test.ts": "64fd8fe2bed6773c98d1ea295674ad7b58a11da646ff1b1dea7241770b39b026",
+        "src/lib/surrogacy-origin-validator.ts": "e647942c2587d11e43a1d4a02ce935ef6cf9f3204c41df266a523f9b1434b879",
+        "tests/e2e/surrogacy-origin-route.spec.ts": "90e663e9e74e7bd0650b6842a03738408bdbdb59012c3f21d913a89eda84ee1f"
+      }
+    },
+    {
+      "slug": "mezhdunarodnye-semeynye-spory",
+      "problemHash": "5207f94ec2f84dd9091b576030a74037b3030c70bcfae00eeaed3fea4c9fa300",
+      "scenarioCount": 5,
+      "scenarioKeys": [
+        "child",
+        "documents",
+        "maintenance",
+        "parental",
+        "recognition"
+      ],
+      "files": {
+        "src/data/international-family-disputes-document.ts": "74c64fdd2501afb7c7cb36d0b98ea8c56360dacae94fbc7fd653865a9a90c55a",
+        "src/data/international-family-disputes-legal-review.ts": "7ac1489eec01c7875f2e455fafdea50d38280d24586ab5cc0b4427ea6c22d4f3",
+        "src/data/international-family-disputes-problem.ts": "4a22c1f1bddf08400f72aa95011c23604f600a6ea8d2360adb862cddaff7d31e",
+        "src/data/international-family-disputes-route.ts": "00bc38805dbfb254c11560fa7dda8042988eb534810f26c3eb2fcea139233eff",
+        "src/lib/international-family-disputes-pdf.ts": "2370c6c7d66e6f2da25dfb4ced8ef03751de6e5bf9550b1caadeed6fa10b8733",
+        "src/lib/international-family-disputes-validation.test.ts": "c5e4e97e243992d2e97e695592c341c3a20dd12800e416719c3b5223172e6aba",
+        "src/lib/international-family-disputes-validator.ts": "e05f8ff96a5a68360852036ffb890d3d4731a12c51b183e319ff050896c4490e",
+        "tests/e2e/international-family-disputes-route.spec.ts": "0f515e86e63b3fe8d59893ec9e073f76bbcc54040e311e5c224b2bc6ec81fe0a"
+      }
+    },
+    {
+      "slug": "obshchenie-rodstvennikov-s-rebenkom",
+      "problemHash": "df76effcaa2a9d8dc7c48d33d9b54c4b6581bae3b0cbee890e23b5deaa0f1ab3",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "agreement",
+        "court",
+        "enforcement",
+        "guardianship"
+      ],
+      "files": {
+        "src/data/relative-child-contact-document.ts": "7bcea4946f4598f9114e96aebdd328f226386febf9e47750529b63ab5c9c54c6",
+        "src/data/relative-child-contact-legal-review.ts": "5e7f82fb48493238f9e5f174523f2e3cc3aaa238314f53f92885b4953e5d554b",
+        "src/data/relative-child-contact-problem.ts": "66c76072f67b9fc61b0614cd801ef4e62d054d85100f3f66c7127c02b26627a4",
+        "src/data/relative-child-contact-route.ts": "2efaa9aa10d9bd143bc7cfb6d6397bb670609f98882ff561e2177c41159bbe67",
+        "src/lib/relative-child-contact-pdf.ts": "e3ff8a573870b86c859e13bc203aefec9375cb36038436e6c071072d672eabc3",
+        "src/lib/relative-child-contact-validation.test.ts": "131748aed0e506c7a352129aa1b61d7642dc1936d546fff4b429f255cf64ddae",
+        "src/lib/relative-child-contact-validator.ts": "b7b4b8dc1419a90fc21e88bd8b9c15f9d33b05063bc6c1a694c1900757b725d5",
+        "tests/e2e/relative-child-contact-route.spec.ts": "67ea2e334a1418ea7636a0be29b1c6c9edba60325b942180884e95ed896bf28a"
+      }
+    },
+    {
+      "slug": "emansipatsiya-nesovershennoletnego",
+      "problemHash": "cb7b6de5a33216788d94b7f5f360857f0659cff1294725b0e41dbb99c2c1f050",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "consequences",
+        "court",
+        "eligibility",
+        "guardianship"
+      ],
+      "files": {
+        "src/data/emancipation-document.ts": "e3965625ba032acc923658732ec0f864db864e65052681bd64f2eeedde902de7",
+        "src/data/emancipation-legal-review.ts": "3e3e95e9b79571c9bd3871c941e569575a31584e22fb50577008c917a46b8037",
+        "src/data/emancipation-problem.ts": "43be823959a65236417f778619d5423803daeb47c0f281148b460c49d8acaff7",
+        "src/data/emancipation-route.ts": "49babe303d92c3a75b15a18bbded8b981f470e185b21bdb732695463b1d8e90e",
+        "src/lib/emancipation-pdf.ts": "6efe0a86c590ad45780a0c15a0828d9536e186d34ad6e0606a72e2eb1e624b7a",
+        "src/lib/emancipation-validation.test.ts": "3deae0b33cd1ec85aa76c5f4653e5ff289583fc6be00eb9a9a40a376abfbc5d6",
+        "src/lib/emancipation-validator.ts": "823f986ff3aad7b7db11985eb7d3d54482e05b65569e4498d3dfc94d0afe46f4",
+        "tests/e2e/emancipation-route.spec.ts": "3a790b9078e36e2b27f9220d4efb0b62d8ca718ed11340a729e4e47ae49d598f"
+      }
+    }
+  ],
+  "modifiedRouteSpecificFiles": [],
+  "newRoutes": [
+    "alimenty-na-sovershennoletnego-rebenka",
+    "prekrashchenie-i-osvobozhdenie-ot-alimentov",
+    "alimenty-na-soderzhanie-roditeley",
+    "otmena-usynovleniya",
+    "dokumenty-o-rozhdenii-i-aktovaya-zapis"
+  ],
+  "allowedCommonRegistryFiles": [
+    "src/data/legal-problems.ts",
+    "src/data/related-questions-context.ts",
+    "src/app/sitemap.ts",
+    "src/lib/site-search.ts"
+  ],
+  "stageResult": "PASS"
+}

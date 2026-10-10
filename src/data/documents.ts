@@ -22,6 +22,7 @@ import { SURROGACY_ORIGIN_DOCUMENT } from "@/data/surrogacy-origin-document";
 import { INTERNATIONAL_FAMILY_DISPUTES_DOCUMENT } from "@/data/international-family-disputes-document";
 import { RELATIVE_CHILD_CONTACT_DOCUMENT } from "@/data/relative-child-contact-document";
 import { EMANCIPATION_DOCUMENT } from "@/data/emancipation-document";
+import { FAMILY_ADDITIVE_DOCUMENTS } from "@/data/family-additive-documents";
 
 export type DocumentFaqItem = {
   question: string;
@@ -303,7 +304,8 @@ export const navigatorDocuments: NavigatorDocument[] = [
 SURROGACY_ORIGIN_DOCUMENT,
 INTERNATIONAL_FAMILY_DISPUTES_DOCUMENT,
 RELATIVE_CHILD_CONTACT_DOCUMENT,
-EMANCIPATION_DOCUMENT
+  EMANCIPATION_DOCUMENT,
+  ...FAMILY_ADDITIVE_DOCUMENTS
 ];
 
 export function getNavigatorDocument(slug: string) {
