@@ -4,7 +4,9 @@ import { LABOR_PROBLEMS } from "@/data/labor-problems";
 import { LABOR_ROUTES, resolveLaborResult } from "@/data/labor-routes";
 
 assert.equal(LABOR_ROUTES.length, 14);
-assert.equal(LABOR_PROBLEMS.length, 14);
+const baselineProblemSlugs = new Set(LABOR_ROUTES.map((route) => route.slug));
+const baselineProblems = LABOR_PROBLEMS.filter((problem) => baselineProblemSlugs.has(problem.slug));
+assert.equal(baselineProblems.length, 14);
 assert.equal(new Set(LABOR_ROUTES.map((route) => route.slug)).size, 14);
 assert.deepEqual(new Set(LABOR_ROUTES.map((route) => route.areaId)), new Set(LABOR_AREA_IDS));
 

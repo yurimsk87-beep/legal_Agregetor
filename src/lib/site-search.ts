@@ -2,7 +2,8 @@ import { legalCategories } from "@/data/legal-categories";
 import { navigatorDocuments } from "@/data/documents";
 import { legalPages } from "@/data/legal-pages";
 import { legalProblems } from "@/data/legal-problems";
-import { LABOR_CATEGORY_SLUG, LABOR_MANUAL_ACCEPTANCE_INTENTS } from "@/data/labor-routes";
+import { ALL_LABOR_MANUAL_ACCEPTANCE_INTENTS } from "@/data/labor-route-registry";
+import { LABOR_CATEGORY_SLUG } from "@/data/labor-routes";
 import type { LegalProblemRiskLevel, LegalProblemUrgency } from "@/data/legal-problems";
 import { navigatorTools } from "@/data/tools";
 import { getGeneratorMetaDescription, getGeneratorPageTitle } from "@/lib/document-seo";
@@ -809,7 +810,7 @@ function isParentsChildQuery(normalizedQuery: string) {
 
 function directIntentBoost(result: SearchableResult, normalizedQuery: string) {
   const href = result.href;
-  const laborIntent = LABOR_MANUAL_ACCEPTANCE_INTENTS.find(({ query }) => normalizedQuery.includes(normalizeSearchText(query)));
+  const laborIntent = ALL_LABOR_MANUAL_ACCEPTANCE_INTENTS.find(({ query }) => normalizedQuery.includes(normalizeSearchText(query)));
   if (laborIntent && href.includes(`/problems/${LABOR_CATEGORY_SLUG}/${laborIntent.routeSlug}/`)) return 1100;
   if (isParentsChildQuery(normalizedQuery) && href.includes("/problems/semya-i-deti/roditeli-i-rebenok-posle-razvoda/")) return 1020;
   if (isParentsChildQuery(normalizedQuery) && isParentsChildRouteResult(href)) return 1000;

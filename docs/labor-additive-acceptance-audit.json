@@ -1,0 +1,42 @@
+{
+  "stage": "8-final-acceptance",
+  "generatedAt": "2026-10-12T18:45:29.468Z",
+  "baseSha": "6cab38c37479776086d449d806b19a15e6838631",
+  "oldLaborRoutesExpected": 14,
+  "oldLaborRoutesActual": 14,
+  "oldLaborRoutesModified": 0,
+  "newLaborRoutesExpected": 5,
+  "newLaborRoutesActual": 5,
+  "totalLaborRoutes": 19,
+  "additiveScenarios": 29,
+  "additiveDocuments": 29,
+  "fullCorpusQuestionsScanned": 171643,
+  "confirmedGapRoutes": [
+    "beremennost-i-trudovye-garantii",
+    "ohrana-truda-i-neschastnyy-sluchay",
+    "priem-na-rabotu-i-otkaz",
+    "trudovye-dokumenty-i-spravki",
+    "diskriminatsiya-na-rabote"
+  ],
+  "blockerCount": 0,
+  "majorCount": 0,
+  "blockers": [],
+  "requiredChecks": {
+    "typecheck": "PASS",
+    "baselineLaborTests": "PASS_14_ROUTES_50_SCENARIOS",
+    "additiveLaborTests": "PASS_5_ROUTES_29_SCENARIOS",
+    "generalTests": "PASS",
+    "productionBuild": "PASS_WITH_DATABASE_FALLBACK",
+    "browserRouteChecks": "PASS_5_OF_5_HTTP_200_AND_VISUAL_REVIEW",
+    "cssAndJavaScriptAssets": "PASS_9_OF_9_HTTP_200_NONEMPTY",
+    "responsiveLayout": "PASS_390X844_NO_DOCUMENT_OVERFLOW",
+    "fullCorpusQnaAudit": "PASS_171643_QUESTIONS",
+    "representativeRuntimeGeneration": "PASS",
+    "generatedPdf": "PASS_2_PAGES_VISUALLY_VERIFIED",
+    "editingAndExplicitRegeneration": "PASS"
+  },
+  "draftPrOnly": true,
+  "productionDatabaseModified": false,
+  "deploymentPerformed": false,
+  "stageResult": "PASS"
+}

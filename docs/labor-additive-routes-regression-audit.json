@@ -1,0 +1,205 @@
+{
+  "stage": "1-and-8-frozen-route-regression",
+  "baselineHead": "6cab38c37479776086d449d806b19a15e6838631",
+  "workingBranch": "agent/labor-law-additive-gap-routes",
+  "existingLaborRoutesBefore": 14,
+  "existingLaborRoutesAfter": 14,
+  "existingLaborRoutesModified": 0,
+  "routes": [
+    {
+      "slug": "uvolnenie-po-iniciative-rabotodatelya",
+      "title": "Увольнение работодателем",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "planned",
+        "redundancy",
+        "disciplinary",
+        "dismissed"
+      ]
+    },
+    {
+      "slug": "uvolnenie-po-sobstvennomu-zhelaniyu",
+      "title": "Увольнение по собственному",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "submit",
+        "withdraw",
+        "coercion",
+        "documents"
+      ]
+    },
+    {
+      "slug": "srok-preduprezhdeniya-pri-uvolnenii",
+      "title": "Срок предупреждения",
+      "scenarioCount": 3,
+      "scenarioKeys": [
+        "general",
+        "special",
+        "early"
+      ]
+    },
+    {
+      "slug": "trudovoy-dogovor",
+      "title": "Трудовой договор",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "request-copy",
+        "fixed-term",
+        "probation",
+        "remote"
+      ]
+    },
+    {
+      "slug": "zarabotnaya-plata",
+      "title": "Заработная плата",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "delay",
+        "partial",
+        "bonus",
+        "grey"
+      ]
+    },
+    {
+      "slug": "vyplaty-pri-uvolnenii",
+      "title": "Выплаты при увольнении",
+      "scenarioCount": 3,
+      "scenarioKeys": [
+        "unpaid",
+        "leave-compensation",
+        "severance"
+      ]
+    },
+    {
+      "slug": "ezhegodnyy-otpusk",
+      "title": "Ежегодный отпуск",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "refused",
+        "before-dismissal",
+        "leave-pay",
+        "recall"
+      ]
+    },
+    {
+      "slug": "otpusk-po-uhodu-za-rebenkom",
+      "title": "Отпуск по уходу за ребенком",
+      "scenarioCount": 3,
+      "scenarioKeys": [
+        "start",
+        "return",
+        "dismissal"
+      ]
+    },
+    {
+      "slug": "bolnichnyy",
+      "title": "Больничный",
+      "scenarioCount": 3,
+      "scenarioKeys": [
+        "unpaid",
+        "after-dismissal",
+        "dismissal"
+      ]
+    },
+    {
+      "slug": "rabochee-vremya",
+      "title": "Рабочее время",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "schedule",
+        "overtime",
+        "weekend",
+        "night"
+      ]
+    },
+    {
+      "slug": "perevod-i-izmenenie-usloviy-truda",
+      "title": "Перевод и изменение условий",
+      "scenarioCount": 3,
+      "scenarioKeys": [
+        "position",
+        "conditions",
+        "pay-cut"
+      ]
+    },
+    {
+      "slug": "prava-i-obyazannosti-rabotodatelya",
+      "title": "Обязанности работодателя",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "discipline",
+        "injury",
+        "damage",
+        "data"
+      ]
+    },
+    {
+      "slug": "neoformlennye-trudovye-otnosheniya",
+      "title": "Неоформленная работа",
+      "scenarioCount": 3,
+      "scenarioKeys": [
+        "no-contract",
+        "court",
+        "civil-contract"
+      ]
+    },
+    {
+      "slug": "spory-s-rabotodatelem",
+      "title": "Споры с работодателем",
+      "scenarioCount": 4,
+      "scenarioKeys": [
+        "employer",
+        "git",
+        "commission",
+        "court"
+      ]
+    }
+  ],
+  "baselineRouteSpecificFiles": [
+    {
+      "path": "src/data/labor-routes.ts",
+      "sha256": "c8b1a5e9ec592770347f0e2a70623bc6a2fd3a058e797ef16bfa09aa24b4c4a8",
+      "actualSha256": "c8b1a5e9ec592770347f0e2a70623bc6a2fd3a058e797ef16bfa09aa24b4c4a8",
+      "unchanged": true
+    },
+    {
+      "path": "src/data/labor-legal-sources.ts",
+      "sha256": "3dbcf4a7bd46bc7e43cfe6a7623e5209b9d0af3bd358cc3bfb6fa170f8065dd4",
+      "actualSha256": "3dbcf4a7bd46bc7e43cfe6a7623e5209b9d0af3bd358cc3bfb6fa170f8065dd4",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/labor-question-relevance.ts",
+      "sha256": "e92a1ab8cf84375dda8e63467bd8e495de44ed046341e7b40e745b90737ab1fe",
+      "actualSha256": "e92a1ab8cf84375dda8e63467bd8e495de44ed046341e7b40e745b90737ab1fe",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/labor-document-contract.ts",
+      "sha256": "0fa298ffda42fdba93d06320abd251cb8330d0166af75a8791562bd4c2065ca5",
+      "actualSha256": "0fa298ffda42fdba93d06320abd251cb8330d0166af75a8791562bd4c2065ca5",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/labor-document-export.ts",
+      "sha256": "4c7c768a792211c94363afb9dab1bf58ca52450ef17618ddac1f4bb48cff2d1c",
+      "actualSha256": "4c7c768a792211c94363afb9dab1bf58ca52450ef17618ddac1f4bb48cff2d1c",
+      "unchanged": true
+    }
+  ],
+  "changedRouteSpecificFiles": [],
+  "newRouteFiles": [
+    "src/data/labor-additive-routes.ts",
+    "src/data/labor-additive-legal-sources.ts",
+    "src/lib/labor-additive-question-relevance.ts"
+  ],
+  "sharedRegistrationFiles": [
+    "src/data/labor-route-registry.ts",
+    "src/data/labor-legal-registry.ts",
+    "src/data/labor-problems.ts",
+    "src/data/labor-documents.ts"
+  ],
+  "scenarioCountsUnchanged": true,
+  "scenarioKeysUnchanged": true,
+  "stageResult": "PASS"
+}

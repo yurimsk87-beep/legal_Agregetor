@@ -38,6 +38,12 @@ export function LaborScenarioFlow({ route, initialScenario, rules }: { route: La
   return (
     <div className="mt-8">
       <button type="button" onClick={() => chooseScenario("")} className="inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:ring-2 focus:ring-trust/30">Изменить ситуацию</button>
+      {scenario.resultType === "URGENT_INSTRUCTION" ? (
+        <div className="mt-5 border-l-4 border-red-600 bg-red-50 p-5 text-sm leading-6 text-red-950" role="alert">
+          <p className="font-semibold">Сначала обеспечьте безопасность</p>
+          <p className="mt-2">При непосредственной угрозе прекратите опасную работу, выйдите из опасной зоны и вызовите 112 либо медицинскую помощь. Документ ниже нужен для фиксации уведомления и не заменяет экстренные действия.</p>
+        </div>
+      ) : null}
       {selected ? (
         <LaborDocumentGenerator
           key={`${route.slug}:${scenario.key}`}

@@ -127,7 +127,8 @@ import {
   ZAGS_SCENARIO_CHOICES
 } from "@/data/zags-route";
 import type { ZagsScenario } from "@/data/zags-route";
-import { getLaborRoute, LABOR_CATEGORY_SLUG } from "@/data/labor-routes";
+import { getAnyLaborRoute } from "@/data/labor-route-registry";
+import { LABOR_CATEGORY_SLUG } from "@/data/labor-routes";
 import { breadcrumbJsonLd, legalServiceJsonLd } from "@/lib/jsonld";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
@@ -156,7 +157,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const activeLaborScenario = problem.categorySlug === LABOR_CATEGORY_SLUG && resolvedSearchParams.scenario
-    ? getLaborRoute(problem.slug)?.scenarios.find((scenario) => scenario.key === resolvedSearchParams.scenario)
+    ? getAnyLaborRoute(problem.slug)?.scenarios.find((scenario) => scenario.key === resolvedSearchParams.scenario)
     : null;
   const activeLaborDocument = activeLaborScenario?.documentSlug
     ? getNavigatorDocument(activeLaborScenario.documentSlug)

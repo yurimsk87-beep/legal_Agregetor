@@ -6,15 +6,17 @@ import { buildLaborDocumentExportText } from "@/lib/labor-document-export";
 import { validateLaborDocumentModelResult } from "@/lib/labor-document-contract";
 
 const laborScenarios = LABOR_ROUTES.flatMap((route) => route.scenarios);
+const baselineDocumentSlugs = new Set(laborScenarios.map((scenario) => scenario.documentSlug));
+const baselineDocuments = LABOR_DOCUMENTS.filter((document) => baselineDocumentSlugs.has(document.slug));
 assert.equal(laborScenarios.length, 50);
 assert.equal(laborScenarios.filter((scenario) => !scenario.documentSlug).length, 0);
-assert.equal(LABOR_DOCUMENTS.length, laborScenarios.length);
-assert.equal(new Set(LABOR_DOCUMENTS.map((document) => document.slug)).size, laborScenarios.length);
+assert.equal(baselineDocuments.length, laborScenarios.length);
+assert.equal(new Set(baselineDocuments.map((document) => document.slug)).size, laborScenarios.length);
 for (const scenario of laborScenarios) {
   assert.ok(scenario.documentSlug && getLaborDocumentScenario(scenario.documentSlug));
 }
 
-for (const document of LABOR_DOCUMENTS) {
+for (const document of baselineDocuments) {
   const configured = getLaborDocumentScenario(document.slug);
   assert.ok(configured);
   const configuredRules = getLaborRulesForArea(configured.route.areaId);
