@@ -1,8 +1,9 @@
-import { LABOR_LEGAL_REVIEWED_AT } from "@/data/labor-legal-sources";
-import { LABOR_CATEGORY_SLUG, LABOR_ROUTES } from "@/data/labor-routes";
+import { getLaborLegalReviewedAt } from "@/data/labor-legal-registry";
+import { ALL_LABOR_ROUTES } from "@/data/labor-route-registry";
+import { LABOR_CATEGORY_SLUG } from "@/data/labor-routes";
 import type { LegalProblem } from "@/data/legal-problems";
 
-export const LABOR_PROBLEMS: LegalProblem[] = LABOR_ROUTES.map((route) => ({
+export const LABOR_PROBLEMS: LegalProblem[] = ALL_LABOR_ROUTES.map((route) => ({
   slug: route.slug,
   categorySlug: LABOR_CATEGORY_SLUG,
   title: route.title,
@@ -29,5 +30,5 @@ export const LABOR_PROBLEMS: LegalProblem[] = LABOR_ROUTES.map((route) => ({
   relatedProblemSlugs: route.relatedProblemSlugs,
   selfHelpConditions: ["Критические факты подтверждены документами.", "Не требуется индивидуальный расчет или восстановление пропущенного срока."],
   lawyerConditions: ["Есть риск пропуска срока.", "Оспаривается увольнение, квалификация отношений или крупная сумма.", "Нужно определить подсудность или окончательные требования."],
-  lastReviewedAt: LABOR_LEGAL_REVIEWED_AT
+  lastReviewedAt: getLaborLegalReviewedAt(route.slug)
 }));

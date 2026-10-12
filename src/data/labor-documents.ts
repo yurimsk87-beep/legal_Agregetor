@@ -1,5 +1,7 @@
-import { getLaborRulesForArea, LABOR_LEGAL_REVIEWED_AT } from "@/data/labor-legal-sources";
-import { LABOR_ROUTES, type LaborRoute, type LaborScenario } from "@/data/labor-routes";
+import { getLaborLegalReviewedAt, getLaborRulesForRoute } from "@/data/labor-legal-registry";
+import { isLaborAdditiveRouteSlug } from "@/data/labor-additive-routes";
+import { ALL_LABOR_ROUTES } from "@/data/labor-route-registry";
+import type { LaborRoute, LaborScenario } from "@/data/labor-routes";
 import type { NavigatorDocument } from "@/data/documents";
 
 export type LaborDocumentScenario = {
@@ -7,16 +9,17 @@ export type LaborDocumentScenario = {
   scenario: LaborScenario & { documentSlug: string };
 };
 
-const documentScenarios: LaborDocumentScenario[] = LABOR_ROUTES.flatMap((route) =>
+const documentScenarios: LaborDocumentScenario[] = ALL_LABOR_ROUTES.flatMap((route) =>
   route.scenarios.flatMap((scenario) => scenario.documentSlug
     ? [{ route, scenario: scenario as LaborDocumentScenario["scenario"] }]
     : [])
 );
 
 export const LABOR_DOCUMENTS: NavigatorDocument[] = documentScenarios.map(({ route, scenario }) => {
-  const rules = getLaborRulesForArea(route.areaId);
+  const rules = getLaborRulesForRoute(route);
   const documentType = getDocumentType(scenario.resultTitle);
   const legalBasis = rules.map((rule) => `${rule.act}, ${rule.provisions.join(", ")}`);
+  const isAdditive = isLaborAdditiveRouteSlug(route.slug);
 
   return {
     slug: scenario.documentSlug,
@@ -61,13 +64,19 @@ export const LABOR_DOCUMENTS: NavigatorDocument[] = documentScenarios.map(({ rou
     faq: [],
     relatedProblemSlugs: [route.slug],
     legalReferenceKeys: [],
-    seoTitle: scenario.seoTitle ?? `${scenario.resultTitle}: подготовить документ онлайн`,
-    seoDescription: scenario.seoDescription ?? `Подготовьте ${scenario.resultTitle.toLowerCase()} по трудовой ситуации: проверенные нормы, редактирование данных, PDF и юридическая проверка.`,
-    generatorSeoTitle: `${scenario.resultTitle}: заполнить онлайн`,
-    generatorSeoDescription: `Пошаговая подготовка документа «${scenario.resultTitle}» с проверенными правовыми основаниями и безопасным статусом готовности.`,
+    seoTitle: scenario.seoTitle ?? (isAdditive
+      ? `${scenario.resultTitle}: образец, заполнить и скачать PDF`
+      : `${scenario.resultTitle}: подготовить документ онлайн`),
+    seoDescription: scenario.seoDescription ?? (isAdditive
+      ? `${scenario.resultTitle}: образец с пошаговым заполнением, проверенными нормами, редактированием данных и скачиванием PDF для юридической проверки.`
+      : `Подготовьте ${scenario.resultTitle.toLowerCase()} по трудовой ситуации: проверенные нормы, редактирование данных, PDF и юридическая проверка.`),
+    generatorSeoTitle: isAdditive ? `${scenario.resultTitle}: образец, заполнить и скачать` : `${scenario.resultTitle}: заполнить онлайн`,
+    generatorSeoDescription: isAdditive
+      ? `Пошаговая подготовка документа «${scenario.resultTitle}» с проверенными правовыми основаниями, редактированием данных и скачиванием PDF.`
+      : `Пошаговая подготовка документа «${scenario.resultTitle}» с проверенными правовыми основаниями и безопасным статусом готовности.`,
     keywords: [...route.aliases, ...route.relatedQuestionTopics, documentType],
     userQueries: route.aliases,
-    lastReviewedAt: LABOR_LEGAL_REVIEWED_AT,
+    lastReviewedAt: getLaborLegalReviewedAt(route.slug),
     disclaimer: "Результат формируется как проект для юридической проверки. Неподтвержденные реквизиты и правовые выводы не считаются готовыми к подаче."
   };
 });

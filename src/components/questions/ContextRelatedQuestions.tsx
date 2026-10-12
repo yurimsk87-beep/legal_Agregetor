@@ -1,8 +1,10 @@
 import { RelatedQuestionsExpandable } from "@/components/questions/QuestionsList";
+import { isLaborAdditiveRouteSlug } from "@/data/labor-additive-routes";
 import type { NavigatorDocument } from "@/data/documents";
 import { getLaborDocumentScenario } from "@/data/labor-documents";
 import { getCategoryForProblem, legalProblems, type LegalProblem } from "@/data/legal-problems";
 import { isSafeLaborQuestionForRoute } from "@/lib/labor-question-relevance";
+import { isSafeAdditiveLaborQuestionForRoute } from "@/lib/labor-additive-question-relevance";
 import { getRelatedQuestionsForContext } from "@/lib/navigator-relations";
 import { normalizeText, type RelatedQuestionsContextType } from "@/lib/related-questions";
 import type { Question } from "@/lib/types";
@@ -62,11 +64,12 @@ async function loadRelatedQuestions({ contextType, problem, topics, exclusions }
 
   const categoryTitle = getCategoryForProblem(problem)?.title ?? problem.categorySlug;
   const allowedCategoryNames = QUESTION_CATEGORIES_BY_LEGAL_CATEGORY[problem.categorySlug] ?? [categoryTitle];
+  const isAdditiveLaborRoute = problem.categorySlug === "trudovoe-pravo" && isLaborAdditiveRouteSlug(problem.slug);
   const candidates = await getRelatedQuestionsForContext(
     {
       contextType,
-      categoryName: allowedCategoryNames[0],
-      allowedCategoryNames,
+      categoryName: isAdditiveLaborRoute ? undefined : allowedCategoryNames[0],
+      allowedCategoryNames: isAdditiveLaborRoute ? undefined : allowedCategoryNames,
       primaryTags: topics,
       searchPhrases: topics,
       excludedTopics: exclusions
@@ -78,7 +81,8 @@ async function loadRelatedQuestions({ contextType, problem, topics, exclusions }
   const seenTitles = new Set<string>();
   return candidates.filter((question) => {
     if (hasContactPii(question)) return false;
-    if (problem.categorySlug === "trudovoe-pravo" && !isSafeLaborQuestionForRoute(question, topics, exclusions)) return false;
+    if (isAdditiveLaborRoute && !isSafeAdditiveLaborQuestionForRoute(question, problem.slug, topics, exclusions)) return false;
+    if (problem.categorySlug === "trudovoe-pravo" && !isAdditiveLaborRoute && !isSafeLaborQuestionForRoute(question, topics, exclusions)) return false;
 
     const title = normalizeText(question.title);
     if (seenIds.has(question.id) || seenTitles.has(title)) return false;

@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { getLaborDocumentScenario } from "@/data/labor-documents";
-import { getLaborRulesForArea, LABOR_LEGAL_REVIEWED_AT } from "@/data/labor-legal-sources";
+import { getLaborLegalReviewedAt, getLaborRulesForRoute } from "@/data/labor-legal-registry";
 import {
   buildLaborDocumentPrompts,
   laborDocumentRequestSchema,
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: "Сервис подготовки текста временно недоступен. Введенные данные сохранены." }, { status: 503 });
   }
 
-  const rules = getLaborRulesForArea(selected.route.areaId);
+  const rules = getLaborRulesForRoute(selected.route);
   const prompts = buildLaborDocumentPrompts({
     documentTitle: selected.scenario.resultTitle,
     documentType: selected.scenario.resultType,
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
         versionId: crypto.randomUUID(),
         filingReady: false,
         requiresLegalReview: true,
-        legalRegistryReviewedAt: LABOR_LEGAL_REVIEWED_AT,
+        legalRegistryReviewedAt: getLaborLegalReviewedAt(selected.route.slug),
         generatorVersion: GENERATOR_VERSION
       }
     });
