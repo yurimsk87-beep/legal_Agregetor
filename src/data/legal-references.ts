@@ -47,7 +47,7 @@ export const legalReferences = {
     article: "ст. 108",
     title: "Окончание процессуального срока",
     summary: "Помогает определить последний день срока, перенос с нерабочего дня и правила отправки документов до 24:00.",
-    url: CONSULTANT_URLS.gpk
+    url: "https://www.consultant.ru/document/cons_doc_LAW_39570/f664da5170e7ec35c06f5f1b0db3a2a23994ee77/"
   },
   gpk_112: {
     code: "ГПК РФ",
@@ -89,14 +89,14 @@ export const legalReferences = {
     article: "ст. 149",
     title: "Действия сторон при подготовке дела к разбирательству",
     summary: "Даёт ответчику право представить суду и истцу возражения относительно исковых требований в письменной форме.",
-    url: CONSULTANT_URLS.gpk
+    url: "https://www.consultant.ru/document/cons_doc_LAW_39570/72854130f0ed1553f37c3d865a1940a336c77837/"
   },
   gpk_150: {
     code: "ГПК РФ",
     article: "ст. 150",
     title: "Действия судьи при подготовке дела",
     summary: "Определяет, как судья готовит дело к разбирательству, в том числе получает и приобщает возражения ответчика.",
-    url: CONSULTANT_URLS.gpk
+    url: "https://www.consultant.ru/document/cons_doc_LAW_39570/1fe8b277e4700bf1228ea66ca314b4b45db8b164/"
   },
   apk_131: {
     code: "АПК РФ",
@@ -138,7 +138,7 @@ export const legalReferences = {
     article: "ст. 203",
     title: "Отсрочка или рассрочка исполнения решения суда",
     summary: "Используется, когда решение уже принято, но нужно просить суд изменить порядок или срок исполнения.",
-    url: CONSULTANT_URLS.gpk
+    url: "https://www.consultant.ru/document/cons_doc_LAW_39570/c2b6f6265ffd7a70c9eb2effaa2a33ce46389ee3/"
   },
   tk_22: {
     code: "ТК РФ",
@@ -194,7 +194,7 @@ export const legalReferences = {
     article: "ст. 19",
     title: "Расторжение брака в органах ЗАГС",
     summary: "Определяет взаимный развод супругов без общих несовершеннолетних детей и три специальных основания для развода по заявлению одного супруга.",
-    url: "https://www.consultant.ru/document/cons_doc_LAW_8982/"
+    url: "https://www.consultant.ru/document/cons_doc_LAW_8982/9e43cedf0f660aa107b296ec91b196dbe5836c68/"
   },
   sk_21: {
     code: "СК РФ",
@@ -229,7 +229,7 @@ export const legalReferences = {
     article: "ст. 25",
     title: "Момент прекращения брака",
     summary: "Разграничивает прекращение брака при регистрации в ЗАГС и со дня вступления решения суда в законную силу.",
-    url: "https://www.consultant.ru/document/cons_doc_LAW_8982/"
+    url: "https://www.consultant.ru/document/cons_doc_LAW_8982/92be360d5ee562a344c8b09d32420ab7e5a5f5d4/"
   },
   sk_33: {
     code: "СК РФ",
