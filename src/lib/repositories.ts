@@ -573,8 +573,8 @@ function getQuestionSearchTerms(term: string): string[] {
   return words.length ? words : [term];
 }
 
-// Full-text-ish search over public questions by title (fast, indexable substring).
-// Used by the questions page search box ("поиск по вопросам").
+// Search published questions by title AND substantive text/summary.
+// All three columns have pg_trgm indexes for indexed substring matching.
 export async function searchPublicQuestions(query: string, options: { skip?: number; take?: number } = {}) {
   const term = query.trim().toLowerCase();
   const skip = Math.max(0, options.skip ?? 0);
@@ -591,7 +591,7 @@ export async function searchPublicQuestions(query: string, options: { skip?: num
       : questions
           .filter(isPublicQuestion)
           .filter((question) => {
-            const haystack = `${question.title} ${question.summary ?? ""}`.toLowerCase();
+            const haystack = `${question.title} ${question.text} ${question.summary ?? ""}`.toLowerCase();
             return terms.some((word) => haystack.includes(word));
           })
           .slice(skip, skip + take)
@@ -602,7 +602,11 @@ export async function searchPublicQuestions(query: string, options: { skip?: num
       const rows = await prisma.question.findMany({
         where: {
           ...getPublicQuestionWhere(),
-          OR: terms.map((word) => ({ title: { contains: word, mode: "insensitive" } }))
+          OR: terms.flatMap((word) => [
+            { title: { contains: word, mode: "insensitive" as const } },
+            { text: { contains: word, mode: "insensitive" as const } },
+            { summary: { contains: word, mode: "insensitive" as const } }
+          ])
         },
         include: {
           city: true,
