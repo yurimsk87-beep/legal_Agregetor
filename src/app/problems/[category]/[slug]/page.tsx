@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { LaborProblemPage } from "@/components/labor/LaborProblemPage";
-import { RelatedQuestionsBlock } from "@/components/navigator/NavigatorBlocks";
 import { DivorcePropertyScenarioOverview } from "@/components/documents/DivorcePropertyScenarioOverview";
 import { GuardianshipScenarioOverview } from "@/components/documents/GuardianshipScenarioOverview";
 import { ParentsChildScenarioOverview } from "@/components/documents/ParentsChildScenarioOverview";
@@ -125,7 +123,6 @@ import { getLegalCategory } from "@/data/legal-categories";
 import { getNavigatorDocument } from "@/data/documents";
 import { getLegalProblem, legalProblems } from "@/data/legal-problems";
 import type { LegalProblem } from "@/data/legal-problems";
-import { buildProblemQuestionContext } from "@/data/related-questions-context";
 import {
   getZagsScenario,
   ZAGS_PROBLEM_ROUTE,
@@ -134,7 +131,6 @@ import {
 import type { ZagsScenario } from "@/data/zags-route";
 import { getLaborRoute, LABOR_CATEGORY_SLUG } from "@/data/labor-routes";
 import { breadcrumbJsonLd, legalServiceJsonLd } from "@/lib/jsonld";
-import { getRelatedQuestionsForContext } from "@/lib/navigator-relations";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import type { Question } from "@/lib/types";
 
@@ -189,23 +185,9 @@ export default async function ProblemPage({ params, searchParams }: PageProps) {
     return <LaborProblemPage categoryTitle={category.title} problem={problem} scenario={resolvedSearchParams.scenario} />;
   }
 
-  const relatedQuestions = await getRelatedQuestionsForContext(
-    buildProblemQuestionContext({
-      slug: problem.slug,
-      categoryTitle: category.title,
-      allowedCategoryNames: problem.categorySlug === "semya-i-deti" ? ["Семейные дела"] : undefined,
-      primaryTags: problem.relatedQuestionTopics
-    }),
-    { limit: 6 }
-  );
-
   const familyAdditiveRoute = getFamilyAdditiveRoute(problem.slug);
   if (familyAdditiveRoute) {
-    return (
-      <FamilyProblemQna questions={relatedQuestions}>
-        <FamilyAdditiveProblemPage categoryTitle={category.title} problem={problem} route={familyAdditiveRoute} scenarioKey={resolvedSearchParams.scenario} />
-      </FamilyProblemQna>
-    );
+    return <FamilyAdditiveProblemPage categoryTitle={category.title} problem={problem} route={familyAdditiveRoute} scenarioKey={resolvedSearchParams.scenario} />;
   }
   if (problem.slug === DIVORCE_PROPERTY_ROUTE.problemSlug) {
     return <DivorcePropertyProblemPage categoryTitle={category.title} problem={problem} searchParams={resolvedSearchParams} />;
@@ -325,21 +307,6 @@ if (problem.slug !== ZAGS_PROBLEM_ROUTE.problemSlug) notFound();
           <p className="mt-6 text-xs leading-5 text-zinc-500">Юридическая проверка: {formatReviewDate(problem.lastReviewedAt)}.</p>
         ) : null}
       </article>
-    </>
-  );
-}
-
-function FamilyProblemQna({ children, questions }: { children: ReactNode; questions: Question[] }) {
-  return (
-    <>
-      {children}
-      {questions.length ? (
-        <section className="mx-auto max-w-5xl border-t border-line px-4 py-8 sm:px-6 lg:px-8" aria-labelledby="family-similar-questions-title">
-          <h2 id="family-similar-questions-title" className="text-2xl font-semibold text-ink">Похожие вопросы</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-700">Посмотрите, как пользователи описывали похожие обстоятельства. Ответы помогают сориентироваться, но не заменяют проверку закона для вашей ситуации.</p>
-          <div className="mt-5"><RelatedQuestionsBlock questions={questions} /></div>
-        </section>
-      ) : null}
     </>
   );
 }
