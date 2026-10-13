@@ -334,3 +334,7 @@ function ensureDocumentSeoTitle(document: NavigatorDocument) {
   // Do not promise PDF downloads or filing readiness without a tested generator.
   return document.seoTitle?.trim() || name + ": подготовить проект документа онлайн";
 }
+
+export function getNavigatorDocument(slug: string) {
+  return navigatorDocuments.find((document) => document.slug === slug) ?? null;
+}
