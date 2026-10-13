@@ -5,3 +5,5 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE INDEX IF NOT EXISTS "Question_text_trgm_idx" ON "Question" USING gin (text gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS "Question_summary_trgm_idx" ON "Question" USING gin (summary gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS "Question_enrichedTitle_trgm_idx" ON "Question" USING gin ("enrichedTitle" gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS "Question_enrichedText_trgm_idx" ON "Question" USING gin ("enrichedText" gin_trgm_ops);
