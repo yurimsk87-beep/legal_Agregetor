@@ -1,0 +1,49 @@
+name: AI env.local wiring
+
+on:
+  pull_request:
+    paths:
+      - "docker-compose.yml"
+      - "docker-compose.prod.yml"
+      - ".env.example"
+      - "README.md"
+      - ".github/workflows/ai-env-wiring.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-ai-env:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check runtime AI environment in local and production Compose
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'rm -f .env.local .env.production' EXIT
+          printf '%s\n' 'POSTGRES_PASSWORD=not-a-production-secret' 'AI_MODEL=should-be-overridden' > .env.production
+          printf '%s\n' 'AI_API_KEY=ci-fixture-only' 'AI_BASE_URL=https://example.invalid/v1' 'AI_MODEL=ci-test-model' > .env.local
+
+          docker compose -f docker-compose.yml config --format json > "$RUNNER_TEMP/dev-compose.json"
+          docker compose --env-file .env.production -f docker-compose.prod.yml config --format json > "$RUNNER_TEMP/prod-compose.json"
+
+          node - "$RUNNER_TEMP/dev-compose.json" "$RUNNER_TEMP/prod-compose.json" <<'NODE'
+          const fs = require("node:fs");
+          const assert = require("node:assert/strict");
+          for (const file of process.argv.slice(2)) {
+            const compose = JSON.parse(fs.readFileSync(file, "utf8"));
+            const env = compose.services.app.environment;
+            assert.equal(env.AI_API_KEY, "ci-fixture-only");
+            assert.equal(env.AI_BASE_URL, "https://example.invalid/v1");
+            assert.equal(env.AI_MODEL, "ci-test-model");
+          }
+          console.log("Local and production Compose inject AI settings from .env.local");
+          NODE
+
+          # Missing .env.local must not break infrastructure deployments.
+          rm -f .env.local
+          docker compose -f docker-compose.yml config --quiet
+          docker compose --env-file .env.production -f docker-compose.prod.yml config --quiet
