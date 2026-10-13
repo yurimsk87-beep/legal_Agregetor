@@ -54,13 +54,20 @@ for (const problem of familyProblems) {
   assert.ok(searchSite(alias).some((result) => result.href === expectedHref), `${problem.slug}: бытовой alias не ведёт к маршруту`);
 }
 
-const pageSource = fs.readFileSync(path.join(process.cwd(), "src/app/problems/[category]/[slug]/page.tsx"), "utf8");
-assert.match(pageSource, /FamilyProblemQna questions=\{relatedQuestions\}/, "Общий блок похожих вопросов не подключён");
-assert.match(pageSource, />Похожие вопросы</, "Заголовок блока похожих вопросов отсутствует");
-assert.match(pageSource, /questions\.length \? \(/, "Пустой блок похожих вопросов не скрывается");
+// All detail pages, including early-return labor routes, are wrapped by their
+// Next.js segment layout. This is the single source of related-question sections.
+const problemLayoutSource = fs.readFileSync(path.join(process.cwd(), "src/app/problems/[category]/[slug]/layout.tsx"), "utf8");
+const documentLayoutSource = fs.readFileSync(path.join(process.cwd(), "src/app/documents/[documentSlug]/layout.tsx"), "utf8");
+const sharedQuestionsSource = fs.readFileSync(path.join(process.cwd(), "src/components/questions/ContextRelatedQuestions.tsx"), "utf8");
+assert.match(problemLayoutSource, /<ProblemRelatedQuestions problem=\{problem\}/, "Похожие вопросы не включены в layout ситуаций");
+assert.match(documentLayoutSource, /<DocumentRelatedQuestions document=\{document\}/, "Похожие вопросы не включены в layout документов");
+assert.match(sharedQuestionsSource, /Похожие вопросы/, "Нет заголовка похожих вопросов");
+assert.match(sharedQuestionsSource, /Пока нет опубликованных вопросов/, "Пустая выборка должна показывать честное состояние");
 
+const pageSource = fs.readFileSync(path.join(process.cwd(), "src/app/problems/[category]/[slug]/page.tsx"), "utf8");
 const documentPageSource = fs.readFileSync(path.join(process.cwd(), "src/app/documents/[documentSlug]/page.tsx"), "utf8");
-assert.match(documentPageSource, /relatedQuestions\.length \? \(/, "Пустой блок похожих вопросов документа не скрывается");
+assert.doesNotMatch(pageSource, /FamilyProblemQna/, "Дублирующая обёртка ситуаций");
+assert.doesNotMatch(documentPageSource, /DocumentQna/, "Дублирующая обёртка документов");
 
 function question(id: string, text: string): Question {
   return {
