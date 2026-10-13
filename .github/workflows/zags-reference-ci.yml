@@ -52,6 +52,8 @@ jobs:
       - run: npm test
       - run: npm run build
       - name: Run AI Navigator quality check
+        id: ai_navigator_quality
+        continue-on-error: true
         run: |
           npm run start -- -p 3000 > /tmp/reference-routes-next.log 2>&1 &
           app_pid=$!
@@ -99,6 +101,11 @@ jobs:
           done
       - name: Generate and inspect parents and child PDF
         run: npm run audit:parents-child-pdf
+      # The AI quality check may fail independently of document E2E. Run those
+      # tests anyway, then restore the failing quality gate for the PR.
+      - name: Preserve AI Navigator quality gate
+        if: ${{ always() && steps.ai_navigator_quality.outcome == 'failure' }}
+        run: exit 1
       - name: Upload PDF and browser acceptance artifacts
         if: always()
         uses: actions/upload-artifact@v4
