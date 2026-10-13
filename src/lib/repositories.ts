@@ -509,15 +509,12 @@ export async function getQuestions(serviceId?: string, cityId?: string, options:
   );
 }
 
-// Candidate pool for the "Похожие вопросы" block: public questions whose title
-// or text contains any of the given phrases. Lets the scorer rank relevant
-// questions from the whole DB instead of an arbitrary recent window.
+// Candidate pool for the "Похожие вопросы" block: public questions whose public
+// title OR public body contains any of the given phrases. Candidate retrieval must
+// not be title-only: a relevant intent may be described only inside the question.
+// rawText is deliberately excluded because it may contain unmoderated PII.
 export async function getQuestionsMatchingPhrases(phrases: string[], take = 200) {
-  // Title-only match: scanning the large `text` column with many ILIKEs over the
-  // full question base is too slow (trips the repository query-timeout breaker).
-  // Title carries the topic for relevant questions; full text is still used by
-  // the scorer when ranking the fetched candidates.
-  const terms = [...new Set(phrases.map((phrase) => phrase.trim().toLowerCase()).filter((phrase) => phrase.length >= 4))].slice(0, 20);
+  const terms = [...new Set(phrases.map((phrase) => phrase.trim().toLowerCase()).filter((phrase) => phrase.length >= 4))].slice(0, 12);
   if (!terms.length) return [];
 
   const fallback =
@@ -526,7 +523,14 @@ export async function getQuestionsMatchingPhrases(phrases: string[], take = 200)
       : questions
           .filter(isPublicQuestion)
           .filter((question) => {
-            const haystack = `${question.title} ${question.summary ?? ""} ${(question.tags ?? []).join(" ")}`.toLowerCase();
+            const haystack = [
+              question.title,
+              question.enrichedTitle ?? "",
+              question.text,
+              question.enrichedText ?? "",
+              question.summary ?? "",
+              ...(question.tags ?? [])
+            ].join(" ").toLowerCase();
             return terms.some((term) => haystack.includes(term));
           })
           .slice(0, take)
@@ -536,7 +540,13 @@ export async function getQuestionsMatchingPhrases(phrases: string[], take = 200)
     const rows = await prisma.question.findMany({
       where: {
         ...getPublicQuestionWhere(),
-        OR: terms.map((term) => ({ title: { contains: term, mode: "insensitive" as const } }))
+        OR: terms.flatMap((term) => [
+          { title: { contains: term, mode: "insensitive" as const } },
+          { enrichedTitle: { contains: term, mode: "insensitive" as const } },
+          { text: { contains: term, mode: "insensitive" as const } },
+          { enrichedText: { contains: term, mode: "insensitive" as const } },
+          { summary: { contains: term, mode: "insensitive" as const } }
+        ])
       },
       include: {
         city: true,
@@ -573,7 +583,8 @@ function getQuestionSearchTerms(term: string): string[] {
   return words.length ? words : [term];
 }
 
-// Full-text-ish search over public questions by title (fast, indexable substring).
+// Public-question search across both the title and the moderated/public question
+// content. rawText is intentionally excluded because it may contain unmoderated PII.
 // Used by the questions page search box ("поиск по вопросам").
 export async function searchPublicQuestions(query: string, options: { skip?: number; take?: number } = {}) {
   const term = query.trim().toLowerCase();
@@ -591,7 +602,13 @@ export async function searchPublicQuestions(query: string, options: { skip?: num
       : questions
           .filter(isPublicQuestion)
           .filter((question) => {
-            const haystack = `${question.title} ${question.summary ?? ""}`.toLowerCase();
+            const haystack = [
+              question.title,
+              question.enrichedTitle ?? "",
+              question.text,
+              question.enrichedText ?? "",
+              question.summary ?? ""
+            ].join(" ").toLowerCase();
             return terms.some((word) => haystack.includes(word));
           })
           .slice(skip, skip + take)
@@ -602,7 +619,13 @@ export async function searchPublicQuestions(query: string, options: { skip?: num
       const rows = await prisma.question.findMany({
         where: {
           ...getPublicQuestionWhere(),
-          OR: terms.map((word) => ({ title: { contains: word, mode: "insensitive" } }))
+          OR: terms.flatMap((word) => [
+            { title: { contains: word, mode: "insensitive" as const } },
+            { enrichedTitle: { contains: word, mode: "insensitive" as const } },
+            { text: { contains: word, mode: "insensitive" as const } },
+            { enrichedText: { contains: word, mode: "insensitive" as const } },
+            { summary: { contains: word, mode: "insensitive" as const } }
+          ])
         },
         include: {
           city: true,
