@@ -22,6 +22,11 @@ services:
 
   app:
     build: .
+    # Next.js uses .env.local on the host; a container cannot read that host file.
+    # Inject AI_* at runtime without copying credentials into the image.
+    env_file:
+      - path: .env.local
+        required: false
     depends_on:
       postgres:
         condition: service_healthy
