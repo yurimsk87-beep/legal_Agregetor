@@ -127,7 +127,10 @@ export function getDocumentInstructionCtaLabel(document: SeoDocument) {
 }
 
 export function getDocumentCardCtaLabel(document: SeoDocument) {
-  return document.templateSlug ? "Сформировать" : "Скачать образец";
+  const kind = getDocumentResultKind(document);
+  if (kind === "CHECKLIST") return "Подготовить чек-лист";
+  if (kind === "PREPARED_DATA") return "Подготовить сведения";
+  return document.templateSlug ? "Сформировать" : "Открыть документ";
 }
 
 export function getDocumentTypeLabel(document: SeoDocument) {
