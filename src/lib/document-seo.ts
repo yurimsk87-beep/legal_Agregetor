@@ -34,6 +34,14 @@ const documentIntentPatterns: Array<[RegExp, DocumentIntent]> = [
   [/рапорт/i, { nominative: "рапорт", accusative: "рапорт", genitive: "рапорта" }]
 ];
 
+export function getDocumentResultKind(document: Pick<NavigatorDocument, "documentType" | "resultKind" | "slug">) {
+  if (document.resultKind) return document.resultKind;
+  if (document.slug === "zayavlenie-v-zags") return "PREPARED_DATA";
+  if (/чек-лист|памятк/iu.test(document.documentType)) return "CHECKLIST";
+  if (/лист данных|подготовленн.*сведени/iu.test(document.documentType)) return "PREPARED_DATA";
+  return "DRAFT";
+}
+
 export function getDocumentShortTitle(document: Pick<SeoDocument, "title" | "shortTitle">) {
   return document.shortTitle?.trim() || document.title;
 }
@@ -43,10 +51,7 @@ export function getDocumentTitle(document: Pick<SeoDocument, "title">) {
 }
 
 export function getDocumentPageTitle(document: SeoDocument) {
-  return (
-    document.seoTitle?.trim() ||
-    `${getDocumentShortTitle(document)}: образец, бланк и инструкция по заполнению`
-  );
+  return document.seoTitle?.trim() || getDocumentShortTitle(document) + ": подготовка документа";
 }
 
 export function getDocumentH1(document: SeoDocument) {
@@ -54,54 +59,65 @@ export function getDocumentH1(document: SeoDocument) {
 }
 
 export function getDocumentMetaDescription(document: SeoDocument) {
-  return (
-    document.seoDescription?.trim() ||
-    `Разбираем, как составить документ: ${getDocumentShortTitle(document)}. Что указать, какие ошибки проверить и как подготовить образец для подачи.`
-  );
+  const kind = getDocumentResultKind(document);
+  if (kind === "CHECKLIST") return document.seoDescription?.trim() || "Подготовьте персональный чек-лист. Это не заявление и не документ для подачи.";
+  if (kind === "PREPARED_DATA") return document.seoDescription?.trim() || "Подготовьте сведения для переноса в утверждённый официальный бланк.";
+  return document.seoDescription?.trim() || "Проверьте порядок составления и подготовки проекта: " + getDocumentShortTitle(document) + ".";
 }
 
 export function getGeneratorPageTitle(document: SeoDocument) {
-  return (
-    document.generatorSeoTitle?.trim() ||
-    `${getDocumentShortTitle(document)}: заполнить онлайн и скачать образец`
-  );
+  const kind = getDocumentResultKind(document);
+  if (kind === "CHECKLIST") return getDocumentShortTitle(document) + ": подготовить чек-лист онлайн";
+  if (kind === "PREPARED_DATA") return getDocumentShortTitle(document) + ": подготовить сведения для бланка";
+  return document.generatorSeoTitle?.trim() || getDocumentShortTitle(document) + ": подготовить проект онлайн";
 }
 
 export function getGeneratorMetaDescription(document: SeoDocument) {
-  return (
-    document.generatorSeoDescription?.trim() ||
-    `Заполните документ онлайн или используйте готовый образец: ${getDocumentShortTitle(document)}. Подскажем, что указать, куда подать, какие сроки проверить и каких ошибок избежать.`
-  );
+  const kind = getDocumentResultKind(document);
+  if (kind === "CHECKLIST") return "Заполните сведения, чтобы получить индивидуальный чек-лист по ситуации. Это не заявление для подачи.";
+  if (kind === "PREPARED_DATA") return "Подготовьте данные для переноса в предусмотренную законом официальную форму.";
+  return document.generatorSeoDescription?.trim() || "Подготовьте и проверьте проект документа по подтверждённым обстоятельствам.";
 }
 
 export function getGeneratorH1(document: SeoDocument) {
+  const kind = getDocumentResultKind(document);
+  if (kind === "CHECKLIST") return "Подготовить персональный чек-лист";
+  if (kind === "PREPARED_DATA") return "Подготовить сведения для официальной формы";
   const titleAccusative = document.titleAccusative?.trim();
-
-  if (titleAccusative) return `Сформировать ${titleAccusative} онлайн`;
-
-  return `${getDocumentShortTitle(document)}: сформировать онлайн`;
+  if (titleAccusative) return "Сформировать " + titleAccusative + " онлайн";
+  return getDocumentShortTitle(document) + ": сформировать онлайн";
 }
 
 export function getGeneratorEyebrow(document: SeoDocument) {
-  return `${capitalize(getDocumentIntent(document).nominative)}: образец и онлайн-заполнение`;
+  const kind = getDocumentResultKind(document);
+  if (kind === "CHECKLIST") return "Персональный чек-лист";
+  if (kind === "PREPARED_DATA") return "Подготовка данных для бланка";
+  return capitalize(getDocumentIntent(document).nominative) + ": подготовка проекта";
 }
 
 export function getGeneratorLead(document: SeoDocument) {
-  const documentType = getDocumentTypeGenitive(document);
-
-  return `Ответьте на несколько вопросов - сервис подготовит черновик ${documentType}. Его можно использовать как образец, проверить перед подачей и сохранить для дальнейшего использования.`;
+  const kind = getDocumentResultKind(document);
+  if (kind === "CHECKLIST") return "Ответьте на вопросы, чтобы подготовить чек-лист действий. Результат не заменяет юридический документ.";
+  if (kind === "PREPARED_DATA") return "Сервис подготовит сведения для последующего переноса в утверждённый официальный бланк.";
+  return "Ответьте на вопросы — сервис подготовит проект " + getDocumentTypeGenitive(document) + " для дальнейшей юридической проверки.";
 }
 
 export function getGeneratorLegalDescription(_document: SeoDocument) {
   return "Сервис использует общую структуру документа и подсказки по теме. Перед подачей проверьте факты, адресата, сроки, суммы и приложения; порядок подачи зависит от вашей ситуации.";
 }
 
-export function getDocumentOnlineFillCtaLabel(_document: SeoDocument) {
+export function getDocumentOnlineFillCtaLabel(document: SeoDocument) {
+  const kind = getDocumentResultKind(document);
+  if (kind === "CHECKLIST") return "Подготовить чек-лист";
+  if (kind === "PREPARED_DATA") return "Подготовить сведения";
   return "Сформировать документ";
 }
 
-export function getDocumentSampleCtaLabel(_document: SeoDocument) {
-  return `Скачать образец`;
+export function getDocumentSampleCtaLabel(document: SeoDocument) {
+  const kind = getDocumentResultKind(document);
+  if (kind === "CHECKLIST") return "Открыть чек-лист";
+  if (kind === "PREPARED_DATA") return "Открыть форму";
+  return "Скачать образец";
 }
 
 export function getDocumentInstructionCtaLabel(document: SeoDocument) {
