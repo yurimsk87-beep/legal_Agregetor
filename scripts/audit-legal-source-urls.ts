@@ -139,8 +139,8 @@ async function examine(entry: Entry): Promise<Result> {
 
 async function main() {
   for (const file of files) {
-    const module = await import(pathToFileURL(path.join(dataDir, file)).href) as Record<string, unknown>;
-    for (const [key, value] of Object.entries(module)) visit(value, file, key);
+    const loadedRegistry = await import(pathToFileURL(path.join(dataDir, file)).href) as Record<string, unknown>;
+    for (const [key, value] of Object.entries(loadedRegistry)) visit(value, file, key);
   }
   const unique = [...new Map(entries.map((entry) => [entry.registry + ":" + entry.key + ":" + entry.url, entry])).values()];
   const results: Result[] = [];
