@@ -53,6 +53,26 @@ AUTH_SECRET=replace-with-strong-random-secret-at-least-32-chars
 
 Для production обязательно задать реальные `SITE_URL`, `NEXT_PUBLIC_SITE_URL`, `JWT_SECRET`, `AUTH_SECRET`, `DATABASE_URL`. Публичные контакты платформы (`NEXT_PUBLIC_PLATFORM_EMAIL`, телефон, адрес, ИНН/ОГРН) оставляйте пустыми, если они не подтверждены.
 
+### AI-генерация юридических документов и `.env.local`
+
+Секретные параметры AI-провайдера храните в **локальном, не отслеживаемом Git** файле `.env.local` в корне проекта:
+
+```dotenv
+AI_API_KEY=YOUR_PRIVATE_API_KEY
+AI_BASE_URL=https://your-provider.example/v1
+AI_MODEL=your-model-name
+```
+
+В этих строках приведены только заполнители; реальные ключи не добавляйте в Git, документацию и логи.
+
+- **Node.js / Next.js (`npm run dev`, `npm run start`):** Next.js загружает `.env.local` автоматически при старте приложения. Серверные маршруты используют `process.env.AI_API_KEY`, `process.env.AI_BASE_URL`, `process.env.AI_MODEL`; браузеру ключ не передаётся.
+- **Docker Compose:** файл `.env.local` исключён из Docker image через `.dockerignore`. Оба Compose-файла дополнительно читают его как необязательный `env_file` во время запуска контейнера. В production сначала загружается `.env.production`, затем значения из `.env.local` имеют приоритет. Нужен Docker Compose 2.24+ (поддержка `env_file.required`).
+- **Обновление параметров:** после изменений в `.env.local` перезапустите приложение; при использовании Docker пересоздайте контейнер, чтобы он получил новые переменные.
+- **Отсутствие настроек:** `/api/labor-documents/` возвращает HTTP 503, а не подменяет AI-текст заготовкой. Тот же принцип применяется к `/api/legal-drafts/` после объединения отдельного PR с этим маршрутом.
+- Настройки генератора не зависят от флага `AI_NAVIGATOR_LLM_ENABLED` — он управляет только AI Navigator.
+
+Не храните ключ в `NEXT_PUBLIC_*` переменных и не создавайте API, который возвращает эти значения клиенту.
+
 ## Docker, PostgreSQL и Redis
 
 Поднять инфраструктуру:
