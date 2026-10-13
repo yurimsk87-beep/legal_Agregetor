@@ -29,8 +29,14 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    # .env.production provides infrastructure configuration; .env.local (if
+    # present) overrides it with local API credentials at container runtime.
+    # Never include secrets in the Docker image or commit them to Git.
     env_file:
-      - .env.production
+      - path: .env.production
+        required: true
+      - path: .env.local
+        required: false
     environment:
       LEAD_ATTACHMENT_STORAGE_ROOT: /app/private/lead-attachments
     volumes:
