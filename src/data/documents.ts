@@ -1,4 +1,5 @@
 import type { LegalReferenceKey } from "@/data/legal-references";
+import { getDocumentResultKind } from "@/lib/document-seo";
 import { DIVORCE_PROPERTY_DOCUMENTS } from "@/data/divorce-property-documents";
 import { GUARDIANSHIP_DOCUMENTS } from "@/data/guardianship-documents";
 import { PARENTS_CHILD_DOCUMENTS } from "@/data/parents-child-documents";
@@ -41,6 +42,7 @@ export type NavigatorDocument = {
   category: string;
   templateSlug?: string;
   documentType: string;
+  resultKind?: "DRAFT" | "CHECKLIST" | "PREPARED_DATA" | "OFFICIAL_FORM";
   shortTitle?: string;
   titleAccusative?: string;
   documentTypeAccusative?: string;
@@ -91,6 +93,7 @@ const navigatorDocumentDefinitions: NavigatorDocument[] = [
   "title": "Заявление в орган ЗАГС",
   "category": "заявления",
   "documentType": "Заявление",
+  "resultKind": "PREPARED_DATA",
   "shortTitle": "Заявление в орган ЗАГС",
   "titleAccusative": "заявление в орган ЗАГС",
   "shortIntro": "Одна страница для выбора нужного заявления в ЗАГС: заключение брака, перемена имени, повторное свидетельство или справка, исправление записи.",
@@ -323,28 +326,11 @@ export const navigatorDocuments: NavigatorDocument[] = navigatorDocumentDefiniti
 }));
 
 function ensureDocumentSeoTitle(document: NavigatorDocument) {
-  const existing = document.seoTitle?.trim() || document.title.trim();
-  if (containsDocumentName(existing, document) && /образец/iu.test(existing) && /скач/iu.test(existing)) {
-    return existing;
-  }
-
   const name = document.shortTitle?.trim() || document.title.trim();
-  return `${name}: образец, заполнить онлайн, скачать PDF`;
-}
-
-function containsDocumentName(title: string, document: NavigatorDocument) {
-  const name = normalizeSeoTitle(document.shortTitle?.trim() || document.title);
-  const candidate = normalizeSeoTitle(title);
-  if (candidate.includes(name)) return true;
-
-  const words = name.split(" ").filter((word) => word.length >= 5);
-  return words.length > 0 && words.filter((word) => candidate.includes(word)).length / words.length >= 0.7;
-}
-
-function normalizeSeoTitle(value: string) {
-  return value.toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я0-9]+/giu, " ").trim();
-}
-
-export function getNavigatorDocument(slug: string) {
-  return navigatorDocuments.find((document) => document.slug === slug) ?? null;
+  const resultKind = getDocumentResultKind(document);
+  if (resultKind === "CHECKLIST") return name + ": персональный чек-лист и порядок действий";
+  if (resultKind === "PREPARED_DATA") return name + ": подготовка сведений для официальной формы";
+  if (resultKind === "OFFICIAL_FORM") return name + ": официальный бланк и порядок подачи";
+  // Do not promise PDF downloads or filing readiness without a tested generator.
+  return document.seoTitle?.trim() || name + ": подготовить проект документа онлайн";
 }
