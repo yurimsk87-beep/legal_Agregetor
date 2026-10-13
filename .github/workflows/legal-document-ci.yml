@@ -1,0 +1,27 @@
+name: Legal document generation checks
+
+on:
+  pull_request:
+    paths:
+      - "src/app/api/legal-drafts/**"
+      - "src/lib/legal-draft-*"
+      - "src/components/documents/**"
+      - "package.json"
+      - ".github/workflows/legal-document-ci.yml"
+  workflow_dispatch:
+
+jobs:
+  legal-drafts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run prisma:generate
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
