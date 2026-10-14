@@ -3,6 +3,10 @@ import { LegalReviewLawyers } from "@/components/lawyers/LegalReviewLawyers";
 
 import { useState } from "react";
 import { Download } from "lucide-react";
+import { useLegacyFamilyDocumentVersions } from "@/lib/use-legacy-family-document-versions";
+import { LegacyFamilyVersionPanel } from "@/components/documents/LegacyFamilyVersionPanel";
+import { SURROGACY_ORIGIN_ROUTE } from "@/data/surrogacy-origin-route";
+import { SURROGACY_ORIGIN_REVIEWED_AT } from "@/data/surrogacy-origin-legal-review";
 import { SURROGACY_ORIGIN_KEYS, SURROGACY_ORIGIN_SCENARIOS, type SurrogacyOriginKey } from "@/data/surrogacy-origin-route";
 import { createSurrogacyOriginPdfBlob } from "@/lib/surrogacy-origin-pdf";
 import { validateSurrogacyOrigin, type SurrogacyOriginDecision, type SurrogacyOriginValues } from "@/lib/surrogacy-origin-validator";
@@ -13,17 +17,18 @@ export function SurrogacyOriginHelper({ initialKey }: { initialKey?: SurrogacyOr
   const [decision, setDecision] = useState<SurrogacyOriginDecision | null>(null);
   const [message, setMessage] = useState("");
   const scenario = key ? SURROGACY_ORIGIN_SCENARIOS[key] : null;
+  const versions = useLegacyFamilyDocumentVersions<SurrogacyOriginDecision, SurrogacyOriginValues>({ routeSlug: SURROGACY_ORIGIN_ROUTE.problemSlug, scenarioKey: key || "unselected", documentSlug: SURROGACY_ORIGIN_ROUTE.documentSlug, reviewedAt: SURROGACY_ORIGIN_REVIEWED_AT });
 
   function update(name: string, value: string) {
     setValues((current) => ({ ...current, [name]: value }));
-    setDecision(null);
+    setDecision(null); versions.clear();
     setMessage("");
   }
 
   async function download() {
-    if (!decision?.pdfAvailable) return;
+    if (!decision?.pdfAvailable || !versions.canDownload) return;
     try {
-      const blob = await createSurrogacyOriginPdfBlob(decision);
+      const blob = await createSurrogacyOriginPdfBlob({ ...decision, filingReady: false }, versions.current?.versionId);
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -42,13 +47,13 @@ export function SurrogacyOriginHelper({ initialKey }: { initialKey?: SurrogacyOr
     <div className="mt-5 grid gap-2">
       <label htmlFor="surrogacy-scenario" className="text-sm font-semibold text-ink">Что вам нужно сделать?</label>
       <select id="surrogacy-scenario" value={key} onChange={(event) => {
-        setKey(event.target.value as SurrogacyOriginKey | ""); setValues({}); setDecision(null);
+        setKey(event.target.value as SurrogacyOriginKey | ""); setValues({}); setDecision(null); versions.clear();
       }} className="min-h-11 w-full rounded-md border border-line bg-white px-3 py-2 text-base focus:ring-2 focus:ring-trust/30">
         <option value="">Выберите ситуацию</option>
         {SURROGACY_ORIGIN_KEYS.map((item) => <option value={item} key={item}>{SURROGACY_ORIGIN_SCENARIOS[item].title}</option>)}
       </select>
     </div>
-    {scenario ? <form className="mt-6 grid gap-5" onSubmit={(event) => { event.preventDefault(); setDecision(validateSurrogacyOrigin(scenario.key, values)); }}>
+    {scenario ? <form className="mt-6 grid gap-5" onSubmit={(event) => { event.preventDefault(); const result = validateSurrogacyOrigin(scenario.key, values); setDecision(result); versions.record(result, ("draftText" in result && typeof result.draftText === "string") ? result.draftText : "", values); }}>
       {scenario.questions.map((field) => <div key={field.name} className="grid gap-2">
         <label htmlFor={`surrogacy-${field.name}`} className="text-sm font-semibold text-ink">{field.label}</label>
         {field.type === "select" ? <select id={`surrogacy-${field.name}`} value={values[field.name] ?? ""} onChange={(event) => update(field.name, event.target.value)} className="min-h-11 w-full rounded-md border border-line bg-white px-3 py-2 text-base focus:ring-2 focus:ring-trust/30" required>
@@ -59,7 +64,7 @@ export function SurrogacyOriginHelper({ initialKey }: { initialKey?: SurrogacyOr
       <button type="submit" className="inline-flex min-h-11 w-fit items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:ring-2 focus:ring-trust/30">Получить чек-лист</button>
     </form> : null}
     {decision ? <div className="mt-6 border-t border-line pt-5" aria-live="polite">
-      <h3 className="text-xl font-semibold text-ink">{decision.resultLabel}</h3>
+      <h3 className="text-xl font-semibold text-ink">{decision.resultLabel}</h3><LegacyFamilyVersionPanel current={versions.current} versions={versions.versions} dirty={versions.dirty} onSave={() => { if (decision) versions.record(decision, ("draftText" in decision && typeof decision.draftText === "string") ? decision.draftText : "", values, "USER_EDITED"); }} onRestore={(id) => { const prior = versions.restore(id); if (prior) { setDecision(prior.decision); setValues(prior.values); } }} />
       <p className="mt-2 text-sm font-semibold text-amber-900">Готово к подаче: нет. Юридическая проверка обязательна.</p>
       {decision.issues.map((issue) => <p key={issue.field} className="mt-2 text-sm text-red-800">{issue.message}</p>)}
       {decision.notices.map((notice) => <p key={notice} className="mt-2 text-sm leading-6 text-zinc-700">{notice}</p>)}
@@ -70,7 +75,7 @@ export function SurrogacyOriginHelper({ initialKey }: { initialKey?: SurrogacyOr
         <h4 className="mt-5 font-semibold text-ink">Что делать дальше</h4>
         <ol className="mt-2 grid gap-2 text-sm leading-6 text-zinc-700">{decision.nextSteps.map((item, index) => <li key={item}>{index + 1}. {item}</li>)}</ol>
         <div className="mt-6 flex flex-wrap gap-3">
-          <button type="button" onClick={download} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:ring-2 focus:ring-trust/30"><Download className="h-4 w-4" aria-hidden="true" /> Скачать PDF</button>
+          <button type="button" onClick={download} disabled={!versions.canDownload} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:ring-2 focus:ring-trust/30"><Download className="h-4 w-4" aria-hidden="true" /> Скачать PDF</button>
           <LegalReviewLawyers context={{ route: "/documents/", scenario: String(key), documentTitle: decision.documentTitle }} />
         </div>
       </> : null}

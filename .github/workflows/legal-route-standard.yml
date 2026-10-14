@@ -1,0 +1,39 @@
+name: Legal route standard
+
+on:
+  pull_request:
+    paths:
+      - "src/data/**"
+      - "src/lib/**"
+      - "src/app/problems/**"
+      - "src/app/documents/**"
+      - "package.json"
+      - "docs/LEGAL_ROUTE_STANDARD_V1.md"
+      - ".github/workflows/legal-route-standard.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-routes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run test:route-standard
+      - run: npm run test:document-result
+      - run: npm run typecheck
+      - name: Upload full scenario acceptance matrix
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: legal-route-acceptance-matrix
+          path: artifacts/legal-route-acceptance.json
+          if-no-files-found: warn

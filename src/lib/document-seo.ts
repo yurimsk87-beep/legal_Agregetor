@@ -20,6 +20,15 @@ type GeneratorSeoBlock = {
   text: string;
 };
 
+type GuidedResultKind = "official" | "checklist" | "prepared" | null;
+function getGuidedResultKind(document: SeoDocument): GuidedResultKind {
+  const value = document.resultKind;
+  if (value === "officialForm" || value === "OFFICIAL_FORM") return "official";
+  if (value === "checklist" || value === "CHECKLIST" || value === "legalReviewOnly" || value === "LEGAL_REVIEW_ONLY") return "checklist";
+  if (value === "preparedData" || value === "PREPARED_DATA") return "prepared";
+  return null;
+}
+
 const documentIntentPatterns: Array<[RegExp, DocumentIntent]> = [
   [/претенз/i, { nominative: "претензия", accusative: "претензию", genitive: "претензии" }],
   [/жалоб/i, { nominative: "жалоба", accusative: "жалобу", genitive: "жалобы" }],
@@ -61,6 +70,10 @@ export function getDocumentMetaDescription(document: SeoDocument) {
 }
 
 export function getGeneratorPageTitle(document: SeoDocument) {
+  const kind = getGuidedResultKind(document);
+  if (kind === "official") return `${getDocumentShortTitle(document)}: подготовить сведения для официальной формы`;
+  if (kind === "checklist") return `${getDocumentShortTitle(document)}: проверка и чек-лист`;
+  if (kind === "prepared") return `${getDocumentShortTitle(document)}: подготовить данные`;
   return (
     document.generatorSeoTitle?.trim() ||
     `${getDocumentShortTitle(document)}: заполнить онлайн и скачать образец`
@@ -75,6 +88,7 @@ export function getGeneratorMetaDescription(document: SeoDocument) {
 }
 
 export function getGeneratorH1(document: SeoDocument) {
+  if (getGuidedResultKind(document)) return getDocumentShortTitle(document);
   const titleAccusative = document.titleAccusative?.trim();
 
   if (titleAccusative) return `Сформировать ${titleAccusative} онлайн`;
@@ -83,10 +97,13 @@ export function getGeneratorH1(document: SeoDocument) {
 }
 
 export function getGeneratorEyebrow(document: SeoDocument) {
+  if (getGuidedResultKind(document)) return "Правовая проверка и подготовка сведений";
   return `${capitalize(getDocumentIntent(document).nominative)}: образец и онлайн-заполнение`;
 }
 
 export function getGeneratorLead(document: SeoDocument) {
+  if (getGuidedResultKind(document) === "official") return "Ответьте на вопросы и перенесите подтверждённые сведения в утверждённый официальный бланк. Сервис не заменяет официальную форму.";
+  if (getGuidedResultKind(document)) return "Ответьте на вопросы и получите перечень проверенных обстоятельств и дальнейших действий. Результат не является готовым процессуальным документом.";
   const documentType = getDocumentTypeGenitive(document);
 
   return `Ответьте на несколько вопросов - сервис подготовит черновик ${documentType}. Его можно использовать как образец, проверить перед подачей и сохранить для дальнейшего использования.`;
@@ -97,11 +114,11 @@ export function getGeneratorLegalDescription(_document: SeoDocument) {
 }
 
 export function getDocumentOnlineFillCtaLabel(_document: SeoDocument) {
-  return "Сформировать документ";
+  return getGuidedResultKind(_document) ? "Проверить условия и подготовить сведения" : "Сформировать документ";
 }
 
 export function getDocumentSampleCtaLabel(_document: SeoDocument) {
-  return `Скачать образец`;
+  return getGuidedResultKind(_document) === "official" ? "Открыть официальную форму" : getGuidedResultKind(_document) ? "Скачать результат PDF" : "Скачать образец";
 }
 
 export function getDocumentInstructionCtaLabel(document: SeoDocument) {
@@ -111,7 +128,7 @@ export function getDocumentInstructionCtaLabel(document: SeoDocument) {
 }
 
 export function getDocumentCardCtaLabel(document: SeoDocument) {
-  return document.templateSlug ? "Сформировать" : "Скачать образец";
+  return getGuidedResultKind(document) ? "Проверить порядок" : document.templateSlug ? "Сформировать" : "Скачать образец";
 }
 
 export function getDocumentTypeLabel(document: SeoDocument) {
@@ -119,6 +136,8 @@ export function getDocumentTypeLabel(document: SeoDocument) {
 }
 
 export function getDocumentSeoBlocks(document: SeoDocument): GeneratorSeoBlock[] {
+  const kind = getGuidedResultKind(document);
+  if (kind) return getSafeGuidedBlocks(document, kind);
   const title = getDocumentShortTitle(document);
   const sampleTitle = document.titleAccusative?.trim() ? `Скачать образец ${document.titleAccusative.trim()}` : `Скачать образец: ${title}`;
   const fillTitle = document.titleAccusative?.trim()
@@ -147,6 +166,8 @@ export function getDocumentSeoBlocks(document: SeoDocument): GeneratorSeoBlock[]
 }
 
 export function getGeneratorSeoBlocks(document: SeoDocument): GeneratorSeoBlock[] {
+  const kind = getGuidedResultKind(document);
+  if (kind) return getSafeGuidedBlocks(document, kind);
   const title = getDocumentShortTitle(document);
   const documentType = getDocumentTypeAccusative(document);
   const sampleTitle = document.titleAccusative?.trim() ? `Скачать образец ${document.titleAccusative.trim()}` : `Скачать образец: ${title}`;
@@ -173,6 +194,8 @@ export function getGeneratorSeoBlocks(document: SeoDocument): GeneratorSeoBlock[
 }
 
 export function getGeneratorFaqs(document: SeoDocument): FaqItem[] {
+  const kind = getGuidedResultKind(document);
+  if (kind) return getSafeGuidedFaqs(document, kind);
   const title = getDocumentShortTitle(document);
   const documentType = getDocumentTypeAccusative(document);
   const entityId = `document-generator-${document.slug}`;
@@ -209,6 +232,45 @@ export function getGeneratorFaqs(document: SeoDocument): FaqItem[] {
       entityType: "DOCUMENT",
       entityId,
       sortOrder: 4
+    }
+  ];
+}
+
+function getSafeGuidedBlocks(document: SeoDocument, kind: Exclude<GuidedResultKind, null>): GeneratorSeoBlock[] {
+  const name = getDocumentShortTitle(document);
+  return [
+    {
+      title: kind === "official" ? "Где получить официальную форму" : "Как получить персональный результат",
+      text: kind === "official"
+        ? "Используйте действующий официальный бланк из указанного источника. Сервис помогает проверить процедуру и подготовить сведения, но не выдаёт неофициальный документ вместо обязательной формы."
+        : `Ответьте на вопросы по теме «${name}». Результатом будет перечень сведений, проверок и действий. Он не является готовым иском или заявлением для подачи.`
+    },
+    {
+      title: "Что проверить перед использованием",
+      text: "Проверьте актуальность процедуры, полномочия заявителя, подтверждённые обстоятельства, адресата и все обязательные приложения. При споре или неопределённости необходима юридическая проверка."
+    }
+  ];
+}
+function getSafeGuidedFaqs(document: SeoDocument, kind: Exclude<GuidedResultKind, null>): FaqItem[] {
+  const title = getDocumentShortTitle(document);
+  return [
+    {
+      id: `document-generator-${document.slug}-scope`,
+      question: `Какой результат доступен: ${title}?`,
+      answer: kind === "official"
+        ? "Можно подготовить сведения и открыть официальный бланк. Внутренний результат не подменяет утверждённую форму."
+        : "Сервис выдаёт проверочный материал и перечень действий, а не документ, готовый к подаче.",
+      entityType: "DOCUMENT",
+      entityId: `document-generator-${document.slug}`,
+      sortOrder: 1
+    },
+    {
+      id: `document-generator-${document.slug}-review`,
+      question: "Нужно ли проверять результат перед использованием?",
+      answer: "Да. Проверьте процедуру, полномочия, факты и приложения; при судебном или ином споре необходима индивидуальная юридическая оценка.",
+      entityType: "DOCUMENT",
+      entityId: `document-generator-${document.slug}`,
+      sortOrder: 2
     }
   ];
 }

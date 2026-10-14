@@ -9,6 +9,7 @@ export type LaborDocumentExport = {
   rules: LaborLegalRule[];
   nextSteps: string[];
   reviewedAt: string;
+  versionId?: string;
 };
 
 export function buildLaborDocumentExportText(result: LaborDocumentExport) {
@@ -43,7 +44,7 @@ export async function createLaborDocumentPdfBlob(result: LaborDocumentExport) {
     pageSize: "A4",
     pageMargins: [48, 50, 48, 62],
     defaultStyle: { font: "Roboto", fontSize: 10, lineHeight: 1.35, color: "#18181b" },
-    footer: (page, pages) => ({ margin: [48, 10, 48, 0], columns: [{ text: `Правовая сверка: ${result.reviewedAt}`, style: "footer" }, { text: `${page}/${pages}`, alignment: "right", style: "footer" }] }),
+    footer: (page, pages) => ({ margin: [48, 10, 48, 0], columns: [{ text: `Правовая сверка: ${result.reviewedAt}${result.versionId ? ` | Версия: ${result.versionId}` : ""}`, style: "footer" }, { text: `${page}/${pages}`, alignment: "right", style: "footer" }] }),
     content,
     styles: {
       status: { fontSize: 10, bold: true, color: "#92400e", margin: [0, 0, 0, 8] },

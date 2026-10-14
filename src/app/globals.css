@@ -54,3 +54,29 @@ a {
     animation: none;
   }
 }
+
+/* Shared visual and keyboard baseline for every legal situation and document. */
+.legal-route-shell :is(h1, h2, h3) {
+  letter-spacing: -0.017em;
+  text-wrap: pretty;
+}
+
+.legal-route-shell :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+  max-width: 100%;
+  border-radius: 0.5rem;
+}
+
+.legal-route-shell :is(button, a, input, textarea, select, summary):focus-visible {
+  outline: 3px solid #0f766e;
+  outline-offset: 3px;
+}
+
+.legal-route-shell :is(input[type="checkbox"], input[type="radio"]) {
+  accent-color: #0f766e;
+}
+
+@media (max-width: 640px) {
+  .legal-route-shell :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+    font-size: 16px;
+  }
+}

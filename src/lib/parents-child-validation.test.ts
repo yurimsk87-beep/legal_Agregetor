@@ -3,6 +3,9 @@ import { getParentsChildRules } from "@/data/parents-child-legal-review";
 import { PARENTS_CHILD_SCENARIO_KEYS } from "@/data/parents-child-route";
 import { buildParentsChildPdfText } from "@/lib/parents-child-pdf";
 import { getVisibleParentsChildFields, validateParentsChildApplication } from "@/lib/parents-child-validator";
+import { createParentsChildDocumentResult } from "@/lib/parents-child-document-result";
+import { documentResultReviewMetadata } from "@/lib/document-result-contract";
+import { addDocumentVersion } from "@/lib/document-version-history";
 
 const safe = { immediateThreat: "no", complexRisk: "no", international: "no" };
 const parties = {
@@ -31,12 +34,42 @@ async function run() {
   const urgent = record(validateParentsChildApplication("residence", { immediateThreat: "yes" }));
   assert.equal(urgent.resultKind, "urgent");
   assert.equal(urgent.pdfAvailable, false);
+  assert.equal(createParentsChildDocumentResult({ scenarioKey: "residence", decision: urgent, draft: "" }), null);
+
   assert.equal(urgent.filingSteps.some((step) => step.includes("112")), true);
 
   const residenceAgreement = record(validateParentsChildApplication("residence", {
     ...safe, existingOrder: "no", agreement: "yes", ...parties, currentCircumstances: "Ребёнок живёт с первым родителем", requestedResidence: "Ребёнок проживает с первым родителем по указанному адресу"
   }));
   assert.equal(residenceAgreement.resultKind, "agreement");
+  const baseline = createParentsChildDocumentResult({ scenarioKey: "residence", decision: residenceAgreement, draft: "" });
+  assert.ok(baseline);
+  assert.equal(baseline.resultKind, "PREPARED_DATA", "without a draft the result must not claim to be an agreement draft");
+  assert.equal(baseline.filingReady, false);
+  assert.equal(baseline.source, "DETERMINISTIC");
+  assert.match(baseline.documentText, /Готово к подаче: нет/);
+  const generated = createParentsChildDocumentResult({
+    scenarioKey: "residence", decision: residenceAgreement, draft: residenceAgreement.draftText, source: "AI_DRAFT"
+  });
+  assert.ok(generated);
+  assert.equal(generated.resultKind, "AGREEMENT_DRAFT");
+  assert.equal(generated.requiresLegalReview, true);
+  assert.equal(generated.source, "AI_DRAFT");
+  assert.notEqual(generated.versionId, baseline.versionId);
+  const edited = createParentsChildDocumentResult({
+    scenarioKey: "residence", decision: residenceAgreement,
+    draft: residenceAgreement.draftText + "\\nПодтверждённое уточнение", source: "USER_EDITED"
+  });
+  assert.ok(edited);
+  assert.equal(edited.source, "USER_EDITED");
+  const saved = addDocumentVersion(addDocumentVersion([], { documentResult: baseline, payload: "" }), {
+    documentResult: edited, payload: "Подтверждённое уточнение"
+  });
+  assert.equal(saved.length, 2);
+  assert.equal(saved[0].documentResult.versionId, edited.versionId);
+  assert.equal(saved[1].documentResult.versionId, baseline.versionId);
+  assert.equal(documentResultReviewMetadata(edited).documentVersionId, edited.versionId);
+
   assert.equal(residenceAgreement.filingReady, true);
   assert.equal(residenceAgreement.draftText.includes("ПРОЕКТ СОГЛАШЕНИЯ"), true);
   assert.equal(getVisibleParentsChildFields("residence", { agreement: "yes" }).some((field) => field.name === "courtName"), false);

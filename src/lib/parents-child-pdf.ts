@@ -22,7 +22,7 @@ export function buildParentsChildPdfText(decision: ParentsChildDecision) {
   ].join("\n");
 }
 
-export async function createParentsChildPdfBlob(decision: ParentsChildDecision) {
+export async function createParentsChildPdfBlob(decision: ParentsChildDecision, versionId?: string) {
   if (!decision.pdfAvailable || decision.resultKind === "urgent") throw new Error("PDF недоступен для срочного результата.");
   const [pdfMakeModule, vfsModule] = await Promise.all([import("pdfmake/build/pdfmake"), import("pdfmake/build/vfs_fonts")]);
   const pdfMake = pdfMakeModule.default;
@@ -43,7 +43,7 @@ export async function createParentsChildPdfBlob(decision: ParentsChildDecision) 
     pageSize: "A4",
     pageMargins: [42, 48, 42, 60],
     defaultStyle: { font: "Roboto", fontSize: 10, lineHeight: 1.35, color: "#18181b" },
-    footer: (page, pages) => ({ margin: [42, 10, 42, 0], columns: [{ text: `Правовая сверка: ${PARENTS_CHILD_REVIEWED_AT}`, style: "footer" }, { text: `${page}/${pages}`, alignment: "right", style: "footer" }] }),
+    footer: (page, pages) => ({ margin: [42, 10, 42, 0], columns: [{ text: `Правовая сверка: ${PARENTS_CHILD_REVIEWED_AT}${versionId ? ` | Версия: ${versionId}` : ""}`, style: "footer" }, { text: `${page}/${pages}`, alignment: "right", style: "footer" }] }),
     content,
     styles: {
       eyebrow: { fontSize: 10, bold: true, color: "#166534", margin: [0, 0, 0, 8] },

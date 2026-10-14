@@ -3,6 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { FamilyDocumentEnhancements } from "@/components/documents/FamilyDocumentEnhancements";
+import { useLegacyFamilyDocumentVersions } from "@/lib/use-legacy-family-document-versions";
+import type { LegacyFamilyOutcome } from "@/lib/legacy-family-document-result";
+import { LegacyFamilyVersionPanel } from "@/components/documents/LegacyFamilyVersionPanel";
+import { createVersionedFamilyResultPdfBlob } from "@/lib/versioned-family-result-pdf";
+import { DIVORCE_PROPERTY_ROUTE } from "@/data/divorce-property-route";
 import { OfficialFieldHelp } from "@/components/forms/OfficialServiceHelp";
 import { StructuredPartyField, isStructuredPartyField } from "@/components/forms/StructuredPartyField";
 import { SearchableSelect } from "@/components/forms/SearchableSelect";
@@ -11,7 +16,7 @@ import {
 } from "@/data/divorce-property-route";
 import { COURT_DIRECTORY, getCourtRegionalStatus } from "@/data/court-directory";
 import { RUSSIAN_REGIONS } from "@/data/guardianship-territories";
-import { DIVORCE_PROPERTY_LEGAL_RULES } from "@/data/divorce-property-legal-review";
+import { DIVORCE_PROPERTY_LEGAL_RULES, DIVORCE_PROPERTY_LEGAL_REVIEW } from "@/data/divorce-property-legal-review";
 import type {
   DivorcePropertyHelperField,
   DivorcePropertyScenarioKey
@@ -51,6 +56,14 @@ const COURT_LOOKUP_FIELD_NAMES = new Set([
   "appealCourtName"
 ]);
 
+type DivorceVersionSnapshot = {
+  review: ReviewState;
+  values: DivorcePropertyValues;
+  assetRows: PropertyAssetRow[];
+  draftPreview: string;
+  supplementalDrafts: Array<{ title: string; text: string }>;
+};
+
 export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: DivorcePropertyScenarioKey }) {
   const scenario = DIVORCE_PROPERTY_SCENARIOS[scenarioKey];
   const [values, setValues] = useState<DivorcePropertyValues>({});
@@ -59,6 +72,66 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
   const [draftPreview, setDraftPreview] = useState("");
   const [supplementalDrafts, setSupplementalDrafts] = useState<Array<{ title: string; text: string }>>([]);
   const [downloadError, setDownloadError] = useState("");
+  const versions = useLegacyFamilyDocumentVersions<LegacyFamilyOutcome, DivorceVersionSnapshot>({
+    routeSlug: DIVORCE_PROPERTY_ROUTE.problemSlug, scenarioKey,
+    documentSlug: scenario.documentSlug, reviewedAt: DIVORCE_PROPERTY_LEGAL_REVIEW.reviewedAt
+  });
+
+  function makeOutcome(state: NonNullable<ReviewState>, mainText: string): LegacyFamilyOutcome {
+    return {
+      documentTitle: state.decision.documentTitle,
+      resultKind: !mainText.trim() || state.decision.officialFormOnly ? "prepared-data"
+        : scenarioKey === "property-agreement" ? "agreementDraft" : "courtDraft",
+      resultLabel: state.decision.officialFormOnly ? "Сведения для официального бланка" : "Материалы для юридической проверки",
+      pdfAvailable: true,
+      requiresLegalReview: state.decision.requiresLegalReview || Boolean(mainText),
+      issues: state.decision.issues,
+      notices: state.decision.notices,
+      preparedData: state.values,
+      filingSteps: [state.decision.filingInstruction, state.decision.afterFiling]
+    };
+  }
+
+  function fullDraft(mainText: string, drafts: Array<{ title: string; text: string }>) {
+    return !mainText.trim() ? "" : [mainText, ...drafts.filter((d) => d.text.trim()).map((d) => `${d.title}\n${d.text}`)].join("\n\n");
+  }
+
+  function recordVersion(state: NonNullable<ReviewState>, mainText: string, drafts: Array<{ title: string; text: string }>, source: "DETERMINISTIC" | "AI_DRAFT" | "USER_EDITED") {
+    versions.record(makeOutcome(state, mainText), fullDraft(mainText, drafts), {
+      review: state, values: { ...values }, assetRows: assetRows.map((row) => ({ ...row })),
+      draftPreview: mainText, supplementalDrafts: drafts.map((d) => ({ ...d }))
+    }, source);
+  }
+
+  function restoreVersion(id: string) {
+    const previous = versions.restore(id);
+    if (!previous) return;
+    const state = previous.values;
+    previousCourtLevel.current = resolveCourtLevel(scenarioKey, { ...state.values, assetRows: JSON.stringify(state.assetRows) });
+    setValues(state.values);
+    setAssetRows(state.assetRows);
+    setReview(state.review);
+    setDraftPreview(state.draftPreview);
+    setSupplementalDrafts(state.supplementalDrafts);
+    setDownloadError("");
+  }
+
+  async function downloadResultPdf() {
+    const result = versions.current;
+    if (!result || !versions.canDownload) return;
+    try {
+      const blob = await createVersionedFamilyResultPdfBlob(result);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `semeynyy-rezultat-${scenarioKey}-${result.versionId}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+      setDownloadError("");
+    } catch {
+      setDownloadError("Не удалось сформировать PDF.");
+    }
+  }
   const formValues = scenarioKey === "property-claim"
     ? { ...values, assetRows: JSON.stringify(assetRows) }
     : values;
@@ -77,6 +150,7 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
     previousCourtLevel.current = courtLevel;
     setValues((current) => resetCourtSelection(current));
     setReview(null);
+    versions.clear();
     setDraftPreview("");
     setSupplementalDrafts([]);
   }, [courtLevel]);
@@ -89,6 +163,7 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
         : next;
     });
     setReview(null);
+    versions.clear();
     setDraftPreview("");
     setSupplementalDrafts([]);
     setDownloadError("");
@@ -97,6 +172,7 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
   function setAssetField(id: string, name: keyof PropertyAssetRow, value: string) {
     setAssetRows((current) => current.map((row) => row.id === id ? { ...row, [name]: value } as PropertyAssetRow : row));
     setReview(null);
+    versions.clear();
     setDraftPreview("");
     setSupplementalDrafts([]);
   }
@@ -104,15 +180,19 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
   function addAsset() {
     setAssetRows((current) => [...current, createEmptyAssetRow()]);
     setReview(null);
+    versions.clear();
   }
 
   function removeAsset(id: string) {
     setAssetRows((current) => current.length === 1 ? current : current.filter((row) => row.id !== id));
     setReview(null);
+    versions.clear();
   }
 
   function setSupplementalDraft(index: number, text: string) {
-    setSupplementalDrafts((current) => current.map((draft, draftIndex) => draftIndex === index ? { ...draft, text } : draft));
+    const next = supplementalDrafts.map((draft, draftIndex) => draftIndex === index ? { ...draft, text } : draft);
+    setSupplementalDrafts(next);
+    versions.markDirty(fullDraft(draftPreview, next));
   }
 
   function reviewFields(event: FormEvent<HTMLFormElement>) {
@@ -124,9 +204,13 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
     const preparedValues = visibleFields
       .map((field) => ({ label: field.label, value: fieldValueLabel(field, formValues[field.name] ?? "") }))
       .filter((item) => item.value);
-    setReview({ decision, missing, values: preparedValues });
+    const nextReview: NonNullable<ReviewState> = { decision, missing, values: preparedValues };
+    const nextDrafts = decision.allowed ? decision.supplementalDrafts : [];
+    setReview(nextReview);
     setDraftPreview("");
-    setSupplementalDrafts(decision.allowed ? decision.supplementalDrafts : []);
+    setSupplementalDrafts(nextDrafts);
+    if (decision.allowed && !missing.length) recordVersion(nextReview, "", nextDrafts, "DETERMINISTIC");
+    else versions.clear();
   }
 
   const hasErrors = Boolean(review && (review.missing.length || !review.decision.allowed));
@@ -232,7 +316,12 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
           notices: review.decision.notices
         }}
         rules={DIVORCE_PROPERTY_LEGAL_RULES.filter((rule) => rule.scenarios.includes(scenarioKey)).map((rule) => ({ id: rule.id, norm: rule.norm, url: rule.officialUrl, statement: rule.statement, limitations: rule.fallbackBehavior }))}
-        onDraftGenerated={setDraftPreview}
+        onDraftGenerated={(text, origin) => {
+          setDraftPreview(text);
+          if (!review) return;
+          if (origin === "AI_DRAFT") recordVersion(review, text, supplementalDrafts, "AI_DRAFT");
+          else versions.markDirty(fullDraft(text, supplementalDrafts));
+        }}
       /> : null}
 
       {review?.decision.allowed && review.missing.length === 0 && scenarioKey === "registry-divorce" ? (
@@ -251,6 +340,17 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
         </div>
       ) : null}
 
+      {review?.decision.allowed && review.missing.length === 0 ? <section className="mt-6 border-t border-line pt-5">
+        <h3 className="text-xl font-semibold text-ink">Сохранённый результат</h3>
+        <LegacyFamilyVersionPanel current={versions.current} versions={versions.versions} dirty={versions.dirty}
+          onRestore={restoreVersion}
+          onSave={() => { if (review) recordVersion(review, draftPreview, supplementalDrafts, "USER_EDITED"); }} />
+        <button type="button" onClick={downloadResultPdf} disabled={!versions.canDownload}
+          className="mt-4 min-h-11 rounded-md bg-trust px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
+          {review.decision.officialFormOnly ? "Скачать лист данных PDF" : "Скачать проект PDF"}
+        </button>
+      </section> : null}
+
       {hasDraft && review ? (
         <section className="mt-6 rounded-lg border border-line bg-zinc-50 p-4">
           <h3 className="text-xl font-semibold text-ink">Редактируемое превью</h3>
@@ -261,7 +361,7 @@ export function DivorcePropertyDocumentHelper({ scenarioKey }: { scenarioKey: Di
             aria-label="Текст подготовленного документа"
             className="mt-4 min-h-[32rem] w-full rounded-md border border-line bg-white p-4 font-mono text-sm leading-6 text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20"
             value={draftPreview}
-            onChange={(event) => setDraftPreview(event.target.value)}
+            onChange={(event) => { setDraftPreview(event.target.value); versions.markDirty(fullDraft(event.target.value, supplementalDrafts)); }}
           />
           {downloadError ? <p className="mt-3 text-sm text-rose-700">{downloadError}</p> : null}
         </section>

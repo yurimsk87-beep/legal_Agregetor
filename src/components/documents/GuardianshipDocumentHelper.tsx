@@ -27,8 +27,14 @@ import {
 import type { GuardianshipDecision, GuardianshipDocumentItem, GuardianshipValues } from "@/lib/guardianship-validator";
 import { createGuardianshipPdfBlob, getGuardianshipPdfFilename } from "@/lib/guardianship-pdf";
 import { sendAnalyticsEvent } from "@/lib/analytics-client";
+import { createGuardianshipDocumentResult } from "@/lib/guardianship-document-result";
+import { documentResultReviewMetadata } from "@/lib/document-result-contract";
+import { addDocumentVersion, type DocumentVersionEntry } from "@/lib/document-version-history";
+import { DocumentResultSummary } from "@/components/documents/DocumentResultSummary";
+import { DocumentVersionHistory } from "@/components/documents/DocumentVersionHistory";
 
 type ReviewStatus = "idle" | "submitting" | "success" | "withdrawing" | "withdrawn" | "error";
+type GuardianshipSnapshot = { decision: GuardianshipDecision; draft: string; values: GuardianshipValues };
 
 export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKey: GuardianshipScenarioKey; cities: GuardianshipCity[] }) {
   const scenario = GUARDIANSHIP_SCENARIOS[scenarioKey];
@@ -36,6 +42,9 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
   const [step, setStep] = useState(0);
   const [decision, setDecision] = useState<GuardianshipDecision | null>(null);
   const [draft, setDraft] = useState("");
+  const [versions, setVersions] = useState<DocumentVersionEntry<GuardianshipSnapshot>[]>([]);
+  const [activeVersionId, setActiveVersionId] = useState<string | null>(null);
+  const [draftDirty, setDraftDirty] = useState(false);
   const [editingValues, setEditingValues] = useState<GuardianshipValues | null>(null);
   const [editError, setEditError] = useState("");
   const [fieldError, setFieldError] = useState("");
@@ -52,11 +61,52 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
   const safeStep = Math.min(step, Math.max(fields.length - 1, 0));
   const field = fields[safeStep];
   const canAdvance = !field?.required || Boolean(values[field.name]?.trim());
+  const activeEntry = versions.find((entry) => entry.documentResult.versionId === activeVersionId);
+  const documentResult = activeEntry?.documentResult ?? null;
+
+  function recordVersion(result: GuardianshipDecision, draftText: string, answers: GuardianshipValues, source: "DETERMINISTIC" | "USER_EDITED" = "DETERMINISTIC") {
+    const next = createGuardianshipDocumentResult({ decision: result, scenarioKey, draft: draftText, source });
+    setActiveVersionId(next?.versionId ?? null);
+    setDraftDirty(false);
+    if (next) {
+      setVersions((current) => addDocumentVersion(current, {
+        documentResult: next,
+        payload: { decision: result, draft: draftText, values: { ...answers } }
+      }));
+    }
+  }
+
+  function restoreVersion(versionId: string) {
+    const entry = versions.find((item) => item.documentResult.versionId === versionId);
+    if (!entry) return;
+    setActiveVersionId(versionId);
+    setDecision(entry.payload.decision);
+    setDraft(entry.payload.draft);
+    setValues({ ...entry.payload.values });
+    setDraftDirty(false);
+    setEditingValues(null);
+    setNotice("");
+    setReviewOpen(false);
+    setReviewStatus("idle");
+    setReviewMessage("");
+    setReviewReceipt(null);
+  }
+
+  function saveEditedDraft() {
+    if (!decision || !draft.trim()) return;
+    recordVersion(decision, draft, values, "USER_EDITED");
+    setReviewOpen(false);
+    setReviewStatus("idle");
+    setReviewMessage("");
+    setReviewReceipt(null);
+  }
 
   function setField(name: string, value: string) {
     setValues((current) => resetGuardianshipDependentValues(scenarioKey, name, { ...current, [name]: value }));
     setDecision(null);
     setDraft("");
+    setActiveVersionId(null);
+    setDraftDirty(false);
     setFieldError("");
     setNotice("");
     setReviewOpen(false);
@@ -80,11 +130,14 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
     const result = validateGuardianshipApplication(scenarioKey, values);
     setDecision(result);
     setDraft(result.draftText ?? "");
+    recordVersion(result, result.draftText ?? "", values);
   }
 
   function goBack() {
     if (decision) {
       setDecision(null);
+      setActiveVersionId(null);
+      setDraftDirty(false);
       setReviewOpen(false);
       setReviewStatus("idle");
       setReviewMessage("");
@@ -120,6 +173,7 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
     setValues(editingValues);
     setDecision(result);
     setDraft(result.draftText ?? "");
+    recordVersion(result, result.draftText ?? "", editingValues);
     setEditingValues(null);
     setEditError("");
     setNotice("");
@@ -130,8 +184,8 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
   }
 
   async function createPdf() {
-    if (!decision) throw new Error("Результат ещё не подготовлен.");
-    return createGuardianshipPdfBlob(decision, draft);
+    if (!decision || !documentResult || draftDirty) throw new Error("Сохраните текущую версию перед скачиванием.");
+    return createGuardianshipPdfBlob(decision, draft, documentResult.versionId);
   }
 
   async function downloadPdf() {
@@ -152,7 +206,11 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
 
   async function submitForReview(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!decision) return;
+    if (!decision || !documentResult || draftDirty) {
+      setReviewStatus("error");
+      setReviewMessage("Сначала сохраните изменённый черновик как новую версию.");
+      return;
+    }
     setReviewStatus("submitting");
     setReviewMessage("");
     const form = event.currentTarget;
@@ -172,12 +230,9 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
       payload.set("consent", input.get("consent") === "on" ? "true" : "false");
       payload.set("contactTransferConsent", input.get("contactTransferConsent") === "on" ? "true" : "false");
       payload.set("structuredPayload", JSON.stringify({
-        route: "child-guardianship",
-        scenarioKey,
+        ...documentResultReviewMetadata(documentResult),
         outcomeKey: decision.outcomeKey,
-        resultKind: decision.resultKind,
-        requiresLegalReview: decision.requiresLegalReview,
-        resultStatus: decision.filingReady ? "FILING_READY" : "NOT_READY_FOR_FILING",
+        resultStatus: "NOT_READY_FOR_FILING",
         reviewStatus: "AWAITING_LAWYER_ASSIGNMENT"
       }));
       payload.set("attachment", new File([blob], getGuardianshipPdfFilename(decision.outcomeKey, decision.resultKind === "draft"), { type: "application/pdf" }));
@@ -354,20 +409,30 @@ export function GuardianshipDocumentHelper({ scenarioKey, cities }: { scenarioKe
           {draft && !decision.issues.length ? (
             <section className="mt-6 border border-amber-300 bg-amber-50 p-4">
               <p className="font-semibold text-amber-950">ЧЕРНОВИК — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА</p>
-              <textarea aria-label="Текст черновика" value={draft} onChange={(event) => setDraft(event.target.value)} className="mt-4 min-h-[28rem] w-full border border-line bg-white p-4 font-mono text-sm leading-6 text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" />
+              <textarea aria-label="Текст черновика" value={draft} onChange={(event) => {
+                setDraft(event.target.value);
+                setDraftDirty(event.target.value !== (activeEntry?.payload.draft ?? ""));
+                setReviewOpen(false);
+              }} className="mt-4 min-h-[28rem] w-full border border-line bg-white p-4 font-mono text-sm leading-6 text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" />
+              {draftDirty ? <div className="mt-3 grid gap-2">
+                <p className="text-sm text-amber-950">Черновик изменён. Чтобы скачать или передать его юристу, сохраните новую версию.</p>
+                <button type="button" onClick={saveEditedDraft} disabled={!draft.trim()} className="min-h-11 w-fit rounded-md bg-trust px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">Сохранить новую версию</button>
+              </div> : null}
             </section>
           ) : null}
 
           {decision.pdfAvailable ? (
             <section className="mt-6 border-t border-line pt-6">
               <h3 className="text-xl font-semibold text-ink">Итоговый результат</h3>
+              {documentResult ? <div className="mt-4"><DocumentResultSummary result={documentResult} /></div> : null}
+              <DocumentVersionHistory versions={versions.map((entry) => entry.documentResult)} currentVersionId={activeVersionId} onSelect={restoreVersion} />
               <p className="mt-2 text-sm leading-6 text-zinc-700">PDF содержит маркировку типа результата, персональный перечень документов и алгоритм дальнейших действий.</p>
               <div className="mt-4 flex flex-wrap gap-3">
-                <button type="button" onClick={downloadPdf} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
+                <button type="button" onClick={downloadPdf} disabled={!documentResult || draftDirty} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white hover:bg-ink focus:outline-none focus:ring-2 focus:ring-trust/30">
                   <Download className="h-4 w-4" aria-hidden="true" /> Скачать PDF
                 </button>
                 {decision.lawyerReviewAvailable ? (
-                  <button type="button" onClick={() => setReviewOpen((current) => !current)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-trust px-5 py-3 text-sm font-semibold text-trust hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-trust/30">
+                  <button type="button" onClick={() => setReviewOpen((current) => !current)} disabled={!documentResult || draftDirty} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-trust px-5 py-3 text-sm font-semibold text-trust hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-trust/30">
                     <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Проверить у юриста
                   </button>
                 ) : null}

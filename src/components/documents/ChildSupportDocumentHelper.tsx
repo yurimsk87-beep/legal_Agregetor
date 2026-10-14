@@ -6,6 +6,10 @@ import { StructuredPartyField, isStructuredPartyField } from "@/components/forms
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { Download } from "lucide-react";
+import { useLegacyFamilyDocumentVersions } from "@/lib/use-legacy-family-document-versions";
+import { LegacyFamilyVersionPanel } from "@/components/documents/LegacyFamilyVersionPanel";
+import { CHILD_SUPPORT_ROUTE } from "@/data/child-support-route";
+import { CHILD_SUPPORT_REVIEWED_AT } from "@/data/child-support-legal-review";
 import { getChildSupportRules } from "@/data/child-support-legal-review";
 import { CHILD_SUPPORT_SCENARIOS } from "@/data/child-support-route";
 import type { ChildSupportField, ChildSupportScenarioKey } from "@/data/child-support-route";
@@ -19,7 +23,7 @@ export function ChildSupportDocumentHelper({ scenarioKey }: { scenarioKey: Child
   const [step, setStep] = useState(0);
   const [decision, setDecision] = useState<ChildSupportDecision | null>(null);
   const [draft, setDraft] = useState("");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(""); const versions = useLegacyFamilyDocumentVersions<ChildSupportDecision, ChildSupportValues>({ routeSlug: CHILD_SUPPORT_ROUTE.problemSlug, scenarioKey, documentSlug: scenario.documentSlug, reviewedAt: CHILD_SUPPORT_REVIEWED_AT });
   const fields = useMemo(() => getVisibleChildSupportFields(scenarioKey, values), [scenarioKey, values]);
   const safeStep = Math.min(step, Math.max(fields.length - 1, 0));
   const field = fields[safeStep];
@@ -28,7 +32,7 @@ export function ChildSupportDocumentHelper({ scenarioKey }: { scenarioKey: Child
 
   function setField(name: string, value: string) {
     setValues((current) => ({ ...current, [name]: value }));
-    setDecision(null);
+    setDecision(null); versions.clear();
     setDraft("");
     setMessage("");
   }
@@ -39,18 +43,18 @@ export function ChildSupportDocumentHelper({ scenarioKey }: { scenarioKey: Child
     if (safeStep < fields.length - 1) return setStep(safeStep + 1);
     const result = validateChildSupport(scenarioKey, values);
     setDecision(result);
-    setDraft("");
+    setDraft(""); versions.record(result, "", values);
   }
 
   function goBack() {
-    if (decision) return setDecision(null);
+    if (decision) { versions.clear(); return setDecision(null); }
     setStep((current) => Math.max(0, current - 1));
   }
 
   async function downloadPdf() {
-    if (!decision) return;
+    if (!decision || !versions.canDownload) { setMessage("Сохраните версию документа перед скачиванием."); return; }
     try {
-      downloadBlob(await createChildSupportPdfBlob({ ...decision, draftText: draft }), getChildSupportPdfFilename(decision.outcomeKey));
+      downloadBlob(await createChildSupportPdfBlob({ ...decision, draftText: draft }, versions.current?.versionId), getChildSupportPdfFilename(decision.outcomeKey));
       setMessage("PDF сформирован. Проверьте статус готовности на первой странице.");
     } catch {
       setMessage("PDF не сформирован. Попробуйте ещё раз.");
@@ -75,8 +79,8 @@ export function ChildSupportDocumentHelper({ scenarioKey }: { scenarioKey: Child
         {decision.preparedData.length ? <section className="mt-6 border-t border-line pt-5"><h3 className="text-xl font-semibold text-ink">Подготовленные сведения</h3><dl className="mt-3 grid gap-3 text-sm leading-6">{decision.preparedData.map((item) => <div key={item.label} className="border-l-2 border-line pl-3"><dt className="font-semibold text-ink">{item.label}</dt><dd className="whitespace-pre-wrap text-zinc-700">{item.value}</dd></div>)}</dl></section> : null}
         <section className="mt-6 border-t border-line pt-5"><h3 className="text-xl font-semibold text-ink">Что делать дальше</h3><ol className="mt-3 grid gap-2 text-sm leading-6 text-zinc-700">{decision.filingSteps.map((item, index) => <li key={item}><strong>{index + 1}.</strong> {item}</li>)}</ol></section>
         <section className="mt-6 border-t border-line pt-5"><h3 className="text-xl font-semibold text-ink">Применимые правовые основания</h3><ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-700">{rules.map((rule) => <li key={rule.id}><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.norm}</a><span className="block text-xs leading-5 text-zinc-600">{rule.scope}</span></li>)}</ul></section>
-        <FamilyDocumentEnhancements route={`/documents/${scenario.documentSlug}/`} scenario={scenarioKey} decision={decision} rules={rules} onDraftGenerated={setDraft} />{draft && !decision.issues.length ? <section className="mt-6 border border-amber-300 bg-amber-50 p-4"><p className="font-semibold text-amber-950">{decision.resultLabel}</p><textarea aria-label="Текст подготовленного результата" value={draft} onChange={(event) => setDraft(event.target.value)} className="mt-4 min-h-[28rem] w-full border border-line bg-white p-4 font-mono text-sm leading-6 text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" /></section> : null}
-        {decision.pdfAvailable ? <section className="mt-6 border-t border-line pt-6"><h3 className="text-xl font-semibold text-ink">Итоговый результат</h3><div className="mt-4 flex flex-wrap gap-3"><button type="button" onClick={downloadPdf} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30"><Download className="h-4 w-4" aria-hidden="true" /> Скачать PDF</button></div>{message ? <p className="mt-3 text-sm text-zinc-700" role="status">{message}</p> : null}</section> : null}
+        <FamilyDocumentEnhancements route={`/documents/${scenario.documentSlug}/`} scenario={scenarioKey} decision={decision} rules={rules} onDraftGenerated={(text, origin) => { setDraft(text); if (!decision) return; if (origin === "AI_DRAFT") versions.record(decision, text, values, "AI_DRAFT"); else versions.markDirty(text); }} />{draft && !decision.issues.length ? <section className="mt-6 border border-amber-300 bg-amber-50 p-4"><p className="font-semibold text-amber-950">{decision.resultLabel}</p><textarea aria-label="Текст подготовленного результата" value={draft} onChange={(event) => { setDraft(event.target.value); versions.markDirty(event.target.value); }} className="mt-4 min-h-[28rem] w-full border border-line bg-white p-4 font-mono text-sm leading-6 text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" /></section> : null}
+        {decision.pdfAvailable ? <section className="mt-6 border-t border-line pt-6"><h3 className="text-xl font-semibold text-ink">Итоговый результат</h3><LegacyFamilyVersionPanel current={versions.current} versions={versions.versions} dirty={versions.dirty} onSave={() => { if (decision) versions.record(decision, draft, values, "USER_EDITED"); }} onRestore={(id) => { const prior = versions.restore(id); if (prior) { setDecision(prior.decision); setValues(prior.values); setDraft(prior.draft); } }} /><div className="mt-4 flex flex-wrap gap-3"><button type="button" onClick={downloadPdf} disabled={!versions.canDownload} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30"><Download className="h-4 w-4" aria-hidden="true" /> Скачать PDF</button></div>{message ? <p className="mt-3 text-sm text-zinc-700" role="status">{message}</p> : null}</section> : null}
         <button type="button" onClick={goBack} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Изменить ответы</button>
       </div> : null}
     </section>

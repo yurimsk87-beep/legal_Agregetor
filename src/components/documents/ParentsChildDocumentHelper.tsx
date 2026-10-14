@@ -10,8 +10,14 @@ import { getParentsChildRules } from "@/data/parents-child-legal-review";
 import { PARENTS_CHILD_SCENARIOS } from "@/data/parents-child-route";
 import type { ParentsChildChangeSubject, ParentsChildField, ParentsChildScenarioKey } from "@/data/parents-child-route";
 import { createParentsChildPdfBlob, getParentsChildPdfFilename } from "@/lib/parents-child-pdf";
+import { createParentsChildDocumentResult } from "@/lib/parents-child-document-result";
+import { addDocumentVersion, type DocumentVersionEntry } from "@/lib/document-version-history";
+import { DocumentResultSummary } from "@/components/documents/DocumentResultSummary";
+import { DocumentVersionHistory } from "@/components/documents/DocumentVersionHistory";
 import { getVisibleParentsChildFields, validateParentsChildApplication } from "@/lib/parents-child-validator";
 import type { ParentsChildDecision, ParentsChildValues } from "@/lib/parents-child-validator";
+
+type ParentsChildSnapshot = { decision: ParentsChildDecision; draft: string; values: ParentsChildValues };
 
 export function ParentsChildDocumentHelper({ scenarioKey }: { scenarioKey: ParentsChildScenarioKey }) {
   const scenario = PARENTS_CHILD_SCENARIOS[scenarioKey];
@@ -19,6 +25,9 @@ export function ParentsChildDocumentHelper({ scenarioKey }: { scenarioKey: Paren
   const [step, setStep] = useState(0);
   const [decision, setDecision] = useState<ParentsChildDecision | null>(null);
   const [draft, setDraft] = useState("");
+  const [versions, setVersions] = useState<DocumentVersionEntry<ParentsChildSnapshot>[]>([]);
+  const [activeVersionId, setActiveVersionId] = useState<string | null>(null);
+  const [draftDirty, setDraftDirty] = useState(false);
   const [message, setMessage] = useState("");
   const fields = useMemo(() => getVisibleParentsChildFields(scenarioKey, values), [scenarioKey, values]);
   const safeStep = Math.min(step, Math.max(fields.length - 1, 0));
@@ -26,11 +35,49 @@ export function ParentsChildDocumentHelper({ scenarioKey }: { scenarioKey: Paren
   const canAdvance = !field?.required || Boolean(values[field.name]?.trim());
   const changeSubject = values.changeSubject === "residence" || values.changeSubject === "communication" ? values.changeSubject as ParentsChildChangeSubject : undefined;
   const applicableRules = getParentsChildRules(scenarioKey, changeSubject, decision?.resultKind === "agreement" ? "voluntary" : decision ? "court" : undefined);
+  const activeEntry = versions.find((entry) => entry.documentResult.versionId === activeVersionId);
+  const documentResult = activeEntry?.documentResult ?? null;
+
+  function recordVersion(result: ParentsChildDecision, text: string, answers: ParentsChildValues, source: "AI_DRAFT" | "DETERMINISTIC" | "USER_EDITED" = "DETERMINISTIC") {
+    const next = createParentsChildDocumentResult({ scenarioKey, decision: result, draft: text, source });
+    setActiveVersionId(next?.versionId ?? null);
+    setDraftDirty(false);
+    if (next) setVersions((current) => addDocumentVersion(current, {
+      documentResult: next, payload: { decision: result, draft: text, values: { ...answers } }
+    }));
+  }
+
+  function restoreVersion(versionId: string) {
+    const entry = versions.find((item) => item.documentResult.versionId === versionId);
+    if (!entry) return;
+    setDecision(entry.payload.decision);
+    setDraft(entry.payload.draft);
+    setValues({ ...entry.payload.values });
+    setActiveVersionId(versionId);
+    setDraftDirty(false);
+    setMessage("");
+  }
+
+  function acceptGeneratedDraft(text: string, origin: "AI_DRAFT" | "USER_EDITED") {
+    if (!decision) return;
+    setDraft(text);
+    if (origin === "AI_DRAFT") recordVersion(decision, text, values, "AI_DRAFT");
+    else setDraftDirty(text !== (activeEntry?.payload.draft ?? ""));
+    setMessage("");
+  }
+
+  function saveEditedDraft() {
+    if (!decision) return;
+    recordVersion(decision, draft, values, "USER_EDITED");
+    setMessage("");
+  }
 
   function setField(name: string, value: string) {
     setValues((current) => ({ ...current, [name]: value }));
     setDecision(null);
     setDraft("");
+    setActiveVersionId(null);
+    setDraftDirty(false);
     setMessage("");
   }
 
@@ -44,11 +91,14 @@ export function ParentsChildDocumentHelper({ scenarioKey }: { scenarioKey: Paren
     const result = validateParentsChildApplication(scenarioKey, values);
     setDecision(result);
     setDraft("");
+    recordVersion(result, "", values);
   }
 
   function goBack() {
     if (decision) {
       setDecision(null);
+      setActiveVersionId(null);
+      setDraftDirty(false);
       return;
     }
     setStep((current) => Math.max(0, current - 1));
@@ -56,8 +106,12 @@ export function ParentsChildDocumentHelper({ scenarioKey }: { scenarioKey: Paren
 
   async function downloadPdf() {
     if (!decision) return;
+    if (draftDirty || !documentResult) {
+      setMessage("Сначала сохраните изменённый текст как отдельную версию.");
+      return;
+    }
     try {
-      const blob = await createParentsChildPdfBlob({ ...decision, draftText: draft });
+      const blob = await createParentsChildPdfBlob({ ...decision, filingReady: false, draftText: draft }, documentResult.versionId);
       downloadBlob(blob, getParentsChildPdfFilename(decision.outcomeKey));
       setMessage("PDF сформирован. Проверьте статус готовности на первой странице.");
     } catch {
@@ -95,10 +149,10 @@ export function ParentsChildDocumentHelper({ scenarioKey }: { scenarioKey: Paren
 
       {decision && decision.resultKind !== "urgent" ? (
         <div className="mt-6" aria-live="polite">
-          <div className={`border p-4 text-sm leading-6 ${decision.filingReady ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-amber-300 bg-amber-50 text-amber-950"}`}>
+          <div className={`border p-4 text-sm leading-6 ${documentResult?.filingReady ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-amber-300 bg-amber-50 text-amber-950"}`}>
             <p className="font-semibold">{decision.resultLabel}</p>
             <p className="mt-2"><strong>Результат:</strong> {decision.documentTitle}</p>
-            <p className="mt-2">{decision.filingReady ? "Результат можно использовать по инструкции после проверки данных." : "Результат нельзя считать готовым к подаче."}</p>
+            <p className="mt-2">{documentResult?.filingReady ? "Результат можно использовать по инструкции после проверки данных." : "Результат нельзя считать готовым к подаче."}</p>
             {decision.notices.map((notice) => <p key={notice} className="mt-2">{notice}</p>)}
             {decision.issues.length ? <ul className="mt-3 list-disc pl-5">{decision.issues.map((issue) => <li key={`${issue.field}-${issue.message}`}>{issue.message}</li>)}</ul> : null}
           </div>
@@ -109,9 +163,9 @@ export function ParentsChildDocumentHelper({ scenarioKey }: { scenarioKey: Paren
 
           <section className="mt-6 border-t border-line pt-5"><h3 className="text-xl font-semibold text-ink">Применимые правовые основания</h3><ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-700">{applicableRules.map((rule) => <li key={rule.id}><a href={rule.url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center font-medium text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">{rule.norm}</a><span className="block text-xs leading-5 text-zinc-600">{rule.scope}</span></li>)}</ul></section>
 
-          <FamilyDocumentEnhancements route={`/documents/${scenario.documentSlug}/`} scenario={scenarioKey} decision={decision} rules={applicableRules} onDraftGenerated={setDraft} />{draft && !decision.issues.length ? <section className="mt-6 border border-amber-300 bg-amber-50 p-4"><p className="font-semibold text-amber-950">{decision.resultKind === "agreement" ? "ПРОЕКТ СОГЛАШЕНИЯ" : "ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"}</p><textarea aria-label="Текст подготовленного результата" value={draft} onChange={(event) => setDraft(event.target.value)} className="mt-4 min-h-[28rem] w-full border border-line bg-white p-4 font-mono text-sm leading-6 text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" /></section> : null}
+          <FamilyDocumentEnhancements route={`/documents/${scenario.documentSlug}/`} scenario={scenarioKey} decision={decision} rules={applicableRules} onDraftGenerated={acceptGeneratedDraft} />{(draft || draftDirty) && !decision.issues.length ? <section className="mt-6 border border-amber-300 bg-amber-50 p-4"><p className="font-semibold text-amber-950">{decision.resultKind === "agreement" ? "ПРОЕКТ СОГЛАШЕНИЯ" : "ЧЕРНОВИК — НЕ ГОТОВ К ПОДАЧЕ"}</p><textarea aria-label="Текст подготовленного результата" value={draft} onChange={(event) => { setDraft(event.target.value); setDraftDirty(event.target.value !== (activeEntry?.payload.draft ?? "")); }} className="mt-4 min-h-[28rem] w-full border border-line bg-white p-4 font-mono text-sm leading-6 text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" />{draftDirty ? <div className="mt-3 grid gap-2"><p className="text-sm text-amber-950">Текст изменён. Сохраните новую версию перед скачиванием PDF.</p><button type="button" onClick={saveEditedDraft} className="min-h-11 w-fit rounded-md bg-trust px-4 py-2 text-sm font-semibold text-white">Сохранить новую версию</button></div> : null}</section> : null}
 
-          {decision.pdfAvailable ? <section className="mt-6 border-t border-line pt-6"><h3 className="text-xl font-semibold text-ink">Итоговый результат</h3><div className="mt-4 flex flex-wrap gap-3"><button type="button" onClick={downloadPdf} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30"><Download className="h-4 w-4" aria-hidden="true" /> Скачать PDF</button></div>{message ? <p className="mt-3 text-sm text-zinc-700" role="status">{message}</p> : null}</section> : null}
+          {decision.pdfAvailable ? <section className="mt-6 border-t border-line pt-6"><h3 className="text-xl font-semibold text-ink">Итоговый результат</h3>{documentResult ? <div className="mt-4"><DocumentResultSummary result={documentResult} /></div> : null}<DocumentVersionHistory versions={versions.map((item) => item.documentResult)} currentVersionId={activeVersionId} onSelect={restoreVersion} /><div className="mt-4 flex flex-wrap gap-3"><button type="button" onClick={downloadPdf} disabled={!documentResult || draftDirty} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-trust/30"><Download className="h-4 w-4" aria-hidden="true" /> Скачать PDF</button></div>{message ? <p className="mt-3 text-sm text-zinc-700" role="status">{message}</p> : null}</section> : null}
           <button type="button" onClick={goBack} className="mt-6 inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-trust/30">Изменить ответы</button>
         </div>
       ) : null}

@@ -14,8 +14,17 @@ assert.equal(FAMILY_ADDITIVE_DOCUMENTS.length, 21);
 assert.equal(new Set(FAMILY_ADDITIVE_DOCUMENTS.map((document) => document.slug)).size, 21);
 
 for (const document of FAMILY_ADDITIVE_DOCUMENTS) {
-  assert.match(document.seoTitle ?? "", /образец/i, `${document.slug}: SEO title contains образец`);
-  assert.match(document.seoTitle ?? "", /скачать/i, `${document.slug}: SEO title contains скачать`);
+  const scenario = scenarioEntries.find((entry) => entry.scenario.documentSlug === document.slug)?.scenario;
+  assert.ok(scenario);
+  if (scenario.resultKind === "officialForm") {
+    assert.match(document.seoTitle ?? "", /официальная форма/i, `${document.slug}: do not promise an unofficial form`);
+    assert.doesNotMatch(document.seoTitle ?? "", /образец.*скачать/i);
+  } else if (["checklist", "legalReviewOnly"].includes(scenario.resultKind)) {
+    assert.match(document.seoTitle ?? "", /чек-лист/i, `${document.slug}: advertise actual checklist`);
+    assert.doesNotMatch(document.seoTitle ?? "", /иск.*скачать/i);
+  } else {
+    assert.match(document.seoTitle ?? "", /скачать/i, `${document.slug}: downloadable prepared result`);
+  }
   assert.ok((document.seoDescription ?? "").length >= 100, `${document.slug}: SEO description`);
   assert.equal(document.relatedProblemSlugs.length, 1);
 }

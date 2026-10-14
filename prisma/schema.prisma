@@ -287,6 +287,7 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  savedLegalDocuments SavedLegalDocument[]
   lawyer Lawyer?
   adminAuditLogs AdminAuditLog[] @relation("AdminAuditLogs")
   moderationLogs ModerationLog[] @relation("ModerationLogs")
@@ -1299,4 +1300,20 @@ model AiNavigatorEvent {
   @@index([event, createdAt])
   @@index([createdAt])
   @@index([query])
+}
+
+/**
+ * Opt-in, immutable version archive. Sensitive legal text and title are
+ * encrypted in encryptedPayload using AES-256-GCM (key is never in the DB).
+ * Every query MUST be scoped to the authenticated owner's userId.
+ */
+model SavedLegalDocument {
+  versionId String @id @db.Uuid
+  userId String
+  encryptedPayload String @db.Text
+  createdAt DateTime @default(now())
+
+  owner User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
 }

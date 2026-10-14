@@ -43,7 +43,7 @@ export function buildGuardianshipPdfText(decision: GuardianshipDecision, draft: 
   ].join("\n");
 }
 
-export async function createGuardianshipPdfBlob(decision: GuardianshipDecision, draft: string) {
+export async function createGuardianshipPdfBlob(decision: GuardianshipDecision, draft: string, versionId?: string) {
   if (!decision.pdfAvailable || decision.resultKind === "urgent") {
     throw new Error("PDF недоступен для этого результата.");
   }
@@ -104,7 +104,7 @@ export async function createGuardianshipPdfBlob(decision: GuardianshipDecision, 
     footer: (currentPage, pageCount) => ({
       margin: [42, 12, 42, 0],
       columns: [
-        { text: `Правовая сверка: ${reviewedAt}`, style: "footerNote" },
+        { text: `Правовая сверка: ${reviewedAt}${versionId ? ` | Версия: ${versionId}` : ""}`, style: "footerNote" },
         { text: `Страница ${currentPage} из ${pageCount}`, alignment: "right", style: "footerNote" }
       ]
     }),

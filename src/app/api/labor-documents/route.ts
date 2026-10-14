@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
+import { createLaborDocumentResult } from "@/lib/document-result-contract";
 import { getLaborDocumentScenario } from "@/data/labor-documents";
 import { getLaborRulesForArea, LABOR_LEGAL_REVIEWED_AT } from "@/data/labor-legal-sources";
 import {
@@ -7,7 +8,7 @@ import {
   laborDocumentRequestSchema,
   validateLaborDocumentModelResult
 } from "@/lib/labor-document-contract";
-import { checkRateLimit, clientKey, rejectCrossOrigin } from "@/lib/request-security";
+import { checkRateLimit, clientKey, rejectCrossOrigin, readJsonWithLimit, RequestPayloadTooLargeError, payloadTooLargeResponse } from "@/lib/request-security";
 
 export const runtime = "nodejs";
 
@@ -20,7 +21,14 @@ export async function POST(request: Request) {
   const limited = checkRateLimit({ key: `labor-document:${clientKey(request)}`, limit: 8, windowMs: 10 * 60 * 1000 });
   if (limited) return limited;
 
-  const parsed = laborDocumentRequestSchema.safeParse(await request.json().catch(() => null));
+  let input: unknown;
+  try {
+    input = await readJsonWithLimit(request, 64_000);
+  } catch (error) {
+    if (error instanceof RequestPayloadTooLargeError) return payloadTooLargeResponse();
+    return NextResponse.json({ ok: false, message: "Некорректный запрос." }, { status: 400 });
+  }
+  const parsed = laborDocumentRequestSchema.safeParse(input);
   if (!parsed.success) return NextResponse.json({ ok: false, message: "Проверьте заполненные сведения." }, { status: 400 });
 
   const selected = getLaborDocumentScenario(parsed.data.documentSlug);
@@ -66,17 +74,22 @@ export async function POST(request: Request) {
     const raw = JSON.parse(content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, ""));
     const result = validateLaborDocumentModelResult(raw, { documentTitle: selected.scenario.resultTitle, rules });
 
-    return NextResponse.json({
-      ok: true,
-      result: {
-        ...result,
-        versionId: crypto.randomUUID(),
-        filingReady: false,
-        requiresLegalReview: true,
-        legalRegistryReviewedAt: LABOR_LEGAL_REVIEWED_AT,
-        generatorVersion: GENERATOR_VERSION
-      }
+    const version = {
+      ...result,
+      versionId: crypto.randomUUID(),
+      filingReady: false as const,
+      requiresLegalReview: true as const,
+      legalRegistryReviewedAt: LABOR_LEGAL_REVIEWED_AT,
+      generatorVersion: GENERATOR_VERSION
+    };
+    const documentResult = createLaborDocumentResult({
+      routeSlug: selected.route.slug,
+      scenarioKey: selected.scenario.key,
+      documentSlug: parsed.data.documentSlug,
+      result: version
     });
+    // Keep the existing result payload for compatibility with deployed clients.
+    return NextResponse.json({ ok: true, result: version, documentResult });
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {
       console.error("Labor document generation failed:", error instanceof Error ? error.message : "unknown_error");

@@ -3,24 +3,33 @@
 import { Download, ShieldCheck } from "lucide-react";
 import { FormEvent, useMemo, useState } from "react";
 import { LegalReviewLawyers } from "@/components/lawyers/LegalReviewLawyers";
+import { DocumentResultSummary } from "@/components/documents/DocumentResultSummary";
+import { LegalFormField } from "@/components/documents/LegalFormField";
+import { DocumentVersionHistory } from "@/components/documents/DocumentVersionHistory";
+import { addDocumentVersion } from "@/lib/document-version-history";
+import { createLaborDocumentResult, documentResultReviewMetadata, documentResultSchema, type DocumentResultV1 } from "@/lib/document-result-contract";
 import type { LaborDocumentScenario } from "@/data/labor-documents";
 import type { LaborLegalRule } from "@/data/labor-legal-sources";
 import type { LaborDocumentResponse } from "@/lib/labor-document-contract";
 import { createLaborDocumentPdfBlob, laborDocumentFilename } from "@/lib/labor-document-export";
 
-type GeneratedVersion = LaborDocumentResponse & { answers: Record<string, string> };
-type Field = { key: string; label: string; hint: string };
+type GeneratedVersion = LaborDocumentResponse & { answers: Record<string, string>; documentResult: DocumentResultV1 };
+type Field = { key: string; label: string; hint: string; kind?: "date" | "textarea" };
+type ReviewReceipt = { leadId: string; withdrawalToken: string; versionId: string };
 
 export function LaborDocumentGenerator({ document, selected, rules }: { document: { slug: string }; selected: LaborDocumentScenario; rules: LaborLegalRule[] }) {
   const fields = useMemo(() => buildFields(selected), [selected]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [version, setVersion] = useState<GeneratedVersion | null>(null);
+  const [versions, setVersions] = useState<Array<{ documentResult: DocumentResultV1; payload: GeneratedVersion }>>([]);
   const [editing, setEditing] = useState(true);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState("");
   const [reviewMessage, setReviewMessage] = useState("");
   const [reviewPending, setReviewPending] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewReceipts, setReviewReceipts] = useState<ReviewReceipt[]>([]);
+  const [withdrawingId, setWithdrawingId] = useState<string | null>(null);
 
   async function generate() {
     const missing = fields.filter((field) => !answers[field.key]?.trim());
@@ -42,9 +51,22 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
           facts: fields.map((field) => ({ key: field.key, label: field.label, value: answers[field.key].trim() }))
         })
       });
-      const body = await response.json().catch(() => null) as { result?: LaborDocumentResponse; message?: string } | null;
+      const body = await response.json().catch(() => null) as { result?: LaborDocumentResponse; documentResult?: DocumentResultV1; message?: string } | null;
       if (!response.ok || !body?.result) throw new Error(body?.message || "Не удалось сформировать документ.");
-      setVersion({ ...body.result, answers: { ...answers } });
+      const commonResult = body.documentResult
+        ? documentResultSchema.parse(body.documentResult)
+        : createLaborDocumentResult({
+          routeSlug: selected.route.slug,
+          scenarioKey: selected.scenario.key,
+          documentSlug: document.slug,
+          result: body.result
+        });
+      if (commonResult.versionId !== body.result.versionId || commonResult.documentText !== body.result.draftText || commonResult.documentSlug !== document.slug) {
+        throw new Error("Несоответствие версии документа. Попробуйте сформировать документ заново.");
+      }
+      const snapshot = { ...body.result, answers: { ...answers }, documentResult: commonResult };
+      setVersion(snapshot);
+      setVersions((history) => addDocumentVersion(history, { documentResult: commonResult, payload: snapshot }));
       setEditing(false);
       setReviewOpen(false);
       setReviewMessage("");
@@ -54,6 +76,17 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Не удалось сформировать документ. Введенные данные сохранены.");
     }
+  }
+
+  function openVersion(versionId: string) {
+    const snapshot = versions.find((item) => item.documentResult.versionId === versionId)?.payload;
+    if (!snapshot) return;
+    setVersion(snapshot);
+    setAnswers({ ...snapshot.answers });
+    setEditing(false);
+    setReviewOpen(false);
+    setReviewMessage("");
+    setMessage("Выбрана ранее сформированная версия. PDF будет создан из неё.");
   }
 
   function cancelEditing() {
@@ -70,7 +103,8 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
       documentText: version.draftText,
       rules: rules.filter((rule) => version.usedRuleIds.includes(rule.id)),
       nextSteps: selected.scenario.nextSteps,
-      reviewedAt: version.legalRegistryReviewedAt
+      reviewedAt: version.legalRegistryReviewedAt,
+      versionId: version.documentResult.versionId
     });
   }
 
@@ -109,20 +143,16 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
       payload.set("consent", input.get("consent") === "on" ? "true" : "false");
       payload.set("contactTransferConsent", input.get("contactTransferConsent") === "on" ? "true" : "false");
       payload.set("structuredPayload", JSON.stringify({
-        route: selected.route.slug,
-        scenarioId: selected.scenario.key,
-        documentSlug: document.slug,
-        documentVersionId: version.versionId,
-        generatorVersion: version.generatorVersion,
-        legalRegistryReviewedAt: version.legalRegistryReviewedAt,
-        filingReady: version.filingReady,
-        requiresLegalReview: version.requiresLegalReview,
+        ...documentResultReviewMetadata(version.documentResult),
         consentTextVersion: "document-review-2026-10-05"
       }));
       payload.set("attachment", new File([blob], laborDocumentFilename(document.slug, "pdf"), { type: "application/pdf" }));
       const response = await fetch("/api/leads/", { method: "POST", body: payload });
-      const body = await response.json().catch(() => null) as { message?: string } | null;
+      const body = await response.json().catch(() => null) as { id?: string; withdrawalToken?: string; message?: string } | null;
       if (!response.ok) throw new Error(body?.message || "Не удалось передать документ.");
+      if (body?.id && body.withdrawalToken) {
+        setReviewReceipts((current) => [...current, { leadId: body.id!, withdrawalToken: body.withdrawalToken!, versionId: version.documentResult.versionId }]);
+      }
       setReviewMessage("Сформированный PDF и указанные контакты приняты для назначения профильного юриста.");
       event.currentTarget.reset();
     } catch (error) {
@@ -132,12 +162,39 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
     }
   }
 
+  async function withdrawReviewConsent(receipt: ReviewReceipt) {
+    setWithdrawingId(receipt.leadId);
+    setReviewMessage("");
+    try {
+      const response = await fetch(`/api/leads/${encodeURIComponent(receipt.leadId)}/document-review/`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: receipt.withdrawalToken })
+      });
+      const result = (await response.json().catch(() => null)) as { message?: string } | null;
+      if (!response.ok) throw new Error(result?.message || "Не удалось отозвать согласие.");
+      setReviewReceipts((current) => current.filter((item) => item.leadId !== receipt.leadId));
+      setReviewMessage(result?.message || "Согласие отозвано, PDF удалён.");
+    } catch (error) {
+      setReviewMessage(error instanceof Error ? error.message : "Не удалось отозвать согласие.");
+    } finally {
+      setWithdrawingId(null);
+    }
+  }
+
   return <section id="fill-online" className="mt-8 scroll-mt-28">
     {editing ? <section aria-labelledby="labor-document-form-title">
       <h2 id="labor-document-form-title" className="text-2xl font-semibold text-ink">{version ? "Редактирование сведений" : "Подготовка документа"}</h2>
       <p className="mt-2 text-sm leading-6 text-zinc-600">Заполните только подтвержденные сведения. Текущая сформированная версия не изменится, пока вы явно не сформируете новую.</p>
       <div className="mt-5 grid gap-5">
-        {fields.map((field) => <label key={field.key} className="grid gap-2 font-semibold text-ink">{field.label}<textarea value={answers[field.key] ?? ""} onChange={(event) => setAnswers((current) => ({ ...current, [field.key]: event.target.value }))} rows={field.key === "circumstances" || field.key === "attachments" ? 4 : 2} className="w-full rounded-md border border-line px-3 py-3 font-normal text-ink outline-none focus:border-trust focus:ring-2 focus:ring-trust/20" /><span className="text-xs font-normal text-zinc-500">{field.hint}</span></label>)}
+        {fields.map((field) => <LegalFormField key={field.key}
+          id={`labor-${selected.route.slug}-${selected.scenario.key}-${field.key}`}
+          label={field.label} hint={field.hint} required
+          kind={field.kind ?? "textarea"}
+          rows={field.key === "circumstances" || field.key === "attachments" ? 4 : 2}
+          value={answers[field.key] ?? ""}
+          onChange={(next) => setAnswers((current) => ({ ...current, [field.key]: next }))}
+        />)}
       </div>
       <div className="mt-6 flex flex-wrap gap-4">
         <button type="button" onClick={generate} disabled={status === "loading"} className="inline-flex min-h-11 items-center rounded-md bg-trust px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">{status === "loading" ? "Формируем документ" : version ? "Сформировать новый документ" : "Сформировать документ"}</button>
@@ -147,11 +204,9 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
     {message ? <p className={`mt-3 text-sm ${status === "error" ? "text-red-800" : "text-zinc-700"}`} role={status === "error" ? "alert" : "status"}>{message}</p> : null}
 
     {version ? <div className={editing ? "mt-10 border-t border-line pt-7" : ""} aria-live="polite">
-      <section className="border-l-4 border-amber-400 bg-amber-50 p-4 text-amber-950">
-        <p className="font-semibold">ПРОЕКТ — ТРЕБУЕТСЯ ЮРИДИЧЕСКАЯ ПРОВЕРКА</p>
-        <h2 className="mt-2 text-2xl font-semibold">{version.documentTitle}</h2>
-        <p className="mt-2 text-sm leading-6">Готовность к подаче не подтверждена. Проверьте адресат, срок, требования, расчет и приложения.</p>
-      </section>
+      <DocumentResultSummary result={version.documentResult}>
+        <p className="mt-2 text-sm">Проверьте адресат, срок, требования, расчёт и приложения.</p>
+      </DocumentResultSummary>
 
       <section className="mt-6 border border-line bg-white p-5" aria-labelledby="generated-document-title" data-result-section="generated-document">
         <h3 id="generated-document-title" className="text-xl font-semibold text-ink">Сформированный документ</h3>
@@ -187,6 +242,17 @@ export function LaborDocumentGenerator({ document, selected, rules }: { document
 
       <LegalReviewLawyers context={{ route: `/documents/${document.slug}/`, scenario: selected.scenario.key, documentTitle: version.documentTitle }} serviceSlug="trudovye-spory" />
     </div> : null}
+    <DocumentVersionHistory versions={versions.map((item) => item.documentResult)} currentVersionId={version?.documentResult.versionId ?? null} onSelect={openVersion} />
+    {reviewReceipts.length ? <section className="mt-8 border-t border-line pt-5" aria-label="Отзыв согласия на предыдущие PDF">
+      <h2 className="text-xl font-semibold text-ink">Ранее отправленные версии PDF</h2>
+      <p className="mt-2 text-sm text-zinc-600">Каждую ранее отправленную версию можно удалить отдельно, не меняя текущий документ. Квитанции хранятся только в открытой вкладке.</p>
+      <div className="mt-4 grid gap-3">
+        {reviewReceipts.map((receipt) => <div key={receipt.leadId} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-line p-3">
+          <span className="break-all text-xs text-zinc-600">Версия: {receipt.versionId}</span>
+          <button type="button" onClick={() => void withdrawReviewConsent(receipt)} disabled={withdrawingId !== null} className="min-h-11 rounded-md border border-line bg-white px-4 text-sm font-semibold text-ink disabled:opacity-60">{withdrawingId === receipt.leadId ? "Удаляем PDF" : "Отозвать согласие и удалить PDF"}</button>
+        </div>)}
+      </div>
+    </section> : null}
   </section>;
 }
 
@@ -201,7 +267,7 @@ function buildFields(selected: LaborDocumentScenario): Field[] {
     { key: "circumstances", label: "Подтвержденные обстоятельства", hint: "Краткая хронология с датами и документами без правовых предположений." },
     { key: "requestedOutcome", label: "Просьба или требования", hint: "Что именно должен сделать адресат." },
     { key: "attachments", label: "Приложения", hint: "Каждый документ с новой строки; если приложений нет, укажите это прямо." },
-    { key: "documentDate", label: "Дата документа", hint: "В формате ДД.ММ.ГГГГ." }
+    { key: "documentDate", label: "Дата документа", hint: "Выберите дату. В генератор передаётся календарная дата в формате ГГГГ-ММ-ДД.", kind: "date" }
   ];
   return [...common, ...selected.scenario.questions.map((label, index) => ({ key: `scenario-${index + 1}`, label, hint: "Ответьте по имеющимся документам или переписке." }))];
 }

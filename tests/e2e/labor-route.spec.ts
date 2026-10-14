@@ -31,7 +31,7 @@ test("category contains 6 popular and 8 other routes", async ({ page }) => {
   await page.goto(categoryPath);
   await dismissAnalytics(page);
   await expect(page.getByRole("heading", { name: "Популярные ситуации" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Остальные трудовые ситуации" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Увольнение и окончательный расчёт" })).toBeVisible();
   const routeLinks = await page.locator(`a[href^="${categoryPath}"]`).evaluateAll((links) => [...new Set(links.map((link) => link.getAttribute("href")))].filter(Boolean));
   expect(routeLinks).toHaveLength(14);
 });
@@ -69,7 +69,7 @@ test("reinstatement claim exposes its exact SEO title and search intent", async 
   await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /Образец иска о восстановлении.+скачайте PDF.+оспаривания увольнения в суде/i);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /^index, follow$/);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/documents\/isk-o-vosstanovlenii-na-rabote\/$/);
-  await expect(page.getByRole("heading", { name: "Что войдет в иск" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Что войдёт в документ" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Какие доказательства приложить" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Проверенные правовые основания" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Что делать после скачивания" })).toBeVisible();
@@ -106,6 +106,7 @@ test("document preserves the current version until explicit regeneration", async
   const fields = page.locator("#fill-online textarea");
   expect(await fields.count()).toBeGreaterThan(10);
   for (let index = 0; index < await fields.count(); index += 1) await fields.nth(index).fill(`Подтвержденные сведения ${index + 1}`);
+  await page.locator("#fill-online input[type=date]").fill("2026-10-14");
   await page.getByRole("button", { name: "Сформировать документ", exact: true }).click();
   await expect(page.getByText("Версия 1.", { exact: false })).toBeVisible();
   await expect(page.getByRole("button", { name: "Редактировать данные" })).toBeVisible();

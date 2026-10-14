@@ -28,7 +28,7 @@ export function FamilyDocumentEnhancements({
   scenario: string;
   decision: Decision;
   rules: Rule[];
-  onDraftGenerated: (draft: string) => void;
+  onDraftGenerated: (draft: string, origin: "AI_DRAFT" | "USER_EDITED") => void;
 }) {
   const allowedResultType = isGenerativeResultType(decision.resultKind) ? decision.resultKind : null;
   const canGenerate = decision.issues.length === 0 && allowedResultType !== null;

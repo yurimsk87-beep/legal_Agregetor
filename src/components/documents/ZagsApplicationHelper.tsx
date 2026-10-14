@@ -1,6 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { ZAGS_PROBLEM_ROUTE } from "@/data/zags-route";
+import { useLegacyFamilyDocumentVersions } from "@/lib/use-legacy-family-document-versions";
+import type { LegacyFamilyOutcome } from "@/lib/legacy-family-document-result";
+import { LegacyFamilyVersionPanel } from "@/components/documents/LegacyFamilyVersionPanel";
+import { createZagsPreparedDataPdfBlob } from "@/lib/zags-prepared-data-pdf";
 import type { FormEvent } from "react";
 import { ZAGS_SCENARIOS } from "@/data/zags-route";
 import type { ZagsHelperField, ZagsScenarioKey } from "@/data/zags-route";
@@ -38,6 +43,12 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
   const scenario = ZAGS_SCENARIOS[scenarioKey];
   const [review, setReview] = useState<ReviewState>(null);
   const [values, setValues] = useState<ZagsApplicationValues>({});
+  // Baseline date is the recorded review date for this route, not a claim of current re-verification.
+  const versions = useLegacyFamilyDocumentVersions<LegacyFamilyOutcome, ZagsApplicationValues>({
+    routeSlug: ZAGS_PROBLEM_ROUTE.problemSlug, scenarioKey,
+    documentSlug: ZAGS_PROBLEM_ROUTE.documentSlug, reviewedAt: "2026-07-21"
+  });
+  const [downloadMessage, setDownloadMessage] = useState("");
   const availableOffices = zagsDirectory.regions[values.region ?? ""] ?? [];
   const visibleFields = scenario.helperFields.filter((field) =>
     isZagsFieldVisible(scenarioKey, field.name, values)
@@ -48,6 +59,8 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
       ? { ...current, region: value, office: "" }
       : { ...current, [name]: value });
     setReview(null);
+    versions.clear();
+    setDownloadMessage("");
   }
 
   function reviewFields(event: FormEvent<HTMLFormElement>) {
@@ -61,9 +74,49 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
       .filter((item) => item.value);
 
     setReview({ decision, missing, values: preparedValues });
+    if (!missing.length && decision.allowed) {
+      versions.record({
+        documentTitle: `Лист данных для ЗАГС: ${scenario.title}`,
+        resultLabel: "Подготовленные сведения для официального бланка",
+        resultKind: "prepared-data",
+        pdfAvailable: true,
+        issues: decision.issues,
+        requiresLegalReview: false,
+        notices: decision.notices,
+        preparedData: preparedValues,
+        filingSteps: scenario.steps
+      }, "", values);
+    } else versions.clear();
   }
 
   const hasErrors = Boolean(review && (review.missing.length || !review.decision.allowed));
+
+  function restoreVersion(versionId: string) {
+    const entry = versions.restore(versionId);
+    if (!entry) return;
+    const restored = entry.values;
+    setValues(restored);
+    const decision = validateZagsApplication(scenarioKey, restored);
+    setReview({ decision, missing: [], values: entry.decision.preparedData ? [...entry.decision.preparedData] : [] });
+    setDownloadMessage("");
+  }
+
+  async function downloadDataSheet() {
+    const result = versions.current;
+    if (!result || !versions.canDownload) return;
+    try {
+      const blob = await createZagsPreparedDataPdfBlob(result);
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `zags-dannye-${scenarioKey}-${result.versionId}.pdf`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setDownloadMessage("Лист данных скачан. Это не официальный бланк заявления.");
+    } catch {
+      setDownloadMessage("Не удалось сформировать лист данных PDF.");
+    }
+  }
 
   return (
     <section id="fill-online" className="scroll-mt-24 rounded-lg border border-line bg-white p-5 shadow-sm sm:p-6">
@@ -134,6 +187,11 @@ export function ZagsApplicationHelper({ scenarioKey }: { scenarioKey: ZagsScenar
         ) : review ? (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950">
             <p className="font-semibold">Лист подготовленных данных сформирован.</p>
+            <div className="mt-4">
+              <LegacyFamilyVersionPanel current={versions.current} versions={versions.versions} dirty={versions.dirty} onSave={() => {}} onRestore={restoreVersion} />
+            </div>
+            <button type="button" onClick={downloadDataSheet} disabled={!versions.canDownload} className="mt-4 min-h-11 rounded-md bg-trust px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">Скачать лист данных PDF</button>
+            {downloadMessage ? <p role="status" className="mt-2 text-sm">{downloadMessage}</p> : null}
             <p className="mt-2"><strong>Форма:</strong> {review.decision.formNumbers.map((number) => `N ${number}`).join(", ")}.</p>
             <p className="mt-1"><strong>Госпошлина:</strong> {review.decision.feeLabel}</p>
             {review.decision.notices.map((notice) => <p key={notice} className="mt-2">{notice}</p>)}

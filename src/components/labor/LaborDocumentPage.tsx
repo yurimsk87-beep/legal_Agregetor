@@ -41,7 +41,7 @@ export function LaborDocumentPage({ document, selected }: { document: NavigatorD
       </section>
 
       <section className="mt-8 grid gap-7 md:grid-cols-2" aria-label="Содержание и приложения">
-        <FactBlock title="Что войдет в иск" items={document.whatToInclude} />
+        <FactBlock title="Что войдёт в документ" items={document.whatToInclude} />
         <FactBlock title="Какие доказательства приложить" items={document.documentsToAttach} />
       </section>
 
@@ -56,7 +56,7 @@ export function LaborDocumentPage({ document, selected }: { document: NavigatorD
 
       <section className="mt-10 border-t border-line pt-7"><h2 className="text-2xl font-semibold text-ink">Что делать после скачивания</h2><ol className="mt-4 grid gap-3 text-sm leading-6 text-zinc-700">{document.afterFiling.map((item, index) => <li key={item}><strong>{index + 1}.</strong> {item}</li>)}</ol></section>
 
-      <section className="mt-10 border-t border-line pt-7"><h2 className="text-2xl font-semibold text-ink">Связанные материалы</h2><div className="mt-4 grid gap-3"><Link href={`${problemPath}?scenario=${selected.scenario.key}`} className="inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:ring-2 focus:ring-trust/30">Увольнение по инициативе работодателя: порядок действий</Link>{document.relatedDocuments.map((item) => <Link key={item.slug} href={`/documents/${item.slug}/`} className="inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:ring-2 focus:ring-trust/30">{item.title}</Link>)}</div></section>
+      <section className="mt-10 border-t border-line pt-7"><h2 className="text-2xl font-semibold text-ink">Связанные материалы</h2><div className="mt-4 grid gap-3"><Link href={`${problemPath}?scenario=${selected.scenario.key}`} className="inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:ring-2 focus:ring-trust/30">{selected.route.h1}: порядок действий</Link>{document.relatedDocuments.map((item) => <Link key={item.slug} href={`/documents/${item.slug}/`} className="inline-flex min-h-11 items-center font-semibold text-trust underline underline-offset-4 focus:ring-2 focus:ring-trust/30">{item.title}</Link>)}</div></section>
 
     </article>
   </>;

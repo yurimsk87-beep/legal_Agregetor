@@ -28,6 +28,9 @@ import {
   getGuardianshipPdfFilename
 } from "@/lib/guardianship-pdf";
 import { validateLeadPdfAttachment, validateLeadPdfBuffer } from "@/lib/lead-attachments";
+import { createGuardianshipDocumentResult } from "@/lib/guardianship-document-result";
+import { documentResultReviewMetadata } from "@/lib/document-result-contract";
+import { addDocumentVersion } from "@/lib/document-version-history";
 import { isUnknownNavigatorPath } from "@/lib/navigator-paths";
 import { filterSearchableSelectOptions } from "@/lib/searchable-select";
 
@@ -65,6 +68,7 @@ async function run() {
   assert.equal(urgent.outputMode, "urgent");
   assert.equal(urgent.pdfAvailable, false);
   assert.equal(urgent.lawyerReviewAvailable, false);
+  assert.equal(createGuardianshipDocumentResult({ decision: urgent, scenarioKey: "appointment", draft: "" }), null, "urgent situations do not produce a document version");
   assert.equal(urgent.filingSteps.some((step) => step.includes("112")), true);
 
   const ordinaryGuardian = record(validateGuardianshipApplication("appointment", appointmentBase));
@@ -72,6 +76,35 @@ async function run() {
   assert.equal(ordinaryGuardian.outcomeKey, "appointment-standard-child");
   assert.equal(ordinaryGuardian.outputMode, "draft");
   assert.equal(ordinaryGuardian.resultKind, "draft");
+  const version1 = createGuardianshipDocumentResult({
+    decision: ordinaryGuardian, scenarioKey: "appointment", draft: ordinaryGuardian.draftText
+  });
+  assert.ok(version1, "permitted guardianship result gets a common document version");
+  assert.equal(version1.categorySlug, "semya-i-deti");
+  assert.equal(version1.routeSlug, "opeka-i-popechitelstvo-nad-rebenkom");
+  assert.equal(version1.documentSlug, "zayavlenie-o-naznachenii-opekuna-rebenku");
+  assert.equal(version1.resultKind, "DRAFT");
+  assert.equal(version1.filingReady, false);
+  assert.equal(version1.requiresLegalReview, true);
+  assert.equal(version1.documentText, buildGuardianshipPdfText(ordinaryGuardian, ordinaryGuardian.draftText));
+  const version2 = createGuardianshipDocumentResult({
+    decision: ordinaryGuardian, scenarioKey: "appointment", draft: ordinaryGuardian.draftText + "\\nИсправлено заявителем."
+  });
+  assert.ok(version2);
+  assert.notEqual(version1.versionId, version2.versionId);
+  const reviewMetadata = documentResultReviewMetadata(version2);
+  assert.equal(reviewMetadata.documentVersionId, version2.versionId);
+  assert.ok(!("documentText" in reviewMetadata));
+  const history = addDocumentVersion(addDocumentVersion([], {
+    documentResult: version1, payload: ordinaryGuardian.draftText
+  }), { documentResult: version2, payload: ordinaryGuardian.draftText + "\\nИсправлено заявителем." });
+  assert.equal(history.length, 2);
+  assert.equal(history[0].documentResult.versionId, version2.versionId);
+  assert.equal(history[1].documentResult.versionId, version1.versionId);
+  assert.throws(() => createGuardianshipDocumentResult({
+    decision: ordinaryGuardian, scenarioKey: "appointment", draft: ""
+  }), /пустой черновик/);
+
   assert.equal(ordinaryGuardian.requiresLegalReview, true);
   assert.equal(ordinaryGuardian.draftText.includes("ПРОЕКТ ЗАЯВЛЕНИЯ"), true);
   assert.equal(ordinaryGuardian.draftText.includes("статьи 145"), true);

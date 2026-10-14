@@ -338,6 +338,16 @@ export async function POST(request: Request) {
     return NextResponse.json(clarifyResponse(query, clarificationApplied), { headers: { "Cache-Control": "no-store" } });
   }
 
+  // Adult incapacity is outside the CHILD guardianship route. Do not invent
+  // a family procedure merely because the query contains the word "опека".
+  const normalizedForScope = query.toLowerCase().replace(/ё/g, "е");
+  if (/(недееспособ.*взросл|опека.*взросл)/.test(normalizedForScope)) {
+    return NextResponse.json({
+      ...clarifyResponse(query, clarificationApplied),
+      summary: "Маршрут опеки над ребёнком не применяется к совершеннолетним. Уточните статус человека и подходящую отдельную процедуру."
+    }, { headers: { "Cache-Control": "no-store" } });
+  }
+
   const passportRestoreIntent = isPassportRestoreIntent(query);
 
   // Первый ответ строится только по локальному индексу сайта. Запросы к БД вопросов

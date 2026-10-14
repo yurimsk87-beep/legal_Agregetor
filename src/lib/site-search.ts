@@ -375,12 +375,53 @@ export function getSiteSearchIndex(extraResults: SiteSearchResult[] = []): SiteS
   ];
 }
 
+/**
+ * Explicit high-signal family intents prevent a broad same-domain keyword match
+ * (for example "отцовство" on a child-contact query) from becoming legal advice.
+ * This chooses a known situation only; scenario applicability is checked later.
+ */
+function specificFamilySituation(normalizedQuery: string): string | null {
+  if (/(недееспособ.*взросл|опека.*взросл)/.test(normalizedQuery)) return null;
+  if (isParentsChildQuery(normalizedQuery)) return "roditeli-i-rebenok-posle-razvoda";
+  if (/отмен.*усыновлен/.test(normalizedQuery)) return "otmena-usynovleniya";
+  if (/(усыновить|усыновлен|удочер)/.test(normalizedQuery)) return "usynovlenie-rebenka";
+  if (/(лишить.*родительск|лишен.*родительск|лишение родительск)/.test(normalizedQuery)) return "lishenie-roditelskih-prav";
+  if (/(алимент|алемент)/.test(normalizedQuery)) {
+    return /(совершеннолет|после 18)/.test(normalizedQuery)
+      ? "alimenty-na-sovershennoletnego-rebenka"
+      : "alimenty-na-rebenka";
+  }
+  if (/(развест|развод|расторжен.*брак|соглашение о разделе имущества|раздел имущества|ипотека при разводе)/.test(normalizedQuery)) {
+    if (/(ребен.*жить|жить.*ребен|ребен.*остан|общени|видеть.*ребен|не дают видеть|решение суда.*видеть)/.test(normalizedQuery)) {
+      return "roditeli-i-rebenok-posle-razvoda";
+    }
+    return "razvod-i-razdel-imushchestva";
+  }
+  if (/(ребен.*жить|место жительства ребенка|ребен.*остан|порядок общения|график общения|не дают видеть|не дает видеть|не исполня.*решен.*ребен)/.test(normalizedQuery)) {
+    return "roditeli-i-rebenok-posle-razvoda";
+  }
+  return null;
+}
+
+function belongsToExplicitFamilySituation(result: SearchableResult, slug: string): boolean {
+  if (result.type === "situation" && result.href.includes("/problems/semya-i-deti/")) {
+    return result.href === `/problems/semya-i-deti/${slug}/`;
+  }
+  if (result.type === "document" && getResultDomains(result).has("family")) {
+    const problem = legalProblems.find((item) => item.categorySlug === "semya-i-deti" && item.slug === slug);
+    const prefix = result.href.match(/^\/documents\/([^/#]+)\//);
+    return Boolean(prefix && problem?.relatedDocumentSlugs.includes(prefix[1]));
+  }
+  return true;
+}
+
 export function searchSite(query: string, limit = 36, extraResults: SiteSearchResult[] = []) {
   const normalizedQuery = normalizeSearchText(query);
   if (!normalizedQuery) return [];
   const generalAllowedTypes = getGeneralQueryAllowedTypes(normalizedQuery);
   if (generalAllowedTypes && !generalAllowedTypes.length) return [];
   const queryDomains = getQueryDomains(normalizedQuery);
+  const explicitFamily = specificFamilySituation(normalizedQuery);
 
   return getSearchableIndex(extraResults)
     .map((result) => {
@@ -389,10 +430,12 @@ export function searchSite(query: string, limit = 36, extraResults: SiteSearchRe
       const rawScore = Math.max(baseScore, directBoost);
       if (generalAllowedTypes && !generalAllowedTypes.includes(result.type)) return { result, score: 0 };
       if (isExcludedDivorcePropertyIntent(result, normalizedQuery)) return { result, score: 0 };
+      if (explicitFamily && !belongsToExplicitFamilySituation(result, explicitFamily)) return { result, score: 0 };
       if (isConflictingResult(result, normalizedQuery, queryDomains)) return { result, score: 0 };
       if (rawScore <= 0 && !(generalAllowedTypes && result.type === "lawyer")) return { result, score: 0 };
 
-      const guardedScore = (rawScore || 260) + intentBoost(result, normalizedQuery) + domainBoost(result, queryDomains);
+      const explicitBoost = explicitFamily && result.href === `/problems/semya-i-deti/${explicitFamily}/` ? 1200 : 0;
+      const guardedScore = (rawScore || 260) + intentBoost(result, normalizedQuery) + domainBoost(result, queryDomains) + explicitBoost;
       return { result, score: guardedScore };
     })
     .filter((item) => item.score > 0)

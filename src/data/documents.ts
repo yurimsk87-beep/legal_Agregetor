@@ -41,6 +41,7 @@ export type NavigatorDocument = {
   category: string;
   templateSlug?: string;
   documentType: string;
+  resultKind?: string;
   shortTitle?: string;
   titleAccusative?: string;
   documentTypeAccusative?: string;
@@ -323,6 +324,17 @@ export const navigatorDocuments: NavigatorDocument[] = navigatorDocumentDefiniti
 }));
 
 function ensureDocumentSeoTitle(document: NavigatorDocument) {
+  const kind = document.resultKind;
+  const title = document.shortTitle?.trim() || document.title.trim();
+  if (kind === "checklist" || kind === "legalReviewOnly" || kind === "CHECKLIST" || kind === "LEGAL_REVIEW_ONLY") {
+    return `${title}: проверить условия и скачать чек-лист PDF`;
+  }
+  if (kind === "officialForm" || kind === "OFFICIAL_FORM") {
+    return `${title}: официальная форма и подготовка сведений`;
+  }
+  if (kind === "preparedData" || kind === "PREPARED_DATA") {
+    return `${title}: подготовить сведения и скачать PDF`;
+  }
   const existing = document.seoTitle?.trim() || document.title.trim();
   if (containsDocumentName(existing, document) && /образец/iu.test(existing) && /скач/iu.test(existing)) {
     return existing;

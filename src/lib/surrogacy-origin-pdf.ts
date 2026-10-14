@@ -8,7 +8,7 @@ export function buildSurrogacyOriginPdfText(result: SurrogacyOriginDecision) {
     "Что собрать", ...result.evidence, "Что делать дальше", ...result.nextSteps].join("\n");
 }
 
-export async function createSurrogacyOriginPdfBlob(result: SurrogacyOriginDecision) {
+export async function createSurrogacyOriginPdfBlob(result: SurrogacyOriginDecision, versionId?: string) {
   if (!result.pdfAvailable) throw new Error("Missing critical answers");
   const [pdfMakeModule, vfsModule] = await Promise.all([import("pdfmake/build/pdfmake"), import("pdfmake/build/vfs_fonts")]);
   const pdfMake = pdfMakeModule.default;
@@ -28,7 +28,7 @@ export async function createSurrogacyOriginPdfBlob(result: SurrogacyOriginDecisi
     pageSize: "A4", pageMargins: [42, 48, 42, 60],
     defaultStyle: { font: "Roboto", fontSize: 10, lineHeight: 1.35, color: "#18181b" },
     footer: (page, pages) => ({ margin: [42, 10, 42, 0], columns: [
-      { text: `Правовая сверка: ${SURROGACY_ORIGIN_REVIEWED_AT}`, style: "footer" },
+      { text: `Правовая сверка: ${SURROGACY_ORIGIN_REVIEWED_AT}${versionId ? ` | Версия: ${versionId}` : ""}`, style: "footer" },
       { text: `${page}/${pages}`, alignment: "right", style: "footer" }
     ] }),
     content,

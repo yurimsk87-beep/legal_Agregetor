@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "tsx src/lib/contact-safety.test.ts && tsx src/lib/qna-publication-rules.test.ts && tsx src/lib/related-questions.test.ts && tsx src/lib/family-qna-coverage.test.ts && tsx src/lib/content-reset.test.ts && tsx src/lib/family-tools.test.ts && tsx src/lib/court-source.test.ts && tsx src/lib/zags-route-validation.test.ts && tsx src/lib/divorce-property-validation.test.ts && tsx src/lib/origin-security.test.ts && tsx src/lib/guardianship-validation.test.ts && tsx src/lib/parents-child-validation.test.ts && tsx src/lib/child-support-validation.test.ts && tsx src/lib/parental-rights-deprivation-validation.test.ts && tsx src/lib/parental-rights-restriction-validation.test.ts && tsx src/lib/paternity-establishment-validation.test.ts && tsx src/lib/paternity-contest-validation.test.ts && tsx src/lib/adoption-validation.test.ts && tsx src/lib/child-travel-validation.test.ts && tsx src/lib/child-name-validation.test.ts && tsx src/lib/parental-rights-restoration-validation.test.ts && tsx src/lib/parental-rights-restriction-cancellation-validation.test.ts && tsx src/lib/parental-disagreements-validation.test.ts && tsx src/lib/additional-child-expenses-validation.test.ts && tsx src/lib/spousal-support-validation.test.ts && tsx src/lib/prenuptial-agreement-validation.test.ts && tsx src/lib/invalid-marriage-validation.test.ts && tsx src/lib/complex-marital-property-validation.test.ts && tsx src/lib/surrogacy-origin-validation.test.ts && tsx src/lib/international-family-disputes-validation.test.ts && tsx src/lib/relative-child-contact-validation.test.ts && tsx src/lib/emancipation-validation.test.ts && tsx src/lib/family-additive-validation.test.ts && tsx src/lib/family-additive-document.test.ts",
+    "test": "tsx src/lib/contact-safety.test.ts && tsx src/lib/qna-publication-rules.test.ts && tsx src/lib/related-questions.test.ts && tsx src/lib/family-qna-coverage.test.ts && tsx src/lib/content-reset.test.ts && tsx src/lib/family-tools.test.ts && tsx src/lib/court-source.test.ts && tsx src/lib/zags-route-validation.test.ts && tsx src/lib/divorce-property-validation.test.ts && tsx src/lib/origin-security.test.ts && tsx src/lib/guardianship-validation.test.ts && tsx src/lib/parents-child-validation.test.ts && tsx src/lib/child-support-validation.test.ts && tsx src/lib/parental-rights-deprivation-validation.test.ts && tsx src/lib/parental-rights-restriction-validation.test.ts && tsx src/lib/paternity-establishment-validation.test.ts && tsx src/lib/paternity-contest-validation.test.ts && tsx src/lib/adoption-validation.test.ts && tsx src/lib/child-travel-validation.test.ts && tsx src/lib/child-name-validation.test.ts && tsx src/lib/parental-rights-restoration-validation.test.ts && tsx src/lib/parental-rights-restriction-cancellation-validation.test.ts && tsx src/lib/parental-disagreements-validation.test.ts && tsx src/lib/additional-child-expenses-validation.test.ts && tsx src/lib/spousal-support-validation.test.ts && tsx src/lib/prenuptial-agreement-validation.test.ts && tsx src/lib/invalid-marriage-validation.test.ts && tsx src/lib/complex-marital-property-validation.test.ts && tsx src/lib/surrogacy-origin-validation.test.ts && tsx src/lib/international-family-disputes-validation.test.ts && tsx src/lib/relative-child-contact-validation.test.ts && tsx src/lib/emancipation-validation.test.ts && tsx src/lib/family-additive-validation.test.ts && tsx src/lib/family-additive-document.test.ts && tsx src/lib/legal-route-standard.test.ts && tsx src/lib/legacy-family-migration.test.ts && tsx src/lib/document-result-contract.test.ts && tsx src/lib/legal-draft-generation.test.ts && tsx src/lib/family-draft-trusted-rules.test.ts && tsx src/lib/document-outcome-seo.test.ts && tsx src/lib/document-version-history.test.ts && npm run test:archive-crypto",
+    "test:route-standard": "tsx src/lib/legal-route-standard.test.ts && tsx src/lib/legacy-family-migration.test.ts && tsx src/lib/family-intent-relevance.test.ts && npm run audit:routes-43",
+    "test:document-result": "tsx src/lib/document-result-contract.test.ts && tsx src/lib/document-version-history.test.ts",
+    "test:family-ai": "tsx src/lib/legal-draft-generation.test.ts && tsx src/lib/family-draft-trusted-rules.test.ts",
     "test:family-additive": "tsx src/lib/family-additive-validation.test.ts && tsx src/lib/family-additive-document.test.ts",
     "audit:family-additive-regression": "tsx scripts/audit-family-additive-regression.ts",
     "audit:family-additive-qna": "tsx scripts/audit-family-additive-qna.ts",
@@ -35,7 +38,9 @@
     "sync:harant:specializations": "tsx scripts/sync-harant-category-specializations.ts",
     "content:cleanup": "tsx scripts/cleanup-public-copy.ts",
     "content:reset:zags": "tsx scripts/cleanup-problems-documents.ts",
-    "content:import": "tsx scripts/import-content.ts"
+    "content:import": "tsx scripts/import-content.ts",
+    "test:archive-crypto": "tsx src/lib/saved-document-crypto.test.ts",
+    "audit:routes-43": "tsx scripts/audit-legal-routes-43.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",
@@ -65,4 +70,3 @@
     "typescript": "^5.8.3"
   }
 }
-

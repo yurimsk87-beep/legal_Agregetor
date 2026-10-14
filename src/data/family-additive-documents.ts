@@ -7,6 +7,7 @@ export const FAMILY_ADDITIVE_DOCUMENTS: NavigatorDocument[] = Object.values(FAMI
     title: scenario.documentTitle,
     category: "Семья и дети",
     documentType: scenario.documentType,
+    resultKind: scenario.resultKind,
     shortTitle: scenario.documentTitle,
     titleAccusative: scenario.documentTitle,
     documentTypeAccusative: scenario.documentType,
@@ -46,10 +47,20 @@ export const FAMILY_ADDITIVE_DOCUMENTS: NavigatorDocument[] = Object.values(FAMI
     ],
     relatedProblemSlugs: [route.problemSlug],
     legalReferenceKeys: [],
-    seoTitle: `${scenario.documentTitle}: образец, заполнить и скачать`,
-    seoDescription: `${scenario.documentTitle}: когда применяется, какие сведения и документы нужны, как подготовить образец и скачать PDF для юридической проверки.`,
-    generatorSeoTitle: `${scenario.documentTitle}: образец, заполнить онлайн и скачать`,
-    generatorSeoDescription: `Заполните подтверждённые сведения, сформируйте ${scenario.documentTitle.toLowerCase()} и скачайте PDF либо отправьте результат на проверку юристу.`,
+    seoTitle: scenario.resultKind === "officialForm"
+      ? `${scenario.documentTitle}: официальная форма и подготовка сведений`
+      : ["checklist", "legalReviewOnly"].includes(scenario.resultKind)
+        ? `${scenario.documentTitle}: проверить условия и скачать чек-лист PDF`
+        : scenario.resultKind === "preparedData"
+          ? `${scenario.documentTitle}: подготовить сведения и скачать PDF`
+          : `${scenario.documentTitle}: проект, заполнить и скачать PDF`,
+    seoDescription: `${scenario.documentTitle}: когда применяется, какие сведения и документы нужны, как подготовить подходящий результат и проверить его перед использованием.`,
+    generatorSeoTitle: scenario.resultKind === "officialForm"
+      ? `${scenario.documentTitle}: подготовка данных для официальной формы`
+      : ["checklist", "legalReviewOnly"].includes(scenario.resultKind)
+        ? `${scenario.documentTitle}: персональный чек-лист и PDF`
+        : `${scenario.documentTitle}: подготовить проект и скачать PDF`,
+    generatorSeoDescription: `Заполните подтверждённые сведения, сформируйте ${scenario.resultKind === "officialForm" ? "лист для официального бланка" : "соответствующий результат"} и скачайте PDF либо отправьте его юристу на проверку.`,
     keywords: [scenario.documentTitle.toLowerCase(), `${scenario.documentTitle.toLowerCase()} образец`, `${scenario.documentTitle.toLowerCase()} скачать`, route.title.toLowerCase()],
     userQueries: [scenario.choiceDescription, scenario.documentTitle, `как подготовить ${scenario.documentTitle.toLowerCase()}`],
     lastReviewedAt: route.legalReviewDate,

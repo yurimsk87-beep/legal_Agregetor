@@ -1,4 +1,4 @@
-export {};
+import { getSiteSearchIndex } from "@/lib/site-search";
 
 type NavigatorResponse = {
   primaryAction: { label: string; href: string } | null;
@@ -36,11 +36,14 @@ const parentsChildDocuments = [
 ];
 const parentsChildContent = [parentsChildProblem, ...parentsChildDocuments];
 const allowedContentPrefixes = [allowedProblem, allowedDocument, divorceProblem, ...divorceDocuments, ...guardianshipContent, ...parentsChildContent];
+// Scope validation must cover the entire actual website, not only the initial
+// four family-route fixtures; relevance remains checked via expected/forbidden.
+const publishedHrefs = new Set(getSiteSearchIndex().map((item) => item.href));
 
 const queries = [
   { query: "хочу зарегистрировать брак", expected: [allowedProblem, allowedDocument] },
   { query: "сменить фамилию после свадьбы", expected: [allowedProblem, allowedDocument] },
-  { query: "получить повторное свидетельство", expected: [allowedProblem, allowedDocument] },
+  { query: "получить повторное свидетельство", expected: [allowedProblem, allowedDocument, "/problems/semya-i-deti/dokumenty-o-rozhdenii-i-aktovaya-zapis/"] },
   { query: "исправить ошибку в записи загс", expected: [allowedProblem, allowedDocument] },
   { query: "как развестись", expected: [divorceProblem, ...divorceDocuments.slice(0, 2)] },
   { query: "развод через загс", expected: [divorceProblem, divorceDocuments[0]] },
@@ -65,7 +68,7 @@ const queries = [
   { query: "продажа квартиры ребёнка разрешение опеки", expected: guardianshipContent },
   { query: "орган опеки отказал", expected: guardianshipContent },
   { query: "орган опеки не отвечает", expected: guardianshipContent },
-  { query: "усыновить ребёнка", expected: [], forbidden: guardianshipContent },
+  { query: "усыновить ребёнка", expected: ["/problems/semya-i-deti/usynovlenie-rebenka/"], forbidden: guardianshipContent },
   { query: "опека над недееспособным взрослым", expected: [], forbidden: [...guardianshipContent, ...parentsChildContent] },
   { query: "После развода ребёнок должен жить со мной", expected: [parentsChildProblem, parentsChildDocuments[0]] },
   { query: "С кем останется ребёнок после развода", expected: [parentsChildProblem, parentsChildDocuments[0]] },
@@ -75,8 +78,8 @@ const queries = [
   { query: "изменить график общения с ребёнком", expected: [parentsChildProblem, parentsChildDocuments[2]] },
   { query: "Есть решение суда, но ребёнка всё равно не дают видеть", expected: [parentsChildProblem, parentsChildDocuments[3]] },
   { query: "Как определить место жительства ребёнка", expected: [parentsChildProblem, parentsChildDocuments[0]] },
-  { query: "взыскать алименты на ребёнка", expected: [], forbidden: parentsChildContent },
-  { query: "лишить отца родительских прав", expected: [], forbidden: allowedContentPrefixes },
+  { query: "взыскать алименты на ребёнка", expected: ["/problems/semya-i-deti/alimenty-na-rebenka/"], forbidden: parentsChildContent },
+  { query: "лишить отца родительских прав", expected: ["/problems/semya-i-deti/lishenie-roditelskih-prav/"], forbidden: allowedContentPrefixes },
   { query: "как развестись без спора о детях", expected: [divorceProblem], forbidden: parentsChildContent }
 ];
 
@@ -105,7 +108,7 @@ async function main() {
       ...data.sections.documents
     ].map((item) => item.href);
     const invalidLinks = contentLinks.filter(
-      (href) => !allowedContentPrefixes.some((allowed) => href.startsWith(allowed))
+      (href) => !publishedHrefs.has(href)
     );
     const primaryHref = data.primaryAction?.href ?? "";
     const primaryIsAllowed = expected.length === 0 || expected.some((allowed) => primaryHref.startsWith(allowed));
