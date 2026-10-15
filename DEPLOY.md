@@ -190,7 +190,8 @@ pm2 reload legal-aggregator   # рестарт без даунтайма
 - Заполните `GOOGLE_SITE_VERIFICATION` / `YANDEX_VERIFICATION` в `.env`, затем `npm run build` + `pm2 reload`.
 - Подключите Google Search Console и Яндекс.Вебмастер, загрузите `/sitemap.xml`.
 - Смените пароль администратора, если переносили дамп с dev-паролем.
-- Настройте бэкап БД (`pg_dump` по cron) и логов PM2 (`pm2 logs legal-aggregator`).
+- Настройте зашифрованные внешние бэкапы PostgreSQL и `public/uploads` по инструкции `docs/production-backups.md`.
+- Логи PM2 проверяются командой `pm2 logs legal-aggregator`; хранение логов настройте отдельно на уровне VPS/FastPanel.
 
 ---
 

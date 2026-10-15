@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Typecheck, lint, tests, build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: legal_aggregator
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      ADMIN_EMAIL: admin@example.test
+      ADMIN_PASSWORD: ci-admin-password
+      AUTH_SECRET: ci-auth-secret-please-replace-in-production
+      BOT_VISIT_SECRET: ci-bot-visit-secret
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/legal_aggregator?schema=public
+      JWT_SECRET: ci-jwt-secret-please-replace-in-production
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NODE_ENV: test
+      SITE_URL: http://localhost:3000
+      STORAGE_DRIVER: local
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+
+      - name: Apply database migrations
+        run: npm run prisma:deploy
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build

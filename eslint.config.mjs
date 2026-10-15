@@ -29,6 +29,15 @@ const eslintConfig = [
         }
       ]
     }
+  },
+  {
+    files: [
+      "scripts/dedupe-lawyer-names.js",
+      "scripts/generate-lawyer-bios.js"
+    ],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off"
+    }
   }
 ];
 

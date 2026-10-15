@@ -1,0 +1,40 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Europe/Moscow
+    open-pull-requests-limit: 5
+    groups:
+      next-react:
+        patterns:
+          - next
+          - react
+          - react-dom
+          - eslint-config-next
+      prisma:
+        patterns:
+          - prisma
+          - "@prisma/client"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:30"
+      timezone: Europe/Moscow
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Moscow
+    open-pull-requests-limit: 3
