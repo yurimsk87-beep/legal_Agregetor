@@ -513,11 +513,10 @@ export async function getQuestions(serviceId?: string, cityId?: string, options:
 // or text contains any of the given phrases. Lets the scorer rank relevant
 // questions from the whole DB instead of an arbitrary recent window.
 export async function getQuestionsMatchingPhrases(phrases: string[], take = 200) {
-  // Title-only match: scanning the large `text` column with many ILIKEs over the
-  // full question base is too slow (trips the repository query-timeout breaker).
-  // Title carries the topic for relevant questions; full text is still used by
-  // the scorer when ranking the fetched candidates.
-  const terms = [...new Set(phrases.map((phrase) => phrase.trim().toLowerCase()).filter((phrase) => phrase.length >= 4))].slice(0, 20);
+  // Search over title AND vetted public content. Trigram GIN indexes cover all
+  // matched columns; do not include rawText, which may retain personal data.
+  // Limit query breadth to avoid excessive OR expansion on large datasets.
+  const terms = [...new Set(phrases.map((phrase) => phrase.trim().toLowerCase()).filter((phrase) => phrase.length >= 4))].slice(0, 12);
   if (!terms.length) return [];
 
   const fallback =
@@ -526,7 +525,7 @@ export async function getQuestionsMatchingPhrases(phrases: string[], take = 200)
       : questions
           .filter(isPublicQuestion)
           .filter((question) => {
-            const haystack = `${question.title} ${question.summary ?? ""} ${(question.tags ?? []).join(" ")}`.toLowerCase();
+            const haystack = `${question.title} ${question.text} ${question.summary ?? ""} ${(question.tags ?? []).join(" ")}`.toLowerCase();
             return terms.some((term) => haystack.includes(term));
           })
           .slice(0, take)
@@ -536,7 +535,13 @@ export async function getQuestionsMatchingPhrases(phrases: string[], take = 200)
     const rows = await prisma.question.findMany({
       where: {
         ...getPublicQuestionWhere(),
-        OR: terms.map((term) => ({ title: { contains: term, mode: "insensitive" as const } }))
+        OR: terms.flatMap((term) => [
+          { title: { contains: term, mode: "insensitive" as const } },
+          { enrichedTitle: { contains: term, mode: "insensitive" as const } },
+          { text: { contains: term, mode: "insensitive" as const } },
+          { enrichedText: { contains: term, mode: "insensitive" as const } },
+          { summary: { contains: term, mode: "insensitive" as const } }
+        ])
       },
       include: {
         city: true,
@@ -573,8 +578,8 @@ function getQuestionSearchTerms(term: string): string[] {
   return words.length ? words : [term];
 }
 
-// Full-text-ish search over public questions by title (fast, indexable substring).
-// Used by the questions page search box ("поиск по вопросам").
+// Search published questions by title AND substantive text/summary.
+// All three columns have pg_trgm indexes for indexed substring matching.
 export async function searchPublicQuestions(query: string, options: { skip?: number; take?: number } = {}) {
   const term = query.trim().toLowerCase();
   const skip = Math.max(0, options.skip ?? 0);
@@ -591,7 +596,7 @@ export async function searchPublicQuestions(query: string, options: { skip?: num
       : questions
           .filter(isPublicQuestion)
           .filter((question) => {
-            const haystack = `${question.title} ${question.summary ?? ""}`.toLowerCase();
+            const haystack = `${question.title} ${question.text} ${question.summary ?? ""}`.toLowerCase();
             return terms.some((word) => haystack.includes(word));
           })
           .slice(skip, skip + take)
@@ -602,7 +607,11 @@ export async function searchPublicQuestions(query: string, options: { skip?: num
       const rows = await prisma.question.findMany({
         where: {
           ...getPublicQuestionWhere(),
-          OR: terms.map((word) => ({ title: { contains: word, mode: "insensitive" } }))
+          OR: terms.flatMap((word) => [
+            { title: { contains: word, mode: "insensitive" as const } },
+            { text: { contains: word, mode: "insensitive" as const } },
+            { summary: { contains: word, mode: "insensitive" as const } }
+          ])
         },
         include: {
           city: true,

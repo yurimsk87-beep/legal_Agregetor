@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { RelatedQuestionsExpandable } from "@/components/questions/QuestionsList";
 import type { NavigatorDocument } from "@/data/documents";
 import { getLaborDocumentScenario } from "@/data/labor-documents";
@@ -20,7 +21,7 @@ const QUESTION_CATEGORIES_BY_LEGAL_CATEGORY: Record<string, string[]> = {
 
 type QuestionContext = {
   contextType: RelatedQuestionsContextType;
-  problem: LegalProblem;
+  problem?: LegalProblem;
   topics: string[];
   exclusions: string[];
 };
@@ -42,12 +43,10 @@ export async function ProblemRelatedQuestions({ problem }: { problem: LegalProbl
 
 export async function DocumentRelatedQuestions({ document }: { document: NavigatorDocument }) {
   const problem = legalProblems.find((item) => document.relatedProblemSlugs.includes(item.slug));
-  if (!problem) return null;
-
   const laborDocument = getLaborDocumentScenario(document.slug);
   const scenarioTopics = laborDocument?.scenario.relatedQuestionTopics ?? [];
-  const topics = scenarioTopics.length ? scenarioTopics : [...document.userQueries, ...document.keywords];
-  const exclusions = laborDocument?.route.exclusions ?? problem.relatedQuestionExclusions ?? [];
+  const topics = scenarioTopics.length ? scenarioTopics : [...document.userQueries, ...document.keywords, document.title];
+  const exclusions = laborDocument?.route.exclusions ?? problem?.relatedQuestionExclusions ?? [];
   const questions = await loadRelatedQuestions({ contextType: "document", problem, topics, exclusions });
 
   return renderQuestionsSection(
@@ -60,12 +59,12 @@ export async function DocumentRelatedQuestions({ document }: { document: Navigat
 async function loadRelatedQuestions({ contextType, problem, topics, exclusions }: QuestionContext) {
   if (!topics.length) return [];
 
-  const categoryTitle = getCategoryForProblem(problem)?.title ?? problem.categorySlug;
-  const allowedCategoryNames = QUESTION_CATEGORIES_BY_LEGAL_CATEGORY[problem.categorySlug] ?? [categoryTitle];
+  const categoryTitle = problem ? (getCategoryForProblem(problem)?.title ?? problem.categorySlug) : undefined;
+  const allowedCategoryNames = problem ? (QUESTION_CATEGORIES_BY_LEGAL_CATEGORY[problem.categorySlug] ?? [categoryTitle!]) : undefined;
   const candidates = await getRelatedQuestionsForContext(
     {
       contextType,
-      categoryName: allowedCategoryNames[0],
+      categoryName: allowedCategoryNames?.[0],
       allowedCategoryNames,
       primaryTags: topics,
       searchPhrases: topics,
@@ -78,7 +77,7 @@ async function loadRelatedQuestions({ contextType, problem, topics, exclusions }
   const seenTitles = new Set<string>();
   return candidates.filter((question) => {
     if (hasContactPii(question)) return false;
-    if (problem.categorySlug === "trudovoe-pravo" && !isSafeLaborQuestionForRoute(question, topics, exclusions)) return false;
+    if (problem?.categorySlug === "trudovoe-pravo" && !isSafeLaborQuestionForRoute(question, topics, exclusions)) return false;
 
     const title = normalizeText(question.title);
     if (seenIds.has(question.id) || seenTitles.has(title)) return false;
@@ -96,15 +95,15 @@ function hasContactPii(question: Question) {
 }
 
 function renderQuestionsSection(questions: Question[], description: string, titleId: string) {
-  if (!questions.length) return null;
-
   return (
     <section className="mx-auto max-w-5xl border-t border-line px-4 py-8 sm:px-6 lg:px-8" aria-labelledby={titleId}>
       <h2 id={titleId} className="text-2xl font-semibold text-ink sm:text-3xl">Похожие вопросы</h2>
       <p className="mt-3 max-w-3xl text-base leading-7 text-zinc-600">{description}</p>
-      <div className="mt-5">
-        <RelatedQuestionsExpandable questions={questions} initialCount={3} step={3} />
-      </div>
+      {questions.length ? (
+        <div className="mt-5"><RelatedQuestionsExpandable questions={questions} initialCount={3} step={3} /></div>
+      ) : (
+        <p className="mt-5 text-sm leading-6 text-zinc-600">Пока нет опубликованных вопросов, достаточно близких к этой теме. <Link href="/questions/" className="font-semibold text-trust underline underline-offset-4">Посмотреть все вопросы</Link>.</p>
+      )}
     </section>
   );
 }

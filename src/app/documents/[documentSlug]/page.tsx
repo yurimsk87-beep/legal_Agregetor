@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
-import { RelatedQuestionsBlock } from "@/components/navigator/NavigatorBlocks";
 import { LaborDocumentPage } from "@/components/labor/LaborDocumentPage";
 import { DivorcePropertyDocumentHelper } from "@/components/documents/DivorcePropertyDocumentHelper";
 import { GuardianshipDocumentHelper } from "@/components/documents/GuardianshipDocumentHelper";
@@ -43,7 +42,6 @@ import { FamilyAdditiveDocumentPage } from "@/components/documents/FamilyAdditiv
 import { getNavigatorDocument, navigatorDocuments } from "@/data/documents";
 import { getLaborDocumentScenario } from "@/data/labor-documents";
 import { getFamilyAdditiveScenarioByDocumentSlug } from "@/data/family-additive-routes";
-import { buildDocumentQuestionContext, PROBLEM_QNA_CONTEXTS } from "@/data/related-questions-context";
 import {
   DIVORCE_PROPERTY_LEGAL_RULES,
   getDivorcePropertyLegalReviewDate,
@@ -117,7 +115,6 @@ import {
 } from "@/data/zags-route";
 import type { ZagsScenario, ZagsScenarioKey } from "@/data/zags-route";
 import { breadcrumbJsonLd } from "@/lib/jsonld";
-import { getRelatedQuestionsForContext } from "@/lib/navigator-relations";
 import { getCities } from "@/lib/repositories";
 import { cities as fallbackCities } from "@/lib/sample-data";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
@@ -160,9 +157,7 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
   if (!document) notFound();
 
   const withAfterDownload = (content: ReactNode) => (
-    <DocumentQna document={document}>
-      <DocumentPageWithAfterDownload document={document}>{content}</DocumentPageWithAfterDownload>
-    </DocumentQna>
+    <DocumentPageWithAfterDownload document={document}>{content}</DocumentPageWithAfterDownload>
   );
 
   const laborDocumentScenario = getLaborDocumentScenario(document.slug);
@@ -320,36 +315,6 @@ export default async function DocumentPage({ params, searchParams }: PageProps) 
           </>
         )}
       </article>
-    </>
-  );
-}
-
-async function DocumentQna({
-  children,
-  document
-}: {
-  children: ReactNode;
-  document: NonNullable<ReturnType<typeof getNavigatorDocument>>;
-}) {
-  const problemSlug = document.relatedProblemSlugs[0];
-  const problemContext = problemSlug ? PROBLEM_QNA_CONTEXTS[problemSlug] : undefined;
-  const relatedQuestions = await getRelatedQuestionsForContext(buildDocumentQuestionContext({
-    documentSlug: document.slug,
-    allowedCategoryNames: problemContext ? ["Семейные дела"] : undefined,
-    relatedPrimaryTags: [document.title, ...document.keywords, ...document.userQueries, ...(problemContext?.aliases ?? [])],
-    relatedExcludedTopics: problemContext?.excludedTopics ?? []
-  }), { limit: 6 });
-
-  return (
-    <>
-      {children}
-      {relatedQuestions.length ? (
-        <section className="mx-auto max-w-5xl border-t border-line px-4 py-8 sm:px-6 lg:px-8" aria-labelledby="document-similar-questions-title">
-          <h2 id="document-similar-questions-title" className="text-2xl font-semibold text-ink">Похожие вопросы</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-700">Посмотрите ответы по похожим семейным ситуациям. Для правовых выводов используйте нормы закона и официальные источники на этой странице.</p>
-          <div className="mt-5"><RelatedQuestionsBlock questions={relatedQuestions} /></div>
-        </section>
-      ) : null}
     </>
   );
 }
